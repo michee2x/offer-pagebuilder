@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useBuilderStore } from '@/store/builderStore';
 import { BuilderComponent } from './BuilderComponent';
 
@@ -11,11 +9,6 @@ export const CANVAS_ID = '__canvas__';
 export function Canvas() {
   const { rootList, setSelected, selectedId, canvasStyle } = useBuilderStore();
   const isCanvasSelected = selectedId === CANVAS_ID;
-
-  const { setNodeRef, isOver } = useDroppable({
-    id: 'canvas-root',
-    data: { type: 'canvas' },
-  });
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     // Only select the canvas if the click target IS the page div, not a child component
@@ -37,15 +30,13 @@ export function Canvas() {
         onClick={handleCanvasClick}
       >
         <div
-          ref={setNodeRef}
-          className={`h-full w-full min-h-[800px] p-8 flex flex-col gap-4 transition-colors ${isOver ? 'bg-muted/10' : ''}`}
+          className={`h-full w-full min-h-[800px] p-8 flex flex-col gap-4 transition-colors`}
         >
-          <SortableContext items={rootList} strategy={verticalListSortingStrategy}>
             {rootList.length === 0 ? (
               <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg border-muted p-12 text-center pointer-events-none">
                 <div>
                   <h3 className="text-lg font-medium mb-1">Canvas is empty</h3>
-                  <p className="text-sm">Drag components from the palette to start building.</p>
+                  <p className="text-sm">Generate a page using AI to get started.</p>
                 </div>
               </div>
             ) : (
@@ -53,7 +44,6 @@ export function Canvas() {
                 <BuilderComponent key={id} id={id} />
               ))
             )}
-          </SortableContext>
         </div>
       </div>
     </div>

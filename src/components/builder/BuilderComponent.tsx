@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { useBuilderStore, ComponentInstance } from '@/store/builderStore';
 import { COMPONENT_REGISTRY } from '@/config/components';
 
@@ -19,31 +17,9 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
   const config = COMPONENT_REGISTRY[component.type];
   const isSelected = selectedId === id;
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging
-  } = useSortable({
-    id: id,
-    data: {
-      type: 'canvas-item',
-      component
-    }
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      className={`relative group ${isDragging ? 'opacity-50 z-50 fixed' : ''}`}
+      className={`relative group`}
       onClick={(e) => {
         e.stopPropagation();
         setSelected(id);
@@ -52,9 +28,14 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
       <div 
         className={`w-full transition-all border-2 border-transparent hover:border-blue-300 ${isSelected ? '!border-blue-500 rounded relative z-10' : ''}`}
       >
-        <div {...attributes} {...listeners} className="absolute top-0 left-0 w-full h-full cursor-pointer z-0 opacity-0" />
+        <div className="absolute top-0 left-0 w-full h-full cursor-pointer z-0 opacity-0" />
         <div className="relative z-10 pointer-events-none">
-          {config.render(component.props)}
+          {config.render({
+            ...component.props,
+            children: component.childrenIds?.map((childId: string) => (
+              <BuilderComponent key={childId} id={childId} />
+            ))
+          })}
         </div>
         
         {isSelected && (

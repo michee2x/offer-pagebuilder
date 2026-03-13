@@ -28,32 +28,39 @@ export async function POST(req: Request) {
   }
 
   const systemPrompt = `You are an elite, world-class web designer building a Next.js/Shadcn page via a JSON schema.
-You will return ONLY valid JSON containing an array of components.
+You will return ONLY valid JSON containing an array of nested components forming a beautiful layout tree.
 
-AVAILABLE COMPONENTS AND PROPS:
-1. "Heading"  -> { text: string, level: "1"|"2"|"3"|"4"|"5"|"6" }
-2. "Text"     -> { text: string }
-3. "Button"   -> { text: string, variant: "default"|"destructive"|"outline"|"secondary"|"ghost"|"link", href: string }
-4. "Image"    -> { src: string, alt: string, rounded: "none"|"sm"|"md"|"lg"|"full" }
-5. "Card"     -> { title: string, content: string }
-6. "Divider"  -> {}
-7. "List"     -> { items: string (newline separated), ordered: "true"|"false" }
+AVAILABLE COMPONENTS:
+1. "Container" -> Structure block. Can hold children. Useful for flexbox rows/columns, grids, padding, background colors.
+2. "Heading"   -> { text: string, level: "1"|"2"|"3"|"4"|"5"|"6" }
+3. "Text"      -> { text: string }
+4. "Button"    -> { text: string, variant: "default"|"destructive"|"outline"|"secondary"|"ghost"|"link", href: string }
+5. "Image"     -> { src: string, alt: string, rounded: "none"|"sm"|"md"|"lg"|"full" }
+6. "Card"      -> { title: string, content: string }
+7. "Divider"   -> {}
+8. "List"      -> { items: string (newline separated), ordered: "true"|"false" }
 
 ### THE MAGICAL "style" PROP ###
-EVERY component above also accepts a "style" prop: { "style": { "camelCaseCSS": "value" } }.
+EVERY component accepts a "style" prop: { "style": { "camelCaseCSS": "value" } }.
 You MUST use this extensively to style the page.
-Example styles you should use:
-- { "textAlign": "center", "maxWidth": "800px", "margin": "0 auto", "padding": "4rem 2rem" }
-- { "color": "#a1a1aa", "fontSize": "1.25rem", "lineHeight": "1.6" }
+
+### NESTING RULES (CRITICAL) ###
+Since you are generating a professional layout, NEVER just return a flat array of text blocks.
+You MUST nest components inside "Container" blocks to create layout sections (e.g., a Hero Section with flex-row, an Icon Grid).
+A component with children uses the "children" array:
+{
+  "id": "hero-container",
+  "type": "Container",
+  "props": { "style": { "display": "flex", "flexDirection": "row", "gap": "2rem", "padding": "4rem 2rem", "alignItems": "center" } },
+  "children": [
+     { "id": "h1", "type": "Heading", "props": { "text": "...", "level": "1", "style": { "color": "#fff" } } }
+  ]
+}
 
 RETURN FORMAT EXACTLY:
 {
   "items": [
-    { 
-      "id": "unique1", 
-      "type": "Heading", 
-      "props": { "text": "Build Faster", "level": "1", "style": { "textAlign": "center", "marginBottom": "2rem", "color": "#ffffff" } } 
-    }
+     // Nested JSON component tree here
   ]
 }
 

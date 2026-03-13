@@ -1,15 +1,6 @@
 'use client';
 
 import React from 'react';
-import { 
-  DndContext, 
-  DragEndEvent, 
-  DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import { Palette } from '@/components/builder/Palette';
 import { Canvas } from '@/components/builder/Canvas';
 import { RightPanel } from '@/components/builder/RightPanel';
 import { ComponentType, useBuilderStore } from '@/store/builderStore';
@@ -21,43 +12,7 @@ export default function BuilderPage() {
   const { addComponent, moveComponent, setFullState, components, rootList } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
 
-  // Require a slight movement before dragging starts (prevents clicks from firing drags)
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    })
-  );
-
-  const handleDragStart = (event: DragStartEvent) => {
-    // optional logic when drag begins
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over) return;
-
-    // 1. Dropping from Palette to Canvas
-    if (active.data.current?.type === 'palette-item' && over.id === 'canvas-root') {
-      const componentType = active.data.current.componentType as ComponentType;
-      addComponent(componentType); // Add to end of list
-      return;
-    }
-
-    // 2. Reordering within the Canvas
-    if (active.data.current?.type === 'canvas-item') {
-      const activeId = active.id as string;
-      const overId = over.id as string;
-
-      if (activeId !== overId) {
-        // Find index of the item we hovered over
-        const overIndex = rootList.indexOf(overId);
-        moveComponent(activeId, overIndex);
-      }
-    }
-  };
+  // No more DND sensors or event handlers needed
 
   const handleGeneratePage = async () => {
     try {
@@ -72,20 +27,34 @@ export default function BuilderPage() {
 
       const { items } = await res.json();
       
-      // Transform array items into our Zustand state format
+      // Transform nested tree items into our flat Zustand state format
       const newComponents: Record<string, any> = {};
-      const newRootList: string[] = [];
 
-      items.forEach((item: any) => {
-        newComponents[item.id] = {
-           id: item.id,
-           type: item.type,
-           props: item.props,
-           parentId: 'root'
-        };
-        newRootList.push(item.id);
-      });
+      const flattenItems = (itemList: any[], parentId: string): string[] => {
+        const ids: string[] = [];
+        if (!Array.isArray(itemList)) return ids;
+        
+        itemList.forEach((item) => {
+          const compId = String(item.id);
+          ids.push(compId);
+          
+          let childrenIds: string[] = [];
+          if (item.children && Array.isArray(item.children)) {
+            childrenIds = flattenItems(item.children, compId);
+          }
 
+          newComponents[compId] = {
+             id: compId,
+             type: item.type,
+             props: item.props || {},
+             parentId,
+             childrenIds
+          };
+        });
+        return ids;
+      };
+
+      const newRootList = flattenItems(items, 'root');
       setFullState(newComponents, newRootList);
       toast.success('Generated page successfully!');
     } catch (e: any) {
@@ -116,17 +85,10 @@ export default function BuilderPage() {
       </header>
 
       {/* Main Extensible Editor Area */}
-      <DndContext 
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="flex flex-1 overflow-hidden">
-          <Palette />
-          <Canvas />
-          <RightPanel />
-        </div>
-      </DndContext>
+      <div className="flex flex-1 overflow-hidden">
+        <Canvas />
+        <RightPanel />
+      </div>
     </div>
   );
 }

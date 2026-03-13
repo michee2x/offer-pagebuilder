@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 import { COMPONENT_REGISTRY } from '@/config/components';
 
-export type ComponentType = 'Heading' | 'Text' | 'Button' | 'Image' | 'Card' | 'Divider' | 'List';
+export type ComponentType = 'Heading' | 'Text' | 'Button' | 'Image' | 'Card' | 'Divider' | 'List' | 'Container';
 
 export interface ComponentInstance {
   id: string;
   type: ComponentType;
   props: Record<string, any>;
   parentId: string; // "root" for top-level components
+  childrenIds?: string[];
 }
 
 // Our page structure is a flat map of id -> ComponentInstance and an ordered list of IDs for the root zone.
@@ -100,11 +101,23 @@ export const useBuilderStore = create<BuilderState>((set) => ({
 
   removeComponent: (id) => set((state) => {
     const newComponents = { ...state.components };
+    const compToDelete = newComponents[id];
     delete newComponents[id];
+
+    let newRootList = state.rootList;
+    if (compToDelete?.parentId === 'root') {
+      newRootList = state.rootList.filter((cId) => cId !== id);
+    } else if (compToDelete?.parentId && newComponents[compToDelete.parentId]) {
+      const parent = newComponents[compToDelete.parentId];
+      newComponents[compToDelete.parentId] = {
+        ...parent,
+        childrenIds: parent.childrenIds?.filter((childId) => childId !== id)
+      };
+    }
 
     return {
       components: newComponents,
-      rootList: state.rootList.filter((cId) => cId !== id),
+      rootList: newRootList,
       selectedId: state.selectedId === id ? null : state.selectedId,
     };
   }),
