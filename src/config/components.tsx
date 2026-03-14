@@ -43,8 +43,11 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     label: 'Container',
     defaultProps: { style: { display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem' } },
     fields: {},
-    render: ({ style, children }: { style?: Record<string, string>, children?: React.ReactNode }) => (
-      <div style={applyStyle(style)} className="w-full relative min-h-[50px] border border-dashed border-transparent hover:border-slate-300 transition-all rounded">
+    render: ({ style, children, isPreviewMode }: { style?: Record<string, string>, children?: React.ReactNode, isPreviewMode?: boolean }) => (
+      <div 
+        style={applyStyle(style)} 
+        className={`w-full relative ${!isPreviewMode ? 'min-h-[50px] border border-dashed border-transparent hover:border-slate-300 transition-all rounded' : ''}`}
+      >
         {children}
       </div>
     ),

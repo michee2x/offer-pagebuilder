@@ -9,11 +9,42 @@ import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Che
 import { toast } from 'sonner';
 
 export default function BuilderPage() {
-  const { addComponent, moveComponent, setFullState, components, rootList, canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode } = useBuilderStore();
+  const { addComponent, moveComponent, setFullState, components, rootList, canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, pageId, setPageId } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
+  const [initialLoading, setInitialLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const qs = new URLSearchParams(window.location.search);
+      const editId = qs.get('id');
+      
+      if (editId) {
+          fetch(`/api/pages/${editId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.page && data.page.blocks) {
+                    setPageId(data.page.id);
+                    setFullState(data.page.blocks.components, data.page.blocks.rootList);
+                    if (data.page.blocks.canvasStyle) {
+                        useBuilderStore.setState({ canvasStyle: data.page.blocks.canvasStyle });
+                    }
+                    setPublishedUrl(`${window.location.origin}/p/${data.page.id}`);
+                }
+            })
+            .catch(err => console.error("Failed to fetch page:", err))
+            .finally(() => setInitialLoading(false));
+      } else {
+          // Reset store for Create New Mode
+          setPageId(null);
+          setFullState({}, []);
+          useBuilderStore.setState({ canvasStyle: {} });
+          setInitialLoading(false);
+      }
+    }
+  }, [setPageId, setFullState]);
 
   // No more DND sensors or event handlers needed
 
@@ -72,10 +103,13 @@ export default function BuilderPage() {
       setIsPublishing(true);
       toast.loading('Publishing page...');
       
+      const payload: any = { components, rootList, canvasStyle };
+      if (pageId) payload.pageId = pageId;
+
       const res = await fetch('/api/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ components, rootList, canvasStyle })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -113,6 +147,17 @@ export default function BuilderPage() {
       setIsPublishing(false);
     }
   };
+
+  if (initialLoading) {
+      return (
+          <div className="flex h-screen w-screen items-center justify-center bg-background">
+              <div className="flex flex-col items-center gap-4">
+                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                 <p className="text-sm text-muted-foreground animate-pulse">Loading workspace...</p>
+              </div>
+          </div>
+      );
+  }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">

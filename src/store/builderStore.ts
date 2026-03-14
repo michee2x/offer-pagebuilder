@@ -22,6 +22,7 @@ export interface BuilderState {
   canvasStyle: Record<string, string>;
   deviceMode: DeviceMode;
   isPreviewMode: boolean;
+  pageId: string | null;
 
   // Actions
   addComponent: (type: ComponentType, parentId?: string, index?: number) => void;
@@ -33,6 +34,7 @@ export interface BuilderState {
   setFullState: (components: Record<string, ComponentInstance>, rootList: string[]) => void;
   setDeviceMode: (mode: DeviceMode) => void;
   setIsPreviewMode: (isPreview: boolean) => void;
+  setPageId: (id: string | null) => void;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -44,6 +46,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   canvasStyle: {},
   deviceMode: 'desktop',
   isPreviewMode: false,
+  pageId: null,
 
   addComponent: (type, parentId = 'root', index) => set((state) => {
     const id = generateId();
@@ -135,8 +138,8 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   setDeviceMode: (deviceMode) => set({ deviceMode }),
   setIsPreviewMode: (isPreviewMode) => set({ 
     isPreviewMode, 
-    // Always deselect when entering preview
     selectedId: isPreviewMode ? null : undefined 
   }),
+  setPageId: (pageId) => set({ pageId }),
 
 }));
