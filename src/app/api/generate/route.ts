@@ -3,21 +3,29 @@ import { generateText } from 'ai';
 
 export const maxDuration = 60;
 
-const CONTENT_PROMPT = `Generate a beautiful, modern, and high-converting landing page for a SaaS product called "OfferIQ".
+const CONTENT_PROMPT = `Generate a jaw-dropping, award-winning SaaS landing page for "OfferIQ" (an AI pricing & offer optimization platform).
 
-The page must feel professional and premium. Use ample spacing (padding/margin), centered sections, and cohesive typography.
-The design is fundamentally DARK MODE, so use dark backgrounds (e.g. #09090b, #18181b) and light text (#f4f4f5, #a1a1aa).
+DESIGN DIRECTIVE (GOD-TIER LEVEL):
+- You are not just laying out blocks; you are building a visually breathtaking, Framer-tier website.
+- The aesthetic is ULTRA-MODERN DARK MODE: deep blacks/grays (e.g., #09090b, #000000), vibrant neon gradients for accents, and glassmorphism.
+- USE IMAGES HEAVILY! Use stunning tech/abstract Unsplash URLs (e.g., https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80, https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80, https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80).
+- Do not let the UI look like stacked rectangles. Use overlapping gradients, subtle borders (e.g., border: '1px solid rgba(255,255,255,0.1)'), huge padding (e.g., padding: '8rem 2rem'), and massive border-radiuses (e.g., borderRadius: '24px').
+- Use advanced Flexbox/Grid on "Container" blocks to create sophisticated side-by-side Hero sections, 3-column auto-fit grids for features, and overlapping image collages.
 
-Structure the page with these sections:
-1. Hero Section: A massive, bold H1, a descriptive subheadline, and a primary CTA button. (Add plenty of top/bottom margin).
-2. Divider.
-3. Features Section: A section heading, followed by 3 rich Cards containing features.
-4. Divider.
-5. Social Proof / Testimonial: A stylistic quote.
-6. Footer CTA: Another heading and button to close the page.
+REQUIRED LAYOUT SECTIONS (Build them with rich nested Containers):
+1. Hero Section: A 2-column flex-row container (or wrapping flex). Left side: Massive h1 text ("Transform Your Offers into Revenue"), glowing paragraph, and a vibrant CTA Button. Right side: A stunning abstract tech Image with rounded corners and a gorgeous glow/shadow.
+2. Logo Bar (Social Proof): A minimalist flex-row container with 4-5 muted text elements acting as company logos, spaced evenly.
+3. Feature Grid: A container acting as a CSS grid with 3 gorgeous, glassmorphic cards ("backgroundColor: rgba(255,255,255,0.03)", "border: 1px solid rgba(255,255,255,0.1)"). Include glowing accents.
+4. Split Detail Section: A dark contrasting container section with a large Image on the left and compelling features/text on the right.
+5. Footer CTA: A massive centered container with a gradient text heading, massive padding, and a final shiny button.
 
-Apply rich inline CSS rules via the "style" prop on EVERYTHING to make it look incredible.
-Use flexbox, maximum widths, centering, contrasting text colors, and proper typography sizing.`;
+CRITICAL RESPONSIVENESS RULES:
+- The design MUST be fluidly responsive across Desktop and Mobile using Intrinsic Web Design principles WITHOUT media queries!
+- For any side-by-side layout (Hero, Grids, Splits), you MUST apply \`flexWrap: 'wrap'\` to the parent Container.
+- You MUST give flex children a \`minWidth\` (e.g., \`minWidth: '300px'\`) or \`flex: '1 1 300px'\` so they automatically stack on smaller screens.
+- Use \`clamp()\` for fonts and padding (e.g., \`fontSize: 'clamp(2rem, 5vw, 4rem)'\`).
+
+Use the powerful inline "style" prop on EVERYTHING. Think deeply about spacing, letter spacing, font weights, and edge-to-edge layout design.`;
 
 export async function POST(req: Request) {
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -43,17 +51,20 @@ AVAILABLE COMPONENTS:
 ### THE MAGICAL "style" PROP ###
 EVERY component accepts a "style" prop: { "style": { "camelCaseCSS": "value" } }.
 You MUST use this extensively to style the page.
+Use standard CSS properties: "display", "flexWrap", "justifyContent", "padding", "margin", "borderRadius", "boxShadow", "background", "color", "fontSize", etc.
 
-### NESTING RULES (CRITICAL) ###
+### RESPONSIVENESS AND NESTING RULES (CRITICAL) ###
 Since you are generating a professional layout, NEVER just return a flat array of text blocks.
-You MUST nest components inside "Container" blocks to create layout sections (e.g., a Hero Section with flex-row, an Icon Grid).
-A component with children uses the "children" array:
+You MUST nest components inside "Container" blocks to create layout sections (e.g., a Hero Section with flex-row).
+For RESPONSIVENESS, parent Containers must have \`flexWrap: "wrap"\` and children must have \`minWidth\`.
+Example responsive section:
 {
   "id": "hero-container",
   "type": "Container",
-  "props": { "style": { "display": "flex", "flexDirection": "row", "gap": "2rem", "padding": "4rem 2rem", "alignItems": "center" } },
+  "props": { "style": { "display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "2rem", "padding": "clamp(2rem, 5vw, 4rem)", "alignItems": "center" } },
   "children": [
-     { "id": "h1", "type": "Heading", "props": { "text": "...", "level": "1", "style": { "color": "#fff" } } }
+     { "id": "left-col", "type": "Container", "props": { "style": { "flex": "1 1 300px", "display": "flex", "flexDirection": "column" } }, "children": [...] },
+     { "id": "right-col", "type": "Container", "props": { "style": { "flex": "1 1 300px" } }, "children": [...] }
   ]
 }
 

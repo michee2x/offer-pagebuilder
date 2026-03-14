@@ -3,13 +3,13 @@
 import React from 'react';
 import { Canvas } from '@/components/builder/Canvas';
 import { RightPanel } from '@/components/builder/RightPanel';
-import { ComponentType, useBuilderStore } from '@/store/builderStore';
+import { useBuilderStore } from '@/store/builderStore';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function BuilderPage() {
-  const { addComponent, moveComponent, setFullState, components, rootList } = useBuilderStore();
+  const { addComponent, moveComponent, setFullState, components, rootList, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
 
   // No more DND sensors or event handlers needed
@@ -67,27 +67,40 @@ export default function BuilderPage() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background">
       {/* Top Navigation Bar */}
-      <header className="h-14 border-b px-6 flex items-center justify-between shrink-0">
-        <h1 className="font-semibold tracking-tight">OfferIQ AI Builder</h1>
-        <div className="flex gap-3">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleGeneratePage} 
-            disabled={isGenerating}
-            className="gap-2"
-          >
-            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin"/> : <Wand2 className="w-4 h-4" />}
-            Generate from Doc
-          </Button>
-          <Button size="sm">Publish</Button>
-        </div>
-      </header>
+      {!isPreviewMode && (
+        <header className="h-14 border-b px-6 flex items-center justify-between shrink-0">
+          <div className="font-semibold tracking-tight w-48">OfferIQ AI Builder</div>
+          
+          <div className="flex items-center bg-muted/50 p-1 rounded-md">
+            <Button variant={deviceMode === 'desktop' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('desktop')}><Monitor className="h-4 w-4" /></Button>
+            <Button variant={deviceMode === 'tablet' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('tablet')}><Tablet className="h-4 w-4" /></Button>
+            <Button variant={deviceMode === 'mobile' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('mobile')}><Smartphone className="h-4 w-4" /></Button>
+          </div>
+
+          <div className="flex gap-3 justify-end w-48">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleGeneratePage} 
+              disabled={isGenerating}
+              className="gap-2"
+            >
+              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin"/> : <Wand2 className="w-4 h-4" />}
+              Generate
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => setIsPreviewMode(true)}>
+              <Eye className="w-4 h-4 mr-2" />
+              Preview
+            </Button>
+            <Button size="sm">Publish</Button>
+          </div>
+        </header>
+      )}
 
       {/* Main Extensible Editor Area */}
       <div className="flex flex-1 overflow-hidden">
         <Canvas />
-        <RightPanel />
+        {!isPreviewMode && <RightPanel />}
       </div>
     </div>
   );

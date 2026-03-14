@@ -13,11 +13,15 @@ export interface ComponentInstance {
 
 // Our page structure is a flat map of id -> ComponentInstance and an ordered list of IDs for the root zone.
 // A real app might have multiple drop zones, but we'll stick to a single main column ("root") for simplicity.
+export type DeviceMode = 'desktop' | 'tablet' | 'mobile';
+
 export interface BuilderState {
   components: Record<string, ComponentInstance>;
   rootList: string[];
   selectedId: string | null; // '__canvas__' = canvas is selected
   canvasStyle: Record<string, string>;
+  deviceMode: DeviceMode;
+  isPreviewMode: boolean;
 
   // Actions
   addComponent: (type: ComponentType, parentId?: string, index?: number) => void;
@@ -27,6 +31,8 @@ export interface BuilderState {
   setSelected: (id: string | null) => void;
   removeComponent: (id: string) => void;
   setFullState: (components: Record<string, ComponentInstance>, rootList: string[]) => void;
+  setDeviceMode: (mode: DeviceMode) => void;
+  setIsPreviewMode: (isPreview: boolean) => void;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -36,6 +42,8 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   rootList: [],
   selectedId: null,
   canvasStyle: {},
+  deviceMode: 'desktop',
+  isPreviewMode: false,
 
   addComponent: (type, parentId = 'root', index) => set((state) => {
     const id = generateId();
@@ -123,5 +131,12 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   }),
 
   setFullState: (components, rootList) => set({ components, rootList, selectedId: null }),
+
+  setDeviceMode: (deviceMode) => set({ deviceMode }),
+  setIsPreviewMode: (isPreviewMode) => set({ 
+    isPreviewMode, 
+    // Always deselect when entering preview
+    selectedId: isPreviewMode ? null : undefined 
+  }),
 
 }));

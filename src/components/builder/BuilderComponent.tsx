@@ -28,8 +28,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
       <div 
         className={`w-full transition-all border-2 border-transparent hover:border-blue-300 ${isSelected ? '!border-blue-500 rounded relative z-10' : ''}`}
       >
-        <div className="absolute top-0 left-0 w-full h-full cursor-pointer z-0 opacity-0" />
-        <div className="relative z-10 pointer-events-none">
+        <div className="relative z-10">
           {config.render({
             ...component.props,
             children: component.childrenIds?.map((childId: string) => (
