@@ -36,8 +36,13 @@ export function RightPanel() {
   // Handle special case where the canvas background itself is selected
   if (selectedId === '__canvas__') {
     const canvasData = { id: '__canvas__', type: 'Canvas' as any, props: { style: canvasStyle }, parentId: 'root' };
-    const canvasConfig = { type: 'Canvas' as any, label: 'Main Canvas', fields: { backgroundColor: { type: 'color', label: 'Background Color' } } };
-
+    const canvasConfig = { 
+      type: 'Canvas' as any, 
+      label: 'Main Canvas', 
+      defaultProps: {},
+      render: () => null,
+      fields: { backgroundColor: { type: 'color' as const, label: 'Background Color' } } 
+    };
     return (
       <div className="w-80 border-l bg-background flex flex-col h-full overflow-hidden">
         <Tabs defaultValue="properties" className="w-full flex flex-col flex-1">
