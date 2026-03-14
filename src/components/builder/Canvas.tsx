@@ -8,7 +8,7 @@ import { X } from 'lucide-react';
 
 export const CANVAS_ID = '__canvas__';
 
-export function Canvas() {
+export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
   const { rootList, setSelected, selectedId, canvasStyle, deviceMode, isPreviewMode, setIsPreviewMode } = useBuilderStore();
   const isCanvasSelected = selectedId === CANVAS_ID;
 
@@ -22,6 +22,7 @@ export function Canvas() {
   const maxWidthClass = deviceMode === 'desktop' ? 'max-w-5xl' : deviceMode === 'tablet' ? 'max-w-[768px]' : 'max-w-[390px]';
   
   // Clean, full bleed styling versus bordered builder box styling
+  // If we are in the Live Viewer, always force 100% width and height without device constraints
   const previewOuterClasses = isPreviewMode ? 'bg-background' : 'bg-muted/20 py-8 px-4 md:px-8';
   const previewInnerClasses = isPreviewMode ? 'w-full min-h-screen max-w-none rounded-none' : `mx-auto shadow-sm border rounded-lg min-h-[800px] overflow-hidden ${maxWidthClass}`;
   const selectionRing = isCanvasSelected && !isPreviewMode ? 'ring-2 ring-blue-500 ring-offset-2' : '';
@@ -55,8 +56,8 @@ export function Canvas() {
         </div>
       </div>
       
-      {/* Floating Exit Preview Action */}
-      {isPreviewMode && (
+      {/* Floating Exit Preview Action - ONLY for the Builder */}
+      {isPreviewMode && !isLiveViewer && (
         <div className="fixed bottom-6 right-6 z-50">
           <Button variant="secondary" onClick={() => setIsPreviewMode(false)} className="shadow-lg border">
             <X className="w-4 h-4 mr-2" />
