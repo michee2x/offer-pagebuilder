@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useBuilderStore } from '@/store/builderStore';
 import { COMPONENT_REGISTRY } from '@/config/components';
+import { ALL_THEME_IDS, THEME_PRESETS } from '@/lib/ai-theme';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,11 +16,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Bot, Settings2 } from 'lucide-react';
+import { Bot, Settings2, Palette } from 'lucide-react';
 import { AiChat } from './AiChat';
 
 export function RightPanel() {
-  const { selectedId, components, updateProps, removeComponent, canvasStyle, updateCanvasStyle } = useBuilderStore();
+  const { selectedId, components, updateProps, removeComponent, canvasStyle, updateCanvasStyle, theme, setTheme } = useBuilderStore();
 
   if (!selectedId) {
     return (
@@ -48,9 +49,10 @@ export function RightPanel() {
         <Tabs defaultValue="properties" className="w-full flex flex-col flex-1">
           <div className="px-4 pt-4 pb-2 border-b">
             <h2 className="text-lg font-semibold mb-3">Canvas Settings</h2>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="properties">Properties</TabsTrigger>
-              <TabsTrigger value="ai" className="gap-2"><Bot className="w-4 h-4"/> AI Chat</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="properties">Props</TabsTrigger>
+              <TabsTrigger value="theme" className="gap-2"><Palette className="w-4 h-4"/></TabsTrigger>
+              <TabsTrigger value="ai" className="gap-2"><Bot className="w-4 h-4"/></TabsTrigger>
             </TabsList>
           </div>
 
@@ -72,6 +74,73 @@ export function RightPanel() {
                 </div>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="theme" className="flex-1 overflow-y-auto p-4 m-0">
+            {theme ? (
+              <div className="flex flex-col gap-6">
+                <div className="grid w-full gap-2">
+                  <Label>Active Theme</Label>
+                  <Select value={theme.id} onValueChange={(val) => {
+                    const nextTheme = THEME_PRESETS[val];
+                    if (nextTheme) {
+                      setTheme(nextTheme);
+                      // Auto-update canvas background to match new theme
+                      updateCanvasStyle({ ...canvasStyle, backgroundColor: nextTheme.palette.background });
+                    }
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ALL_THEME_IDS.map(id => (
+                        <SelectItem key={id} value={id}>{THEME_PRESETS[id].name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid w-full gap-2">
+                  <Label>Palette Swatches</Label>
+                  <div className="flex gap-1 flex-wrap">
+                    {[theme.palette.background, theme.palette.surface, theme.palette.border, theme.palette.primary, theme.palette.text].map((hex, i) => (
+                      <div key={i} className="w-8 h-8 rounded-md border shadow-sm" style={{ backgroundColor: hex }} title={hex} />
+                    ))}
+                    <div className="w-full h-4 mt-2 rounded-sm" style={{ background: theme.palette.gradient }} />
+                  </div>
+                </div>
+
+                <div className="grid w-full gap-2">
+                  <Label>Typography</Label>
+                  <div className="text-sm border rounded-md p-3 space-y-2 bg-muted/20">
+                    <div><span className="opacity-50 text-xs uppercase tracking-wider block mb-0.5">Heading</span> <span className="font-semibold">{theme.headingFont}</span></div>
+                    <div><span className="opacity-50 text-xs uppercase tracking-wider block mb-0.5">Body</span> <span>{theme.bodyFont}</span></div>
+                  </div>
+                </div>
+                
+                <div className="grid w-full gap-2">
+                  <Label>Components</Label>
+                  <div className="flex gap-4 text-sm mt-1">
+                    <div className="flex flex-col items-center gap-1 border px-3 py-2 rounded-md bg-muted/20 w-fit">
+                      <div 
+                        className="w-8 h-4 border" 
+                        style={{ borderRadius: theme.borderRadius === '16px' || theme.borderRadius === '14px' || theme.borderRadius === '12px' ? '6px' : theme.borderRadius }}
+                      />
+                      <span className="text-xs opacity-60">Cards</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1 border px-3 py-2 rounded-md bg-muted/20 w-fit">
+                      <div 
+                        className="w-10 h-4 bg-primary" 
+                        style={{ backgroundColor: theme.palette.primary, borderRadius: theme.buttonRadius }}
+                      />
+                      <span className="text-xs opacity-60">Buttons</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">Generate a page first to view theme settings.</p>
+            )}
           </TabsContent>
 
           <TabsContent value="ai" className="flex-1 flex flex-col p-0 m-0 overflow-hidden h-full">

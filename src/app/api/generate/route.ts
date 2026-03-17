@@ -1,102 +1,145 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
+import { generateTheme, PageTheme } from '@/lib/ai-theme';
+import { COMPONENT_REGISTRY, LUCIDE_ICON_NAMES } from '@/config/components';
 
-export const maxDuration = 60;
+export const maxDuration = 90;
 
-const CONTENT_PROMPT = `Generate a jaw-dropping, award-winning SaaS landing page for "OfferIQ" (an AI pricing & offer optimization platform).
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper — build the Macro-Component focused system prompt
+// ─────────────────────────────────────────────────────────────────────────────
+function buildSystemPrompt(theme: PageTheme): string {
+  // Extract Semantic Definitions dynamically from the registry
+  const macroDefs = Object.values(COMPONENT_REGISTRY)
+    .filter(c => c.semantic)
+    .map(c => `
+--- COMPONENT: ${c.type} ---
+PURPOSE: ${c.semantic!.purpose}
+EXAMPLE JSON USAGE:
+${JSON.stringify({ type: c.type, props: c.semantic!.example }, null, 2)}
+`)
+    .join('\n');
 
-DESIGN DIRECTIVE (GOD-TIER LEVEL):
-- You are not just laying out blocks; you are building a visually breathtaking, Framer-tier website.
-- The aesthetic is ULTRA-MODERN DARK MODE: deep blacks/grays (e.g., #09090b, #000000), vibrant neon gradients for accents, and glassmorphism.
-- USE IMAGES HEAVILY! Use stunning tech/abstract Unsplash URLs (e.g., https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80, https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80, https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80).
-- Do not let the UI look like stacked rectangles. Use overlapping gradients, subtle borders (e.g., border: '1px solid rgba(255,255,255,0.1)'), huge padding (e.g., padding: '8rem 2rem'), and massive border-radiuses (e.g., borderRadius: '24px').
-- Use advanced Flexbox/Grid on "Container" blocks to create sophisticated side-by-side Hero sections, 3-column auto-fit grids for features, and overlapping image collages.
+  return `You are an elite funnel strategist and conversion copywriter building a world-class sales funnel page.
+You output ONLY a JSON object. No markdown. No explanation.
 
-REQUIRED LAYOUT SECTIONS (Build them with rich nested Containers):
-1. Hero Section: A 2-column flex-row container (or wrapping flex). Left side: Massive h1 text ("Transform Your Offers into Revenue"), glowing paragraph, and a vibrant CTA Button. Right side: A stunning abstract tech Image with rounded corners and a gorgeous glow/shadow.
-2. Logo Bar (Social Proof): A minimalist flex-row container with 4-5 muted text elements acting as company logos, spaced evenly.
-3. Feature Grid: A container acting as a CSS grid with 3 gorgeous, glassmorphic cards ("backgroundColor: rgba(255,255,255,0.03)", "border: 1px solid rgba(255,255,255,0.1)"). Include glowing accents.
-4. Split Detail Section: A dark contrasting container section with a large Image on the left and compelling features/text on the right.
-5. Footer CTA: A massive centered container with a gradient text heading, massive padding, and a final shiny button.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MACRO-COMPONENT REGISTRY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+You must build the page using ONLY the following Macro-Components.
+Do not invent components. Do not use generic layout blocks. 
+Just select these components and fill out their high-converting copywriting props.
+${macroDefs}
 
-CRITICAL RESPONSIVENESS RULES:
-- The design MUST be fluidly responsive across Desktop and Mobile using Intrinsic Web Design principles WITHOUT media queries!
-- For any side-by-side layout (Hero, Grids, Splits), you MUST apply \`flexWrap: 'wrap'\` to the parent Container.
-- You MUST give flex children a \`minWidth\` (e.g., \`minWidth: '300px'\`) or \`flex: '1 1 300px'\` so they automatically stack on smaller screens.
-- Use \`clamp()\` for fonts and padding (e.g., \`fontSize: 'clamp(2rem, 5vw, 4rem)'\`).
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+APPROVED LUCIDE ICON NAMES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+If a component REQUIRES an icon string, use ONE of these exact names:
+${LUCIDE_ICON_NAMES.join(', ')}
 
-Use the powerful inline "style" prop on EVERYTHING. Think deeply about spacing, letter spacing, font weights, and edge-to-edge layout design.`;
+🚫 NEVER use emojis.
 
-export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response(
-      JSON.stringify({ error: 'Missing ANTHROPIC_API_KEY in .env.local' }),
-      { status: 500 }
-    );
-  }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ACTIVE BRAND THEME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The page is already styled perfectly via React components consuming CSS variables for the "${theme.name}" theme.
+You do NOT need to write any CSS or Tailwind classes. The developers have handled 100% of the styling, animations, and responsive layout.
 
-  const systemPrompt = `You are an elite, world-class web designer building a Next.js/Shadcn page via a JSON schema.
-You will return ONLY valid JSON containing an array of nested components forming a beautiful layout tree.
-
-AVAILABLE COMPONENTS:
-1. "Container" -> Structure block. Can hold children. Useful for flexbox rows/columns, grids, padding, background colors.
-2. "Heading"   -> { text: string, level: "1"|"2"|"3"|"4"|"5"|"6" }
-3. "Text"      -> { text: string }
-4. "Button"    -> { text: string, variant: "default"|"destructive"|"outline"|"secondary"|"ghost"|"link", href: string }
-5. "Image"     -> { src: string, alt: string, rounded: "none"|"sm"|"md"|"lg"|"full" }
-6. "Card"      -> { title: string, content: string }
-7. "Divider"   -> {}
-8. "List"      -> { items: string (newline separated), ordered: "true"|"false" }
-
-### THE MAGICAL "style" PROP ###
-EVERY component accepts a "style" prop: { "style": { "camelCaseCSS": "value" } }.
-You MUST use this extensively to style the page.
-Use standard CSS properties: "display", "flexWrap", "justifyContent", "padding", "margin", "borderRadius", "boxShadow", "background", "color", "fontSize", etc.
-
-### RESPONSIVENESS AND NESTING RULES (CRITICAL) ###
-Since you are generating a professional layout, NEVER just return a flat array of text blocks.
-You MUST nest components inside "Container" blocks to create layout sections (e.g., a Hero Section with flex-row).
-For RESPONSIVENESS, parent Containers must have \`flexWrap: "wrap"\` and children must have \`minWidth\`.
-Example responsive section:
-{
-  "id": "hero-container",
-  "type": "Container",
-  "props": { "style": { "display": "flex", "flexDirection": "row", "flexWrap": "wrap", "gap": "2rem", "padding": "clamp(2rem, 5vw, 4rem)", "alignItems": "center" } },
-  "children": [
-     { "id": "left-col", "type": "Container", "props": { "style": { "flex": "1 1 300px", "display": "flex", "flexDirection": "column" } }, "children": [...] },
-     { "id": "right-col", "type": "Container", "props": { "style": { "flex": "1 1 300px" } }, "children": [...] }
-  ]
-}
-
-RETURN FORMAT EXACTLY:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RETURN FORMAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {
   "items": [
-     // Nested JSON component tree here
+    // Array of component JSON objects exactly matching the EXAMPLES above
   ]
 }
 
-DO NOT wrap the response in markdown blocks. Return standard JSON only.`;
+- Every item in "items" MUST have an "id" field (generate a random 6-character string).
+- Do NOT use "children" or nest components. The Macro-Components handle their own internal layout.
+- Return standard JSON. No markdown fences. No comments inside JSON.`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Build the content prompt from offer context
+// ─────────────────────────────────────────────────────────────────────────────
+function buildContentPrompt(offerContext: any, theme: PageTheme): string {
+  const hasOffer = offerContext && (offerContext.niche || offerContext.productType || offerContext.audience);
+
+  const offerSection = hasOffer
+    ? `OFFER DETAILS:
+- Product/Service: ${offerContext.productType ?? 'Not specified'}
+- Niche: ${offerContext.niche ?? 'Not specified'}
+- Target Audience: ${offerContext.audience ?? 'Not specified'}
+- Core Benefit: ${offerContext.benefit ?? 'Not specified'}
+- Pain Point: ${offerContext.painPoint ?? 'Not specified'}
+- Price Point: ${offerContext.price ?? 'Not specified'}
+- Tone: ${offerContext.tone ?? 'Not specified'}
+${offerContext.headlines ? `- Headlines to use: ${offerContext.headlines}` : ''}
+${offerContext.cta ? `- CTA text: ${offerContext.cta}` : ''}`
+    : `OFFER DETAILS: Build a stunning demo page for "OfferIQ" — an AI-powered offer & funnel builder for online businesses.
+Core benefit: Turn any offer into a high-converting funnel page in minutes.
+Target audience: Coaches, course creators, and e-commerce entrepreneurs.`;
+
+  return `${offerSection}
+
+DESIGN BRIEF — Theme: "${theme.name}" (${theme.styleTag})
+
+Build a COMPLETE, high-converting 5-section sales funnel landing page.
+Your job is pure Strategy and Copywriting. 
+
+Sequence the Macro-Components logically. For example:
+1. HeroSection (Hook them)
+2. FeaturesSection (Explain the mechanism)
+3. TestimonialsSection (Build trust)
+4. PricingSection (The offer)
+5. CTASection (Final push)
+
+Make it feel like a $10,000 copywriter wrote this. Use persuasive, benefit-driven language.
+Generate the JSON now. Remember to invent unique 6-character UUIDs for the 'id' fields.`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Route handler
+// ─────────────────────────────────────────────────────────────────────────────
+export async function POST(req: Request) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return Response.json({ error: 'Missing ANTHROPIC_API_KEY in .env.local' }, { status: 500 });
+  }
+
+  let offerContext: any = {};
+  try {
+    const body = await req.json().catch(() => ({}));
+    offerContext = body.offerContext ?? {};
+  } catch {
+    // empty body is fine
+  }
+
+  // Determine theme from offer context
+  const theme = generateTheme({
+    niche: offerContext.niche,
+    audience: offerContext.audience,
+    tone: offerContext.tone,
+    productType: offerContext.productType,
+  });
+
+  const systemPrompt = buildSystemPrompt(theme);
+  const contentPrompt = buildContentPrompt(offerContext, theme);
 
   try {
     const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5';
     const { text } = await generateText({
       model: anthropic(model),
       system: systemPrompt,
-      prompt: CONTENT_PROMPT,
+      prompt: contentPrompt,
     });
 
-    // Parse JSON from the response (strip any accidental markdown if present)
     const jsonStr = text.replace(/```(?:json)?\n?/g, '').replace(/```\n?/g, '').trim();
     const parsed = JSON.parse(jsonStr);
 
-    return new Response(JSON.stringify(parsed), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    // Return items + theme so client can store it
+    return Response.json({ items: parsed.items, theme }, { status: 200 });
   } catch (err: any) {
     console.error('Generate error:', err);
-    return new Response(JSON.stringify({ error: err.message || 'Error generating page.' }), {
-      status: 500,
-    });
+    return Response.json({ error: err.message || 'Error generating page.' }, { status: 500 });
   }
 }

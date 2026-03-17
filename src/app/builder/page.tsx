@@ -9,7 +9,7 @@ import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Che
 import { toast } from 'sonner';
 
 export default function BuilderPage() {
-  const { addComponent, moveComponent, setFullState, components, rootList, canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, pageId, setPageId } = useBuilderStore();
+  const { addComponent, moveComponent, setFullState, components, rootList, canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, pageId, setPageId, theme, setTheme } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
@@ -53,13 +53,26 @@ export default function BuilderPage() {
       setIsGenerating(true);
       toast.info('Generating page from content doc...');
       
-      const res = await fetch('/api/generate', { method: 'POST' });
+      const qs = new URLSearchParams(window.location.search);
+      const offerContext = {
+        niche: qs.get('niche'),
+        audience: qs.get('audience'),
+        tone: qs.get('tone'),
+        productType: qs.get('productType'),
+      };
+
+      const res = await fetch('/api/generate', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerContext })
+      });
+      
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || 'Failed to generate');
       }
 
-      const { items } = await res.json();
+      const { items, theme: generatedTheme } = await res.json();
       
       // Transform nested tree items into our flat Zustand state format
       const newComponents: Record<string, any> = {};
@@ -90,6 +103,11 @@ export default function BuilderPage() {
 
       const newRootList = flattenItems(items, 'root');
       setFullState(newComponents, newRootList);
+      if (generatedTheme) {
+        setTheme(generatedTheme);
+        // Ensure the canvas gets the background color from the theme immediately
+        useBuilderStore.setState({ canvasStyle: { ...canvasStyle, backgroundColor: generatedTheme.palette.background } });
+      }
       toast.success('Generated page successfully!');
     } catch (e: any) {
       toast.error(e.message);
@@ -164,7 +182,17 @@ export default function BuilderPage() {
       {/* Top Navigation Bar */}
       {!isPreviewMode && (
         <header className="h-14 border-b px-6 flex items-center justify-between shrink-0">
-          <div className="font-semibold tracking-tight w-48">OfferIQ AI Builder</div>
+          <div className="flex items-center gap-4 w-auto min-w-48">
+            <div className="font-semibold tracking-tight">OfferIQ AI Builder</div>
+            {theme && (
+              <div 
+                className="hidden sm:flex text-xs font-medium px-2 py-0.5 rounded-full border opacity-80 shadow-sm"
+                style={{ backgroundColor: theme.palette.surface, color: theme.palette.text, borderColor: theme.palette.border }}
+              >
+                {theme.name}
+              </div>
+            )}
+          </div>
           
           <div className="flex items-center bg-muted/50 p-1 rounded-md">
             <Button variant={deviceMode === 'desktop' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('desktop')}><Monitor className="h-4 w-4" /></Button>

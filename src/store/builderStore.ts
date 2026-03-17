@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import { COMPONENT_REGISTRY } from '@/config/components';
-
-export type ComponentType = 'Heading' | 'Text' | 'Button' | 'Image' | 'Card' | 'Divider' | 'List' | 'Container';
+import { PageTheme } from '@/lib/ai-theme';
+import { COMPONENT_REGISTRY, ComponentType } from '@/config/components';
 
 export interface ComponentInstance {
   id: string;
@@ -23,6 +22,7 @@ export interface BuilderState {
   deviceMode: DeviceMode;
   isPreviewMode: boolean;
   pageId: string | null;
+  theme: PageTheme | null;
 
   // Actions
   addComponent: (type: ComponentType, parentId?: string, index?: number) => void;
@@ -35,6 +35,7 @@ export interface BuilderState {
   setDeviceMode: (mode: DeviceMode) => void;
   setIsPreviewMode: (isPreview: boolean) => void;
   setPageId: (id: string | null) => void;
+  setTheme: (theme: PageTheme | null) => void;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -47,6 +48,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   deviceMode: 'desktop',
   isPreviewMode: false,
   pageId: null,
+  theme: null,
 
   addComponent: (type, parentId = 'root', index) => set((state) => {
     const id = generateId();
@@ -141,5 +143,6 @@ export const useBuilderStore = create<BuilderState>((set) => ({
     selectedId: isPreviewMode ? null : undefined 
   }),
   setPageId: (pageId) => set({ pageId }),
+  setTheme: (theme) => set({ theme }),
 
 }));
