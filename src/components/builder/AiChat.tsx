@@ -14,9 +14,10 @@ interface AiChatProps {
   componentId: string;
   componentData: ComponentInstance;
   config: ComponentConfig;
+  selectedField?: string | null;
 }
 
-export function AiChat({ componentId, componentData, config }: AiChatProps) {
+export function AiChat({ componentId, componentData, config, selectedField }: AiChatProps) {
   const { updateProps } = useBuilderStore();
   const [inputValue, setInputValue] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -34,6 +35,7 @@ export function AiChat({ componentId, componentData, config }: AiChatProps) {
             type: componentData.type,
             props: componentData.props,
             availableFields: config.fields,
+            focusedField: selectedField,
           },
         },
       }),
@@ -79,7 +81,8 @@ export function AiChat({ componentId, componentData, config }: AiChatProps) {
       <ScrollArea className="flex-1 p-4 h-[calc(100vh-250px)]">
         <div className="flex flex-col gap-4">
           <p className="text-xs text-center text-muted-foreground pb-2">
-            Chat with Claude to edit <span className="font-medium">{config.label}</span>
+            Chat with Claude to edit <span className="font-medium bg-muted px-1 rounded">{config.type}</span>
+            {selectedField && <><br/>Focusing on: <span className="text-primary font-mono">{selectedField}</span></>}
           </p>
 
           {messages.map((m) => {
@@ -150,13 +153,13 @@ export function AiChat({ componentId, componentData, config }: AiChatProps) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <div className="text-xs text-muted-foreground flex justify-between">
             <span>Targeting:</span>
-            <span className="font-mono bg-muted px-1 rounded">{componentId.substring(0, 7)}...</span>
+            <span className="font-mono bg-muted px-1 rounded">{config.type} {selectedField ? `→ ${selectedField}` : ''}</span>
           </div>
           <div className="flex w-full items-center space-x-2">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="e.g. Make the text bigger and blue"
+              placeholder="e.g. Rewrite this to convert better"
               className="flex-1"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) handleSubmit(e as any);

@@ -68,18 +68,19 @@ export type ComponentType =
   | 'PricingSection'
   | 'CTASection';
 
+export type FieldDef = {
+  type: 'text' | 'textarea' | 'select' | 'color' | 'number' | 'array';
+  label: string;
+  options?: string[];
+  arrayFields?: Record<string, FieldDef>;
+};
+
 export interface ComponentConfig<Props = any> {
   type: ComponentType;
   label: string;
   defaultProps: Props;
   render: (props: Props) => React.ReactNode;
-  fields: {
-    [key in keyof Props]?: {
-      type: 'text' | 'textarea' | 'select' | 'color' | 'number';
-      label: string;
-      options?: string[];
-    };
-  };
+  fields: Record<string, FieldDef>;
   semantic?: {
     purpose: string;
     example: any;
@@ -452,7 +453,14 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       subheadline: 'Supporting explanation of the value prop.',
       primaryCta: 'Get Started',
     },
-    fields: {},
+    fields: {
+      badgeText: { type: 'text', label: 'Badge Text (Optional)' },
+      headline: { type: 'text', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Sub-headline' },
+      primaryCta: { type: 'text', label: 'Primary CTA Text' },
+      secondaryCta: { type: 'text', label: 'Secondary CTA Text' },
+      imageUrl: { type: 'text', label: 'Hero Image URL' },
+    },
     render: (props: any) => <HeroSection {...props} />
   },
 
@@ -472,7 +480,19 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       }
     },
     defaultProps: { sectionTitle: 'Features', features: [] },
-    fields: {},
+    fields: {
+      sectionTitle: { type: 'text', label: 'Section Title' },
+      sectionSubtitle: { type: 'textarea', label: 'Section Subtitle' },
+      features: {
+        type: 'array',
+        label: 'Feature Cards',
+        arrayFields: {
+          icon: { type: 'text', label: 'Icon Name (Lucide)' },
+          title: { type: 'text', label: 'Feature Title' },
+          description: { type: 'textarea', label: 'Description' }
+        }
+      }
+    },
     render: (props: any) => <FeaturesSection {...props} />
   },
 
@@ -490,7 +510,19 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       }
     },
     defaultProps: { sectionTitle: 'Testimonials', testimonials: [] },
-    fields: {},
+    fields: {
+      sectionTitle: { type: 'text', label: 'Section Title' },
+      testimonials: {
+        type: 'array',
+        label: 'Testimonial Cards',
+        arrayFields: {
+          name: { type: 'text', label: 'Customer Name' },
+          role: { type: 'text', label: 'Role / Company' },
+          quote: { type: 'textarea', label: 'Quote' },
+          stars: { type: 'number', label: 'Rating (1-5)' }
+        }
+      }
+    },
     render: (props: any) => <TestimonialsSection {...props} />
   },
 
@@ -502,13 +534,34 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       example: {
         sectionTitle: 'Simple, Transparent Pricing',
         tiers: [
-          { name: 'Starter', price: '$29/mo', description: 'Perfect for new entrepreneurs.', features: ['3 Funnels', 'Basic AI Generation', 'Standard Themes'], buttonText: 'Start Free Trial' },
-          { name: 'Pro', price: '$99/mo', description: 'For growing businesses.', features: ['Unlimited Funnels', 'Advanced GPT-4 Copy', 'All 40+ Themes', 'Priority Support'], buttonText: 'Upgrade to Pro', isPopular: true }
+          { name: 'Starter', price: '$29/mo', description: 'Perfect for new entrepreneurs.', features: [{ text: '3 Funnels' }, { text: 'Basic AI Generation' }, { text: 'Standard Themes' }], buttonText: 'Start Free Trial' },
+          { name: 'Pro', price: '$99/mo', description: 'For growing businesses.', features: [{ text: 'Unlimited Funnels' }, { text: 'Advanced GPT-4 Copy' }, { text: 'All 40+ Themes' }, { text: 'Priority Support' }], buttonText: 'Upgrade to Pro', isPopular: true }
         ]
       }
     },
     defaultProps: { sectionTitle: 'Pricing', tiers: [] },
-    fields: {},
+    fields: {
+      sectionTitle: { type: 'text', label: 'Section Title' },
+      sectionSubtitle: { type: 'textarea', label: 'Section Subtitle' },
+      tiers: {
+        type: 'array',
+        label: 'Pricing Tiers',
+        arrayFields: {
+          name: { type: 'text', label: 'Plan Name' },
+          price: { type: 'text', label: 'Price (e.g. $99/mo)' },
+          description: { type: 'textarea', label: 'Description' },
+          buttonText: { type: 'text', label: 'CTA Button Text' },
+          // Note: features is now an array of objects to map smoothly with the ArrayEditor
+          features: {
+            type: 'array',
+            label: 'Bullet Points',
+            arrayFields: {
+              text: { type: 'text', label: 'Feature Text' }
+            }
+          }
+        }
+      }
+    },
     render: (props: any) => <PricingSection {...props} />
   },
 
@@ -524,7 +577,11 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       }
     },
     defaultProps: { headline: 'Ready to start?', subheadline: 'Join us today.', buttonText: 'Get Started' },
-    fields: {},
+    fields: {
+      headline: { type: 'text', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Sub-headline' },
+      buttonText: { type: 'text', label: 'Button Text' },
+    },
     render: (props: any) => <CTASection {...props} />
   }
 

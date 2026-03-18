@@ -3,6 +3,7 @@
 import React from 'react';
 import { Canvas } from '@/components/builder/Canvas';
 import { RightPanel } from '@/components/builder/RightPanel';
+import { ThemeSwitcher } from '@/components/builder/ThemeSwitcher';
 import { useBuilderStore } from '@/store/builderStore';
 import { Button } from '@/components/ui/button';
 import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check } from 'lucide-react';
@@ -30,6 +31,9 @@ export default function BuilderPage() {
                     setFullState(data.page.blocks.components, data.page.blocks.rootList);
                     if (data.page.blocks.canvasStyle) {
                         useBuilderStore.setState({ canvasStyle: data.page.blocks.canvasStyle });
+                    }
+                    if (data.page.blocks.theme) {
+                        setTheme(data.page.blocks.theme);
                     }
                     setPublishedUrl(`${window.location.origin}/p/${data.page.id}`);
                 }
@@ -72,7 +76,7 @@ export default function BuilderPage() {
         throw new Error(err.error || 'Failed to generate');
       }
 
-      const { items, theme: generatedTheme } = await res.json();
+      const { items } = await res.json();
       
       // Transform nested tree items into our flat Zustand state format
       const newComponents: Record<string, any> = {};
@@ -103,11 +107,7 @@ export default function BuilderPage() {
 
       const newRootList = flattenItems(items, 'root');
       setFullState(newComponents, newRootList);
-      if (generatedTheme) {
-        setTheme(generatedTheme);
-        // Ensure the canvas gets the background color from the theme immediately
-        useBuilderStore.setState({ canvasStyle: { ...canvasStyle, backgroundColor: generatedTheme.palette.background } });
-      }
+      // Theme is NOT changed by generation — user keeps their chosen theme
       toast.success('Generated page successfully!');
     } catch (e: any) {
       toast.error(e.message);
@@ -121,7 +121,7 @@ export default function BuilderPage() {
       setIsPublishing(true);
       toast.loading('Publishing page...');
       
-      const payload: any = { components, rootList, canvasStyle };
+      const payload: any = { components, rootList, canvasStyle, theme };
       if (pageId) payload.pageId = pageId;
 
       const res = await fetch('/api/publish', {
@@ -185,20 +185,22 @@ export default function BuilderPage() {
           <div className="flex items-center gap-4 w-auto min-w-48">
             <div className="font-semibold tracking-tight">OfferIQ AI Builder</div>
             {theme && (
-              <div 
-                className="hidden sm:flex text-xs font-medium px-2 py-0.5 rounded-full border opacity-80 shadow-sm"
-                style={{ backgroundColor: theme.palette.surface, color: theme.palette.text, borderColor: theme.palette.border }}
-              >
+              <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-muted/50 text-muted-foreground">
+                <span className="w-2 h-2 rounded-full bg-primary inline-block" />
                 {theme.name}
               </div>
             )}
           </div>
           
+          {/* Device mode toggles */}
           <div className="flex items-center bg-muted/50 p-1 rounded-md">
             <Button variant={deviceMode === 'desktop' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('desktop')}><Monitor className="h-4 w-4" /></Button>
             <Button variant={deviceMode === 'tablet' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('tablet')}><Tablet className="h-4 w-4" /></Button>
             <Button variant={deviceMode === 'mobile' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('mobile')}><Smartphone className="h-4 w-4" /></Button>
           </div>
+
+          {/* Theme Switcher — always accessible */}
+          <ThemeSwitcher />
 
           <div className="flex gap-3 justify-end w-auto min-w-48 items-center">
             {publishedUrl && (

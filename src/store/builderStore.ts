@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PageTheme } from '@/lib/ai-theme';
+import { ShadcnTheme, SHADCN_THEMES, DEFAULT_THEME_ID } from '@/lib/themes';
 import { COMPONENT_REGISTRY, ComponentType } from '@/config/components';
 
 export interface ComponentInstance {
@@ -18,24 +18,25 @@ export interface BuilderState {
   components: Record<string, ComponentInstance>;
   rootList: string[];
   selectedId: string | null; // '__canvas__' = canvas is selected
+  selectedField: string | null; // e.g. 'headline' or 'features.0.title'
   canvasStyle: Record<string, string>;
   deviceMode: DeviceMode;
   isPreviewMode: boolean;
   pageId: string | null;
-  theme: PageTheme | null;
+  theme: ShadcnTheme | null;
 
   // Actions
   addComponent: (type: ComponentType, parentId?: string, index?: number) => void;
   moveComponent: (id: string, newIndex: number) => void;
   updateProps: (id: string, newProps: Partial<Record<string, any>>) => void;
   updateCanvasStyle: (newStyle: Record<string, string>) => void;
-  setSelected: (id: string | null) => void;
+  setSelected: (id: string | null, fieldKey?: string | null) => void;
   removeComponent: (id: string) => void;
   setFullState: (components: Record<string, ComponentInstance>, rootList: string[]) => void;
   setDeviceMode: (mode: DeviceMode) => void;
   setIsPreviewMode: (isPreview: boolean) => void;
   setPageId: (id: string | null) => void;
-  setTheme: (theme: PageTheme | null) => void;
+  setTheme: (theme: ShadcnTheme | null) => void;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -44,11 +45,12 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   components: {},
   rootList: [],
   selectedId: null,
+  selectedField: null,
   canvasStyle: {},
   deviceMode: 'desktop',
   isPreviewMode: false,
   pageId: null,
-  theme: null,
+  theme: SHADCN_THEMES[DEFAULT_THEME_ID],
 
   addComponent: (type, parentId = 'root', index) => set((state) => {
     const id = generateId();
@@ -68,6 +70,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
       components: { ...state.components, [id]: newComponent },
       rootList: newRootList,
       selectedId: id, // Auto-select newly added component
+      selectedField: null,
     };
   }),
 
@@ -110,7 +113,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
     canvasStyle: { ...state.canvasStyle, ...newStyle },
   })),
 
-  setSelected: (id) => set({ selectedId: id }),
+  setSelected: (id, fieldKey) => set({ selectedId: id, selectedField: fieldKey || null }),
 
   removeComponent: (id) => set((state) => {
     const newComponents = { ...state.components };
@@ -140,7 +143,8 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   setDeviceMode: (deviceMode) => set({ deviceMode }),
   setIsPreviewMode: (isPreviewMode) => set({ 
     isPreviewMode, 
-    selectedId: isPreviewMode ? null : undefined 
+    selectedId: isPreviewMode ? null : undefined,
+    selectedField: isPreviewMode ? null : undefined 
   }),
   setPageId: (pageId) => set({ pageId }),
   setTheme: (theme) => set({ theme }),

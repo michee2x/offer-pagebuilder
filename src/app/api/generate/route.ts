@@ -1,6 +1,6 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
-import { generateTheme, PageTheme } from '@/lib/ai-theme';
+import { ShadcnTheme } from '@/lib/themes';
 import { COMPONENT_REGISTRY, LUCIDE_ICON_NAMES } from '@/config/components';
 
 export const maxDuration = 90;
@@ -8,8 +8,7 @@ export const maxDuration = 90;
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper — build the Macro-Component focused system prompt
 // ─────────────────────────────────────────────────────────────────────────────
-function buildSystemPrompt(theme: PageTheme): string {
-  // Extract Semantic Definitions dynamically from the registry
+function buildSystemPrompt(): string {
   const macroDefs = Object.values(COMPONENT_REGISTRY)
     .filter(c => c.semantic)
     .map(c => `
@@ -40,10 +39,11 @@ ${LUCIDE_ICON_NAMES.join(', ')}
 🚫 NEVER use emojis.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ACTIVE BRAND THEME
+STYLING — DO NOTHING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-The page is already styled perfectly via React components consuming CSS variables for the "${theme.name}" theme.
-You do NOT need to write any CSS or Tailwind classes. The developers have handled 100% of the styling, animations, and responsive layout.
+The page is ALREADY perfectly styled by the user's chosen theme (a shadcn CSS variable theme).
+You do NOT write ANY CSS, Tailwind classes, colors, or style props.
+Your ONLY job is: STRATEGY + COPYWRITING. Fill in the text props to maximise conversions.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RETURN FORMAT
@@ -62,7 +62,7 @@ RETURN FORMAT
 // ─────────────────────────────────────────────────────────────────────────────
 // Build the content prompt from offer context
 // ─────────────────────────────────────────────────────────────────────────────
-function buildContentPrompt(offerContext: any, theme: PageTheme): string {
+function buildContentPrompt(offerContext: any): string {
   const hasOffer = offerContext && (offerContext.niche || offerContext.productType || offerContext.audience);
 
   const offerSection = hasOffer
@@ -82,20 +82,18 @@ Target audience: Coaches, course creators, and e-commerce entrepreneurs.`;
 
   return `${offerSection}
 
-DESIGN BRIEF — Theme: "${theme.name}" (${theme.styleTag})
-
 Build a COMPLETE, high-converting 5-section sales funnel landing page.
-Your job is pure Strategy and Copywriting. 
+Your job is pure Strategy and Copywriting — make it feel like a $10,000 copywriter wrote this.
 
-Sequence the Macro-Components logically. For example:
+Sequence the Macro-Components logically:
 1. HeroSection (Hook them)
 2. FeaturesSection (Explain the mechanism)
 3. TestimonialsSection (Build trust)
 4. PricingSection (The offer)
 5. CTASection (Final push)
 
-Make it feel like a $10,000 copywriter wrote this. Use persuasive, benefit-driven language.
-Generate the JSON now. Remember to invent unique 6-character UUIDs for the 'id' fields.`;
+Use persuasive, benefit-driven language. Be bold. Be specific.
+Generate the JSON now. Remember to invent unique 6-character IDs for the 'id' fields.`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -114,16 +112,8 @@ export async function POST(req: Request) {
     // empty body is fine
   }
 
-  // Determine theme from offer context
-  const theme = generateTheme({
-    niche: offerContext.niche,
-    audience: offerContext.audience,
-    tone: offerContext.tone,
-    productType: offerContext.productType,
-  });
-
-  const systemPrompt = buildSystemPrompt(theme);
-  const contentPrompt = buildContentPrompt(offerContext, theme);
+  const systemPrompt = buildSystemPrompt();
+  const contentPrompt = buildContentPrompt(offerContext);
 
   try {
     const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5';
@@ -136,8 +126,8 @@ export async function POST(req: Request) {
     const jsonStr = text.replace(/```(?:json)?\n?/g, '').replace(/```\n?/g, '').trim();
     const parsed = JSON.parse(jsonStr);
 
-    // Return items + theme so client can store it
-    return Response.json({ items: parsed.items, theme }, { status: 200 });
+    // Return items only — theme is now user-controlled, not AI-generated
+    return Response.json({ items: parsed.items }, { status: 200 });
   } catch (err: any) {
     console.error('Generate error:', err);
     return Response.json({ error: err.message || 'Error generating page.' }, { status: 500 });

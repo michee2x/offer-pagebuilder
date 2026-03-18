@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { components, rootList, canvasStyle, pageId, name } = await req.json()
+    const { components, rootList, canvasStyle, theme, pageId, name } = await req.json()
     const userId = session.user.id
 
     const supabase = createAdminClient()
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     const payload = {
         user_id: userId,
         name: name || 'Untitled Page',
-        blocks: { components, rootList, canvasStyle },
+        blocks: { components, rootList, canvasStyle, theme },
         updated_at: new Date().toISOString()
     }
 

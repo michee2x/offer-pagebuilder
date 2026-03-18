@@ -5,7 +5,7 @@ import { useBuilderStore } from '@/store/builderStore';
 import { Canvas } from '@/components/builder/Canvas';
 
 export function ViewerHydrator({ blocks }: { blocks: any }) {
-  const { setFullState, setIsPreviewMode, canvasStyle } = useBuilderStore();
+  const { setFullState, setIsPreviewMode, setTheme } = useBuilderStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -16,9 +16,13 @@ export function ViewerHydrator({ blocks }: { blocks: any }) {
       // 2. Lock the builder into Preview Mode permanently for the Viewer
       setIsPreviewMode(true);
       
-      // If canvas style was stored, we should apply it
+      // Restore canvas style
       if (blocks.canvasStyle) {
           useBuilderStore.setState({ canvasStyle: blocks.canvasStyle });
+      }
+      // Restore theme so published page matches what the user designed
+      if (blocks.theme) {
+          setTheme(blocks.theme);
       }
 
       setMounted(true);

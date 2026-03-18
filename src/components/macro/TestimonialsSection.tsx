@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card, CardContent, Avatar, AvatarFallback } from '@/components/micro';
 
 export interface TestimonialItem {
   quote: string;
@@ -10,63 +11,82 @@ export interface TestimonialItem {
 export interface TestimonialsSectionProps {
   sectionTitle: string;
   testimonials: TestimonialItem[];
+  elementStyles?: Record<string, React.CSSProperties>;
 }
 
-export function TestimonialsSection({ sectionTitle, testimonials = [] }: TestimonialsSectionProps) {
+export function TestimonialsSection({
+  sectionTitle,
+  testimonials = [],
+  elementStyles = {},
+}: TestimonialsSectionProps) {
   return (
-    <section 
-      className="w-full py-24 px-4 md:px-8 border-b overflow-hidden"
-      style={{ 
-        backgroundColor: 'var(--theme-surface)', 
-        color: 'var(--theme-text)',
-        borderColor: 'var(--theme-border)'
-      }}
-    >
+    <section className="w-full py-24 px-4 md:px-8 bg-muted/30 text-foreground border-b border-border overflow-hidden">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 animate-fade-in-up">
+
+        <h2
+          className="text-4xl md:text-5xl font-bold mb-16 text-center"
+          data-field="sectionTitle"
+          style={elementStyles?.['sectionTitle']}
+        >
           {sectionTitle}
         </h2>
 
-        <div className="flex flex-wrap justify-center gap-6">
-          {testimonials.map((t, idx) => (
-            <div 
-              key={idx}
-              className="w-full max-w-sm p-8 rounded-2xl border flex flex-col justify-between hover:shadow-lg transition-shadow bg-opacity-50 animate-fade-in-up"
-              style={{ 
-                backgroundColor: 'var(--theme-bg)',
-                borderColor: 'var(--theme-border)',
-                animationDelay: `${idx * 150}ms`
-              }}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {testimonials.map((t, i) => (
+            <Card
+              key={i}
+              className="bg-card border border-border hover:-translate-y-1 hover:shadow-xl transition-all duration-300 animate-fade-in-up"
+              style={{ animationDelay: `${i * 120}ms` }}
             >
-              <div>
-                <div className="flex gap-1 mb-6">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <svg key={i} className={`w-5 h-5 ${i < t.stars ? '' : 'opacity-20'}`} style={{ color: 'var(--theme-primary)' }} fill="currentColor" viewBox="0 0 20 20">
+              <CardContent className="p-8 flex flex-col h-full gap-4">
+
+                {/* Stars */}
+                <div className="flex gap-1">
+                  {Array.from({ length: Math.min(t.stars || 5, 5) }).map((_, s) => (
+                    <svg key={s} className="w-4 h-4 fill-primary text-primary" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
                 </div>
-                <blockquote className="text-lg italic mb-8" style={{ color: 'var(--theme-text-muted)' }}>
-                  "{t.quote}"
-                </blockquote>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg"
-                  style={{ 
-                    backgroundColor: 'var(--theme-primary)', 
-                    color: 'var(--theme-primary-fg)' 
-                  }}
+
+                {/* Quote */}
+                <p
+                  className="text-base italic text-muted-foreground leading-relaxed flex-1"
+                  data-field={`testimonials.${i}.quote`}
+                  style={elementStyles?.[`testimonials.${i}.quote`]}
                 >
-                  {t.name.charAt(0)}
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+
+                {/* Author */}
+                <div className="flex items-center gap-3 pt-4 border-t border-border mt-auto">
+                  <Avatar>
+                    <AvatarFallback className="bg-primary text-primary-foreground font-bold text-sm">
+                      {t.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h4
+                      className="font-semibold text-sm"
+                      data-field={`testimonials.${i}.name`}
+                      style={elementStyles?.[`testimonials.${i}.name`]}
+                    >
+                      {t.name}
+                    </h4>
+                    {t.role && (
+                      <p
+                        className="text-xs text-muted-foreground"
+                        data-field={`testimonials.${i}.role`}
+                        style={elementStyles?.[`testimonials.${i}.role`]}
+                      >
+                        {t.role}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <div className="font-bold">{t.name}</div>
-                  {t.role && <div className="text-sm" style={{ color: 'var(--theme-text-muted)' }}>{t.role}</div>}
-                </div>
-              </div>
-            </div>
+
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

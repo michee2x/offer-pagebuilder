@@ -9,7 +9,7 @@ interface BuilderComponentProps {
 }
 
 export function BuilderComponent({ id }: BuilderComponentProps) {
-  const { components, selectedId, setSelected, isPreviewMode } = useBuilderStore();
+  const { components, selectedId, selectedField, setSelected, isPreviewMode } = useBuilderStore();
   
   const component = components[id];
   if (!component) return null;
@@ -23,11 +23,16 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
       onClick={(e) => {
         if (isPreviewMode) return;
         e.stopPropagation();
-        setSelected(id);
+        
+        // Find if the user clicked inside a specifically tagged field (e.g. data-field="headline")
+        const fieldTarget = (e.target as HTMLElement).closest('[data-field]');
+        const fieldKey = fieldTarget ? fieldTarget.getAttribute('data-field') : null;
+        
+        setSelected(id, fieldKey);
       }}
     >
       <div 
-        className={`w-full transition-all ${!isPreviewMode ? 'border-2 border-transparent hover:border-blue-300' : ''} ${isSelected ? '!border-blue-500 rounded relative z-10' : ''}`}
+        className={`w-full transition-all ${!isPreviewMode ? 'border-2 border-transparent hover:border-blue-300' : ''} ${isSelected && !selectedField ? '!border-blue-500 rounded relative z-10' : ''} ${isSelected && selectedField ? '!border-blue-300 border-dashed rounded relative z-10' : ''}`}
       >
         <div className="relative z-10">
           {config.render({
@@ -39,10 +44,24 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
           })}
         </div>
         
-        {isSelected && !isPreviewMode && (
+        {isSelected && !selectedField && !isPreviewMode && (
           <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-t z-20 pointer-events-auto">
             {config.label}
           </div>
+        )}
+
+        {/* Dynamic scoped CSS to highlight ONLY the selected nested field */}
+        {isSelected && selectedField && !isPreviewMode && (
+          <style>{`
+            [data-field="${selectedField}"] {
+              outline: 2px solid #3b82f6 !important;
+              outline-offset: 4px;
+              border-radius: 4px;
+              position: relative;
+              z-index: 50;
+              transition: outline 0.1s ease-in-out;
+            }
+          `}</style>
         )}
       </div>
     </div>

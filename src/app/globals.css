@@ -39,9 +39,6 @@
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
   looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
 */
 @layer base {
   *,
@@ -53,28 +50,31 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   BUILDER UI THEME  (fixed dark — sidebars, top bar, panels)
+   This is the app shell. It never changes when the user switches page themes.
+────────────────────────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    /* Forced Dark Mode Variables */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 7%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 263 70% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 5% 14%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 5% 16%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5% 16%;
+    --input: 240 5% 16%;
+    --ring: 263 70% 58%;
     --radius: 0.5rem;
   }
 }
