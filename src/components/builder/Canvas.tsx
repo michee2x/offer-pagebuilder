@@ -10,16 +10,73 @@ import { ShadcnTheme } from '@/lib/themes';
 export const CANVAS_ID = '__canvas__';
 
 /**
- * Build an inline-style object that injects all shadcn CSS variables
- * directly onto the canvas container div. Inline style CSS custom properties
- * cascade reliably to all children, overriding the :root defaults in globals.css.
+ * Tailwind v4 generates utilities like bg-primary using var(--color-primary),
+ * which maps from the @theme block: --color-primary: hsl(var(--primary)).
+ *
+ * To reliably override at runtime we need to inject TWO layers onto the canvas div:
+ *   1. Raw HSL vars:     --primary: "43 89% 45%"
+ *   2. Resolved tokens:  --color-primary: "hsl(43 89% 45%)"
+ *
+ * This ensures every Tailwind utility class (bg-primary, text-foreground, etc.)
+ * picks up the right theme value regardless of which var() it reads internally.
  */
 function buildThemeInlineVars(theme: ShadcnTheme): React.CSSProperties {
-  const cssVars: Record<string, string> = {};
-  for (const [key, value] of Object.entries(theme.vars)) {
-    cssVars[`--${key}`] = value;
-  }
-  cssVars['font-family'] = `"${theme.bodyFont}", sans-serif`;
+  const v = theme.vars;
+  const hsl = (val: string) => `hsl(${val})`;
+
+  const cssVars: Record<string, string> = {
+    // ── Raw HSL vars (base layer used by shadcn components) ──────────────────
+    '--background':            v.background,
+    '--foreground':            v.foreground,
+    '--card':                  v.card,
+    '--card-foreground':       v['card-foreground'],
+    '--popover':               v.popover,
+    '--popover-foreground':    v['popover-foreground'],
+    '--primary':               v.primary,
+    '--primary-foreground':    v['primary-foreground'],
+    '--secondary':             v.secondary,
+    '--secondary-foreground':  v['secondary-foreground'],
+    '--muted':                 v.muted,
+    '--muted-foreground':      v['muted-foreground'],
+    '--accent':                v.accent,
+    '--accent-foreground':     v['accent-foreground'],
+    '--destructive':           v.destructive,
+    '--destructive-foreground': v['destructive-foreground'],
+    '--border':                v.border,
+    '--input':                 v.input,
+    '--ring':                  v.ring,
+    '--radius':                v.radius,
+
+    // ── Resolved hsl() tokens (what Tailwind v4 @theme generates) ────────────
+    '--color-background':           hsl(v.background),
+    '--color-foreground':           hsl(v.foreground),
+    '--color-card':                 hsl(v.card),
+    '--color-card-foreground':      hsl(v['card-foreground']),
+    '--color-popover':              hsl(v.popover),
+    '--color-popover-foreground':   hsl(v['popover-foreground']),
+    '--color-primary':              hsl(v.primary),
+    '--color-primary-foreground':   hsl(v['primary-foreground']),
+    '--color-secondary':            hsl(v.secondary),
+    '--color-secondary-foreground': hsl(v['secondary-foreground']),
+    '--color-muted':                hsl(v.muted),
+    '--color-muted-foreground':     hsl(v['muted-foreground']),
+    '--color-accent':               hsl(v.accent),
+    '--color-accent-foreground':    hsl(v['accent-foreground']),
+    '--color-destructive':          hsl(v.destructive),
+    '--color-destructive-foreground': hsl(v['destructive-foreground']),
+    '--color-border':               hsl(v.border),
+    '--color-input':                hsl(v.input),
+    '--color-ring':                 hsl(v.ring),
+
+    // ── Resolved radius tokens (what Tailwind v4 @theme generates) ───────────
+    '--radius-lg':                  v.radius,
+    '--radius-md':                  `calc(${v.radius} - 2px)`,
+    '--radius-sm':                  `calc(${v.radius} - 4px)`,
+
+    // ── Typography ────────────────────────────────────────────────────────────
+    'font-family': `"${theme.bodyFont}", sans-serif`,
+  };
+
   return cssVars as React.CSSProperties;
 }
 
