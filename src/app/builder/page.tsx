@@ -10,7 +10,7 @@ import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Che
 import { toast } from 'sonner';
 
 export default function BuilderPage() {
-  const { addComponent, moveComponent, setFullState, components, rootList, canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, pageId, setPageId, theme, setTheme } = useBuilderStore();
+  const { addComponent, moveComponent, setFullState, components, rootList, canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, pageId, setPageId, theme, setTheme, hasUnsavedChanges, setHasUnsavedChanges } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
@@ -107,6 +107,7 @@ export default function BuilderPage() {
 
       const newRootList = flattenItems(items, 'root');
       setFullState(newComponents, newRootList);
+      setHasUnsavedChanges(true); // Generation clears state, mark explicit unsaved 
       // Theme is NOT changed by generation — user keeps their chosen theme
       toast.success('Generated page successfully!');
     } catch (e: any) {
@@ -140,6 +141,7 @@ export default function BuilderPage() {
       
       const url = `${window.location.origin}/p/${data.pageId}`;
       setPublishedUrl(url);
+      setHasUnsavedChanges(false);
       
       toast.success('Published successfully!', {
         description: (
@@ -233,9 +235,13 @@ export default function BuilderPage() {
               <Eye className="w-4 h-4 mr-2" />
               Preview
             </Button>
-            <Button size="sm" onClick={handlePublish} disabled={isPublishing}>
+            <Button 
+                size="sm" 
+                onClick={handlePublish} 
+                disabled={isPublishing || (pageId !== null && !hasUnsavedChanges)}
+            >
                 {isPublishing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Publish
+                {!pageId ? 'Publish' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}
             </Button>
           </div>
         </header>

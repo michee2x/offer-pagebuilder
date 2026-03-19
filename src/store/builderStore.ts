@@ -24,6 +24,7 @@ export interface BuilderState {
   isPreviewMode: boolean;
   pageId: string | null;
   theme: ShadcnTheme | null;
+  hasUnsavedChanges: boolean;
 
   // Actions
   addComponent: (type: ComponentType, parentId?: string, index?: number) => void;
@@ -37,6 +38,7 @@ export interface BuilderState {
   setIsPreviewMode: (isPreview: boolean) => void;
   setPageId: (id: string | null) => void;
   setTheme: (theme: ShadcnTheme | null) => void;
+  setHasUnsavedChanges: (hasUnsaved: boolean) => void;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -51,6 +53,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   isPreviewMode: false,
   pageId: null,
   theme: SHADCN_THEMES[DEFAULT_THEME_ID],
+  hasUnsavedChanges: false,
 
   addComponent: (type, parentId = 'root', index) => set((state) => {
     const id = generateId();
@@ -71,6 +74,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
       rootList: newRootList,
       selectedId: id, // Auto-select newly added component
       selectedField: null,
+      hasUnsavedChanges: true,
     };
   }),
 
@@ -82,7 +86,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
     newRootList.splice(oldIndex, 1);
     newRootList.splice(newIndex, 0, id);
 
-    return { rootList: newRootList };
+    return { rootList: newRootList, hasUnsavedChanges: true };
   }),
 
   updateProps: (id, newProps) => set((state) => {
@@ -91,7 +95,8 @@ export const useBuilderStore = create<BuilderState>((set) => ({
       // AI usually nests styles in `style`, but handle direct props just in case.
       const styleUpdates = newProps.style ? newProps.style : newProps;
       return {
-        canvasStyle: { ...state.canvasStyle, ...styleUpdates }
+        canvasStyle: { ...state.canvasStyle, ...styleUpdates },
+        hasUnsavedChanges: true
       };
     }
 
@@ -105,12 +110,14 @@ export const useBuilderStore = create<BuilderState>((set) => ({
           ...comp,
           props: { ...comp.props, ...newProps }
         }
-      }
+      },
+      hasUnsavedChanges: true
     };
   }),
 
   updateCanvasStyle: (newStyle) => set((state) => ({
     canvasStyle: { ...state.canvasStyle, ...newStyle },
+    hasUnsavedChanges: true
   })),
 
   setSelected: (id, fieldKey) => set({ selectedId: id, selectedField: fieldKey || null }),
@@ -135,10 +142,11 @@ export const useBuilderStore = create<BuilderState>((set) => ({
       components: newComponents,
       rootList: newRootList,
       selectedId: state.selectedId === id ? null : state.selectedId,
+      hasUnsavedChanges: true,
     };
   }),
 
-  setFullState: (components, rootList) => set({ components, rootList, selectedId: null }),
+  setFullState: (components, rootList) => set({ components, rootList, selectedId: null, hasUnsavedChanges: false }),
 
   setDeviceMode: (deviceMode) => set({ deviceMode }),
   setIsPreviewMode: (isPreviewMode) => set({ 
@@ -147,6 +155,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
     selectedField: isPreviewMode ? null : undefined 
   }),
   setPageId: (pageId) => set({ pageId }),
-  setTheme: (theme) => set({ theme }),
+  setTheme: (theme) => set({ theme, hasUnsavedChanges: true }),
+  setHasUnsavedChanges: (hasUnsavedChanges) => set({ hasUnsavedChanges }),
 
 }));
