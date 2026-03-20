@@ -14,6 +14,7 @@ export interface HeyMessageFAQProps {
   badgeText?: string;
   headline?: string;
   faqs?: FAQItem[];
+  sectionId?: string;
   className?: string;
   style?: React.CSSProperties;
   elementStyles?: Record<string, React.CSSProperties>;
@@ -28,6 +29,7 @@ export function HeyMessageFAQ({
     { id: '3', question: 'Do I need to install anything?', answer: 'No, everything is web-based. Simply log in and access your workspace from any secure browser.' },
     { id: '4', question: 'Can I cancel my subscription?', answer: 'Yes, your subscription can be paused or cancelled at any time directly through your billing portal.' },
   ],
+  sectionId = '',
   className = '',
   style = {},
   elementStyles = {},
@@ -39,7 +41,7 @@ export function HeyMessageFAQ({
   };
 
   return (
-    <section className={`w-full py-24 px-6 flex flex-col items-center ${className}`} style={style}>
+    <section id={sectionId || undefined} className={`w-full py-24 px-6 flex flex-col items-center scroll-mt-24 ${className}`} style={style}>
       <div className="w-full max-w-5xl flex flex-col gap-12">
         {/* Header Block */}
         {(badgeText || headline) && (

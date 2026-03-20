@@ -1,9 +1,5 @@
 import React from 'react';
-import { HeroCenter } from '../components/macro/Hero';
-import { FeaturesGrid } from '../components/macro/Features';
-import { TestimonialsGrid } from '../components/macro/Testimonials';
 import { PricingCards } from '../components/macro/Pricing';
-import { CTASimple } from '../components/macro/CTA';
 
 // HeyMessage Components
 import { HeyMessageHeader } from '../components/macro/Header';
@@ -13,6 +9,15 @@ import { HeyMessageFAQ } from '../components/macro/FAQ';
 import { HeyMessageCTA } from '../components/macro/CTA';
 import { HeyMessageFooter } from '../components/macro/Footer';
 
+// Feature Components
+import { FeatureHeader } from '../components/macro/Header';
+import { FeatureHero } from '../components/macro/Hero';
+import { FeatureLogos } from '../components/macro/Logos';
+import { FeatureTestimonials } from '../components/macro/Testimonials';
+import { FeatureFAQ } from '../components/macro/FAQ';
+import { FeaturePricing } from '../components/macro/Pricing';
+import { FeatureCTA } from '../components/macro/CTA';
+import { FeatureFooter } from '../components/macro/Footer';
 // ─────────────────────────────────────────────────────────────────────────────
 // Component Registry
 // ─────────────────────────────────────────────────────────────────────────────
@@ -70,18 +75,21 @@ export type ComponentType =
   | 'StatBlock'
   | 'TestimonialCard'
   | 'FeatureCard'
-  | 'HeroCenter'
-  | 'FeaturesGrid'
-  | 'TestimonialsGrid'
   | 'PricingCards'
-  | 'CTASimple'
   | 'HeyMessageHeader'
   | 'HeyMessageFeatures'
   | 'HeyMessageSplit'
   | 'HeyMessageFAQ'
   | 'HeyMessageCTA'
-  | 'HeyMessageFooter';
-
+  | 'HeyMessageFooter'
+  | 'FeatureHeader'
+  | 'FeatureHero'
+  | 'FeatureLogos'
+  | 'FeatureTestimonials'
+  | 'FeatureFAQ'
+  | 'FeaturePricing'
+  | 'FeatureCTA'
+  | 'FeatureFooter';
 export type FieldDef = {
   type: 'text' | 'textarea' | 'select' | 'color' | 'number' | 'array';
   label: string;
@@ -446,100 +454,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     },
   },
 
-  // ── MACRO-COMPONENTS (AI Only) ──────────────────────────────────────────
-
-  HeroCenter: {
-    type: 'HeroCenter',
-    label: 'Hero Center',
-    semantic: {
-      purpose: 'The top-most section of the page. Use this for the main value proposition, a big bold hook, and the primary call to action.',
-      example: {
-        badgeText: 'New Release v2.0',
-        headline: 'Turn Any Offer Into A High-Converting Funnel In Minutes',
-        subheadline: 'OfferIQ uses advanced AI to build perfectly themed, Framer-quality pages without you writing a single line of code.',
-        primaryCta: 'Start Building Free',
-        secondaryCta: 'Watch Demo',
-        imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop'
-      }
-    },
-    defaultProps: {
-      headline: 'Main Value Proposition',
-      subheadline: 'Supporting explanation of the value prop.',
-      primaryCta: 'Get Started',
-    },
-    fields: {
-      badgeText: { type: 'text', label: 'Badge Text (Optional)' },
-      headline: { type: 'text', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Sub-headline' },
-      primaryCta: { type: 'text', label: 'Primary CTA Text' },
-      secondaryCta: { type: 'text', label: 'Secondary CTA Text' },
-      imageUrl: { type: 'text', label: 'Hero Image URL' },
-    },
-    render: (props: any) => <HeroCenter {...props} />
-  },
-
-  FeaturesGrid: {
-    type: 'FeaturesGrid',
-    label: 'Features Grid',
-    semantic: {
-      purpose: 'A 3-column grid highlighting the core benefits, features, or pillars of the product. Requires Lucide icons.',
-      example: {
-        sectionTitle: 'Everything You Need To Build High-Converting Funnels',
-        sectionSubtitle: "Powerful AI-driven tools designed to help you create, optimise, and scale winning funnels in a fraction of the time.",
-        features: [
-          { icon: 'Zap', title: 'Lightning Fast AI', description: 'Generate entire themed landing pages with perfect copy in under 15 seconds.' },
-          { icon: 'Paintbrush', title: 'Perfect Theming', description: 'Draws from 40+ proven, conversion-optimised palettes mapped perfectly to your niche.' },
-          { icon: 'MousePointerClick', title: 'Zero Coding', description: 'Built with React under the hood, but completely code-free for you.' }
-        ]
-      }
-    },
-    defaultProps: { sectionTitle: 'Features', features: [] },
-    fields: {
-      sectionTitle: { type: 'text', label: 'Section Title' },
-      sectionSubtitle: { type: 'textarea', label: 'Section Subtitle' },
-      features: {
-        type: 'array',
-        label: 'Feature Cards',
-        arrayFields: {
-          icon: { type: 'text', label: 'Icon Name (Lucide)' },
-          title: { type: 'text', label: 'Feature Title' },
-          description: { type: 'textarea', label: 'Description' }
-        }
-      }
-    },
-    render: (props: any) => <FeaturesGrid {...props} />
-  },
-
-  TestimonialsGrid: {
-    type: 'TestimonialsGrid',
-    label: 'Testimonials Grid',
-    semantic: {
-      purpose: 'Social proof section. Displays customer quotes, user avatars, and 5-star ratings to build trust.',
-      example: {
-        sectionTitle: 'What Our Customers Say',
-        testimonials: [
-          { quote: "OfferIQ increased our conversion rate by 45%. The pages are indistinguishable from custom Framer development.", name: "Sarah Miller", role: "CMO, TechGrowth", stars: 5 },
-          { quote: "I no longer hire front-end developers for marketing pages. This AI understands design natively.", name: "James Chen", role: "Startup Founder", stars: 5 }
-        ]
-      }
-    },
-    defaultProps: { sectionTitle: 'Testimonials', testimonials: [] },
-    fields: {
-      sectionTitle: { type: 'text', label: 'Section Title' },
-      testimonials: {
-        type: 'array',
-        label: 'Testimonial Cards',
-        arrayFields: {
-          name: { type: 'text', label: 'Customer Name' },
-          role: { type: 'text', label: 'Role / Company' },
-          quote: { type: 'textarea', label: 'Quote' },
-          stars: { type: 'number', label: 'Rating (1-5)' }
-        }
-      }
-    },
-    render: (props: any) => <TestimonialsGrid {...props} />
-  },
-
+  // ── PRICING (KEPT) ───────────────────────────────────────────────────────
   PricingCards: {
     type: 'PricingCards',
     label: 'Pricing Cards',
@@ -579,26 +494,6 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     render: (props: any) => <PricingCards {...props} />
   },
 
-  CTASimple: {
-    type: 'CTASimple',
-    label: 'Simple CTA',
-    semantic: {
-      purpose: 'The final, massive bottom-of-page hook to catch visitors who scrolled all the way down. Bold gradient background.',
-      example: {
-        headline: 'Ready To Build Your First High-Converting Funnel?',
-        subheadline: 'Join 2,500+ entrepreneurs who are already using OfferIQ to turn their offers into revenue-generating machines.',
-        buttonText: 'Start Building Free 🚀'
-      }
-    },
-    defaultProps: { headline: 'Ready to start?', subheadline: 'Join us today.', buttonText: 'Get Started' },
-    fields: {
-      headline: { type: 'text', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Sub-headline' },
-      buttonText: { type: 'text', label: 'Button Text' },
-    },
-    render: (props: any) => <CTASimple {...props} />
-  },
-
   // ── HEYMESSAGE COMPONENTS ──────────────────────────────────────────
 
   HeyMessageHeader: {
@@ -628,6 +523,15 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     fields: {
       badgeText: { type: 'text', label: 'Badge Text' },
       headline: { type: 'textarea', label: 'Headline' },
+      features: {
+        type: 'array',
+        label: 'Features List',
+        arrayFields: {
+          title: { type: 'text', label: 'Title' },
+          description: { type: 'textarea', label: 'Description' },
+          imageUrl: { type: 'text', label: 'Image URL' }
+        }
+      }
     },
     render: (props: any) => <HeyMessageFeatures {...props} />
   },
@@ -645,6 +549,14 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       headline: { type: 'textarea', label: 'Headline' },
       imagePosition: { type: 'select', label: 'Image Position', options: ['left', 'right'] },
       imageUrl: { type: 'text', label: 'Image URL' },
+      contentItems: {
+        type: 'array',
+        label: 'Split Items',
+        arrayFields: {
+          title: { type: 'text', label: 'Title' },
+          description: { type: 'textarea', label: 'Description' }
+        }
+      }
     },
     render: (props: any) => <HeyMessageSplit {...props} />
   },
@@ -694,6 +606,178 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       description: { type: 'textarea', label: 'Description' },
     },
     render: (props: any) => <HeyMessageFooter {...props} />
+  },
+
+  // ── FEATURE COMPONENTS ───────────────────────────────────────────────
+
+  FeatureHeader: {
+    type: 'FeatureHeader',
+    label: 'Feature Header',
+    semantic: {
+      purpose: 'A minimal top navigation bar with a blur effect.',
+      example: { logoText: 'Feature', ctaText: 'Get Feature' }
+    },
+    defaultProps: { logoText: 'Feature', ctaText: 'Get Feature' },
+    fields: {
+      logoText: { type: 'text', label: 'Logo Text' },
+      ctaText: { type: 'text', label: 'CTA Text' },
+      ctaHref: { type: 'text', label: 'CTA Link' },
+    },
+    render: (props: any) => <FeatureHeader {...props} />
+  },
+
+  FeatureHero: {
+    type: 'FeatureHero',
+    label: 'Feature Hero',
+    semantic: {
+      purpose: 'A glowing dark-mode hero section with a dashboard graphic.',
+      example: { headline: 'Turn data into decisions' }
+    },
+    defaultProps: { badgeText: '', headline: 'Turn data into decisions' },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      badgeText: { type: 'text', label: 'Badge Text' },
+      headline: { type: 'textarea', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Sub-headline' },
+    },
+    render: (props: any) => <FeatureHero {...props} />
+  },
+
+  FeatureLogos: {
+    type: 'FeatureLogos',
+    label: 'Feature Logos',
+    semantic: {
+      purpose: 'A grid of faint logos for social proof.',
+      example: { headline: 'TRUSTED BY INNOVATIVE TEAMS' }
+    },
+    defaultProps: { headline: 'TRUSTED BY INNOVATIVE TEAMS' },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      headline: { type: 'text', label: 'Headline' },
+      logos: {
+        type: 'array',
+        label: 'Logos',
+        arrayFields: {
+          name: { type: 'text', label: 'Company Name' },
+          domain: { type: 'text', label: 'Company Domain (e.g. stripe.com)' }
+        }
+      }
+    },
+    render: (props: any) => <FeatureLogos {...props} />
+  },
+
+  FeatureTestimonials: {
+    type: 'FeatureTestimonials',
+    label: 'Feature Testimonials',
+    semantic: {
+      purpose: 'A 6-card masonry grid detailing user reviews.',
+      example: { headline: 'Reviews that make us blush' }
+    },
+    defaultProps: { headline: 'Reviews that make us blush' },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      headline: { type: 'textarea', label: 'Headline' },
+      testimonials: {
+        type: 'array',
+        label: 'Testimonials',
+        arrayFields: {
+          name: { type: 'text', label: 'Name' },
+          role: { type: 'text', label: 'Role / Company' },
+          content: { type: 'textarea', label: 'Review Content' },
+          avatarUrl: { type: 'text', label: 'Avatar URL (Optional)' },
+        }
+      }
+    },
+    render: (props: any) => <FeatureTestimonials {...props} />
+  },
+
+  FeatureFAQ: {
+    type: 'FeatureFAQ',
+    label: 'Feature FAQ',
+    semantic: {
+      purpose: 'A clean accordion answering common questions.',
+      example: { headline: 'Any questions?' }
+    },
+    defaultProps: { headline: 'Any questions?' },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      headline: { type: 'textarea', label: 'Headline' },
+      faqs: {
+        type: 'array',
+        label: 'FAQs',
+        arrayFields: {
+          question: { type: 'text', label: 'Question' },
+          answer: { type: 'textarea', label: 'Answer' },
+        }
+      }
+    },
+    render: (props: any) => <FeatureFAQ {...props} />
+  },
+
+  FeaturePricing: {
+    type: 'FeaturePricing',
+    label: 'Feature Pricing',
+    semantic: {
+      purpose: 'A 3-tier dark mode pricing card display.',
+      example: { headline: 'What will it cost?' }
+    },
+    defaultProps: { headline: 'What will it cost?' },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      headline: { type: 'textarea', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Sub-headline' },
+      tiers: {
+        type: 'array',
+        label: 'Pricing Tiers',
+        arrayFields: {
+          name: { type: 'text', label: 'Plan Name' },
+          price: { type: 'text', label: 'Price' },
+          description: { type: 'textarea', label: 'Description' },
+          buttonText: { type: 'text', label: 'Button Text' },
+          isPopular: { type: 'select', label: 'Is Popular?', options: ['true', 'false'] },
+          features: {
+            type: 'array',
+            label: 'Features List',
+            arrayFields: {
+              text: { type: 'text', label: 'Feature Item Text' },
+              included: { type: 'select', label: 'Included?', options: ['true', 'false'] }
+            }
+          }
+        }
+      }
+    },
+    render: (props: any) => <FeaturePricing {...props} />
+  },
+
+  FeatureCTA: {
+    type: 'FeatureCTA',
+    label: 'Feature CTA',
+    semantic: {
+      purpose: 'A golden-accented CTA container used at the bottom of pages.',
+      example: { headline: 'Ready to make better decisions with your data?' }
+    },
+    defaultProps: { headline: 'Ready to make better decisions with your data?' },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      headline: { type: 'textarea', label: 'Headline' },
+      buttonText: { type: 'text', label: 'Button Text' },
+    },
+    render: (props: any) => <FeatureCTA {...props} />
+  },
+
+  FeatureFooter: {
+    type: 'FeatureFooter',
+    label: 'Feature Footer',
+    semantic: {
+      purpose: 'A minimal footer with logo on the left and vertical links.',
+      example: { logoText: 'Feature', description: 'Data decisions, un-complicated.' }
+    },
+    defaultProps: { logoText: 'Feature', description: 'Data decisions, un-complicated.' },
+    fields: {
+      logoText: { type: 'text', label: 'Logo Text' },
+      description: { type: 'textarea', label: 'Description' },
+    },
+    render: (props: any) => <FeatureFooter {...props} />
   }
 
 };

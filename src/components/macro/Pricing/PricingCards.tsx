@@ -15,6 +15,7 @@ export interface PricingCardsProps {
   sectionTitle: string;
   sectionSubtitle?: string;
   tiers: PricingTier[];
+  sectionId?: string;
   elementStyles?: Record<string, React.CSSProperties>;
 }
 
@@ -22,10 +23,11 @@ export function PricingCards({
   sectionTitle,
   sectionSubtitle,
   tiers = [],
+  sectionId = '',
   elementStyles = {},
 }: PricingCardsProps) {
   return (
-    <section className="w-full py-24 px-4 md:px-8 bg-background text-foreground border-b border-border">
+    <section id={sectionId || undefined} className="w-full py-24 px-4 md:px-8 bg-background text-foreground border-b border-border scroll-mt-24">
       <div className="max-w-6xl mx-auto">
 
         <div className="text-center mb-16 animate-fade-in-up">

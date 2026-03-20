@@ -14,6 +14,7 @@ export interface HeyMessageFeaturesProps {
   badgeText?: string;
   headline?: string;
   features?: HeyMessageFeatureItem[];
+  sectionId?: string;
   className?: string;
   style?: React.CSSProperties;
   elementStyles?: Record<string, React.CSSProperties>;
@@ -42,6 +43,7 @@ export function HeyMessageFeatures({
       imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop',
     },
   ],
+  sectionId = '',
   className = '',
   style = {},
   elementStyles = {},
@@ -72,7 +74,7 @@ export function HeyMessageFeatures({
   };
 
   return (
-    <section className={`w-full py-24 px-6 flex flex-col items-center ${className}`} style={style}>
+    <section id={sectionId || undefined} className={`w-full py-24 px-6 flex flex-col items-center scroll-mt-24 ${className}`} style={style}>
       <div className="w-full max-w-5xl flex flex-col gap-12">
         {/* Header Block */}
         <motion.div
@@ -112,7 +114,7 @@ export function HeyMessageFeatures({
             <motion.div
               key={feature.id || idx}
               variants={cardVariants}
-              className="flex flex-col gap-5 group cursor-pointer"
+              className="flex flex-col gap-5 group/card cursor-pointer"
             >
               {/* Image Container with precise styling mimicking HeyMessage */}
               <div
@@ -122,9 +124,12 @@ export function HeyMessageFeatures({
                 <motion.img
                   whileHover={{ scale: 1.05 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  src={feature.imageUrl}
+                  src={feature.imageUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop'}
                   alt={feature.title}
-                  className="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-700"
+                  className="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover/card:mix-blend-normal group-hover/card:opacity-100 transition-all duration-700"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop';
+                  }}
                 />
                 {/* Subtle inner gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent pointer-events-none" />
@@ -133,7 +138,7 @@ export function HeyMessageFeatures({
               {/* Text Block */}
               <div className="flex flex-col gap-2 px-1">
                 <h3
-                  className="text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary"
+                  className="text-base font-semibold tracking-tight text-foreground transition-colors group-hover/card:text-primary"
                   style={elementStyles[`feature_${idx}_title`]}
                 >
                   {feature.title}

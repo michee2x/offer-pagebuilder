@@ -9,6 +9,7 @@ export interface HeyMessageCTAProps {
   buttonText?: string;
   buttonHref?: string;
   bgImageUrl?: string;
+  sectionId?: string;
   className?: string;
   style?: React.CSSProperties;
   elementStyles?: Record<string, React.CSSProperties>;
@@ -20,12 +21,13 @@ export function HeyMessageCTA({
   buttonText = 'Try It Free',
   buttonHref = '#',
   bgImageUrl = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
+  sectionId = '',
   className = '',
   style = {},
   elementStyles = {},
 }: HeyMessageCTAProps) {
   return (
-    <section className={`w-full py-24 px-6 flex justify-center ${className}`} style={style}>
+    <section id={sectionId || undefined} className={`w-full py-24 px-6 flex justify-center scroll-mt-24 ${className}`} style={style}>
       <motion.div
         initial={{ opacity: 0, y: 40, scale: 0.98 }}
         whileInView={{ opacity: 1, y: 0, scale: 1 }}

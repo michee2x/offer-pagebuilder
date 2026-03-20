@@ -18,6 +18,7 @@ export interface HeyMessageSplitProps {
   imageUrl?: string;
   imagePosition?: 'left' | 'right';
   contentItems?: SplitContentItem[];
+  sectionId?: string;
   className?: string;
   style?: React.CSSProperties;
   elementStyles?: Record<string, React.CSSProperties>;
@@ -37,6 +38,7 @@ export function HeyMessageSplit({
     { id: '2', title: '2 — Execute', description: 'The invisible system runs deeply connected reasoning.' },
     { id: '3', title: '3 — Enhance', description: 'Get actionable clarity delivered instantly.' },
   ],
+  sectionId = '',
   className = '',
   style = {},
   elementStyles = {},
@@ -61,7 +63,7 @@ export function HeyMessageSplit({
   };
 
   return (
-    <section className={`w-full py-24 px-6 flex flex-col items-center ${className}`} style={style}>
+    <section id={sectionId || undefined} className={`w-full py-24 px-6 flex flex-col items-center scroll-mt-24 ${className}`} style={style}>
       <div className="w-full max-w-5xl flex flex-col gap-16">
         {/* Header Block */}
         {(badgeText || headline) && (
@@ -132,16 +134,16 @@ export function HeyMessageSplit({
                 <motion.div
                   key={item.id || idx}
                   variants={itemVariants}
-                  className="flex gap-4 group"
+                  className="flex gap-4 group/splititem"
                 >
                   {Icon && (
                     <div className="shrink-0 mt-1">
-                      <Icon size={20} className="text-muted-foreground group-hover:text-primary transition-colors duration-500" />
+                      <Icon size={20} className="text-muted-foreground group-hover/splititem:text-primary transition-colors duration-500" />
                     </div>
                   )}
                   <div className="flex flex-col gap-2">
                     <h3
-                      className="text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary"
+                      className="text-lg font-semibold tracking-tight text-foreground transition-colors group-hover/splititem:text-primary"
                       style={elementStyles[`item_${idx}_title`]}
                     >
                       {item.title}

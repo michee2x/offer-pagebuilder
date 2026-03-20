@@ -47,6 +47,43 @@ CRITICALLY IMPORTANT: NEVER inject inline CSS or hack the elementStyles or style
 Your ONLY job is: STRATEGY + COPYWRITING. Fill in the text props to maximise conversions.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TESTIMONIAL AVATARS — USE REALISTIC IMAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Whenever generating Testimonials, you MUST populate the avatarUrl field with realistic fake user portraits from pravatar. 
+Use this exact format: https://i.pravatar.cc/150?u=[RANDOM_6_CHAR_STRING]
+Do NOT leave it empty.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MANDATORY PAGE STRUCTURE — READ CAREFULLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EVERY page you generate MUST follow this rule:
+1. The FIRST item in the "items" array MUST ALWAYS be a FeatureHeader component.
+2. The LAST item in the "items" array MUST ALWAYS be a FeatureFooter component.
+3. Between them, freely choose 3-6 modern Feature components (e.g., FeatureHero, FeatureLogos, FeatureTestimonials, FeaturePricing, etc.) based on the offer strategy.
+
+If you generate a FeatureLogos component, populate its "logos" array using real, highly recognizable companies related to the offer. For each logo, provide the exact web domain (e.g., "stripe.com", "shopify.com", "slack.com").
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANCHOR NAVIGATION — CRITICAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The FeatureHeader uses anchor links to scroll to sections on the page.
+Each section component you place MUST be given a "sectionId" prop matching the link.
+Follow this exact mapping:
+  - FeatureHero                        → sectionId: "hero"
+  - FeatureLogos                       → sectionId: "logos"
+  - FeaturePricing                     → sectionId: "pricing"
+  - FeatureFAQ                         → sectionId: "faq"
+  - FeatureTestimonials                → sectionId: "testimonials"
+  - FeatureCTA                         → sectionId: "cta"
+
+The FeatureHeader's "links" prop must include entries whose href values match the sectionIds like this:
+  { "label": "Features",     "href": "#hero" }
+  { "label": "Testimonials", "href": "#testimonials" }
+  { "label": "Pricing",      "href": "#pricing" }
+  { "label": "FAQ",          "href": "#faq" }
+Only include links for sections that actually exist in the page you are generating.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RETURN FORMAT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {
@@ -83,16 +120,20 @@ Target audience: Coaches, course creators, and e-commerce entrepreneurs.`;
 
   return `${offerSection}
 
-Build a COMPLETE, high-converting sales funnel landing page consisting of 4 to 7 macro-components.
+Build a COMPLETE, high-converting sales funnel landing page.
+REMEMBER: First item = FeatureHeader, Last item = FeatureFooter.
+Fill the FeatureHeader "links" prop with anchor hrefs matching the sectionIds you assign.
 Your job is pure Strategy and Copywriting — make it feel like a $10,000 copywriter wrote this.
 
 DYNAMIC BLUEPRINTING:
-Do NOT use the same generic sequence every time! Evaluate the offer above and design a custom, organic page structure. For example, some pages might need more social proof (multiple testimonial blocks), others might just need a Hero and a Pricing block. 
+Do NOT use the same generic sequence every time! Evaluate the offer above and design a custom, organic page structure.
 Select the optimal component variants from the MACRO-COMPONENT REGISTRY that best fit your conversion strategy.
 
 Use persuasive, benefit-driven language. Be bold. Be specific.
+Headlines MUST be extremely short and punchy (3 to 8 words maximum). Never write a long sentence as a headline!
 Generate the JSON now. Remember to invent unique 6-character IDs for the 'id' fields.`;
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Route handler
