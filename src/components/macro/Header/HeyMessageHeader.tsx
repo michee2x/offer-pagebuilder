@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Transition } from 'framer-motion';
 import { Ghost, Menu, X } from 'lucide-react';
 
 export interface HeyMessageHeaderProps {
@@ -38,7 +40,7 @@ export function HeyMessageHeader({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const headerSpring = {
+  const headerSpring: Transition = {
     type: 'spring',
     stiffness: 400,
     damping: 30,
