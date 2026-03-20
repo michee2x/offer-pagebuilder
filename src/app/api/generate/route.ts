@@ -43,6 +43,7 @@ STYLING — DO NOTHING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 The page is ALREADY perfectly styled by the user's chosen theme (a shadcn CSS variable theme).
 You do NOT write ANY CSS, Tailwind classes, colors, or style props.
+CRITICALLY IMPORTANT: NEVER inject inline CSS or hack the elementStyles or style props. Leave them completely empty or absent!
 Your ONLY job is: STRATEGY + COPYWRITING. Fill in the text props to maximise conversions.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -82,15 +83,12 @@ Target audience: Coaches, course creators, and e-commerce entrepreneurs.`;
 
   return `${offerSection}
 
-Build a COMPLETE, high-converting 5-section sales funnel landing page.
+Build a COMPLETE, high-converting sales funnel landing page consisting of 4 to 7 macro-components.
 Your job is pure Strategy and Copywriting — make it feel like a $10,000 copywriter wrote this.
 
-Sequence the Macro-Components logically:
-1. HeroSection (Hook them)
-2. FeaturesSection (Explain the mechanism)
-3. TestimonialsSection (Build trust)
-4. PricingSection (The offer)
-5. CTASection (Final push)
+DYNAMIC BLUEPRINTING:
+Do NOT use the same generic sequence every time! Evaluate the offer above and design a custom, organic page structure. For example, some pages might need more social proof (multiple testimonial blocks), others might just need a Hero and a Pricing block. 
+Select the optimal component variants from the MACRO-COMPONENT REGISTRY that best fit your conversion strategy.
 
 Use persuasive, benefit-driven language. Be bold. Be specific.
 Generate the JSON now. Remember to invent unique 6-character IDs for the 'id' fields.`;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter, Button, Badge, Separator } from '@/components/micro';
-import { SystemIcon } from '../system/Icon';
+import { SystemIcon } from '../../system/Icon';
 
 export interface PricingTier {
   name: string;
@@ -11,19 +11,19 @@ export interface PricingTier {
   buttonText: string;
 }
 
-export interface PricingSectionProps {
+export interface PricingCardsProps {
   sectionTitle: string;
   sectionSubtitle?: string;
   tiers: PricingTier[];
   elementStyles?: Record<string, React.CSSProperties>;
 }
 
-export function PricingSection({
+export function PricingCards({
   sectionTitle,
   sectionSubtitle,
   tiers = [],
   elementStyles = {},
-}: PricingSectionProps) {
+}: PricingCardsProps) {
   return (
     <section className="w-full py-24 px-4 md:px-8 bg-background text-foreground border-b border-border">
       <div className="max-w-6xl mx-auto">

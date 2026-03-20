@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/micro';
-import { SystemIcon } from '../system/Icon';
+import { SystemIcon } from '../../system/Icon';
 
 export interface FeatureItem {
   icon: string;
@@ -8,19 +8,19 @@ export interface FeatureItem {
   description: string;
 }
 
-export interface FeaturesSectionProps {
+export interface FeaturesGridProps {
   sectionTitle: string;
   sectionSubtitle?: string;
   features: FeatureItem[];
   elementStyles?: Record<string, React.CSSProperties>;
 }
 
-export function FeaturesSection({
+export function FeaturesGrid({
   sectionTitle,
   sectionSubtitle,
   features = [],
   elementStyles = {},
-}: FeaturesSectionProps) {
+}: FeaturesGridProps) {
   return (
     <section className="w-full py-24 px-4 md:px-8 bg-background text-foreground border-b border-border">
       <div className="max-w-6xl mx-auto">

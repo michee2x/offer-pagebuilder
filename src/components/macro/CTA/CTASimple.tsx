@@ -1,19 +1,19 @@
 import React from 'react';
 import { Button } from '@/components/micro';
 
-export interface CTASectionProps {
+export interface CTASimpleProps {
   headline: string;
   subheadline: string;
   buttonText: string;
   elementStyles?: Record<string, React.CSSProperties>;
 }
 
-export function CTASection({
+export function CTASimple({
   headline,
   subheadline,
   buttonText,
   elementStyles = {},
-}: CTASectionProps) {
+}: CTASimpleProps) {
   return (
     <section className="w-full py-32 px-4 md:px-8 text-center relative overflow-hidden bg-primary text-primary-foreground">
 

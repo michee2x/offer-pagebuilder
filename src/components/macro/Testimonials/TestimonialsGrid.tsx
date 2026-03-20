@@ -8,17 +8,17 @@ export interface TestimonialItem {
   stars: number;
 }
 
-export interface TestimonialsSectionProps {
+export interface TestimonialsGridProps {
   sectionTitle: string;
   testimonials: TestimonialItem[];
   elementStyles?: Record<string, React.CSSProperties>;
 }
 
-export function TestimonialsSection({
+export function TestimonialsGrid({
   sectionTitle,
   testimonials = [],
   elementStyles = {},
-}: TestimonialsSectionProps) {
+}: TestimonialsGridProps) {
   return (
     <section className="w-full py-24 px-4 md:px-8 bg-muted/30 text-foreground border-b border-border overflow-hidden">
       <div className="max-w-6xl mx-auto">

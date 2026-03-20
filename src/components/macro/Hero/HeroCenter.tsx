@@ -1,9 +1,9 @@
 import React from 'react';
 import { Button, Badge } from '@/components/micro';
-import { SystemIcon } from '../system/Icon';
+import { SystemIcon } from '../../system/Icon';
 import { cn } from '@/lib/utils';
 
-export interface HeroSectionProps {
+export interface HeroCenterProps {
   badgeText?: string;
   headline: string;
   subheadline: string;
@@ -13,7 +13,7 @@ export interface HeroSectionProps {
   elementStyles?: Record<string, React.CSSProperties>;
 }
 
-export function HeroSection({
+export function HeroCenter({
   badgeText,
   headline,
   subheadline,
@@ -21,7 +21,7 @@ export function HeroSection({
   secondaryCta,
   imageUrl,
   elementStyles = {},
-}: HeroSectionProps) {
+}: HeroCenterProps) {
   return (
     <section className="relative w-full overflow-hidden py-24 lg:py-36 flex flex-col items-center justify-center text-center px-4 md:px-8 bg-background text-foreground border-b border-border">
 

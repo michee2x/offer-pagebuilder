@@ -1,9 +1,17 @@
 import React from 'react';
-import { HeroSection } from '../components/macro/HeroSection';
-import { FeaturesSection } from '../components/macro/FeaturesSection';
-import { TestimonialsSection } from '../components/macro/TestimonialsSection';
-import { PricingSection } from '../components/macro/PricingSection';
-import { CTASection } from '../components/macro/CTASection';
+import { HeroCenter } from '../components/macro/Hero';
+import { FeaturesGrid } from '../components/macro/Features';
+import { TestimonialsGrid } from '../components/macro/Testimonials';
+import { PricingCards } from '../components/macro/Pricing';
+import { CTASimple } from '../components/macro/CTA';
+
+// HeyMessage Components
+import { HeyMessageHeader } from '../components/macro/Header';
+import { HeyMessageFeatures } from '../components/macro/Features';
+import { HeyMessageSplit } from '../components/macro/Content';
+import { HeyMessageFAQ } from '../components/macro/FAQ';
+import { HeyMessageCTA } from '../components/macro/CTA';
+import { HeyMessageFooter } from '../components/macro/Footer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Component Registry
@@ -62,11 +70,17 @@ export type ComponentType =
   | 'StatBlock'
   | 'TestimonialCard'
   | 'FeatureCard'
-  | 'HeroSection'
-  | 'FeaturesSection'
-  | 'TestimonialsSection'
-  | 'PricingSection'
-  | 'CTASection';
+  | 'HeroCenter'
+  | 'FeaturesGrid'
+  | 'TestimonialsGrid'
+  | 'PricingCards'
+  | 'CTASimple'
+  | 'HeyMessageHeader'
+  | 'HeyMessageFeatures'
+  | 'HeyMessageSplit'
+  | 'HeyMessageFAQ'
+  | 'HeyMessageCTA'
+  | 'HeyMessageFooter';
 
 export type FieldDef = {
   type: 'text' | 'textarea' | 'select' | 'color' | 'number' | 'array';
@@ -434,9 +448,9 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── MACRO-COMPONENTS (AI Only) ──────────────────────────────────────────
 
-  HeroSection: {
-    type: 'HeroSection',
-    label: 'Hero Section',
+  HeroCenter: {
+    type: 'HeroCenter',
+    label: 'Hero Center',
     semantic: {
       purpose: 'The top-most section of the page. Use this for the main value proposition, a big bold hook, and the primary call to action.',
       example: {
@@ -461,12 +475,12 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       secondaryCta: { type: 'text', label: 'Secondary CTA Text' },
       imageUrl: { type: 'text', label: 'Hero Image URL' },
     },
-    render: (props: any) => <HeroSection {...props} />
+    render: (props: any) => <HeroCenter {...props} />
   },
 
-  FeaturesSection: {
-    type: 'FeaturesSection',
-    label: 'Features Section',
+  FeaturesGrid: {
+    type: 'FeaturesGrid',
+    label: 'Features Grid',
     semantic: {
       purpose: 'A 3-column grid highlighting the core benefits, features, or pillars of the product. Requires Lucide icons.',
       example: {
@@ -493,12 +507,12 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
         }
       }
     },
-    render: (props: any) => <FeaturesSection {...props} />
+    render: (props: any) => <FeaturesGrid {...props} />
   },
 
-  TestimonialsSection: {
-    type: 'TestimonialsSection',
-    label: 'Testimonials',
+  TestimonialsGrid: {
+    type: 'TestimonialsGrid',
+    label: 'Testimonials Grid',
     semantic: {
       purpose: 'Social proof section. Displays customer quotes, user avatars, and 5-star ratings to build trust.',
       example: {
@@ -523,12 +537,12 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
         }
       }
     },
-    render: (props: any) => <TestimonialsSection {...props} />
+    render: (props: any) => <TestimonialsGrid {...props} />
   },
 
-  PricingSection: {
-    type: 'PricingSection',
-    label: 'Pricing Section',
+  PricingCards: {
+    type: 'PricingCards',
+    label: 'Pricing Cards',
     semantic: {
       purpose: 'Tiered pricing cards showing different plans, prices, and features. Usually 2 or 3 tiers.',
       example: {
@@ -562,12 +576,12 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
         }
       }
     },
-    render: (props: any) => <PricingSection {...props} />
+    render: (props: any) => <PricingCards {...props} />
   },
 
-  CTASection: {
-    type: 'CTASection',
-    label: 'Call to Action',
+  CTASimple: {
+    type: 'CTASimple',
+    label: 'Simple CTA',
     semantic: {
       purpose: 'The final, massive bottom-of-page hook to catch visitors who scrolled all the way down. Bold gradient background.',
       example: {
@@ -582,7 +596,104 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       subheadline: { type: 'textarea', label: 'Sub-headline' },
       buttonText: { type: 'text', label: 'Button Text' },
     },
-    render: (props: any) => <CTASection {...props} />
+    render: (props: any) => <CTASimple {...props} />
+  },
+
+  // ── HEYMESSAGE COMPONENTS ──────────────────────────────────────────
+
+  HeyMessageHeader: {
+    type: 'HeyMessageHeader',
+    label: 'HM Header',
+    semantic: {
+      purpose: 'A sticky top navigation bar inspired by HeyMessage.',
+      example: { logoText: 'MyBrand', ctaText: 'Get Started' }
+    },
+    defaultProps: { logoText: 'HeyMessage', ctaText: 'Get Started' },
+    fields: {
+      logoText: { type: 'text', label: 'Logo Text' },
+      ctaText: { type: 'text', label: 'CTA Text' },
+      ctaHref: { type: 'text', label: 'CTA Link' },
+    },
+    render: (props: any) => <HeyMessageHeader {...props} />
+  },
+
+  HeyMessageFeatures: {
+    type: 'HeyMessageFeatures',
+    label: 'HM Features Grid',
+    semantic: {
+      purpose: 'A modern 3-column features grid with image cards and staggered animations.',
+      example: { badgeText: 'FEATURES', headline: 'Awesome features.' }
+    },
+    defaultProps: { badgeText: 'FEATURES', headline: 'Discover the power.' },
+    fields: {
+      badgeText: { type: 'text', label: 'Badge Text' },
+      headline: { type: 'textarea', label: 'Headline' },
+    },
+    render: (props: any) => <HeyMessageFeatures {...props} />
+  },
+
+  HeyMessageSplit: {
+    type: 'HeyMessageSplit',
+    label: 'HM Split Content',
+    semantic: {
+      purpose: 'A highly versatile section that splits an image and a vertical list of item points.',
+      example: { badgeText: 'HOW IT WORKS', imagePosition: 'left' }
+    },
+    defaultProps: { badgeText: 'ONBOARDING', imagePosition: 'left' },
+    fields: {
+      badgeText: { type: 'text', label: 'Badge' },
+      headline: { type: 'textarea', label: 'Headline' },
+      imagePosition: { type: 'select', label: 'Image Position', options: ['left', 'right'] },
+      imageUrl: { type: 'text', label: 'Image URL' },
+    },
+    render: (props: any) => <HeyMessageSplit {...props} />
+  },
+
+  HeyMessageFAQ: {
+    type: 'HeyMessageFAQ',
+    label: 'HM FAQ Accordion',
+    semantic: {
+      purpose: 'A clean, animated accordion FAQ list.',
+      example: { badgeText: 'SUPPORT', headline: 'Your Questions' }
+    },
+    defaultProps: { badgeText: 'FAQ', headline: 'Your questions, answered.' },
+    fields: {
+      badgeText: { type: 'text', label: 'Badge' },
+      headline: { type: 'textarea', label: 'Headline' },
+    },
+    render: (props: any) => <HeyMessageFAQ {...props} />
+  },
+
+  HeyMessageCTA: {
+    type: 'HeyMessageCTA',
+    label: 'HM Container CTA',
+    semantic: {
+      purpose: 'A bottom-of-page containerized CTA with a background image overlay.',
+      example: { headline: 'Ready to start?', buttonText: 'Try Now' }
+    },
+    defaultProps: { headline: 'Step into the future.', buttonText: 'Get Started' },
+    fields: {
+      headline: { type: 'textarea', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Sub-headline' },
+      buttonText: { type: 'text', label: 'Button Text' },
+      bgImageUrl: { type: 'text', label: 'Background Image' },
+    },
+    render: (props: any) => <HeyMessageCTA {...props} />
+  },
+
+  HeyMessageFooter: {
+    type: 'HeyMessageFooter',
+    label: 'HM Minimal Footer',
+    semantic: {
+      purpose: 'A simple, minimal footer with logo on the left and vertical links on the right.',
+      example: { logoText: 'MyBrand', description: 'Your data is safe.' }
+    },
+    defaultProps: { logoText: 'HeyMessage', description: 'Secure and fast.' },
+    fields: {
+      logoText: { type: 'text', label: 'Logo Text' },
+      description: { type: 'textarea', label: 'Description' },
+    },
+    render: (props: any) => <HeyMessageFooter {...props} />
   }
 
 };
