@@ -204,6 +204,38 @@ export const SHADCN_THEMES: Record<string, ShadcnTheme> = {
     },
   },
 
+  // ── 6. HEYMESSAGE DARK (Modern AI Template) ─────────────────────────────────
+  'heymessage-dark': {
+    id: 'heymessage-dark',
+    name: 'HeyMessage Dark',
+    category: 'dark',
+    headingFont: '"Host Grotesk Local", Inter, sans-serif',
+    bodyFont: '"DM Sans Local", Inter, sans-serif',
+    googleFontsUrl: '', // Hosted locally in globals.css
+    vars: {
+      background: '0 0% 0%',
+      foreground: '0 0% 100%',
+      card: '0 0% 6%',
+      'card-foreground': '0 0% 100%',
+      popover: '0 0% 6%',
+      'popover-foreground': '0 0% 100%',
+      primary: '0 0% 98%',          // light gray/white for main buttons
+      'primary-foreground': '0 0% 9%',
+      secondary: '0 0% 12%',
+      'secondary-foreground': '0 0% 100%',
+      muted: '0 0% 15%',
+      'muted-foreground': '0 0% 52%', // #858585
+      accent: '74 100% 64%',         // #d5ff45 (original yellow)
+      'accent-foreground': '0 0% 4%',
+      destructive: '0 62.8% 50%',
+      'destructive-foreground': '0 0% 98%',
+      border: '0 0% 16%',            // transparent white border equivalent
+      input: '0 0% 16%',
+      ring: '74 100% 64%',           // yellow focus ring
+      radius: '1rem',                // 16px radius for cards/buttons
+    },
+  },
+
 };
 
 export const ALL_SHADCN_THEME_IDS = Object.keys(SHADCN_THEMES);

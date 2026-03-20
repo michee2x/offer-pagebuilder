@@ -2,6 +2,30 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'Host Grotesk Local';
+  src: url('/fonts/heymessage/HostGrotesk-Variable.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans Local';
+  src: url('/fonts/heymessage/DMSans-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans Local';
+  src: url('/fonts/heymessage/DMSans-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -77,4 +101,36 @@
     --ring: 263 70% 58%;
     --radius: 0.5rem;
   }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   THEME SPECIFIC OVERRIDES
+────────────────────────────────────────────────────────────────────────────── */
+
+/* heymessage-dark: Noise Background & Typography Spacing */
+#canvas-root[data-theme="heymessage-dark"] {
+  letter-spacing: -0.03em;
+  position: relative;
+}
+
+/* Use a pointer-events-none overlay to ensure the noise sits uniformly on top of all sections */
+#canvas-root[data-theme="heymessage-dark"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png");
+  background-repeat: repeat;
+  background-size: 153.5px auto;
+  opacity: 0.13;
+  z-index: 99;
+}
+
+#canvas-root[data-theme="heymessage-dark"] h1,
+#canvas-root[data-theme="heymessage-dark"] h2,
+#canvas-root[data-theme="heymessage-dark"] h3,
+#canvas-root[data-theme="heymessage-dark"] h4,
+#canvas-root[data-theme="heymessage-dark"] h5,
+#canvas-root[data-theme="heymessage-dark"] h6 {
+  letter-spacing: -0.04em;
 }

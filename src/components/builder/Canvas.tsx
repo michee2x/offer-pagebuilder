@@ -159,6 +159,7 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
       */}
       <div
         id="canvas-root"
+        data-theme={theme?.id}
         className={`bg-background transition-all duration-300 transform-gpu ${previewInnerClasses} ${selectionRing}`}
         style={canvasRootStyle}
         onClick={handleCanvasClick}
