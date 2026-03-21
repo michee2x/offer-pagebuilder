@@ -470,6 +470,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     },
     defaultProps: { sectionTitle: 'Pricing', tiers: [] },
     fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       sectionTitle: { type: 'text', label: 'Section Title' },
       sectionSubtitle: { type: 'textarea', label: 'Section Subtitle' },
       tiers: {
@@ -521,6 +522,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     },
     defaultProps: { badgeText: 'FEATURES', headline: 'Discover the power.' },
     fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       badgeText: { type: 'text', label: 'Badge Text' },
       headline: { type: 'textarea', label: 'Headline' },
       features: {
@@ -545,6 +547,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     },
     defaultProps: { badgeText: 'ONBOARDING', imagePosition: 'left' },
     fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       badgeText: { type: 'text', label: 'Badge' },
       headline: { type: 'textarea', label: 'Headline' },
       imagePosition: { type: 'select', label: 'Image Position', options: ['left', 'right'] },
@@ -570,6 +573,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     },
     defaultProps: { badgeText: 'FAQ', headline: 'Your questions, answered.' },
     fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       badgeText: { type: 'text', label: 'Badge' },
       headline: { type: 'textarea', label: 'Headline' },
     },
@@ -585,6 +589,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     },
     defaultProps: { headline: 'Step into the future.', buttonText: 'Get Started' },
     fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       headline: { type: 'textarea', label: 'Headline' },
       subheadline: { type: 'textarea', label: 'Sub-headline' },
       buttonText: { type: 'text', label: 'Button Text' },

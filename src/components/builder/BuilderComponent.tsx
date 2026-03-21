@@ -17,9 +17,11 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
   const config = COMPONENT_REGISTRY[component.type];
   const isSelected = selectedId === id && !isPreviewMode;
 
+  const isHeader = component.type.includes('Header');
+
   return (
     <div
-      className="relative group"
+      className={`relative group ${isHeader ? 'z-[100]' : 'z-0'}`}
       onClick={(e) => {
         if (isPreviewMode) return;
         e.stopPropagation();
@@ -34,7 +36,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
       <div 
         className={`w-full transition-all ${!isPreviewMode ? 'border-2 border-transparent hover:border-blue-300' : ''} ${isSelected && !selectedField ? '!border-blue-500 rounded relative z-10' : ''} ${isSelected && selectedField ? '!border-blue-300 border-dashed rounded relative z-10' : ''}`}
       >
-        <div className="relative z-10">
+        <div className={`relative ${isHeader ? 'z-[100]' : 'z-10'}`}>
           {config.render({
             ...component.props,
             isPreviewMode,

@@ -75,13 +75,22 @@ export function FeatureHeader({
         </a>
 
         {/* DESKTOP LINKS */}
-        <div className="hidden md:flex items-center gap-1 bg-secondary/50 rounded-full px-2 py-1 border border-border/50 z-20 relative pointer-events-auto">
+        <div className="hidden md:flex items-center gap-1 bg-secondary/50 rounded-full px-2 py-1 border border-border/50 z-[9999] relative pointer-events-auto">
           {links.map((link, idx) => (
             <a
               key={idx}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-1.5 rounded-full transition-colors hover:bg-secondary cursor-pointer relative z-10"
-              style={elementStyles[`link_${idx}`]}
+              onClick={(e) => {
+                if (link.href.startsWith('#')) {
+                  e.preventDefault();
+                  const target = document.querySelector(link.href);
+                  if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }
+              }}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-1.5 rounded-full transition-colors hover:bg-secondary cursor-pointer relative z-[9999]"
+              style={{ ...elementStyles[`link_${idx}`], cursor: 'pointer', pointerEvents: 'auto' }}
             >
               {link.label}
             </a>
@@ -124,8 +133,18 @@ export function FeatureHeader({
               <a
                 key={idx}
                 href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-base font-medium text-muted-foreground hover:text-foreground py-2"
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  if (link.href.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.querySelector(link.href);
+                    if (target) {
+                      target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }
+                }}
+                className="text-base font-medium text-muted-foreground hover:text-foreground py-2 cursor-pointer"
+                style={{ cursor: 'pointer', pointerEvents: 'auto' }}
               >
                 {link.label}
               </a>
