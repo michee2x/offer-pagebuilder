@@ -59,7 +59,9 @@ MANDATORY PAGE STRUCTURE — READ CAREFULLY
 EVERY page you generate MUST follow this rule:
 1. The FIRST item in the "items" array MUST ALWAYS be a FeatureHeader component.
 2. The LAST item in the "items" array MUST ALWAYS be a FeatureFooter component.
-3. Between them, freely choose 3-6 modern Feature components (e.g., FeatureHero, FeatureLogos, FeatureTestimonials, FeaturePricing, etc.) based on the offer strategy.
+3. Between them, freely choose 3-6 modern Feature components based on the offer strategy. 
+   CRITICAL: Do NOT simply output the same layout over and over. Choose different visual variants!
+   For example, choose either 'FeatureHero' OR 'HeroCenter'. For features, choose either 'FeaturesGrid' or 'FeatureSplit'. Give the page dynamic visual variety.
 
 If you generate a FeatureLogos component, populate its "logos" array using real, highly recognizable companies related to the offer. For each logo, provide the exact web domain (e.g., "stripe.com", "shopify.com", "slack.com").
 
@@ -69,12 +71,13 @@ ANCHOR NAVIGATION — CRITICAL
 The FeatureHeader uses anchor links to scroll to sections on the page.
 Each section component you place MUST be given a "sectionId" prop matching the link.
 Follow this exact mapping:
-  - FeatureHero                        → sectionId: "hero"
-  - FeatureLogos                       → sectionId: "logos"
-  - FeaturePricing                     → sectionId: "pricing"
-  - FeatureFAQ                         → sectionId: "faq"
-  - FeatureTestimonials                → sectionId: "testimonials"
-  - FeatureCTA                         → sectionId: "cta"
+  - Any Hero component (FeatureHero, HeroCenter)          → sectionId: "hero"
+  - FeatureLogos                                          → sectionId: "logos"
+  - FeaturePricing                                        → sectionId: "pricing"
+  - FeatureFAQ                                            → sectionId: "faq"
+  - FeatureTestimonials                                   → sectionId: "testimonials"
+  - Any features/content block (FeatureSplit, FeaturesGrid) → sectionId: "features"
+  - FeatureCTA                                            → sectionId: "cta"
 
 The FeatureHeader's "links" prop must include entries whose href values match the sectionIds like this:
   { "label": "Features",     "href": "#hero" }
@@ -128,6 +131,7 @@ Your job is pure Strategy and Copywriting — make it feel like a $10,000 copywr
 DYNAMIC BLUEPRINTING:
 Do NOT use the same generic sequence every time! Evaluate the offer above and design a custom, organic page structure.
 Select the optimal component variants from the MACRO-COMPONENT REGISTRY that best fit your conversion strategy.
+To combat layout fatigue, you MUST use different variants. Don't just use FeatureCard 10 times.
 
 Use persuasive, benefit-driven language. Be bold. Be specific.
 Headlines MUST be extremely short and punchy (3 to 8 words maximum). Never write a long sentence as a headline!

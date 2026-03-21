@@ -11,13 +11,15 @@ import { HeyMessageFooter } from '../components/macro/Footer';
 
 // Feature Components
 import { FeatureHeader } from '../components/macro/Header';
-import { FeatureHero } from '../components/macro/Hero';
+import { FeatureHero, HeroCenter } from '../components/macro/Hero';
 import { FeatureLogos } from '../components/macro/Logos';
 import { FeatureTestimonials } from '../components/macro/Testimonials';
 import { FeatureFAQ } from '../components/macro/FAQ';
 import { FeaturePricing } from '../components/macro/Pricing';
 import { FeatureCTA } from '../components/macro/CTA';
 import { FeatureFooter } from '../components/macro/Footer';
+import { FeaturesGrid } from '../components/macro/Features/FeaturesGrid';
+import { FeatureSplit } from '../components/macro/Content/FeatureSplit';
 // ─────────────────────────────────────────────────────────────────────────────
 // Component Registry
 // ─────────────────────────────────────────────────────────────────────────────
@@ -84,11 +86,14 @@ export type ComponentType =
   | 'HeyMessageFooter'
   | 'FeatureHeader'
   | 'FeatureHero'
+  | 'HeroCenter'
   | 'FeatureLogos'
   | 'FeatureTestimonials'
   | 'FeatureFAQ'
   | 'FeaturePricing'
   | 'FeatureCTA'
+  | 'FeaturesGrid'
+  | 'FeatureSplit'
   | 'FeatureFooter';
 export type FieldDef = {
   type: 'text' | 'textarea' | 'select' | 'color' | 'number' | 'array';
@@ -646,6 +651,79 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       subheadline: { type: 'textarea', label: 'Sub-headline' },
     },
     render: (props: any) => <FeatureHero {...props} />
+  },
+
+  HeroCenter: {
+    type: 'HeroCenter',
+    label: 'Hero (Centered)',
+    semantic: {
+      purpose: 'A bright, clean, centered hero section. Best for simple and direct value propositions.',
+      example: { headline: 'The easiest way to build', subheadline: 'Start for free today.' }
+    },
+    defaultProps: { badgeText: 'NEW', headline: 'The easiest way to build', subheadline: 'Start for free today.', primaryCta: 'Get Started' },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      badgeText: { type: 'text', label: 'Badge Text' },
+      headline: { type: 'textarea', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Sub-headline' },
+      primaryCta: { type: 'text', label: 'Primary CTA' },
+      secondaryCta: { type: 'text', label: 'Secondary CTA' },
+      imageUrl: { type: 'text', label: 'Image URL' },
+    },
+    render: (props: any) => <HeroCenter {...props} />
+  },
+
+  FeaturesGrid: {
+    type: 'FeaturesGrid',
+    label: 'Features (Grid)',
+    semantic: {
+      purpose: 'A clean 3-column grid of feature cards. Excellent for listing multiple benefits concisely.',
+      example: { sectionTitle: 'Everything you need', features: [{ title: 'Fast', description: 'Very fast', icon: 'Zap' }] }
+    },
+    defaultProps: { sectionTitle: 'Everything you need', features: [{ title: 'Fast', description: 'Very fast', icon: 'Zap' }] },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      sectionTitle: { type: 'text', label: 'Section Title' },
+      sectionSubtitle: { type: 'textarea', label: 'Section Subtitle' },
+      features: {
+        type: 'array',
+        label: 'Features Box',
+        arrayFields: {
+          icon: { type: 'text', label: 'Icon (Lucide)' },
+          title: { type: 'text', label: 'Title' },
+          description: { type: 'textarea', label: 'Description' }
+        }
+      }
+    },
+    render: (props: any) => <FeaturesGrid {...props} />
+  },
+
+  FeatureSplit: {
+    type: 'FeatureSplit',
+    label: 'Feature (Split)',
+    semantic: {
+      purpose: 'A dark-mode split section with an image on one side and a vertical list of benefits on the other.',
+      example: { headline: 'Stop jumping between tools' }
+    },
+    defaultProps: { badgeText: 'INTEGRATION', headline: 'Stop jumping between tools', imagePosition: 'right', contentItems: [] },
+    fields: {
+      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
+      badgeText: { type: 'text', label: 'Badge Text' },
+      headline: { type: 'textarea', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Sub-headline' },
+      imageUrl: { type: 'text', label: 'Image URL' },
+      imagePosition: { type: 'select', label: 'Image Position', options: ['left', 'right'] },
+      contentItems: {
+        type: 'array',
+        label: 'Split Items',
+        arrayFields: {
+          id: { type: 'text', label: 'ID' },
+          title: { type: 'text', label: 'Title' },
+          description: { type: 'textarea', label: 'Description' },
+        }
+      }
+    },
+    render: (props: any) => <FeatureSplit {...props} />
   },
 
   FeatureLogos: {

@@ -4,28 +4,16 @@ import React from 'react';
 import { useBuilderStore } from '@/store/builderStore';
 import { BuilderComponent } from './BuilderComponent';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { ShadcnTheme } from '@/lib/themes';
 
 export const CANVAS_ID = '__canvas__';
 
-/**
- * Tailwind v4 generates utilities like bg-primary using var(--color-primary),
- * which maps from the @theme block: --color-primary: hsl(var(--primary)).
- *
- * To reliably override at runtime we need to inject TWO layers onto the canvas div:
- *   1. Raw HSL vars:     --primary: "43 89% 45%"
- *   2. Resolved tokens:  --color-primary: "hsl(43 89% 45%)"
- *
- * This ensures every Tailwind utility class (bg-primary, text-foreground, etc.)
- * picks up the right theme value regardless of which var() it reads internally.
- */
 function buildThemeInlineVars(theme: ShadcnTheme): React.CSSProperties {
   const v = theme.vars;
   const hsl = (val: string) => `hsl(${val})`;
 
   const cssVars: Record<string, string> = {
-    // ── Raw HSL vars (base layer used by shadcn components) ──────────────────
     '--background':            v.background,
     '--foreground':            v.foreground,
     '--card':                  v.card,
@@ -47,7 +35,6 @@ function buildThemeInlineVars(theme: ShadcnTheme): React.CSSProperties {
     '--ring':                  v.ring,
     '--radius':                v.radius,
 
-    // ── Resolved hsl() tokens (what Tailwind v4 @theme generates) ────────────
     '--color-background':           hsl(v.background),
     '--color-foreground':           hsl(v.foreground),
     '--color-card':                 hsl(v.card),
@@ -68,12 +55,10 @@ function buildThemeInlineVars(theme: ShadcnTheme): React.CSSProperties {
     '--color-input':                hsl(v.input),
     '--color-ring':                 hsl(v.ring),
 
-    // ── Resolved radius tokens (what Tailwind v4 @theme generates) ───────────
     '--radius-lg':                  v.radius,
     '--radius-md':                  `calc(${v.radius} - 2px)`,
     '--radius-sm':                  `calc(${v.radius} - 4px)`,
 
-    // ── Typography ────────────────────────────────────────────────────────────
     'font-family': `"${theme.bodyFont}", sans-serif`,
   };
 
@@ -114,7 +99,6 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
   const selectionRing =
     isCanvasSelected && !isPreviewMode ? 'ring-2 ring-blue-500 ring-offset-2' : '';
 
-  // Merge theme CSS vars (inline) + canvasStyle overrides
   const canvasRootStyle: React.CSSProperties = {
     ...(theme ? buildThemeInlineVars(theme) : {}),
     ...(canvasStyle as React.CSSProperties),
@@ -125,7 +109,6 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
       className={`flex-1 overflow-y-auto ${previewOuterClasses} transition-all`}
       onClick={() => setSelected(null)}
     >
-      {/* Animation keyframes — applied globally but harmless */}
       <style dangerouslySetInnerHTML={{
         __html: `
           @keyframes fadeInUp {
@@ -138,7 +121,6 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
           }
           .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
           .animate-float       { animation: float 3s ease-in-out infinite; }
-          /* Heading font scoped to canvas */
           #canvas-root h1, #canvas-root h2, #canvas-root h3,
           #canvas-root h4, #canvas-root h5, #canvas-root h6 {
             font-family: "${theme?.headingFont ?? 'inherit'}", sans-serif;
@@ -146,17 +128,10 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
         `
       }} />
 
-      {/* Google Font for active theme */}
       {theme?.googleFontsUrl && (
         <link rel="stylesheet" href={theme.googleFontsUrl} />
       )}
 
-      {/*
-        #canvas-root receives ALL theme CSS vars as inline styles.
-        Inline CSS custom properties cascade reliably to every child component,
-        overriding the builder's :root defaults from globals.css.
-        This keeps the sidebar unaffected while the canvas reflects the chosen theme.
-      */}
       <div
         id="canvas-root"
         data-theme={theme?.id}
@@ -170,14 +145,44 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
           } flex flex-col transition-all`}
         >
           {rootList.length === 0 ? (
-            <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg border-muted p-12 text-center pointer-events-none m-8">
+            <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg border-muted p-12 text-center my-8 mx-8">
               <div>
-                <h3 className="text-lg font-medium mb-1">Canvas is empty</h3>
-                <p className="text-sm">Generate a page using AI to get started.</p>
+                <h3 className="text-lg font-medium mb-4">Canvas is empty</h3>
+                <Button onClick={() => window.dispatchEvent(new CustomEvent('OPEN_SECTION_MODAL', { detail: { index: 0 } }))}>
+                  <Plus className="w-4 h-4 mr-2" /> Add Section
+                </Button>
               </div>
             </div>
           ) : (
-            rootList.map((id) => <BuilderComponent key={id} id={id} />)
+            <div className="flex flex-col">
+              {!isPreviewMode && rootList.length > 0 && (
+                <div 
+                  className="h-8 flex items-center justify-center relative opacity-0 hover:opacity-100 peer-hover:opacity-100 transition-opacity z-[90] cursor-pointer"
+                  onClick={() => window.dispatchEvent(new CustomEvent('OPEN_SECTION_MODAL', { detail: { index: 0 } }))}
+                >
+                  <div className="absolute left-0 right-0 top-1/2 h-px bg-blue-500/35"></div>
+                  <button className="relative z-10 bg-blue-500 rounded-full px-3.5 py-1 text-[11px] font-bold text-white flex items-center gap-1.5 transition-all hover:bg-blue-600 hover:shadow-[0_4px_12px_rgba(59,130,246,0.4)]">
+                    <Plus className="w-3.5 h-3.5" /> Insert Section
+                  </button>
+                </div>
+              )}
+              {rootList.map((id, idx) => (
+                <React.Fragment key={id}>
+                  <BuilderComponent id={id} />
+                  {!isPreviewMode && (
+                    <div 
+                      className="h-8 flex items-center justify-center relative opacity-0 hover:opacity-100 peer-hover:opacity-100 transition-opacity z-[90] cursor-pointer"
+                      onClick={() => window.dispatchEvent(new CustomEvent('OPEN_SECTION_MODAL', { detail: { index: idx + 1 } }))}
+                    >
+                      <div className="absolute left-0 right-0 top-1/2 h-px bg-blue-500/35"></div>
+                      <button className="relative z-10 bg-blue-500 rounded-full px-3.5 py-1 text-[11px] font-bold text-white flex items-center gap-1.5 transition-all hover:bg-blue-600 hover:shadow-[0_4px_12px_rgba(59,130,246,0.4)]">
+                        <Plus className="w-3.5 h-3.5" /> Insert Section
+                      </button>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
           )}
         </div>
       </div>

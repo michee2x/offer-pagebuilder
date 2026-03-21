@@ -4,13 +4,19 @@ import React from 'react';
 import { Canvas } from '@/components/builder/Canvas';
 import { RightPanel } from '@/components/builder/RightPanel';
 import { ThemeSwitcher } from '@/components/builder/ThemeSwitcher';
+import { SectionLibraryModal } from '@/components/builder/SectionLibraryModal';
 import { useBuilderStore } from '@/store/builderStore';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check } from 'lucide-react';
+import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function BuilderPage() {
-  const { addComponent, moveComponent, setFullState, components, rootList, canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, pageId, setPageId, theme, setTheme, hasUnsavedChanges, setHasUnsavedChanges } = useBuilderStore();
+  const { 
+    addComponent, moveComponent, setFullState, components, rootList, 
+    canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, 
+    pageId, setPageId, theme, setTheme, hasUnsavedChanges, setHasUnsavedChanges,
+    undo, redo, past, future 
+  } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
@@ -183,7 +189,7 @@ export default function BuilderPage() {
     <div className="flex flex-col h-screen overflow-hidden bg-background">
       {/* Top Navigation Bar */}
       {!isPreviewMode && (
-        <header className="h-14 border-b px-6 flex items-center justify-between shrink-0">
+        <header className="h-14 border-b px-6 flex items-center justify-between shrink-0 gap-4">
           <div className="flex items-center gap-4 w-auto min-w-48">
             <div className="font-semibold tracking-tight">OfferIQ AI Builder</div>
             {theme && (
@@ -192,19 +198,33 @@ export default function BuilderPage() {
                 {theme.name}
               </div>
             )}
+            <div className="flex items-center gap-1 border-l pl-4 ml-2">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={undo} disabled={past.length === 0} title="Undo">
+                <Undo2 className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={redo} disabled={future.length === 0} title="Redo">
+                <Redo2 className="h-4 w-4" />
+              </Button>
+              <div className="w-px h-4 bg-border mx-2"></div>
+              <Button variant="ghost" size="sm" className="h-8 gap-2" onClick={() => window.dispatchEvent(new CustomEvent('OPEN_SECTION_MODAL', { detail: { index: rootList.length } }))}>
+                <Plus className="h-4 w-4" /> Add Section
+              </Button>
+            </div>
           </div>
           
-          {/* Device mode toggles */}
-          <div className="flex items-center bg-muted/50 p-1 rounded-md">
-            <Button variant={deviceMode === 'desktop' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('desktop')}><Monitor className="h-4 w-4" /></Button>
-            <Button variant={deviceMode === 'tablet' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('tablet')}><Tablet className="h-4 w-4" /></Button>
-            <Button variant={deviceMode === 'mobile' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('mobile')}><Smartphone className="h-4 w-4" /></Button>
+          {/* Device mode toggles (centered, flex-1 forces it into the middle) */}
+          <div className="flex-1 flex justify-center">
+            <div className="flex items-center bg-muted/50 p-1 rounded-md">
+              <Button variant={deviceMode === 'desktop' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('desktop')}><Monitor className="h-4 w-4" /></Button>
+              <Button variant={deviceMode === 'tablet' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('tablet')}><Tablet className="h-4 w-4" /></Button>
+              <Button variant={deviceMode === 'mobile' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('mobile')}><Smartphone className="h-4 w-4" /></Button>
+            </div>
           </div>
 
-          {/* Theme Switcher — always accessible */}
-          <ThemeSwitcher />
-
           <div className="flex gap-3 justify-end w-auto min-w-48 items-center">
+            {/* Theme Switcher — always accessible */}
+            <ThemeSwitcher />
+
             {publishedUrl && (
                 <Button 
                   size="sm" 
@@ -252,6 +272,9 @@ export default function BuilderPage() {
         <Canvas />
         {!isPreviewMode && <RightPanel />}
       </div>
+      
+      {/* Modals outside main flex flow */}
+      <SectionLibraryModal />
     </div>
   );
 }
