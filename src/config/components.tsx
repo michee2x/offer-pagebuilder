@@ -600,7 +600,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   PricingCards: {
     type: 'PricingCards',
     label: 'Pricing Cards',
-    _semantic: {
+    semantic: {
       purpose: 'Tiered pricing cards showing different plans, prices, and features. Usually 2 or 3 tiers.',
       example: {
         sectionTitle: 'Simple, Transparent Pricing',
@@ -642,7 +642,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageHeader: {
     type: 'HeyMessageHeader',
     label: 'HM Header',
-    _semantic: {
+    semantic: {
       purpose: 'A sticky top navigation bar inspired by HeyMessage.',
       example: { logoText: 'MyBrand', ctaText: 'Get Started' }
     },
@@ -658,7 +658,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageFeatures: {
     type: 'HeyMessageFeatures',
     label: 'HM Features Grid',
-    _semantic: {
+    semantic: {
       purpose: 'A modern 3-column features grid with image cards and staggered animations.',
       example: { badgeText: 'FEATURES', headline: 'Awesome features.' }
     },
@@ -683,7 +683,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageSplit: {
     type: 'HeyMessageSplit',
     label: 'HM Split Content',
-    _semantic: {
+    semantic: {
       purpose: 'A highly versatile section that splits an image and a vertical list of item points.',
       example: { badgeText: 'HOW IT WORKS', imagePosition: 'left' }
     },
@@ -709,7 +709,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageFAQ: {
     type: 'HeyMessageFAQ',
     label: 'HM FAQ Accordion',
-    _semantic: {
+    semantic: {
       purpose: 'A clean, animated accordion FAQ list.',
       example: { badgeText: 'SUPPORT', headline: 'Your Questions' }
     },
@@ -725,7 +725,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageCTA: {
     type: 'HeyMessageCTA',
     label: 'HM Container CTA',
-    _semantic: {
+    semantic: {
       purpose: 'A bottom-of-page containerized CTA with a background image overlay.',
       example: { headline: 'Ready to start?', buttonText: 'Try Now' }
     },
@@ -743,7 +743,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageFooter: {
     type: 'HeyMessageFooter',
     label: 'HM Minimal Footer',
-    _semantic: {
+    semantic: {
       purpose: 'A simple, minimal footer with logo on the left and vertical links on the right.',
       example: { logoText: 'MyBrand', description: 'Your data is safe.' }
     },
@@ -760,7 +760,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureHeader: {
     type: 'FeatureHeader',
     label: 'Feature Header',
-    _semantic: {
+    semantic: {
       purpose: 'A minimal top navigation bar with a blur effect.',
       example: { logoText: 'Feature', ctaText: 'Get Feature' }
     },
@@ -776,7 +776,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureHero: {
     type: 'FeatureHero',
     label: 'Feature Hero',
-    _semantic: {
+    semantic: {
       purpose: 'A glowing dark-mode hero section with a dashboard graphic.',
       example: { headline: 'Turn data into decisions' }
     },
@@ -793,7 +793,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeroCenter: {
     type: 'HeroCenter',
     label: 'Hero (Centered)',
-    _semantic: {
+    semantic: {
       purpose: 'A bright, clean, centered hero section. Best for simple and direct value propositions.',
       example: { headline: 'The easiest way to build', subheadline: 'Start for free today.' }
     },
@@ -813,7 +813,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeaturesGrid: {
     type: 'FeaturesGrid',
     label: 'Features (Grid)',
-    _semantic: {
+    semantic: {
       purpose: 'A clean 3-column grid of feature cards. Excellent for listing multiple benefits concisely.',
       example: { sectionTitle: 'Everything you need', features: [{ title: 'Fast', description: 'Very fast', icon: 'Zap' }] }
     },
@@ -838,7 +838,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureSplit: {
     type: 'FeatureSplit',
     label: 'Feature (Split)',
-    _semantic: {
+    semantic: {
       purpose: 'A dark-mode split section with an image on one side and a vertical list of benefits on the other.',
       example: { headline: 'Stop jumping between tools' }
     },
@@ -866,7 +866,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureLogos: {
     type: 'FeatureLogos',
     label: 'Feature Logos',
-    _semantic: {
+    semantic: {
       purpose: 'A grid of faint logos for social proof.',
       example: { headline: 'TRUSTED BY INNOVATIVE TEAMS' }
     },
@@ -889,7 +889,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureTestimonials: {
     type: 'FeatureTestimonials',
     label: 'Feature Testimonials',
-    _semantic: {
+    semantic: {
       purpose: 'A 6-card masonry grid detailing user reviews.',
       example: { headline: 'Reviews that make us blush' }
     },
@@ -914,7 +914,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureFAQ: {
     type: 'FeatureFAQ',
     label: 'Feature FAQ',
-    _semantic: {
+    semantic: {
       purpose: 'A clean accordion answering common questions.',
       example: { headline: 'Any questions?' }
     },
@@ -937,7 +937,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeaturePricing: {
     type: 'FeaturePricing',
     label: 'Feature Pricing',
-    _semantic: {
+    semantic: {
       purpose: 'A 3-tier dark mode pricing card display.',
       example: { headline: 'What will it cost?' }
     },
@@ -972,7 +972,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureCTA: {
     type: 'FeatureCTA',
     label: 'Feature CTA',
-    _semantic: {
+    semantic: {
       purpose: 'A golden-accented CTA container used at the bottom of pages.',
       example: { headline: 'Ready to make better decisions with your data?' }
     },
@@ -988,7 +988,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureFooter: {
     type: 'FeatureFooter',
     label: 'Feature Footer',
-    _semantic: {
+    semantic: {
       purpose: 'A minimal footer with logo on the left and vertical links.',
       example: { logoText: 'Feature', description: 'Data decisions, un-complicated.' }
     },
