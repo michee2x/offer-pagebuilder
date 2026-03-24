@@ -30,6 +30,8 @@ export default function middleware(req: NextRequest) {
     'app.offeriq.com',
     'builder.offeriq.com',
     'offeriq.com',
+    'ofiq.app',
+    'www.ofiq.app',
     'vercel.pub'
   ];
 

@@ -34,7 +34,7 @@ export default function PublishPage() {
   const [subdomain, setSubdomain] = useState('');
   const [customDomain, setCustomDomain] = useState('');
   
-  const [baseDomain, setBaseDomain] = useState('offeriq.app');
+  const [baseDomain, setBaseDomain] = useState('ofiq.app');
   const [protocol, setProtocol] = useState('https://');
 
   useEffect(() => {
@@ -310,7 +310,7 @@ export default function PublishPage() {
                                                     <tr className="border-t border-border/50">
                                                         <td className="py-3 px-4 text-blue-500 font-medium">CNAME</td>
                                                         <td className="py-3 px-4">www</td>
-                                                        <td className="py-3 px-4 text-right">cname.offeriq.app</td>
+                                                        <td className="py-3 px-4 text-right">cname.ofiq.app</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

@@ -10,11 +10,11 @@ export default async function LiveViewerPage({ params }: { params: Promise<{ dom
     
     // Check if this domain is a subdomain of our base domains
     const isLocalSubdomain = decodedDomain.endsWith('.localhost');
-    const isProdSubdomain = decodedDomain.endsWith('.offeriq.app');
+    const isProdSubdomain = decodedDomain.endsWith('.ofiq.app');
     
     let query;
     if (isLocalSubdomain || isProdSubdomain) {
-        const subdomain = decodedDomain.replace('.localhost', '').replace('.offeriq.app', '');
+        const subdomain = decodedDomain.replace('.localhost', '').replace('.ofiq.app', '');
         query = supabase.from('builder_pages').select('*').eq('subdomain', subdomain).single();
     } else {
         query = supabase.from('builder_pages').select('*').eq('custom_domain', decodedDomain).single();
