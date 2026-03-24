@@ -18,7 +18,7 @@ export default function BuilderPage() {
     undo, redo, past, future 
   } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const [isPublishing, setIsPublishing] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
   const [initialLoading, setInitialLoading] = React.useState(true);
@@ -123,10 +123,10 @@ export default function BuilderPage() {
     }
   };
 
-  const handlePublish = async () => {
+  const handleSave = async () => {
     try {
-      setIsPublishing(true);
-      toast.loading('Publishing page...');
+      setIsSaving(true);
+      toast.loading('Saving draft...');
       
       const payload: any = { components, rootList, canvasStyle, theme };
       if (pageId) payload.pageId = pageId;
@@ -140,7 +140,7 @@ export default function BuilderPage() {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to publish');
+        throw new Error(data.error || 'Failed to save');
       }
 
       toast.dismiss();
@@ -149,28 +149,17 @@ export default function BuilderPage() {
       setPublishedUrl(url);
       setHasUnsavedChanges(false);
       
-      toast.success('Published successfully!', {
-        description: (
-          <div className="flex flex-col gap-2 mt-2">
-            <span className="text-xs text-muted-foreground">Your page is now live at:</span>
-            <a 
-              href={url} 
-              target="_blank" 
-              rel="noreferrer" 
-              className="font-mono text-xs text-blue-500 hover:underline break-all bg-muted/50 p-2 rounded"
-            >
-              {url}
-            </a>
-          </div>
-        ),
-        duration: 8000
-      });
+      if (!pageId && data.pageId) {
+          setPageId(data.pageId);
+      }
+      
+      toast.success('Saved successfully!');
 
     } catch (e: any) {
       toast.dismiss();
       toast.error(e.message);
     } finally {
-      setIsPublishing(false);
+      setIsSaving(false);
     }
   };
 
@@ -257,11 +246,24 @@ export default function BuilderPage() {
             </Button>
             <Button 
                 size="sm" 
-                onClick={handlePublish} 
-                disabled={isPublishing || (pageId !== null && !hasUnsavedChanges)}
+                variant="outline"
+                onClick={handleSave} 
+                disabled={isSaving || (pageId !== null && !hasUnsavedChanges)}
             >
-                {isPublishing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {!pageId ? 'Publish' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}
+                {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {!pageId ? 'Save Draft' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}
+            </Button>
+            <Button 
+                size="sm" 
+                onClick={() => {
+                  if (!pageId) {
+                    toast.error('Please save your draft first before deploying.');
+                    return;
+                  }
+                  window.location.href = `/builder/publish?id=${pageId}`;
+                }} 
+            >
+                Deploy
             </Button>
           </div>
         </header>

@@ -64,6 +64,9 @@ export const LUCIDE_ICON_NAMES = Object.keys(ICON_MAP);
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type ComponentType =
+  | 'Section'
+  | 'Flex'
+  | 'Grid'
   | 'Container'
   | 'Heading'
   | 'Text'
@@ -119,11 +122,105 @@ const applyStyle = (style?: Record<string, string>): React.CSSProperties =>
 
 // ─────────────────────────────────────────────────────────────────────────────
 export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
+  // ── Section ────────────────────────────────────────────────────────────
+  Section: {
+    type: 'Section',
+    label: 'Section',
+    semantic: {
+      purpose: 'A full-width semantic <section> used as the outermost wrapper for a part of the landing page. Must supply an ID if used for navigation.',
+      example: { id: 'features', className: 'w-full py-24 bg-background' }
+    },
+    defaultProps: {
+      id: '',
+      className: 'w-full py-24 bg-background',
+      style: {},
+    },
+    fields: {
+      id: { type: 'text', label: 'Section ID (for anchor links)' },
+      className: { type: 'text', label: 'Tailwind Classes' },
+    },
+    render: ({ id, className, style, children, isPreviewMode }: any) => (
+      <section
+        id={id || undefined}
+        className={`w-full relative ${className ?? ''} ${
+          !isPreviewMode
+            ? 'min-h-[100px] outline-dashed outline-1 outline-transparent hover:outline-slate-300/40 transition-all'
+            : ''
+        }`}
+        style={applyStyle(style)}
+      >
+        {children}
+      </section>
+    ),
+  },
+
+  // ── Flex ───────────────────────────────────────────────────────────────
+  Flex: {
+    type: 'Flex',
+    label: 'Flex',
+    semantic: {
+      purpose: 'A flexbox container. Use this to align items in a row or column.',
+      example: { className: 'flex flex-col md:flex-row items-center justify-between gap-8 w-full max-w-7xl mx-auto px-6' }
+    },
+    defaultProps: {
+      className: 'flex flex-col gap-4 w-full',
+      style: {},
+    },
+    fields: {
+      className: { type: 'text', label: 'Tailwind Classes' },
+    },
+    render: ({ className, style, children, isPreviewMode }: any) => (
+      <div
+        className={`relative ${className ?? ''} ${
+          !isPreviewMode
+            ? 'min-h-[50px] outline-dashed outline-1 outline-transparent hover:outline-blue-300/40 transition-all'
+            : ''
+        }`}
+        style={applyStyle(style)}
+      >
+        {children}
+      </div>
+    ),
+  },
+
+  // ── Grid ───────────────────────────────────────────────────────────────
+  Grid: {
+    type: 'Grid',
+    label: 'Grid',
+    semantic: {
+      purpose: 'A CSS grid container. Use this to lay out multiple identical items (like feature cards).',
+      example: { className: 'grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-7xl mx-auto' }
+    },
+    defaultProps: {
+      className: 'grid grid-cols-1 md:grid-cols-3 gap-6 w-full',
+      style: {},
+    },
+    fields: {
+      className: { type: 'text', label: 'Tailwind Classes' },
+    },
+    render: ({ className, style, children, isPreviewMode }: any) => (
+      <div
+        className={`relative ${className ?? ''} ${
+          !isPreviewMode
+            ? 'min-h-[50px] outline-dashed outline-1 outline-transparent hover:outline-purple-300/40 transition-all'
+            : ''
+        }`}
+        style={applyStyle(style)}
+      >
+        {children}
+      </div>
+    ),
+  },
+
 
   // ── Container ────────────────────────────────────────────────────────────
   Container: {
     type: 'Container',
     label: 'Container',
+    semantic: {
+      purpose: 'A generic div layout wrapper. You can use this for absolute positioning, specific sizing, or flex/grid if you provide the right tailwind classes.',
+      example: { className: 'flex flex-col gap-4 p-8 w-full bg-card border rounded-xl' }
+    },
     defaultProps: {
       className: 'flex flex-col gap-4 p-8 w-full',
       style: {},
@@ -149,6 +246,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   Heading: {
     type: 'Heading',
     label: 'Heading',
+    semantic: {
+      purpose: 'A semantic HTML heading (H1-H6).',
+      example: { text: 'Welcome to our platform', level: '2', className: 'font-extrabold text-4xl text-foreground tracking-tight' }
+    },
     defaultProps: { text: 'New Heading', level: '2', className: 'font-bold text-4xl', style: {} },
     fields: {
       text: { type: 'text', label: 'Text Content' },
@@ -174,6 +275,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   Text: {
     type: 'Text',
     label: 'Text Block',
+    semantic: {
+      purpose: 'A standard paragraph of text.',
+      example: { text: 'We offer the best service.', className: 'text-muted-foreground text-lg leading-relaxed' }
+    },
     defaultProps: { text: 'This is some text content.', className: 'leading-relaxed text-base', style: {} },
     fields: {
       text: { type: 'textarea', label: 'Content' },
@@ -190,6 +295,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   Button: {
     type: 'Button',
     label: 'Button',
+    semantic: {
+      purpose: 'A clickable button or link.',
+      example: { text: 'Get Started', href: '#signup', className: 'inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity' }
+    },
     defaultProps: {
       text: 'Click Me',
       href: '',
@@ -214,6 +323,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   Image: {
     type: 'Image',
     label: 'Image',
+    semantic: {
+      purpose: 'An image element.',
+      example: { src: 'https://images.unsplash.com/photo-1...', alt: 'Dashboard preview', className: 'w-full rounded-2xl shadow-2xl border border-border' }
+    },
     defaultProps: {
       src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop',
       alt: 'Image',
@@ -239,6 +352,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   Card: {
     type: 'Card',
     label: 'Card',
+    semantic: {
+      purpose: 'A versatile container with a border and background. Used heavily in Shadcn.',
+      example: { title: 'Analytics', content: 'Real-time data insights.', className: 'rounded-xl border border-border bg-card text-card-foreground p-6 flex flex-col gap-2' }
+    },
     defaultProps: {
       title: 'Card Title',
       content: 'Card body content goes here.',
@@ -265,6 +382,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   Divider: {
     type: 'Divider',
     label: 'Divider',
+    semantic: {
+      purpose: 'A horizontal line separator.',
+      example: { className: 'w-full h-px bg-border my-8' }
+    },
     defaultProps: { className: 'my-8 border-t opacity-20', style: {} },
     fields: {
       className: { type: 'text', label: 'Tailwind Classes' },
@@ -278,6 +399,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   List: {
     type: 'List',
     label: 'List',
+    semantic: {
+      purpose: 'An unordered or ordered list of items.',
+      example: { items: 'Fast setup\nReliable\nCheap', ordered: 'false', className: 'pl-6 space-y-2 text-muted-foreground list-disc' }
+    },
     defaultProps: { items: 'First item\nSecond item\nThird item', ordered: 'false', className: 'pl-5 space-y-2', style: {} },
     fields: {
       items: { type: 'textarea', label: 'Items (one per line)' },
@@ -304,6 +429,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   Icon: {
     type: 'Icon',
     label: 'Icon',
+    semantic: {
+      purpose: 'A Lucide icon.',
+      example: { name: 'Zap', size: 24, className: 'text-primary' }
+    },
     defaultProps: { name: 'Zap', size: 24, className: '', style: {} },
     fields: {
       name: { type: 'text', label: 'Icon Name (from Lucide list)' },
@@ -326,6 +455,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   Badge: {
     type: 'Badge',
     label: 'Badge',
+    semantic: {
+      purpose: 'A small pill label or tag.',
+      example: { text: 'NEW', className: 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/20 text-primary uppercase' }
+    },
     defaultProps: {
       text: 'New',
       className: 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase',
@@ -349,6 +482,10 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   StatBlock: {
     type: 'StatBlock',
     label: 'Stat Block',
+    semantic: {
+      purpose: 'A large number with a small label, used for metrics.',
+      example: { value: '99%', label: 'Uptime', className: 'flex flex-col gap-2 items-center', valueClassName: 'text-5xl font-black text-foreground', labelClassName: 'text-sm text-muted-foreground uppercase tracking-widest' }
+    },
     defaultProps: {
       value: '2,500+',
       label: 'Happy Customers',
@@ -463,7 +600,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   PricingCards: {
     type: 'PricingCards',
     label: 'Pricing Cards',
-    semantic: {
+    _semantic: {
       purpose: 'Tiered pricing cards showing different plans, prices, and features. Usually 2 or 3 tiers.',
       example: {
         sectionTitle: 'Simple, Transparent Pricing',
@@ -505,7 +642,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageHeader: {
     type: 'HeyMessageHeader',
     label: 'HM Header',
-    semantic: {
+    _semantic: {
       purpose: 'A sticky top navigation bar inspired by HeyMessage.',
       example: { logoText: 'MyBrand', ctaText: 'Get Started' }
     },
@@ -521,7 +658,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageFeatures: {
     type: 'HeyMessageFeatures',
     label: 'HM Features Grid',
-    semantic: {
+    _semantic: {
       purpose: 'A modern 3-column features grid with image cards and staggered animations.',
       example: { badgeText: 'FEATURES', headline: 'Awesome features.' }
     },
@@ -546,7 +683,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageSplit: {
     type: 'HeyMessageSplit',
     label: 'HM Split Content',
-    semantic: {
+    _semantic: {
       purpose: 'A highly versatile section that splits an image and a vertical list of item points.',
       example: { badgeText: 'HOW IT WORKS', imagePosition: 'left' }
     },
@@ -572,7 +709,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageFAQ: {
     type: 'HeyMessageFAQ',
     label: 'HM FAQ Accordion',
-    semantic: {
+    _semantic: {
       purpose: 'A clean, animated accordion FAQ list.',
       example: { badgeText: 'SUPPORT', headline: 'Your Questions' }
     },
@@ -588,7 +725,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageCTA: {
     type: 'HeyMessageCTA',
     label: 'HM Container CTA',
-    semantic: {
+    _semantic: {
       purpose: 'A bottom-of-page containerized CTA with a background image overlay.',
       example: { headline: 'Ready to start?', buttonText: 'Try Now' }
     },
@@ -606,7 +743,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeyMessageFooter: {
     type: 'HeyMessageFooter',
     label: 'HM Minimal Footer',
-    semantic: {
+    _semantic: {
       purpose: 'A simple, minimal footer with logo on the left and vertical links on the right.',
       example: { logoText: 'MyBrand', description: 'Your data is safe.' }
     },
@@ -623,7 +760,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureHeader: {
     type: 'FeatureHeader',
     label: 'Feature Header',
-    semantic: {
+    _semantic: {
       purpose: 'A minimal top navigation bar with a blur effect.',
       example: { logoText: 'Feature', ctaText: 'Get Feature' }
     },
@@ -639,7 +776,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureHero: {
     type: 'FeatureHero',
     label: 'Feature Hero',
-    semantic: {
+    _semantic: {
       purpose: 'A glowing dark-mode hero section with a dashboard graphic.',
       example: { headline: 'Turn data into decisions' }
     },
@@ -656,7 +793,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   HeroCenter: {
     type: 'HeroCenter',
     label: 'Hero (Centered)',
-    semantic: {
+    _semantic: {
       purpose: 'A bright, clean, centered hero section. Best for simple and direct value propositions.',
       example: { headline: 'The easiest way to build', subheadline: 'Start for free today.' }
     },
@@ -676,7 +813,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeaturesGrid: {
     type: 'FeaturesGrid',
     label: 'Features (Grid)',
-    semantic: {
+    _semantic: {
       purpose: 'A clean 3-column grid of feature cards. Excellent for listing multiple benefits concisely.',
       example: { sectionTitle: 'Everything you need', features: [{ title: 'Fast', description: 'Very fast', icon: 'Zap' }] }
     },
@@ -701,7 +838,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureSplit: {
     type: 'FeatureSplit',
     label: 'Feature (Split)',
-    semantic: {
+    _semantic: {
       purpose: 'A dark-mode split section with an image on one side and a vertical list of benefits on the other.',
       example: { headline: 'Stop jumping between tools' }
     },
@@ -729,7 +866,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureLogos: {
     type: 'FeatureLogos',
     label: 'Feature Logos',
-    semantic: {
+    _semantic: {
       purpose: 'A grid of faint logos for social proof.',
       example: { headline: 'TRUSTED BY INNOVATIVE TEAMS' }
     },
@@ -752,7 +889,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureTestimonials: {
     type: 'FeatureTestimonials',
     label: 'Feature Testimonials',
-    semantic: {
+    _semantic: {
       purpose: 'A 6-card masonry grid detailing user reviews.',
       example: { headline: 'Reviews that make us blush' }
     },
@@ -777,7 +914,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureFAQ: {
     type: 'FeatureFAQ',
     label: 'Feature FAQ',
-    semantic: {
+    _semantic: {
       purpose: 'A clean accordion answering common questions.',
       example: { headline: 'Any questions?' }
     },
@@ -800,7 +937,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeaturePricing: {
     type: 'FeaturePricing',
     label: 'Feature Pricing',
-    semantic: {
+    _semantic: {
       purpose: 'A 3-tier dark mode pricing card display.',
       example: { headline: 'What will it cost?' }
     },
@@ -835,7 +972,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureCTA: {
     type: 'FeatureCTA',
     label: 'Feature CTA',
-    semantic: {
+    _semantic: {
       purpose: 'A golden-accented CTA container used at the bottom of pages.',
       example: { headline: 'Ready to make better decisions with your data?' }
     },
@@ -851,7 +988,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   FeatureFooter: {
     type: 'FeatureFooter',
     label: 'Feature Footer',
-    semantic: {
+    _semantic: {
       purpose: 'A minimal footer with logo on the left and vertical links.',
       example: { logoText: 'Feature', description: 'Data decisions, un-complicated.' }
     },
