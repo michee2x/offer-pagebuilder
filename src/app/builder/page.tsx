@@ -41,7 +41,16 @@ export default function BuilderPage() {
                     if (data.page.blocks.theme) {
                         setTheme(data.page.blocks.theme);
                     }
-                    setPublishedUrl(`${window.location.origin}/p/${data.page.id}`);
+                    if (data.page.custom_domain) {
+                        setPublishedUrl(`https://${data.page.custom_domain}`);
+                    } else if (data.page.subdomain) {
+                        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                        const proto = isLocal ? 'http://' : 'https://';
+                        const base = isLocal ? window.location.host : 'ofiq.app';
+                        setPublishedUrl(`${proto}${data.page.subdomain}.${base}`);
+                    } else {
+                        setPublishedUrl(null);
+                    }
                 }
             })
             .catch(err => console.error("Failed to fetch page:", err))
@@ -145,8 +154,19 @@ export default function BuilderPage() {
 
       toast.dismiss();
       
-      const url = `${window.location.origin}/p/${data.pageId}`;
-      setPublishedUrl(url);
+      // We only update published URL if the publish endpoint returns them, 
+      // otherwise it remains what it was (maybe they configured it on Deploy page)
+      if (data.custom_domain || data.subdomain) {
+          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          const proto = isLocal ? 'http://' : 'https://';
+          const base = isLocal ? window.location.host : 'ofiq.app';
+          
+          if (data.custom_domain) {
+              setPublishedUrl(`https://${data.custom_domain}`);
+          } else {
+              setPublishedUrl(`${proto}${data.subdomain}.${base}`);
+          }
+      }
       setHasUnsavedChanges(false);
       
       if (!pageId && data.pageId) {
