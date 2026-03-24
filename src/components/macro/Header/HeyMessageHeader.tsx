@@ -88,7 +88,16 @@ export function HeyMessageHeader({
             <a
               key={idx}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-2 rounded-full transition-colors hover:bg-muted/50"
+              onClick={(e) => {
+                if (link.href.startsWith('#')) {
+                  e.preventDefault();
+                  const target = document.querySelector(link.href);
+                  if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }
+              }}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-2 rounded-full transition-colors hover:bg-muted/50 cursor-pointer"
               style={elementStyles[`link_${idx}`]}
             >
               {link.label}
@@ -132,8 +141,17 @@ export function HeyMessageHeader({
               <a
                 key={idx}
                 href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-lg font-medium text-foreground py-2 border-b border-border/50 last:border-0"
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  if (link.href.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.querySelector(link.href);
+                    if (target) {
+                      target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }
+                }}
+                className="text-lg font-medium text-foreground py-2 border-b border-border/50 last:border-0 cursor-pointer"
               >
                 {link.label}
               </a>

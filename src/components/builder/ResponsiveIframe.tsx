@@ -42,6 +42,22 @@ export function ResponsiveIframe({ children, className, style, themeHtml }: Resp
         {mountNode && createPortal(
           <>
             <div dangerouslySetInnerHTML={{ __html: themeHtml || '' }} />
+            <style>
+              {`
+                /* Hide scrollbar for Chrome, Safari and Opera */
+                ::-webkit-scrollbar {
+                  display: none;
+                }
+                /* Hide scrollbar for IE, Edge and Firefox */
+                html {
+                  -ms-overflow-style: none;
+                  scrollbar-width: none;
+                }
+                body {
+                  overflow-x: hidden;
+                }
+              `}
+            </style>
             {children}
           </>, 
           mountNode
