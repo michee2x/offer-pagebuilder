@@ -97,24 +97,26 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
       ? 'max-w-[768px]'
       : 'max-w-[390px]';
 
+  const isDesktop = deviceMode === 'desktop';
+
   const previewOuterClasses = isPreviewMode
     ? 'bg-background'
-    : 'bg-muted/20 py-8 px-4 md:px-8';
+    : 'bg-[#0a0a0a] py-6 px-6';
     
   // If we are in iframe mode, the inner classes on the canvas root should be flush
   const previewInnerClasses = isPreviewMode
     ? 'w-full min-h-screen max-w-none rounded-none'
-    : `mx-auto shadow-sm border rounded-lg min-h-[800px] overflow-hidden ${maxWidthClass}`;
+    : `mx-auto min-h-[800px] overflow-hidden ${maxWidthClass}`;
     
   const selectionRing =
-    isCanvasSelected && !isPreviewMode ? 'ring-2 ring-blue-500 ring-offset-2' : '';
+    isCanvasSelected && !isPreviewMode ? 'ring-2 ring-primary/50 ring-offset-1 ring-offset-[#0a0a0a]' : '';
 
   const canvasRootStyle: React.CSSProperties = {
     ...(theme ? buildThemeInlineVars(theme) : {}),
     ...(canvasStyle as React.CSSProperties),
   };
 
-  const isIframeMode = deviceMode !== 'desktop';
+  const isIframeMode = !isDesktop;
 
   // The actual scrollable content block that gets injected into the normal tree OR the iframe portal
   const canvasContent = (
@@ -204,22 +206,46 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
         <link rel="stylesheet" href={theme.googleFontsUrl} />
       )}
 
-      {!isIframeMode ? (
+      {isDesktop && !isPreviewMode ? (
+        // Desktop: simulated browser chrome wrapper
+        <div className={`mx-auto rounded-xl overflow-hidden border border-white/10 shadow-2xl shadow-black/60 ${maxWidthClass} ${selectionRing}`}>
+          {/* Browser chrome bar */}
+          <div className="h-9 bg-[#1a1a1a] flex items-center px-3 gap-2 shrink-0 border-b border-white/5">
+            {/* Traffic lights */}
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+              <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+              <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+            </div>
+            {/* URL bar */}
+            <div className="flex-1 mx-3 h-5 bg-[#2a2a2a] rounded flex items-center px-2 overflow-hidden">
+              <span className="text-[10px] text-white/30 font-mono truncate">
+                {typeof window !== 'undefined' ? window.location.origin : 'https://ofiq.app'}/preview
+              </span>
+            </div>
+          </div>
+          {/* Canvas content flush below chrome */}
+          <div className="overflow-y-auto" style={{ maxHeight: '75vh' }}>
+            {canvasContent}
+          </div>
+        </div>
+      ) : isPreviewMode ? (
         canvasContent
       ) : (
+        // Tablet / Mobile: device frame
         <div 
-          className={`mx-auto shadow-sm border rounded-[2.5rem] overflow-hidden bg-background relative ${maxWidthClass} ${selectionRing}`} 
+          className={`mx-auto shadow-2xl border rounded-[2.5rem] overflow-hidden bg-background relative ${maxWidthClass} ${selectionRing}`} 
           style={{ 
             height: deviceMode === 'mobile' ? '844px' : '1024px', 
             display: 'flex', 
             flexDirection: 'column', 
             padding: '12px',
             borderWidth: '8px', 
-            borderColor: '#334155' // Slate-700 phone border simulation
+            borderColor: '#1f2937'
           }}
         >
           {/* Simulated phone/tablet notch */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 h-6 w-32 bg-[#334155] rounded-b-xl z-50 shadow-inner"></div>
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 h-5 w-24 bg-[#1f2937] rounded-b-xl z-50" />
           
           <ResponsiveIframe 
             className="w-full h-full border-none bg-background rounded-[1.8rem] overflow-hidden" 

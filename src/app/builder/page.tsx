@@ -7,8 +7,12 @@ import { ThemeSwitcher } from '@/components/builder/ThemeSwitcher';
 import { SectionLibraryModal } from '@/components/builder/SectionLibraryModal';
 import { useBuilderStore } from '@/store/builderStore';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus } from 'lucide-react';
+import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus, Globe, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Topbar } from '@/components/layout/Topbar';
+import { LeftPanel } from '@/components/builder/LeftPanel';
+import { cn } from '@/lib/utils';
 
 export default function BuilderPage() {
   const { 
@@ -195,108 +199,124 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background">
-      {/* Top Navigation Bar */}
-      {!isPreviewMode && (
-        <header className="h-14 border-b px-6 flex items-center justify-between shrink-0 gap-4">
-          <div className="flex items-center gap-4 w-auto min-w-48">
-            <div className="font-semibold tracking-tight">OfferIQ AI Builder</div>
-            {theme && (
-              <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border bg-muted/50 text-muted-foreground">
-                <span className="w-2 h-2 rounded-full bg-primary inline-block" />
-                {theme.name}
-              </div>
-            )}
-            <div className="flex items-center gap-1 border-l pl-4 ml-2">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={undo} disabled={past.length === 0} title="Undo">
-                <Undo2 className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={redo} disabled={future.length === 0} title="Redo">
-                <Redo2 className="h-4 w-4" />
-              </Button>
-              <div className="w-px h-4 bg-border mx-2"></div>
-              <Button variant="ghost" size="sm" className="h-8 gap-2" onClick={() => window.dispatchEvent(new CustomEvent('OPEN_SECTION_MODAL', { detail: { index: rootList.length } }))}>
-                <Plus className="h-4 w-4" /> Add Section
-              </Button>
-            </div>
-          </div>
-          
-          {/* Device mode toggles (centered, flex-1 forces it into the middle) */}
-          <div className="flex-1 flex justify-center">
-            <div className="flex items-center bg-muted/50 p-1 rounded-md">
-              <Button variant={deviceMode === 'desktop' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('desktop')}><Monitor className="h-4 w-4" /></Button>
-              <Button variant={deviceMode === 'tablet' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('tablet')}><Tablet className="h-4 w-4" /></Button>
-              <Button variant={deviceMode === 'mobile' ? 'secondary' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setDeviceMode('mobile')}><Smartphone className="h-4 w-4" /></Button>
-            </div>
-          </div>
+    <div className="flex h-screen overflow-hidden bg-background">
+      {/* Sidebar is fixed-positioned — renders itself, just mount it */}
+      <Sidebar />
 
-          <div className="flex gap-3 justify-end w-auto min-w-48 items-center">
-            {/* Theme Switcher — always accessible */}
-            <ThemeSwitcher />
-
-            {publishedUrl && (
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="gap-2 border-green-500/30 text-green-600 hover:bg-green-500/10"
-                  onClick={() => {
-                      navigator.clipboard.writeText(publishedUrl);
-                      setCopied(true);
-                      toast.success('Link copied to clipboard');
-                      setTimeout(() => setCopied(false), 2000);
-                  }}
+      {/* Main content offset by sidebar icon strip width (w-14 = 56px) */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
+        {/* Top Navigation Bar */}
+        <Topbar 
+          breadcrumbs={[
+              { label: 'Workspace' },
+              { label: 'Funnels', href: '/' },
+              { label: 'Copy Engine', href: '#' },
+              { label: 'Page Builder' }
+          ]}
+          steps={[
+              { id: 1, label: 'Upload', status: 'done' },
+              { id: 2, label: 'Intelligence', status: 'done' },
+              { id: 3, label: 'Copy', status: 'done' },
+              { id: 4, label: 'Build Pages', status: 'active' },
+              { id: 5, label: 'Publish', status: 'pending' },
+          ]}
+        >
+            <div className="flex items-center gap-1 ml-auto">
+              {/* Device mode toggles */}
+              <div className="flex items-center bg-muted/30 rounded-md border border-border mr-2 p-0.5">
+                <button
+                  title="Desktop"
+                  onClick={() => setDeviceMode('desktop')}
+                  className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'desktop' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                    {copied ? <Check className="w-3.5 h-3.5" /> : <LinkIcon className="w-3.5 h-3.5" />}
-                    Copy Link
-                </Button>
-            )}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleGeneratePage} 
-              disabled={isGenerating}
-              className="gap-2"
-            >
-              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin"/> : <Wand2 className="w-4 h-4" />}
-              Generate
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => setIsPreviewMode(true)}>
-              <Eye className="w-4 h-4 mr-2" />
-              Preview
-            </Button>
-            <Button 
-                size="sm" 
-                variant="outline"
-                onClick={handleSave} 
+                  <Monitor className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  title="Tablet"
+                  onClick={() => setDeviceMode('tablet')}
+                  className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'tablet' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  <Tablet className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  title="Mobile"
+                  onClick={() => setDeviceMode('mobile')}
+                  className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'mobile' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  <Smartphone className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {/* Separator */}
+              <div className="w-px h-5 bg-border mx-1" />
+
+              {/* Undo / Redo */}
+              <button title="Undo" onClick={undo} disabled={past.length === 0} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                <Undo2 className="h-4 w-4" />
+              </button>
+              <button title="Redo" onClick={redo} disabled={future.length === 0} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                <Redo2 className="h-4 w-4" />
+              </button>
+
+              {/* Separator */}
+              <div className="w-px h-5 bg-border mx-1" />
+
+              {/* Theme Switcher */}
+              <ThemeSwitcher />
+
+              {/* Preview */}
+              <button title="Preview page" onClick={() => setIsPreviewMode(true)} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                <Eye className="w-4 h-4" />
+              </button>
+
+              {/* AI Build */}
+              <button title="AI Build: Generate page with AI" onClick={handleGeneratePage} disabled={isGenerating} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+              </button>
+
+              {/* Separator */}
+              <div className="w-px h-5 bg-border mx-1" />
+
+              {/* Save */}
+              <button
+                title={!pageId ? 'Save draft' : hasUnsavedChanges ? 'Save changes' : 'All changes saved'}
+                onClick={handleSave}
                 disabled={isSaving || (pageId !== null && !hasUnsavedChanges)}
-            >
-                {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {!pageId ? 'Save Draft' : hasUnsavedChanges ? 'Save Changes' : 'Saved'}
-            </Button>
-            <Button 
-                size="sm" 
+                className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed relative"
+              >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : hasUnsavedChanges ? <Save className="w-4 h-4 text-primary" /> : <Save className="w-4 h-4" />}
+              </button>
+              
+              {/* Publish CTA — kept as a labeled button since it's the primary action */}
+              <button
                 onClick={() => {
                   if (!pageId) {
-                    toast.error('Please save your draft first before deploying.');
+                    toast.error('Please save your draft first before publishing.');
                     return;
                   }
                   window.location.href = `/builder/publish?id=${pageId}`;
-                }} 
-            >
-                Deploy
-            </Button>
+                }}
+                className="ml-1 h-8 px-3 flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+              >
+                <Globe className="w-3.5 h-3.5" /> Publish
+              </button>
+            </div>
+        </Topbar>
+  
+        {/* Main Extensible Editor Area */}
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* LeftPanel is absolutely positioned — overlays the canvas */}
+          {!isPreviewMode && <LeftPanel />}
+          {/* Canvas fills full width — left padding reserves space for the icon strip */}
+          <div className={cn('flex-1 overflow-hidden', !isPreviewMode && 'pl-14')}>
+            <Canvas />
           </div>
-        </header>
-      )}
-
-      {/* Main Extensible Editor Area */}
-      <div className="flex flex-1 overflow-hidden">
-        <Canvas />
-        {!isPreviewMode && <RightPanel />}
+          {!isPreviewMode && <RightPanel />}
+        </div>
+        
+        {/* Modals outside main flex flow */}
+        <SectionLibraryModal />
       </div>
-      
-      {/* Modals outside main flex flow */}
-      <SectionLibraryModal />
     </div>
   );
 }
