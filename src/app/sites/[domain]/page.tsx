@@ -1,28 +1,63 @@
+import type { Metadata } from 'next'
 import { createAdminClient } from "@/utils/supabase/admin"
 import { notFound } from "next/navigation"
 import { ViewerHydrator } from "@/components/builder/ViewerHydrator"
 
-export default async function LiveViewerPage({ params }: { params: Promise<{ domain: string }> }) {
-    const { domain } = await params;
+type Props = { params: Promise<{ domain: string }> }
+
+async function getPageByDomain(domain: string) {
     const supabase = createAdminClient()
-    
-    const decodedDomain = decodeURIComponent(domain);
-    
-    // Check if this domain is a subdomain of our base domains
-    const isLocalSubdomain = decodedDomain.endsWith('.localhost');
-    const isProdSubdomain = decodedDomain.endsWith('.ofiq.app');
-    
-    let query;
+    const decodedDomain = decodeURIComponent(domain)
+
+    const isLocalSubdomain = decodedDomain.endsWith('.localhost')
+    const isProdSubdomain = decodedDomain.endsWith('.ofiq.app')
+
+    let query
     if (isLocalSubdomain || isProdSubdomain) {
-        const subdomain = decodedDomain.replace('.localhost', '').replace('.ofiq.app', '');
-        query = supabase.from('builder_pages').select('*').eq('subdomain', subdomain).single();
+        const subdomain = decodedDomain.replace('.localhost', '').replace('.ofiq.app', '')
+        query = supabase.from('builder_pages').select('*').eq('subdomain', subdomain).single()
     } else {
-        query = supabase.from('builder_pages').select('*').eq('custom_domain', decodedDomain).single();
+        query = supabase.from('builder_pages').select('*').eq('custom_domain', decodedDomain).single()
     }
 
-    const { data: page, error } = await query;
+    const { data: page, error } = await query
+    return { page: error ? null : page }
+}
 
-    if (error || !page || !page.blocks) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { domain } = await params
+    const { page } = await getPageByDomain(domain)
+
+    if (!page) return { title: 'Page Not Found' }
+
+    const title = page.seo_title || page.name || 'OfferIQ Page'
+    const description = page.seo_description || 'An offer page powered by OfferIQ.'
+    const faviconUrl = page.favicon_url || undefined
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+        },
+        icons: faviconUrl
+            ? { icon: faviconUrl, shortcut: faviconUrl }
+            : undefined,
+    }
+}
+
+export default async function LiveViewerPage({ params }: Props) {
+    const { domain } = await params
+    const { page } = await getPageByDomain(domain)
+
+    if (!page || !page.blocks) {
         return notFound()
     }
 

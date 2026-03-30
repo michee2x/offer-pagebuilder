@@ -1,12 +1,49 @@
+import type { Metadata } from 'next'
 import { createAdminClient } from "@/utils/supabase/admin"
 import { notFound } from "next/navigation"
 import { ViewerHydrator } from "@/components/builder/ViewerHydrator"
 
-export default async function LiveViewerPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
+type Props = { params: Promise<{ id: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { id } = await params
     const supabase = createAdminClient()
-    
-    // Server fetch the published JSON tree
+
+    const { data: page } = await supabase
+        .from('builder_pages')
+        .select('name, seo_title, seo_description, favicon_url')
+        .eq('id', id)
+        .single()
+
+    if (!page) return { title: 'Page Not Found' }
+
+    const title = page.seo_title || page.name || 'OfferIQ Page'
+    const description = page.seo_description || 'An offer page powered by OfferIQ.'
+    const faviconUrl = page.favicon_url || undefined
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+        },
+        icons: faviconUrl
+            ? { icon: faviconUrl, shortcut: faviconUrl }
+            : undefined,
+    }
+}
+
+export default async function LiveViewerPage({ params }: Props) {
+    const { id } = await params
+    const supabase = createAdminClient()
+
     const { data: page, error } = await supabase
         .from('builder_pages')
         .select('*')

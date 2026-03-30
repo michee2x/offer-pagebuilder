@@ -8,17 +8,13 @@ import {
   Globe, 
   ExternalLink, 
   Loader2, 
-  ArrowLeft, 
   Copy, 
   CheckCircle2, 
   Check, 
   Lock,
-  ArrowRight,
   Rocket,
   ShieldCheck,
   Settings,
-  X,
-  Plus
 } from 'lucide-react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
@@ -30,14 +26,20 @@ export default function PublishPage() {
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingSeo, setSavingSeo] = useState(false);
   const [copied, setCopied] = useState(false);
-  
+
   const [pageData, setPageData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'subdomain' | 'custom'>('subdomain');
-  
+
   const [subdomain, setSubdomain] = useState('');
   const [customDomain, setCustomDomain] = useState('');
-  
+
+  // SEO state
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [faviconUrl, setFaviconUrl] = useState('');
+
   const [baseDomain, setBaseDomain] = useState('ofiq.app');
   const [protocol, setProtocol] = useState('https://');
 
@@ -65,6 +67,9 @@ export default function PublishPage() {
                 setPageData(data.page);
                 setSubdomain(data.page.subdomain || '');
                 setCustomDomain(data.page.custom_domain || '');
+                setSeoTitle(data.page.seo_title || data.page.name || '');
+                setSeoDescription(data.page.seo_description || '');
+                setFaviconUrl(data.page.favicon_url || '');
             } else {
                 toast.error('Page not found');
             }
@@ -111,133 +116,32 @@ export default function PublishPage() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    if (!text) return;
-    const url = `${protocol}${text}`;
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    toast.success('URL copied to clipboard');
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  if (loading) {
-      return (
-          <div className="flex h-screen items-center justify-center bg-background">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-      );
-  }
-
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { 
-  Globe, 
-  ExternalLink, 
-  Loader2, 
-  ArrowLeft, 
-  Copy, 
-  CheckCircle2, 
-  Check, 
-  Lock,
-  ArrowRight,
-  Rocket,
-  ShieldCheck,
-  Settings,
-  X,
-  Plus
-} from 'lucide-react';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
-
-export default function PublishPage() {
-  const searchParams = useSearchParams();
-  const id = searchParams.get('id');
-  const router = useRouter();
-  
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [copied, setCopied] = useState(false);
-  
-  const [pageData, setPageData] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'subdomain' | 'custom'>('subdomain');
-  
-  const [subdomain, setSubdomain] = useState('');
-  const [customDomain, setCustomDomain] = useState('');
-  
-  const [baseDomain, setBaseDomain] = useState('ofiq.app');
-  const [protocol, setProtocol] = useState('https://');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      if (isLocal) {
-        setBaseDomain(window.location.host);
-        setProtocol('http://');
-      }
-    }
-    
-    if (!id) {
-        toast.error('No page ID provided');
-        router.push('/builder');
-        return;
-    }
-
-    async function fetchData() {
-        try {
-            const res = await fetch(`/api/pages/${id}`);
-            const data = await res.json();
-            
-            if (data.page) {
-                setPageData(data.page);
-                setSubdomain(data.page.subdomain || '');
-                setCustomDomain(data.page.custom_domain || '');
-            } else {
-                toast.error('Page not found');
-            }
-        } catch (err: any) {
-            toast.error('Failed to load page data');
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    fetchData();
-  }, [id, router]);
-
-  const handleSaveDomain = async (type: 'subdomain' | 'custom') => {
+  const handleSaveSeo = async () => {
     try {
-        setSaving(true);
-        toast.loading(`Saving ${type}...`);
-        
-        const payload = { pageId: id } as any;
-        if (type === 'subdomain') {
-            payload.subdomain = subdomain;
-        } else {
-            payload.custom_domain = customDomain;
-        }
+      setSavingSeo(true);
+      toast.loading('Saving SEO settings...');
 
-        const res = await fetch('/api/domains', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+      const res = await fetch('/api/seo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pageId: id,
+          seo_title: seoTitle,
+          seo_description: seoDescription,
+          favicon_url: faviconUrl,
+        }),
+      });
 
-        const data = await res.json();
-        if (!res.ok) {
-            throw new Error(data.error || 'Failed to update domain');
-        }
+      const data = await res.json();
+      toast.dismiss();
 
-        toast.dismiss();
-        toast.success(`${type === 'subdomain' ? 'Subdomain' : 'Custom domain'} updated!`);
+      if (!res.ok) throw new Error(data.error || 'Failed to save SEO');
+      toast.success('SEO settings saved!');
     } catch (err: any) {
-        toast.dismiss();
-        toast.error(err.message);
+      toast.dismiss();
+      toast.error(err.message);
     } finally {
-        setSaving(false);
+      setSavingSeo(false);
     }
   };
 
@@ -536,28 +440,74 @@ export default function PublishPage() {
                  <h4 className="text-sm font-semibold mb-5 flex items-center gap-2 text-foreground">
                    <Globe className="w-4 h-4 text-muted-foreground" /> Meta Information
                  </h4>
-                 
+
                  <div className="space-y-4">
                    <div className="space-y-2">
                       <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Page Title</label>
-                      <input className="w-full bg-background border border-border rounded-md px-3 py-2.5 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" defaultValue={pageData?.name || 'Offer Funnel'} />
+                      <input
+                        className="w-full bg-background border border-border rounded-md px-3 py-2.5 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all"
+                        value={seoTitle}
+                        onChange={(e) => setSeoTitle(e.target.value)}
+                        placeholder="My Awesome Offer"
+                        maxLength={70}
+                      />
+                      <p className="text-[10px] text-muted-foreground text-right">{seoTitle.length}/70 chars</p>
                    </div>
 
                    <div className="space-y-2">
                       <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Description</label>
-                      <textarea className="w-full bg-background border border-border rounded-md px-3 py-2.5 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all resize-none" rows={4} defaultValue="An amazing offer generated by OfferIQ." />
+                      <textarea
+                        className="w-full bg-background border border-border rounded-md px-3 py-2.5 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all resize-none"
+                        rows={4}
+                        value={seoDescription}
+                        onChange={(e) => setSeoDescription(e.target.value)}
+                        placeholder="Describe what this page offers..."
+                        maxLength={160}
+                      />
+                      <p className="text-[10px] text-muted-foreground text-right">{seoDescription.length}/160 chars</p>
+                   </div>
+
+                   <div className="space-y-2">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                        Favicon URL
+                        <span className="normal-case font-normal text-muted-foreground/60">(optional)</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        {faviconUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={faviconUrl}
+                            alt="favicon preview"
+                            className="w-6 h-6 rounded object-contain border border-border bg-muted shrink-0"
+                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                          />
+                        )}
+                        <input
+                          className="flex-1 bg-background border border-border rounded-md px-3 py-2.5 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all"
+                          value={faviconUrl}
+                          onChange={(e) => setFaviconUrl(e.target.value)}
+                          placeholder="https://yourdomain.com/favicon.ico"
+                          type="url"
+                        />
+                      </div>
                    </div>
                  </div>
                </div>
 
                <div className="pt-6 border-t border-border">
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-3">Social Sharing Image</label>
-                  <div className="border border-border border-dashed bg-muted/30 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-muted/80 hover:border-primary/40 transition-all group">
-                    <div className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <Plus className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    <div className="text-xs font-medium text-muted-foreground">Upload 1200x630px JPG/PNG</div>
-                  </div>
+                  <Button
+                    className="w-full gap-2"
+                    onClick={handleSaveSeo}
+                    disabled={savingSeo}
+                  >
+                    {savingSeo
+                      ? <Loader2 className="w-4 h-4 animate-spin" />
+                      : <CheckCircle2 className="w-4 h-4" />}
+                    {savingSeo ? 'Saving…' : 'Save SEO Settings'}
+                  </Button>
+                  <p className="text-[10px] text-muted-foreground text-center mt-3 leading-relaxed">
+                    These settings are injected into the live page&apos;s <code className="font-mono bg-muted px-1 rounded">&lt;head&gt;</code> for search engines and social previews.
+                  </p>
                </div>
              </div>
           </div>
