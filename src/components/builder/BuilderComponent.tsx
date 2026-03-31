@@ -22,6 +22,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
 
   return (
     <div
+      data-component-id={id}
       className={`relative group ${isHeader ? 'z-[100]' : 'z-0'} peer`}
       onClick={(e) => {
         if (isPreviewMode) return;

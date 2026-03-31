@@ -3,7 +3,7 @@ import { createAdminClient } from "@/utils/supabase/admin"
 import { notFound } from "next/navigation"
 import { ViewerHydrator } from "@/components/builder/ViewerHydrator"
 
-type Props = { params: Promise<{ domain: string }> }
+type Props = { params: Promise<{ domain: string; path?: string[] }> }
 
 async function getPageByDomain(domain: string) {
     const supabase = createAdminClient()
@@ -54,14 +54,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function LiveViewerPage({ params }: Props) {
-    const { domain } = await params
+    const { domain, path } = await params
     const { page } = await getPageByDomain(domain)
 
     if (!page || !page.blocks) {
         return notFound()
     }
 
+    const requestedPath = path ? '/' + path.join('/') : '/';
+    let hydratedBlocks = page.blocks;
+
+    // Support new multi-page format
+    if (page.blocks.pages) {
+        let targetPage = page.blocks.pages[requestedPath];
+
+        if (!targetPage) {
+            return notFound();
+        }
+        // Pass only the specific target page's format into ViewerHydrator.
+        hydratedBlocks = {
+            ...page.blocks,
+            components: targetPage.components,
+            rootList: targetPage.rootList
+        };
+    } else if (requestedPath !== '/') {
+        // Legacy single-page funnel shouldn't match subpaths
+        return notFound();
+    }
+
     return (
-        <ViewerHydrator blocks={page.blocks} />
+        <ViewerHydrator blocks={hydratedBlocks} />
     )
 }

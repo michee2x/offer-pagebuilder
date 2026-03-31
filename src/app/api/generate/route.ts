@@ -1,5 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic';
-import { generateText } from 'ai';
+import { streamText } from 'ai';
 import { ShadcnTheme } from '@/lib/themes';
 import { COMPONENT_REGISTRY, LUCIDE_ICON_NAMES } from '@/config/components';
 
@@ -20,7 +20,7 @@ ${JSON.stringify({ type: c.type, props: c.semantic!.example }, null, 2)}
     .join('\n');
 
   return `You are an elite funnel strategist and conversion copywriter building a world-class sales funnel page.
-You output ONLY a JSON object. No markdown. No explanation.
+You must output a <thinking> block explaining your strategy, followed by a <json> block containing ONLY the JSON object.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 MACRO-COMPONENT REGISTRY
@@ -59,9 +59,10 @@ MANDATORY PAGE STRUCTURE — READ CAREFULLY
 EVERY page you generate MUST follow this rule:
 1. The FIRST item in the "items" array MUST ALWAYS be a FeatureHeader component.
 2. The LAST item in the "items" array MUST ALWAYS be a FeatureFooter component.
-3. Between them, freely choose 3-6 modern Feature components based on the offer strategy. 
+3. For the Lead Capture page, freely choose 3-6 modern Feature components based on the offer strategy. 
    CRITICAL: Do NOT simply output the same layout over and over. Choose different visual variants!
    For example, choose either 'FeatureHero' OR 'HeroCenter'. For features, choose either 'FeaturesGrid' or 'FeatureSplit'. Give the page dynamic visual variety.
+4. For the Thank You page, it MUST be extremely clean and minimal! Limit to exactly 1 or 2 components between the Header and Footer. (e.g., A HeroCenter confirming they opted in, and optionally a FeatureCTA with next steps). Do NOT put sales letters or complex features on the Thank You page.
 
 If you generate a FeatureLogos component, populate its "logos" array using real, highly recognizable companies related to the offer. For each logo, provide the exact web domain (e.g., "stripe.com", "shopify.com", "slack.com").
 
@@ -90,14 +91,28 @@ Only include links for sections that actually exist in the page you are generati
 RETURN FORMAT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {
-  "items": [
-    // Array of component JSON objects exactly matching the EXAMPLES above
+  "pages": [
+    {
+      "path": "/",
+      "name": "Lead Capture",
+      "items": [
+        // Array of component JSON objects exactly matching the EXAMPLES above
+      ]
+    },
+    {
+      "path": "/thank-you",
+      "name": "Thank You",
+      "items": [
+        // Array of component JSON objects exactly matching the EXAMPLES above
+      ]
+    }
   ]
 }
 
 - Every item in "items" MUST have an "id" field (generate a random 6-character string).
 - Do NOT use "children" or nest components. The Macro-Components handle their own internal layout.
-- Return standard JSON. No markdown fences. No comments inside JSON.`;
+- For CTAs on the Lead Capture page, ensure the "href" prop links to "/thank-you".
+- Remember to wrap your deep strategic reasoning in <thinking> tags, and your JSON payload in <json> tags.`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -123,19 +138,20 @@ Target audience: Coaches, course creators, and e-commerce entrepreneurs.`;
 
   return `${offerSection}
 
-Build a COMPLETE, high-converting sales funnel landing page.
-REMEMBER: First item = FeatureHeader, Last item = FeatureFooter.
+Build a COMPLETE, high-converting MULTI-PAGE sales funnel (Lead Capture + Thank You pages).
+REMEMBER: First item on EACH page = FeatureHeader, Last item = FeatureFooter.
 Fill the FeatureHeader "links" prop with anchor hrefs matching the sectionIds you assign.
 Your job is pure Strategy and Copywriting — make it feel like a $10,000 copywriter wrote this.
 
 DYNAMIC BLUEPRINTING:
-Do NOT use the same generic sequence every time! Evaluate the offer above and design a custom, organic page structure.
+Do NOT use the same generic sequence every time! Evaluate the offer above and design custom, organic page structures for both pages.
+Make the Lead Capture page highly persuasive. Make the Thank You page confirming and provide the next steps.
 Select the optimal component variants from the MACRO-COMPONENT REGISTRY that best fit your conversion strategy.
 To combat layout fatigue, you MUST use different variants. Don't just use FeatureCard 10 times.
 
 Use persuasive, benefit-driven language. Be bold. Be specific.
 Headlines MUST be extremely short and punchy (3 to 8 words maximum). Never write a long sentence as a headline!
-Generate the JSON now. Remember to invent unique 6-character IDs for the 'id' fields.`;
+Generate your response now. Think deeply step by step inside <thinking>, then dump the <json>.`;
 }
 
 
@@ -160,17 +176,15 @@ export async function POST(req: Request) {
 
   try {
     const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5';
-    const { text } = await generateText({
+    
+    // We stream the raw text back to the client so it can visualize the <thinking> block
+    const result = streamText({
       model: anthropic(model),
       system: systemPrompt,
       prompt: contentPrompt,
     });
 
-    const jsonStr = text.replace(/```(?:json)?\n?/g, '').replace(/```\n?/g, '').trim();
-    const parsed = JSON.parse(jsonStr);
-
-    // Return items only — theme is now user-controlled, not AI-generated
-    return Response.json({ items: parsed.items }, { status: 200 });
+    return result.toTextStreamResponse();
   } catch (err: any) {
     console.error('Generate error:', err);
     return Response.json({ error: err.message || 'Error generating page.' }, { status: 500 });

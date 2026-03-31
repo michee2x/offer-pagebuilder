@@ -20,6 +20,13 @@ export interface HistoryState {
   canvasStyle: Record<string, string>;
 }
 
+export interface PageData {
+  name: string;
+  path: string;
+  components: Record<string, ComponentInstance>;
+  rootList: string[];
+}
+
 export interface BuilderState {
   components: Record<string, ComponentInstance>;
   rootList: string[];
@@ -32,6 +39,9 @@ export interface BuilderState {
   theme: ShadcnTheme | null;
   hasUnsavedChanges: boolean;
 
+  pages: Record<string, PageData>;
+  activePagePath: string;
+
   past: HistoryState[];
   future: HistoryState[];
 
@@ -43,7 +53,8 @@ export interface BuilderState {
   setSelected: (id: string | null, fieldKey?: string | null) => void;
   removeComponent: (id: string) => void;
   duplicateComponent: (id: string) => void;
-  setFullState: (components: Record<string, ComponentInstance>, rootList: string[]) => void;
+  setFullState: (components: Record<string, ComponentInstance>, rootList: string[], pages?: Record<string, PageData>, activePagePath?: string) => void;
+  switchPage: (path: string) => void;
   setDeviceMode: (mode: DeviceMode) => void;
   setIsPreviewMode: (isPreview: boolean) => void;
   setPageId: (id: string | null) => void;
@@ -76,6 +87,9 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   theme: SHADCN_THEMES[DEFAULT_THEME_ID],
   hasUnsavedChanges: false,
   
+  pages: { '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] } },
+  activePagePath: '/',
+
   past: [],
   future: [],
 
@@ -240,13 +254,55 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     };
   }),
 
-  setFullState: (components, rootList) => set({ 
-    components, 
-    rootList, 
-    selectedId: null, 
-    hasUnsavedChanges: false,
-    past: [],
-    future: []
+  setFullState: (components, rootList, pages, activePagePath) => set((state) => {
+    const updatedPages = pages || state.pages;
+    const paths = Object.keys(updatedPages);
+    const resolvedPath = activePagePath || (paths.length > 0 ? paths[0] : '/');
+    
+    // Ensure the current updated flat setup exists in pages map just in case
+    if (!updatedPages[resolvedPath]) {
+       updatedPages[resolvedPath] = { name: 'Lead Capture', path: resolvedPath, components, rootList };
+    } else {
+       updatedPages[resolvedPath] = { ...updatedPages[resolvedPath], components, rootList };
+    }
+
+    return { 
+      components, 
+      rootList, 
+      pages: updatedPages,
+      activePagePath: resolvedPath,
+      selectedId: null, 
+      hasUnsavedChanges: false,
+      past: [],
+      future: []
+    }
+  }),
+
+  switchPage: (path) => set((state) => {
+    if (state.activePagePath === path || !state.pages[path]) return state; // Already on this page or doesn't exist
+
+    // 1. Save current flat state into the pages cache
+    const currentPages = { ...state.pages };
+    currentPages[state.activePagePath] = {
+      ...currentPages[state.activePagePath],
+      components: state.components,
+      rootList: state.rootList,
+    };
+
+    // 2. Load the target page into the active flat state
+    const targetPage = currentPages[path];
+
+    return {
+      pages: currentPages,
+      activePagePath: path,
+      components: targetPage.components,
+      rootList: targetPage.rootList,
+      // Reset history/selection context for the new page
+      past: [],
+      future: [],
+      selectedId: null,
+      selectedField: null,
+    };
   }),
 
   setDeviceMode: (deviceMode) => set({ deviceMode }),

@@ -11,15 +11,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const { data: page } = await supabase
         .from('builder_pages')
-        .select('name, seo_title, seo_description, favicon_url')
+        .select('name, seo_title, seo_description, favicon_url, og_image_url, blocks')
         .eq('id', id)
         .single()
 
     if (!page) return { title: 'Page Not Found' }
 
-    const title = page.seo_title || page.name || 'OfferIQ Page'
+    const title       = page.seo_title       || page.name        || 'OfferIQ Page'
     const description = page.seo_description || 'An offer page powered by OfferIQ.'
-    const faviconUrl = page.favicon_url || undefined
+    const faviconUrl  = page.favicon_url      || undefined
+
+    // Resolve og:image — top-level column preferred, fall back to blocks JSON
+    const ogImage: string | undefined =
+        page.og_image_url ||
+        (page.blocks as any)?.og_image_url ||
+        undefined
+
+    const ogImages = ogImage
+        ? [{ url: ogImage, width: 1200, height: 630, alt: title }]
+        : []
 
     return {
         title,
@@ -28,11 +38,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title,
             description,
             type: 'website',
+            images: ogImages,
         },
         twitter: {
             card: 'summary_large_image',
             title,
             description,
+            images: ogImage ? [ogImage] : [],
         },
         icons: faviconUrl
             ? { icon: faviconUrl, shortcut: faviconUrl }

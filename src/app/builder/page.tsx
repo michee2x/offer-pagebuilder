@@ -5,6 +5,7 @@ import { Canvas } from '@/components/builder/Canvas';
 import { RightPanel } from '@/components/builder/RightPanel';
 import { ThemeSwitcher } from '@/components/builder/ThemeSwitcher';
 import { SectionLibraryModal } from '@/components/builder/SectionLibraryModal';
+import { AiStreamBoard } from '@/components/builder/AiStreamBoard';
 import { useBuilderStore } from '@/store/builderStore';
 import { Button } from '@/components/ui/button';
 import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus, Globe, Save } from 'lucide-react';
@@ -19,9 +20,11 @@ export default function BuilderPage() {
     addComponent, moveComponent, setFullState, components, rootList, 
     canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, 
     pageId, setPageId, theme, setTheme, hasUnsavedChanges, setHasUnsavedChanges,
+    pages, activePagePath, switchPage,
     undo, redo, past, future 
   } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [streamText, setStreamText] = React.useState('');
   const [isSaving, setIsSaving] = React.useState(false);
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
@@ -38,9 +41,15 @@ export default function BuilderPage() {
             .then(data => {
                 if (data.page && data.page.blocks) {
                     setPageId(data.page.id);
-                    setFullState(data.page.blocks.components, data.page.blocks.rootList);
-                    if (data.page.blocks.canvasStyle) {
-                        useBuilderStore.setState({ canvasStyle: data.page.blocks.canvasStyle });
+                    const blocks = data.page.blocks;
+                    let loadedPages = blocks.pages;
+                    if (!loadedPages) {
+                        loadedPages = { '/': { name: 'Lead Capture', path: '/', components: blocks.components || {}, rootList: blocks.rootList || [] } }
+                    }
+                    const initialPage = loadedPages['/'] || Object.values(loadedPages)[0];
+                    setFullState(initialPage.components, initialPage.rootList, loadedPages, initialPage.path);
+                    if (blocks.canvasStyle) {
+                        useBuilderStore.setState({ canvasStyle: blocks.canvasStyle });
                     }
                     if (data.page.blocks.theme) {
                         setTheme(data.page.blocks.theme);
@@ -62,7 +71,7 @@ export default function BuilderPage() {
       } else {
           // Reset store for Create New Mode
           setPageId(null);
-          setFullState({}, []);
+          setFullState({}, [], { '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] } }, '/');
           useBuilderStore.setState({ canvasStyle: {} });
           setInitialLoading(false);
       }
@@ -90,42 +99,84 @@ export default function BuilderPage() {
         body: JSON.stringify({ offerContext })
       });
       
-      if (!res.ok) {
-        const err = await res.json();
+      if (!res.ok || !res.body) {
+        const err = await res.json().catch(() => ({}));
         throw new Error(err.error || 'Failed to generate');
       }
 
-      const { items } = await res.json();
-      
-      // Transform nested tree items into our flat Zustand state format
-      const newComponents: Record<string, any> = {};
+      setStreamText(''); // Reset visual stream board
 
-      const flattenItems = (itemList: any[], parentId: string): string[] => {
-        const ids: string[] = [];
-        if (!Array.isArray(itemList)) return ids;
-        
-        itemList.forEach((item) => {
-          const compId = String(item.id);
-          ids.push(compId);
-          
-          let childrenIds: string[] = [];
-          if (item.children && Array.isArray(item.children)) {
-            childrenIds = flattenItems(item.children, compId);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let accumulatedText = '';
+      let thinkingText = '';
+
+      // Stream processor loop
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          accumulatedText += chunk;
+
+          // Extract everything inside <thinking>...</thinking> OR everything after <thinking> if it hasn't closed yet
+          const thinkingMatch = accumulatedText.match(/<thinking>([\s\S]*?)(?:<\/thinking>|$)/);
+          if (thinkingMatch) {
+             thinkingText = thinkingMatch[1].trim();
+             // Update the board UI
+             setStreamText(thinkingText);
           }
+        }
+      }
 
-          newComponents[compId] = {
-             id: compId,
-             type: item.type,
-             props: item.props || {},
-             parentId,
-             childrenIds
-          };
-        });
-        return ids;
-      };
+      // Generation finished, parse the <json> block out
+      const jsonMatch = accumulatedText.match(/<json>([\s\S]*?)<\/json>/);
+      const rawJson = jsonMatch ? jsonMatch[1].trim() : accumulatedText.replace(/```(?:json)?\n?/g, '').replace(/```\n?/g, '').trim();
 
-      const newRootList = flattenItems(items, 'root');
-      setFullState(newComponents, newRootList);
+      const { pages: generatedPages } = JSON.parse(rawJson);
+      
+      const newPages: Record<string, any> = {};
+
+      generatedPages.forEach((aiPage: any) => {
+        const newComponents: Record<string, any> = {};
+
+        const flattenItems = (itemList: any[], parentId: string): string[] => {
+          const ids: string[] = [];
+          if (!Array.isArray(itemList)) return ids;
+          
+          itemList.forEach((item) => {
+            const compId = String(item.id);
+            ids.push(compId);
+            
+            let childrenIds: string[] = [];
+            if (item.children && Array.isArray(item.children)) {
+              childrenIds = flattenItems(item.children, compId);
+            }
+
+            newComponents[compId] = {
+               id: compId,
+               type: item.type,
+               props: item.props || {},
+               parentId,
+               childrenIds
+            };
+          });
+          return ids;
+        };
+
+        const newRootList = flattenItems(aiPage.items, 'root');
+        
+        newPages[aiPage.path] = {
+            name: aiPage.name,
+            path: aiPage.path,
+            components: newComponents,
+            rootList: newRootList
+        };
+      });
+
+      const initialPage = newPages['/'] || Object.values(newPages)[0];
+      setFullState(initialPage.components, initialPage.rootList, newPages, initialPage.path);
       setHasUnsavedChanges(true); // Generation clears state, mark explicit unsaved 
       // Theme is NOT changed by generation — user keeps their chosen theme
       toast.success('Generated page successfully!');
@@ -133,6 +184,7 @@ export default function BuilderPage() {
       toast.error(e.message);
     } finally {
       setIsGenerating(false);
+      setStreamText('');
     }
   };
 
@@ -141,7 +193,16 @@ export default function BuilderPage() {
       setIsSaving(true);
       toast.loading('Saving draft...');
       
-      const payload: any = { components, rootList, canvasStyle, theme };
+      const payload: any = { 
+        components, 
+        rootList, 
+        canvasStyle, 
+        theme,
+        pages: {
+          ...pages,
+          [activePagePath]: { ...pages[activePagePath], components, rootList }
+        }
+      };
       if (pageId) payload.pageId = pageId;
 
       const res = await fetch('/api/publish', {
@@ -222,6 +283,7 @@ export default function BuilderPage() {
           ]}
         >
             <div className="flex items-center gap-1 ml-auto">
+              
               {/* Device mode toggles */}
               <div className="flex items-center bg-muted/30 rounded-md border border-border mr-2 p-0.5">
                 <button
@@ -316,6 +378,7 @@ export default function BuilderPage() {
         
         {/* Modals outside main flex flow */}
         <SectionLibraryModal />
+        <AiStreamBoard isOpen={isGenerating} thinkingText={streamText} />
       </div>
     </div>
   );

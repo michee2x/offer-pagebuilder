@@ -15,7 +15,7 @@ export default async function DashboardPage() {
     const supabase = createAdminClient()
     const { data: pages, error } = await supabase
         .from('builder_pages')
-        .select('id, name, updated_at')
+        .select('id, name, updated_at, og_image_url, blocks')
         .eq('user_id', session.user.id)
         .order('updated_at', { ascending: false })
 
@@ -65,10 +65,25 @@ export default async function DashboardPage() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                                 {pages.map((page: any) => (
                                     <Link key={page.id} href={`/builder?id=${page.id}`} className="group relative block overflow-hidden rounded-xl border border-border bg-card text-card-foreground hover:border-border/80 hover:shadow-lg transition-all hover:-translate-y-0.5">
-                                        <div className="aspect-[16/10] bg-muted/30 flex flex-col items-center justify-center border-b border-border group-hover:bg-muted/50 transition-colors relative">
-                                            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(245,166,35,0.05),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            <Layout className="w-7 h-7 text-muted-foreground/40 group-hover:text-primary/60 transition-colors relative z-10" />
-                                        </div>
+                                        {(() => {
+                                            const ogImg = page.og_image_url || page.blocks?.og_image_url || null;
+                                            return ogImg ? (
+                                                <div className="aspect-[16/10] overflow-hidden border-b border-border relative">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img
+                                                        src={ogImg}
+                                                        alt={page.name}
+                                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                                                </div>
+                                            ) : (
+                                                <div className="aspect-[16/10] bg-muted/30 flex flex-col items-center justify-center border-b border-border group-hover:bg-muted/50 transition-colors relative">
+                                                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(245,166,35,0.05),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    <Layout className="w-7 h-7 text-muted-foreground/40 group-hover:text-primary/60 transition-colors relative z-10" />
+                                                </div>
+                                            );
+                                        })()}
                                         <div className="p-4">
                                             <div className="flex items-center justify-between mb-1.5">
                                                 <h3 className="font-semibold text-sm truncate">{page.name}</h3>

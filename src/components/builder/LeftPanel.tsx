@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export function LeftPanel() {
-  const { rootList, components, selectedId, setSelected } = useBuilderStore();
+  const { rootList, components, selectedId, setSelected, pages, activePagePath, switchPage } = useBuilderStore();
 
   return (
     /* Absolutely positioned over the canvas — icon strip always shows,
@@ -23,34 +23,34 @@ export function LeftPanel() {
           <Layers className="w-4 h-4 text-muted-foreground shrink-0" />
           <div className="flex-1 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-150 min-w-0">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Pages</span>
-            <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full whitespace-nowrap">4 active</span>
+            <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full whitespace-nowrap">{Object.keys(pages || {}).length} active</span>
           </div>
         </div>
 
-        {/* Page items */}
         <div className="flex flex-col pb-2">
-          {[
-            { label: 'Lead Capture', icon: Target, time: `${rootList.length} secs`, active: true },
-            { label: 'Sales Page', icon: CircleDollarSign, time: '8 secs', active: false },
-            { label: 'Upsell Page', icon: Rocket, time: '5 secs', active: false },
-            { label: 'Thank You', icon: HeartHandshake, time: '5 secs', active: false },
-          ].map((page, i) => (
-            <div
-              key={i}
-              className={cn(
-                'flex items-center gap-3 px-[14px] h-9 cursor-pointer transition-colors whitespace-nowrap overflow-hidden',
-                page.active
-                  ? 'bg-muted text-foreground'
-                  : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-              )}
-            >
-              <page.icon className={cn('w-4 h-4 shrink-0', page.active && 'text-primary')} />
-              <div className="flex-1 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-150 min-w-0">
-                <span className="text-xs font-medium truncate">{page.label}</span>
-                <span className="text-[10px] text-muted-foreground ml-2 shrink-0">{page.time}</span>
+          {Object.values(pages || {}).map((page: any) => {
+            const isActive = activePagePath === page.path;
+            const Icon = page.path === '/thank-you' ? HeartHandshake : Target;
+            
+            return (
+              <div
+                key={page.path}
+                onClick={() => switchPage(page.path)}
+                className={cn(
+                  'flex items-center gap-3 px-[14px] h-9 cursor-pointer transition-colors whitespace-nowrap overflow-hidden',
+                  isActive
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                )}
+              >
+                <Icon className={cn('w-4 h-4 shrink-0', isActive && 'text-primary')} />
+                <div className="flex-1 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-150 min-w-0">
+                  <span className="text-xs font-medium truncate">{page.name}</span>
+                  <span className="text-[10px] text-muted-foreground ml-2 shrink-0">{isActive ? `${rootList.length} secs` : `${page.rootList?.length || 0} secs`}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -71,7 +71,14 @@ export function LeftPanel() {
             return (
               <div
                 key={id}
-                onClick={() => setSelected(id)}
+                onClick={() => {
+                  setSelected(id);
+                  const el = document.querySelector(`[data-component-id="${id}"]`);
+                  if (el) {
+                    // Try to scroll the canvas view, handling responsive iframe if needed
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }}
                 className={cn(
                   'flex items-center gap-3 px-[14px] h-9 cursor-pointer transition-colors border-l-2 whitespace-nowrap overflow-hidden',
                   isSelected
