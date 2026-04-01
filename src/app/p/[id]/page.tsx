@@ -22,10 +22,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const faviconUrl  = page.favicon_url      || undefined
 
     // Resolve og:image — top-level column preferred, fall back to blocks JSON
-    const ogImage: string | undefined =
+    const rawOgImage: string | undefined =
         page.og_image_url ||
         (page.blocks as any)?.og_image_url ||
         undefined
+
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ofiq.app'
+    const ogImage = rawOgImage 
+        ? (rawOgImage.startsWith('http') ? rawOgImage : `${baseUrl}${rawOgImage}`)
+        : undefined
 
     const ogImages = ogImage
         ? [{ url: ogImage, width: 1200, height: 630, alt: title }]

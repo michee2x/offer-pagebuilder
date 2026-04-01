@@ -1,11 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { toBlob } from 'html-to-image';
-import { ViewerHydrator } from '@/components/builder/ViewerHydrator';
 import {
   Globe,
   ExternalLink,
@@ -48,9 +46,6 @@ export default function PublishPage() {
 
   const [subdomain, setSubdomain]         = useState('');
   const [customDomain, setCustomDomain]   = useState('');
-
-  // Hidden capture ref
-  const captureRef = useRef<HTMLDivElement>(null);
 
   // SEO state
   const [seoTitle, setSeoTitle]           = useState('');
@@ -205,39 +200,22 @@ export default function PublishPage() {
   };
 
   /**
-   * Captures the actual DOM visually on the client using the injected React component,
-   * avoiding the iframe cross-origin hang issue.
+   * Triggers the backend to link the dynamic Satori OG generator to this funnel.
+   * Supremely fast because no native DOM rendering or uploading is required.
    */
   const captureScreenshot = async (): Promise<string | null> => {
-    if (!id || !captureRef.current) return null;
-    
+    if (!id) return null;
     try {
-      // Force wait for full hydration of the hidden element
-      await delay(1000);
-
-      const blob = await toBlob(captureRef.current, {
-        width: 1200,
-        height: 630,
-        cacheBust: true,
-        style: { margin: '0', padding: '0' },
-      });
-
-      if (!blob) return null;
-
-      const form = new FormData();
-      form.append('screenshot', blob, 'og-image.png');
-      form.append('pageId', id);
-
       const res = await fetch('/api/screenshot', {
         method: 'POST',
-        body: form,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageId: id }),
       });
-
       if (!res.ok) return null;
       const data = await res.json();
       return data.screenshotUrl || null;
     } catch (e) {
-      console.warn('[OG] Screenshot error (non-fatal):', e);
+      console.warn('[OG] Satori registration request failed:', e);
       return null;
     }
   };
@@ -339,16 +317,6 @@ export default function PublishPage() {
   // ─── Main publish UI ──────────────────────────────────────────────────
   return (
     <div className="flex h-screen overflow-hidden bg-background font-sans text-foreground">
-      {/* Hidden container for literal DOM capture */}
-      <div 
-        className="fixed opacity-0 pointer-events-none" 
-        style={{ top: '-9999px', left: '-9999px', width: '1200px', height: '630px', overflow: 'hidden' }}
-      >
-        <div ref={captureRef} className="w-[1200px] h-[630px] bg-white relative">
-          {pageData?.blocks && <ViewerHydrator blocks={pageData.blocks} />}
-        </div>
-      </div>
-
       <Sidebar />
 
       <div

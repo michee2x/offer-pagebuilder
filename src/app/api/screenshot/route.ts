@@ -9,45 +9,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const formData = await req.formData()
-    const file = formData.get('screenshot') as Blob | null
-    const pageId = formData.get('pageId') as string | null
-
-    if (!file || !pageId) {
-      return NextResponse.json({ error: 'Missing file or pageId' }, { status: 400 })
+    const { pageId } = await req.json()
+    if (!pageId) {
+      return NextResponse.json({ error: 'Missing pageId' }, { status: 400 })
     }
 
     const supabase = createAdminClient()
 
-    // Ensure bucket exists
-    const { data: buckets } = await supabase.storage.listBuckets()
-    const bucketExists = buckets?.some(b => b.name === 'screenshots')
-    if (!bucketExists) {
-        await supabase.storage.createBucket('screenshots', { public: true })
-    }
+    // ─── SATORI OG DYNAMIC GENERATOR ───
+    // Instead of using heavy puppeteer or broken client-side captures,
+    // we use a dynamic Next.js API route that generates a beautiful card on-the-fly.
+    // Ensure we point it to absolute URL if hitting it via social platforms
+    
+    const ogUrl = `/api/og?id=${pageId}`
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const filePath = `${session.user.id}/${pageId}/og-image.png`
-
-    const { error: uploadError } = await supabase.storage
-      .from('screenshots')
-      .upload(filePath, buffer, {
-        contentType: 'image/png',
-        upsert: true,
-      })
-
-    if (uploadError) {
-      throw new Error('Upload failed: ' + uploadError.message)
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('screenshots')
-      .getPublicUrl(filePath)
-
-    // Append a timestamp to perfectly bust the browser cache!
-    const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`
-
-    // Update the database with the new URL
+    // Update the record with our dynamic URL so the dashboard and success page know about it
     const { data: page } = await supabase
       .from('builder_pages')
       .select('blocks')
@@ -56,18 +32,18 @@ export async function POST(req: Request) {
 
     const { error: colErr } = await supabase
       .from('builder_pages')
-      .update({ og_image_url: cacheBustedUrl, updated_at: new Date().toISOString() } as any)
+      .update({ og_image_url: ogUrl, updated_at: new Date().toISOString() } as any)
       .eq('id', pageId)
 
     if (colErr) {
-      const updatedBlocks = { ...(page?.blocks || {}), og_image_url: cacheBustedUrl }
+      const updatedBlocks = { ...(page?.blocks || {}), og_image_url: ogUrl }
       await supabase
         .from('builder_pages')
         .update({ blocks: updatedBlocks, updated_at: new Date().toISOString() })
         .eq('id', pageId)
     }
 
-    return NextResponse.json({ success: true, screenshotUrl: cacheBustedUrl })
+    return NextResponse.json({ success: true, screenshotUrl: ogUrl })
   } catch (error: any) {
     console.error('Screenshot API error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
