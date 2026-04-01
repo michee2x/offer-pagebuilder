@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createAdminClient } from "@/utils/supabase/admin"
 import { notFound } from "next/navigation"
 import { ViewerHydrator } from "@/components/builder/ViewerHydrator"
+import { headers } from "next/headers"
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -27,7 +28,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         (page.blocks as any)?.og_image_url ||
         undefined
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ofiq.app'
+    const headersList = await headers()
+    const host = headersList.get('host') || 'ofiq.app'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    
+    // Dynamically lock onto whatever domain the crawler is attacking 
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
     const ogImage = rawOgImage 
         ? (rawOgImage.startsWith('http') ? rawOgImage : `${baseUrl}${rawOgImage}`)
         : undefined
