@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             images: ogImage ? [ogImage] : [],
         },
         icons: faviconUrl
-            ? { icon: faviconUrl, shortcut: faviconUrl }
+            ? { icon: faviconUrl, shortcut: faviconUrl, apple: faviconUrl }
             : undefined,
     }
 }

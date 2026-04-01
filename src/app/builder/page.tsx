@@ -8,7 +8,7 @@ import { SectionLibraryModal } from '@/components/builder/SectionLibraryModal';
 import { AiStreamBoard } from '@/components/builder/AiStreamBoard';
 import { useBuilderStore } from '@/store/builderStore';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus, Globe, Save } from 'lucide-react';
+import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus, Globe, Save, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
@@ -21,6 +21,7 @@ export default function BuilderPage() {
     canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, 
     pageId, setPageId, theme, setTheme, hasUnsavedChanges, setHasUnsavedChanges,
     pages, activePagePath, switchPage,
+    funnelName, setFunnelName,
     undo, redo, past, future 
   } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
@@ -41,6 +42,7 @@ export default function BuilderPage() {
             .then(data => {
                 if (data.page && data.page.blocks) {
                     setPageId(data.page.id);
+                    if (data.page.name) setFunnelName(data.page.name);
                     const blocks = data.page.blocks;
                     let loadedPages = blocks.pages;
                     if (!loadedPages) {
@@ -76,7 +78,7 @@ export default function BuilderPage() {
           setInitialLoading(false);
       }
     }
-  }, [setPageId, setFullState]);
+  }, [setPageId, setFullState, setFunnelName]);
 
   // No more DND sensors or event handlers needed
 
@@ -194,6 +196,7 @@ export default function BuilderPage() {
       toast.loading('Saving draft...');
       
       const payload: any = { 
+        name: funnelName,
         components, 
         rootList, 
         canvasStyle, 
@@ -271,8 +274,20 @@ export default function BuilderPage() {
           breadcrumbs={[
               { label: 'Workspace' },
               { label: 'Funnels', href: '/' },
-              { label: 'Copy Engine', href: '#' },
-              { label: 'Page Builder' }
+              { label: (
+                <div className="flex items-center gap-1.5 group relative">
+                  <div className="absolute right-2.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-muted-foreground/60">
+                    <Edit2 className="w-3 h-3" />
+                  </div>
+                  <input
+                    type="text"
+                    value={funnelName}
+                    onChange={(e) => setFunnelName(e.target.value)}
+                    className="bg-muted/40 hover:bg-muted focus:bg-muted/60 border border-border/50 hover:border-border focus:border-border focus:outline-none rounded-md transition-all px-3 py-1 pr-7 w-[220px] text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 shadow-sm"
+                    placeholder="Enter funnel name..."
+                  />
+                </div>
+              ) }
           ]}
           steps={[
               { id: 1, label: 'Upload', status: 'done' },

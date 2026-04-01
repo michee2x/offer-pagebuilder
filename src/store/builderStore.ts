@@ -38,6 +38,7 @@ export interface BuilderState {
   pageId: string | null;
   theme: ShadcnTheme | null;
   hasUnsavedChanges: boolean;
+  funnelName: string;
 
   pages: Record<string, PageData>;
   activePagePath: string;
@@ -60,6 +61,7 @@ export interface BuilderState {
   setPageId: (id: string | null) => void;
   setTheme: (theme: ShadcnTheme | null) => void;
   setHasUnsavedChanges: (hasUnsaved: boolean) => void;
+  setFunnelName: (name: string) => void;
   
   undo: () => void;
   redo: () => void;
@@ -86,6 +88,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   pageId: null,
   theme: SHADCN_THEMES[DEFAULT_THEME_ID],
   hasUnsavedChanges: false,
+  funnelName: 'Untitled Page',
   
   pages: { '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] } },
   activePagePath: '/',
@@ -314,6 +317,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   setPageId: (pageId) => set({ pageId }),
   setTheme: (theme) => set({ theme, hasUnsavedChanges: true }),
   setHasUnsavedChanges: (hasUnsavedChanges) => set({ hasUnsavedChanges }),
+  setFunnelName: (funnelName) => set({ funnelName, hasUnsavedChanges: true }),
 
 }));
 
