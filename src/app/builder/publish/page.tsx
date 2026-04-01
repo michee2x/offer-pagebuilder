@@ -23,7 +23,7 @@ import { Topbar } from '@/components/layout/Topbar';
 // ─── Deploy stages shown to user while capturing ─────────────────────
 const DEPLOY_STAGES = [
   { id: 'save',       label: 'Finalising content…',           duration: 800  },
-  { id: 'screenshot', label: 'Capturing page screenshot…',    duration: 3500 },
+  { id: 'screenshot', label: 'Spinning up capture engine... generating literal screenshot…',    duration: 3500 },
   { id: 'upload',     label: 'Uploading preview image…',      duration: 1200 },
   { id: 'edge',       label: 'Publishing to edge network…',   duration: 900  },
   { id: 'done',       label: 'Deployment complete!',          duration: 0    },
@@ -54,6 +54,10 @@ export default function PublishPage() {
 
   const [baseDomain, setBaseDomain] = useState('ofiq.app');
   const [protocol, setProtocol]     = useState('https://');
+
+  const isTitleValid = seoTitle.length >= 50;
+  const isDescValid = seoDescription.length >= 110;
+  const isSeoValid = isTitleValid && isDescValid;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -157,7 +161,7 @@ export default function PublishPage() {
   };
 
   // Hard cap on how long we'll wait for a screenshot — never block deploy
-  const SCREENSHOT_TIMEOUT_MS = 6000;
+  const SCREENSHOT_TIMEOUT_MS = 8500;
 
   /** Races captureScreenshot against a hard timeout — always resolves */
   const captureScreenshotSafe = (): Promise<string | null> =>
@@ -168,7 +172,11 @@ export default function PublishPage() {
 
   // ─── Screenshot-based deploy flow ────────────────────────────────────
   const handleDeploy = async () => {
-    if (!id) return;
+    if (!id || !isSeoValid) {
+      if (!isSeoValid) toast.error('Check SEO Settings. Title and Description are too short.');
+      return;
+    }
+    
     setDeploying(true);
     setDeployStage(0);
 
@@ -357,7 +365,7 @@ export default function PublishPage() {
           <Button
             size="sm"
             onClick={handleDeploy}
-            disabled={deploying}
+            disabled={deploying || !isSeoValid}
             className="h-8 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm font-medium"
           >
             <Rocket className="w-4 h-4" />
@@ -592,8 +600,17 @@ export default function PublishPage() {
 
               {/* Deploy Action */}
               <div className="bg-card border border-border rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden group">
+                {!isSeoValid && (
+                  <div className="absolute top-0 left-0 right-0 bg-red-500/10 border-b border-red-500/20 p-3 text-red-500 text-xs text-left flex gap-3">
+                    <span className="text-lg leading-none">⚠️</span>
+                    <p className="font-medium leading-relaxed">
+                      <strong>Deployment Blocked:</strong> OpenGraph standards require a Minimum 50 char Title and 110 char Description to reliably process Social Previews. Fix these via the right-hand panel constraints.
+                    </p>
+                  </div>
+                )}
+                
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mb-5 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-3 duration-300">
+                <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center mb-5 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-3 duration-300 mt-6 ${isSeoValid ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-muted border-border text-muted-foreground'}`}>
                   <Rocket className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold tracking-tight mb-2">Deploy Funnel</h3>
@@ -603,13 +620,13 @@ export default function PublishPage() {
                 </p>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6">
                   <Camera className="w-3.5 h-3.5" />
-                  <span>Screenshot captured automatically on first deploy</span>
+                  <span>Heavy literal screenshot processed securely in background.</span>
                 </div>
                 <Button
                   size="lg"
                   className="w-full max-w-xs font-semibold shadow-sm transition-all bg-emerald-500 hover:bg-emerald-600 text-white"
                   onClick={handleDeploy}
-                  disabled={deploying}
+                  disabled={deploying || !isSeoValid}
                 >
                   {deploying ? (
                     <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -677,8 +694,8 @@ export default function PublishPage() {
                       placeholder="My Awesome Offer"
                       maxLength={70}
                     />
-                    <p className="text-[10px] text-muted-foreground text-right">
-                      {seoTitle.length}/70 chars
+                    <p className={`text-[10px] text-right font-medium ${isTitleValid ? 'text-emerald-500' : 'text-red-500'}`}>
+                      {seoTitle.length}/70 chars (min 50)
                     </p>
                   </div>
 
@@ -694,8 +711,8 @@ export default function PublishPage() {
                       placeholder="Describe what this page offers…"
                       maxLength={160}
                     />
-                    <p className="text-[10px] text-muted-foreground text-right">
-                      {seoDescription.length}/160 chars
+                    <p className={`text-[10px] text-right font-medium ${isDescValid ? 'text-emerald-500' : 'text-red-500'}`}>
+                      {seoDescription.length}/160 chars (min 110)
                     </p>
                   </div>
 
