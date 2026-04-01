@@ -34,6 +34,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description = page.seo_description || 'An offer page powered by OfferIQ.'
     const faviconUrl = page.favicon_url || undefined
 
+    const rawOgImage: string | undefined = 
+        page.og_image_url || 
+        (page.blocks as any)?.og_image_url || 
+        undefined
+
+    let protocol = 'https'
+    const decodedDomain = decodeURIComponent(domain)
+    if (decodedDomain.includes('localhost') || decodedDomain.includes('127.0.0.1')) {
+        protocol = 'http'
+    }
+
+    const baseUrl = `${protocol}://${decodedDomain}`
+    const ogImage = rawOgImage 
+        ? (rawOgImage.startsWith('http') ? rawOgImage : `${baseUrl}${rawOgImage}`)
+        : undefined
+
+    const ogImages = ogImage
+        ? [{ url: ogImage, width: 1200, height: 630, alt: title }]
+        : []
+
     return {
         title,
         description,
@@ -41,11 +61,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title,
             description,
             type: 'website',
+            images: ogImages,
         },
         twitter: {
             card: 'summary_large_image',
             title,
             description,
+            images: ogImage ? [ogImage] : [],
         },
         icons: faviconUrl
             ? { icon: faviconUrl, shortcut: faviconUrl }
