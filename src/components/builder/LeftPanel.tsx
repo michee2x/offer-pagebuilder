@@ -5,7 +5,8 @@ import { useBuilderStore } from '@/store/builderStore';
 import { cn } from '@/lib/utils';
 import {
   Plus, Target, CircleDollarSign, Rocket,
-  HeartHandshake, Layout, Layers
+  HeartHandshake, Layout, Layers,
+  ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 
 export function LeftPanel() {
@@ -30,7 +31,10 @@ export function LeftPanel() {
         <div className="flex flex-col pb-2">
           {Object.values(pages || {}).map((page: any) => {
             const isActive = activePagePath === page.path;
-            const Icon = page.path === '/thank-you' ? HeartHandshake : Target;
+            let Icon = Target;
+            if (page.path === '/upsell') Icon = ArrowUpRight;
+            if (page.path === '/downsell') Icon = ArrowDownRight;
+            if (page.path === '/thankyou' || page.path === '/thank-you') Icon = HeartHandshake;
             
             return (
               <div

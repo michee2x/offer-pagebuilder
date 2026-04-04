@@ -30,6 +30,7 @@ export default function BuilderPage() {
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
   const [initialLoading, setInitialLoading] = React.useState(true);
+  const [hasIntelligence, setHasIntelligence] = React.useState(false);
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -48,6 +49,18 @@ export default function BuilderPage() {
                     if (!loadedPages) {
                         loadedPages = { '/': { name: 'Lead Capture', path: '/', components: blocks.components || {}, rootList: blocks.rootList || [] } }
                     }
+                    const defaultPages = {
+                      '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] },
+                      '/upsell': { name: 'Upsell', path: '/upsell', components: {}, rootList: [] },
+                      '/downsell': { name: 'Downsell', path: '/downsell', components: {}, rootList: [] },
+                      '/thankyou': { name: 'Thank You', path: '/thankyou', components: {}, rootList: [] },
+                    };
+                    loadedPages = { ...defaultPages, ...loadedPages };
+                    
+                    if (blocks.intelligence?.call1_complete) {
+                      setHasIntelligence(true);
+                    }
+                    
                     const initialPage = loadedPages['/'] || Object.values(loadedPages)[0];
                     setFullState(initialPage.components, initialPage.rootList, loadedPages, initialPage.path);
                     if (blocks.canvasStyle) {
@@ -98,7 +111,7 @@ export default function BuilderPage() {
       const res = await fetch('/api/generate', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ offerContext })
+        body: JSON.stringify({ offerContext, funnelId: pageId })
       });
       
       if (!res.ok || !res.body) {
@@ -289,13 +302,13 @@ export default function BuilderPage() {
                 </div>
               ) }
           ]}
-          steps={[
+          steps={hasIntelligence ? [
               { id: 1, label: 'Upload', status: 'done' },
               { id: 2, label: 'Intelligence', status: 'done' },
               { id: 3, label: 'Copy', status: 'done' },
               { id: 4, label: 'Build Pages', status: 'active' },
               { id: 5, label: 'Publish', status: 'pending' },
-          ]}
+          ] : undefined}
         >
             <div className="flex items-center gap-1 ml-auto">
               

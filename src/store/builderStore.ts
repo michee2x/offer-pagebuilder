@@ -90,7 +90,12 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   hasUnsavedChanges: false,
   funnelName: 'Untitled Page',
   
-  pages: { '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] } },
+  pages: { 
+    '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] },
+    '/upsell': { name: 'Upsell', path: '/upsell', components: {}, rootList: [] },
+    '/downsell': { name: 'Downsell', path: '/downsell', components: {}, rootList: [] },
+    '/thankyou': { name: 'Thank You', path: '/thankyou', components: {}, rootList: [] }
+  },
   activePagePath: '/',
 
   past: [],

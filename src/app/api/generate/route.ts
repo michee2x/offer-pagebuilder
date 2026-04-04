@@ -2,6 +2,7 @@ import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { ShadcnTheme } from '@/lib/themes';
 import { COMPONENT_REGISTRY, LUCIDE_ICON_NAMES } from '@/config/components';
+import { createAdminClient } from '@/utils/supabase/admin';
 
 export const maxDuration = 90;
 
@@ -62,7 +63,10 @@ EVERY page you generate MUST follow this rule:
 3. For the Lead Capture page, freely choose 3-6 modern Feature components based on the offer strategy. 
    CRITICAL: Do NOT simply output the same layout over and over. Choose different visual variants!
    For example, choose either 'FeatureHero' OR 'HeroCenter'. For features, choose either 'FeaturesGrid' or 'FeatureSplit'. Give the page dynamic visual variety.
-4. For the Thank You page, it MUST be extremely clean and minimal! Limit to exactly 1 or 2 components between the Header and Footer. (e.g., A HeroCenter confirming they opted in, and optionally a FeatureCTA with next steps). Do NOT put sales letters or complex features on the Thank You page.
+   NEVER use UpsellHero, DownsellHero, or ThankYouHero on the Lead Capture page!
+4. For the Upsell page ("/upsell"), it MUST contain exactly two components between Header and Footer: the \`UpsellHero\` followed by \`FeatureTestimonials\`.
+5. For the Downsell page ("/downsell"), it MUST contain exactly one component between Header and Footer: the \`DownsellHero\`.
+6. For the Thank You page ("/thankyou"), it MUST contain exactly one component between Header and Footer: the \`ThankYouHero\`. Do NOT put sales letters or complex features on the Thank You page.
 
 If you generate a FeatureLogos component, populate its "logos" array using real, highly recognizable companies related to the offer. For each logo, provide the exact web domain (e.g., "stripe.com", "shopify.com", "slack.com").
 
@@ -96,14 +100,28 @@ RETURN FORMAT
       "path": "/",
       "name": "Lead Capture",
       "items": [
-        // Array of component JSON objects exactly matching the EXAMPLES above
+        // Array of component JSON objects for the lead page
       ]
     },
     {
-      "path": "/thank-you",
+      "path": "/upsell",
+      "name": "Upsell",
+      "items": [
+        // FeatureHeader, UpsellHero, FeatureTestimonials, FeatureFooter
+      ]
+    },
+    {
+      "path": "/downsell",
+      "name": "Downsell",
+      "items": [
+        // FeatureHeader, DownsellHero, FeatureFooter
+      ]
+    },
+    {
+      "path": "/thankyou",
       "name": "Thank You",
       "items": [
-        // Array of component JSON objects exactly matching the EXAMPLES above
+        // FeatureHeader, ThankYouHero, FeatureFooter
       ]
     }
   ]
@@ -111,18 +129,28 @@ RETURN FORMAT
 
 - Every item in "items" MUST have an "id" field (generate a random 6-character string).
 - Do NOT use "children" or nest components. The Macro-Components handle their own internal layout.
-- For CTAs on the Lead Capture page, ensure the "href" prop links to "/thank-you".
+- For CTAs on the Lead Capture page, ensure the "href" prop links to "/upsell". For Upsell CTA, link to "/thankyou", and for Decline link to "/downsell".
 - Remember to wrap your deep strategic reasoning in <thinking> tags, and your JSON payload in <json> tags.`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Build the content prompt from offer context
 // ─────────────────────────────────────────────────────────────────────────────
-function buildContentPrompt(offerContext: any): string {
+function buildContentPrompt(offerContext: any, copyContext: string | null): string {
   const hasOffer = offerContext && (offerContext.niche || offerContext.productType || offerContext.audience);
+  
+  let offerSection = '';
+  
+  if (copyContext) {
+    offerSection = `OFFER INTELLIGENCE COPY:
+We have already run an AI intelligence engine for this offer. The following is the highly-optimized sales copy generated specifically for this funnel.
+YOU MUST USE THIS EXACT COPY FOR THE RELEVANT PAGES. DO NOT MAKE UP NEW HEADLINES OR TEXT IF THEY ARE PROVIDED HERE.
 
-  const offerSection = hasOffer
-    ? `OFFER DETAILS:
+=== START PRE-WRITTEN COPY ===
+${copyContext}
+=== END PRE-WRITTEN COPY ===`;
+  } else if (hasOffer) {
+    offerSection = `OFFER DETAILS:
 - Product/Service: ${offerContext.productType ?? 'Not specified'}
 - Niche: ${offerContext.niche ?? 'Not specified'}
 - Target Audience: ${offerContext.audience ?? 'Not specified'}
@@ -131,10 +159,12 @@ function buildContentPrompt(offerContext: any): string {
 - Price Point: ${offerContext.price ?? 'Not specified'}
 - Tone: ${offerContext.tone ?? 'Not specified'}
 ${offerContext.headlines ? `- Headlines to use: ${offerContext.headlines}` : ''}
-${offerContext.cta ? `- CTA text: ${offerContext.cta}` : ''}`
-    : `OFFER DETAILS: Build a stunning demo page for "OfferIQ" — an AI-powered offer & funnel builder for online businesses.
+${offerContext.cta ? `- CTA text: ${offerContext.cta}` : ''}`;
+  } else {
+    offerSection = `OFFER DETAILS: Build a stunning demo page for "OfferIQ" — an AI-powered offer & funnel builder for online businesses.
 Core benefit: Turn any offer into a high-converting funnel page in minutes.
 Target audience: Coaches, course creators, and e-commerce entrepreneurs.`;
+  }
 
   return `${offerSection}
 
@@ -164,15 +194,30 @@ export async function POST(req: Request) {
   }
 
   let offerContext: any = {};
+  let funnelId: string | undefined;
   try {
     const body = await req.json().catch(() => ({}));
     offerContext = body.offerContext ?? {};
+    funnelId = body.funnelId;
   } catch {
     // empty body is fine
   }
 
+  let copyContext: string | null = null;
+  if (funnelId) {
+    try {
+      const supabase = createAdminClient();
+      const { data } = await supabase.from('builder_pages').select('blocks').eq('id', funnelId).single();
+      if (data?.blocks?.copy) {
+        copyContext = JSON.stringify(data.blocks.copy, null, 2);
+      }
+    } catch (e) {
+      console.error('Failed to load intelligence copy context', e);
+    }
+  }
+
   const systemPrompt = buildSystemPrompt();
-  const contentPrompt = buildContentPrompt(offerContext);
+  const contentPrompt = buildContentPrompt(offerContext, copyContext);
 
   try {
     const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5';

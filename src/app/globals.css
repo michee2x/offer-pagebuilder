@@ -72,37 +72,41 @@ html {
 ────────────────────────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 224 71% 4%; /* rgb(3, 7, 18) */
+    --foreground: 0 0% 98%;
     
-    --card: 0 0% 3%;
-    --card-foreground: 0 0% 100%;
+    --card: 224 71% 4%;
+    --card-foreground: 0 0% 98%;
     
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 0 0% 98%;
     
-    --primary: 38 92% 55%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 0 0% 98%; /* White default button */
+    --primary-foreground: 224 71% 4%; /* Black text inside primary button */
     
+    --brand-yellow: 38 92% 55%;
+    --brand-yellow-foreground: 0 0% 0%;
+
     --secondary: 0 0% 9%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary-foreground: 0 0% 98%;
     
-    --muted: 0 0% 11%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 215 20.2% 65.1%;
     
-    --accent: 0 0% 11%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 215 28% 17%;
+    --accent-foreground: 0 0% 98%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
-    --ring: 38 92% 55%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 0 0% 98%;
     
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 }
+
 
 @layer base {
   body {

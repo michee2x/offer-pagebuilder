@@ -16,9 +16,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Bot, Settings2, Palette, Check } from 'lucide-react';
+import { Bot, Settings2, Palette, Check, ImageIcon } from 'lucide-react';
 import { AiChat } from './AiChat';
 import { ArrayEditor } from './ArrayEditor';
+import { ImagePickerModal } from './ImagePickerModal';
 import { cn } from '@/lib/utils';
 
 // ─── Theme swatch card ───────────────────────────────────────────────────────
@@ -81,6 +82,10 @@ function ThemeCard({
 export function RightPanel() {
   const { selectedId, selectedField, components, updateProps, removeComponent, canvasStyle, updateCanvasStyle, theme, setTheme } =
     useBuilderStore();
+
+  // ── Image picker modal state ────────────────────────────────────────────────
+  // Tracks which prop key the modal is replacing (so onSelect knows where to write)
+  const [pickerPropKey, setPickerPropKey] = React.useState<string | null>(null);
 
   if (!selectedId) {
     return (
@@ -250,6 +255,29 @@ export function RightPanel() {
                     />
                   )}
 
+                  {field.type === 'image' && (
+                    <div className="flex flex-col gap-2">
+                      {/* Thumbnail preview */}
+                      {component.props[key] && (
+                        <div className="relative w-full h-28 rounded-lg overflow-hidden border border-border bg-muted/30">
+                          <img
+                            src={component.props[key]}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      {/* Open picker modal */}
+                      <button
+                        onClick={() => setPickerPropKey(key)}
+                        className="flex items-center gap-2 justify-center px-3 py-2 rounded-lg border border-dashed border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/60 hover:bg-muted/40 transition-all"
+                      >
+                        <ImageIcon className="w-3.5 h-3.5" />
+                        {component.props[key] ? 'Change Image' : 'Add Image'}
+                      </button>
+                    </div>
+                  )}
+
                   {field.type === 'textarea' && (
                     <Textarea
                       id={key}
@@ -318,6 +346,17 @@ export function RightPanel() {
           />
         </TabsContent>
       </Tabs>
+
+      <ImagePickerModal
+        open={pickerPropKey !== null}
+        onClose={() => setPickerPropKey(null)}
+        onSelect={(url) => {
+          if (pickerPropKey) {
+            updateProps(selectedId, { [pickerPropKey]: url });
+            setPickerPropKey(null);
+          }
+        }}
+      />
     </div>
   );
 }

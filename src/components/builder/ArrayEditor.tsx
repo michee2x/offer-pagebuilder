@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Plus, Trash2, GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, Trash2, GripVertical, Upload, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ArrayEditorProps {
   label: string;
@@ -17,6 +18,27 @@ interface ArrayEditorProps {
 
 export function ArrayEditor({ label, items, arrayFields, onChange }: ArrayEditorProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+
+  const handleArrayItemImageUpload = async (itemIndex: number, key: string, file: File) => {
+    try {
+      setUploadingKey(`${itemIndex}-${key}`);
+      const toastId = toast.loading('Uploading image…');
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Upload failed');
+      handleItemChange(itemIndex, key, data.url);
+      toast.dismiss(toastId);
+      toast.success('Image updated!');
+    } catch (err: any) {
+      toast.dismiss();
+      toast.error(err.message ?? 'Upload failed');
+    } finally {
+      setUploadingKey(null);
+    }
+  };
 
   const safeItems = Array.isArray(items) ? items : [];
 
@@ -92,6 +114,49 @@ export function ArrayEditor({ label, items, arrayFields, onChange }: ArrayEditor
             value={value || 0} 
             onChange={(e) => handleItemChange(itemIndex, key, Number(e.target.value))}
             className="h-8 text-xs"
+          />
+        </div>
+      );
+    }
+    if (field.type === 'image') {
+      const uploadId = `arr-img-${itemIndex}-${key}-${Math.random().toString(36).slice(2, 7)}`;
+      const isUploading = uploadingKey === `${itemIndex}-${key}`;
+      return (
+        <div key={key} className="grid w-full gap-2 mb-4">
+          <Label className="text-xs text-muted-foreground">{field.label}</Label>
+          {value && (
+            <div className="relative w-full h-20 rounded-md overflow-hidden border border-border bg-muted/30">
+              <img src={value} alt="preview" className="w-full h-full object-cover" />
+            </div>
+          )}
+          <label
+            htmlFor={uploadId}
+            className={`flex items-center gap-2 justify-center px-2 py-1.5 rounded-md border border-dashed border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/60 hover:bg-muted/40 transition-all cursor-pointer${
+              isUploading ? ' opacity-50 pointer-events-none' : ''
+            }`}
+          >
+            {isUploading ? (
+              <><Loader2 className="w-3 h-3 animate-spin" /> Uploading…</>
+            ) : (
+              <><Upload className="w-3 h-3" /> {value ? 'Change' : 'Upload'}</>
+            )}
+          </label>
+          <input
+            id={uploadId}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleArrayItemImageUpload(itemIndex, key, file);
+              e.target.value = '';
+            }}
+          />
+          <Input
+            value={value || ''}
+            placeholder="or paste URL…"
+            onChange={(e) => handleItemChange(itemIndex, key, e.target.value)}
+            className="h-7 text-[11px]"
           />
         </div>
       );

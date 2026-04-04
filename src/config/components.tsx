@@ -20,6 +20,10 @@ import { FeatureCTA } from '../components/macro/CTA';
 import { FeatureFooter } from '../components/macro/Footer';
 import { FeaturesGrid } from '../components/macro/Features/FeaturesGrid';
 import { FeatureSplit } from '../components/macro/Content/FeatureSplit';
+
+import { UpsellHero } from '../components/macro/Funnel/UpsellHero';
+import { DownsellHero } from '../components/macro/Funnel/DownsellHero';
+import { ThankYouHero } from '../components/macro/Funnel/ThankYouHero';
 // ─────────────────────────────────────────────────────────────────────────────
 // Component Registry
 // ─────────────────────────────────────────────────────────────────────────────
@@ -97,9 +101,12 @@ export type ComponentType =
   | 'FeatureCTA'
   | 'FeaturesGrid'
   | 'FeatureSplit'
-  | 'FeatureFooter';
+  | 'FeatureFooter'
+  | 'UpsellHero'
+  | 'DownsellHero'
+  | 'ThankYouHero';
 export type FieldDef = {
-  type: 'text' | 'textarea' | 'select' | 'color' | 'number' | 'array';
+  type: 'text' | 'textarea' | 'select' | 'color' | 'number' | 'array' | 'image';
   label: string;
   options?: string[];
   arrayFields?: Record<string, FieldDef>;
@@ -334,7 +341,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       style: {},
     },
     fields: {
-      src: { type: 'text', label: 'Image URL' },
+      src: { type: 'image', label: 'Image' },
       alt: { type: 'text', label: 'Alt Text' },
       className: { type: 'text', label: 'Tailwind Classes' },
     },
@@ -662,7 +669,15 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       purpose: 'A modern 3-column features grid with image cards and staggered animations.',
       example: { badgeText: 'FEATURES', headline: 'Awesome features.' }
     },
-    defaultProps: { badgeText: 'FEATURES', headline: 'Discover the power.' },
+    defaultProps: { 
+      badgeText: 'FEATURES', 
+      headline: 'Discover the power.',
+      features: [
+        { id: 'f1', title: 'Context Aware', description: 'Understands your whole project so it writes perfect, context-rich responses instantly.', imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop' },
+        { id: 'f2', title: 'Natural Responses', description: 'Reads and writes like a human, natively adapting to your precise brand voice.', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop' },
+        { id: 'f3', title: 'Brilliant Clarity', description: 'Breaks down complex problems into surprisingly clear and actionable steps.', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop' }
+      ]
+    },
     fields: {
       sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       badgeText: { type: 'text', label: 'Badge Text' },
@@ -673,7 +688,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
         arrayFields: {
           title: { type: 'text', label: 'Title' },
           description: { type: 'textarea', label: 'Description' },
-          imageUrl: { type: 'text', label: 'Image URL' }
+          imageUrl: { type: 'image', label: 'Image URL' }
         }
       }
     },
@@ -687,13 +702,22 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       purpose: 'A highly versatile section that splits an image and a vertical list of item points.',
       example: { badgeText: 'HOW IT WORKS', imagePosition: 'left' }
     },
-    defaultProps: { badgeText: 'ONBOARDING', imagePosition: 'left' },
+    defaultProps: { 
+      badgeText: 'ONBOARDING', 
+      imagePosition: 'left',
+      imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop',
+      contentItems: [
+        { id: '1', title: '1 — Call', description: 'Just type a simple prompt and command the AI to begin.' },
+        { id: '2', title: '2 — Execute', description: 'The invisible system runs deeply connected reasoning.' },
+        { id: '3', title: '3 — Enhance', description: 'Get actionable clarity delivered instantly.' }
+      ]
+    },
     fields: {
       sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       badgeText: { type: 'text', label: 'Badge' },
       headline: { type: 'textarea', label: 'Headline' },
       imagePosition: { type: 'select', label: 'Image Position', options: ['left', 'right'] },
-      imageUrl: { type: 'text', label: 'Image URL' },
+      imageUrl: { type: 'image', label: 'Image URL' },
       contentItems: {
         type: 'array',
         label: 'Split Items',
@@ -729,13 +753,13 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       purpose: 'A bottom-of-page containerized CTA with a background image overlay.',
       example: { headline: 'Ready to start?', buttonText: 'Try Now' }
     },
-    defaultProps: { headline: 'Step into the future.', buttonText: 'Get Started' },
+    defaultProps: { headline: 'Step into the future.', buttonText: 'Get Started', bgImageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop' },
     fields: {
       sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       headline: { type: 'textarea', label: 'Headline' },
       subheadline: { type: 'textarea', label: 'Sub-headline' },
       buttonText: { type: 'text', label: 'Button Text' },
-      bgImageUrl: { type: 'text', label: 'Background Image' },
+      bgImageUrl: { type: 'image', label: 'Background Image' },
     },
     render: (props: any) => <HeyMessageCTA {...props} />
   },
@@ -780,12 +804,13 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       purpose: 'A glowing dark-mode hero section with a dashboard graphic.',
       example: { headline: 'Turn data into decisions' }
     },
-    defaultProps: { badgeText: '', headline: 'Turn data into decisions' },
+    defaultProps: { badgeText: '', headline: 'Turn data into decisions', dashboardImageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop' },
     fields: {
       sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       badgeText: { type: 'text', label: 'Badge Text' },
       headline: { type: 'textarea', label: 'Headline' },
       subheadline: { type: 'textarea', label: 'Sub-headline' },
+      dashboardImageUrl: { type: 'image', label: 'Dashboard Image' },
     },
     render: (props: any) => <FeatureHero {...props} />
   },
@@ -805,7 +830,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       subheadline: { type: 'textarea', label: 'Sub-headline' },
       primaryCta: { type: 'text', label: 'Primary CTA' },
       secondaryCta: { type: 'text', label: 'Secondary CTA' },
-      imageUrl: { type: 'text', label: 'Image URL' },
+      imageUrl: { type: 'image', label: 'Image URL' },
     },
     render: (props: any) => <HeroCenter {...props} />
   },
@@ -842,13 +867,13 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       purpose: 'A dark-mode split section with an image on one side and a vertical list of benefits on the other.',
       example: { headline: 'Stop jumping between tools' }
     },
-    defaultProps: { badgeText: 'INTEGRATION', headline: 'Stop jumping between tools', imagePosition: 'right', contentItems: [] },
+    defaultProps: { badgeText: 'INTEGRATION', headline: 'Stop jumping between tools', imagePosition: 'right', imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop', contentItems: [] },
     fields: {
       sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       badgeText: { type: 'text', label: 'Badge Text' },
       headline: { type: 'textarea', label: 'Headline' },
       subheadline: { type: 'textarea', label: 'Sub-headline' },
-      imageUrl: { type: 'text', label: 'Image URL' },
+      imageUrl: { type: 'image', label: 'Image URL' },
       imagePosition: { type: 'select', label: 'Image Position', options: ['left', 'right'] },
       contentItems: {
         type: 'array',
@@ -893,7 +918,14 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       purpose: 'A 6-card masonry grid detailing user reviews.',
       example: { headline: 'Reviews that make us blush' }
     },
-    defaultProps: { headline: 'Reviews that make us blush' },
+    defaultProps: { 
+      headline: 'Reviews that make us blush',
+      testimonials: [
+        { id: '1', name: 'Sarah Chen', role: 'Growth Lead @ StartupX', content: "This entirely changed how we look at our user retention.", avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
+        { id: '2', name: 'Marcus Bell', role: 'Founder @ ScaleIt', content: "I've tried every BI tool on the market.", avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704e' },
+        { id: '3', name: 'Elena Silva', role: 'Head of Data @ Nexus', content: "The automated board reporting alone saves me ten hours a week.", avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704f' }
+      ]
+    },
     fields: {
       sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       headline: { type: 'textarea', label: 'Headline' },
@@ -904,7 +936,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           name: { type: 'text', label: 'Name' },
           role: { type: 'text', label: 'Role / Company' },
           content: { type: 'textarea', label: 'Review Content' },
-          avatarUrl: { type: 'text', label: 'Avatar URL (Optional)' },
+          avatarUrl: { type: 'image', label: 'Avatar URL (Optional)' },
         }
       }
     },
@@ -976,11 +1008,12 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       purpose: 'A golden-accented CTA container used at the bottom of pages.',
       example: { headline: 'Ready to make better decisions with your data?' }
     },
-    defaultProps: { headline: 'Ready to make better decisions with your data?' },
+    defaultProps: { headline: 'Ready to make better decisions with your data?', imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop' },
     fields: {
       sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
       headline: { type: 'textarea', label: 'Headline' },
       buttonText: { type: 'text', label: 'Button Text' },
+      imageUrl: { type: 'image', label: 'Image URL' },
     },
     render: (props: any) => <FeatureCTA {...props} />
   },
@@ -998,6 +1031,90 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       description: { type: 'textarea', label: 'Description' },
     },
     render: (props: any) => <FeatureFooter {...props} />
+  },
+
+  UpsellHero: {
+    type: 'UpsellHero',
+    label: 'Upsell Video Hero',
+    defaultProps: {
+      headline: 'WAIT! Your order is not complete...',
+      subheadline: 'Do not close this page. Add our comprehensive video masterclass for 80% off.',
+      videoUrl: '',
+      price: '$97',
+      originalPrice: '$497',
+      primaryCta: 'Yes, Upgrade My Order Now',
+      declineCta: 'No thanks, I choose to skip this one-time discount and pass up on the value.',
+      className: '',
+      style: {}
+    },
+    fields: {
+      headline: { type: 'textarea', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Subheadline' },
+      videoUrl: { type: 'text', label: 'Video Embed URL' },
+      price: { type: 'text', label: 'Upsell Price' },
+      originalPrice: { type: 'text', label: 'Original Price (Crossed out)' },
+      primaryCta: { type: 'text', label: 'Add-to-Order Text' },
+      declineCta: { type: 'textarea', label: 'Decline Link Text' },
+      className: { type: 'text', label: 'Tailwind Classes' }
+    },
+    semantic: { purpose: 'Main video sales letter for an Upsell page.', example: { headline: 'WAIT! Your order is almost complete...' } },
+    render: (props) => <UpsellHero {...props} />
+  },
+
+  DownsellHero: {
+    type: 'DownsellHero',
+    label: 'Downsell Offer Hero',
+    defaultProps: {
+      headline: 'Lets Make This Easier...',
+      subheadline: 'I know times might be tight. How about a 3-part payment plan?',
+      price: '$33/mo',
+      originalPrice: '$97',
+      paymentPlanText: '3 Split Payments',
+      primaryCta: 'Yes, Upgrade My Order Now',
+      declineCta: 'No thanks, I will pass on this final offer.',
+      className: '',
+      style: {}
+    },
+    fields: {
+      headline: { type: 'textarea', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Subheadline' },
+      price: { type: 'text', label: 'Downsell Price' },
+      originalPrice: { type: 'text', label: 'Original Price' },
+      paymentPlanText: { type: 'text', label: 'Payment Plan Taglet' },
+      primaryCta: { type: 'text', label: 'Add-to-Order Text' },
+      declineCta: { type: 'textarea', label: 'Decline Link Text' },
+      className: { type: 'text', label: 'Tailwind Classes' }
+    },
+    semantic: { purpose: 'Offer variant optimized for downsells or payment plans.', example: { headline: 'Lets Make This Easier...' } },
+    render: (props) => <DownsellHero {...props} />
+  },
+
+  ThankYouHero: {
+    type: 'ThankYouHero',
+    label: 'Thank You Hero',
+    defaultProps: {
+      headline: 'Order Confirmed!',
+      subheadline: 'Your payment was successfully processed. Welcome aboard.',
+      receiptTotal: '$1,997.00',
+      nextStep1: 'Check your email for your receipt and login credentials directly.',
+      nextStep2: 'Join our exclusive Facebook community to network with other members.',
+      nextStep3: 'Click the button below to instantly access your product.',
+      primaryCta: 'Access the Product',
+      className: '',
+      style: {}
+    },
+    fields: {
+      headline: { type: 'text', label: 'Headline' },
+      subheadline: { type: 'textarea', label: 'Subheadline' },
+      receiptTotal: { type: 'text', label: 'Receipt Total' },
+      nextStep1: { type: 'textarea', label: 'Next Step 1' },
+      nextStep2: { type: 'textarea', label: 'Next Step 2' },
+      nextStep3: { type: 'textarea', label: 'Next Step 3' },
+      primaryCta: { type: 'text', label: 'Primary CTA Text' },
+      className: { type: 'text', label: 'Tailwind Classes' }
+    },
+    semantic: { purpose: 'Post-purchase order confirmation and next steps screen.', example: { headline: 'Order Confirmed!' } },
+    render: (props) => <ThankYouHero {...props} />
   }
 
 };
