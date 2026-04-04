@@ -4,7 +4,7 @@ import { ShadcnTheme } from '@/lib/themes';
 import { COMPONENT_REGISTRY, LUCIDE_ICON_NAMES } from '@/config/components';
 import { createAdminClient } from '@/utils/supabase/admin';
 
-export const maxDuration = 90;
+export const maxDuration = 300; // 5 minutes maximum for Vercel
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper — build the Macro-Component focused system prompt
