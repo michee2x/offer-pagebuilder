@@ -403,7 +403,7 @@ export default function BuilderPage() {
           {/* LeftPanel is absolutely positioned — overlays the canvas */}
           {!isPreviewMode && <LeftPanel />}
           {/* Canvas fills full width — left padding reserves space for the icon strip */}
-          <div className={cn('flex-1 overflow-hidden', !isPreviewMode && 'pl-14')}>
+          <div className={cn('flex-1 flex flex-col h-full overflow-hidden relative', !isPreviewMode && 'pl-14')}>
             <Canvas />
           </div>
           {!isPreviewMode && <RightPanel />}

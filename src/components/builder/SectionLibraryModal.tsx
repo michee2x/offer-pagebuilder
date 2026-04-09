@@ -27,42 +27,18 @@ const CATEGORIES = {
 // Component categorization logic
 const getComponentCategory = (type: string): string => {
   if (type.includes("Header")) return "headers";
-  if (type.includes("Hero") || type.includes("hero")) return "heroes";
-  if (
-    type.includes("Feature") &&
-    !type.includes("FAQ") &&
-    !type.includes("CTA") &&
-    !type.includes("Pricing") &&
-    !type.includes("Footer") &&
-    !type.includes("Logos") &&
-    !type.includes("Testimonials")
-  )
-    return "features";
-  if (type.includes("Split") || type.includes("Content")) return "content";
-  if (type.includes("FAQ")) return "faq";
-  if (
-    type.includes("CTA") &&
-    !type.includes("FeatureCTA") &&
-    !type.includes("HeyMessageCTA")
-  )
-    return "cta";
-  if (type.includes("Pricing") || type.includes("Cards")) return "pricing";
-  if (
-    type.includes("Footer") &&
-    !type.includes("FeatureFooter") &&
-    !type.includes("HeyMessageFooter")
-  )
-    return "footer";
   if (type.includes("Countdown")) return "countdown";
-  if (type.includes("Blog")) return "blog";
+  if (type.includes("Testimonial")) return "testimonials";
   if (type.includes("Logos")) return "logos";
-  if (type.includes("Testimonials")) return "testimonials";
-  if (
-    type.includes("Upsell") ||
-    type.includes("Downsell") ||
-    type.includes("ThankYou")
-  )
-    return "funnel";
+  if (type.includes("Pricing") || type.includes("Cards") && type === 'PricingCards') return "pricing";
+  if (type.includes("Footer")) return "footer";
+  if (type.includes("Upsell") || type.includes("Downsell") || type.includes("ThankYou")) return "funnel";
+  if (type.includes("CTA")) return "cta";
+  if (type.includes("FAQ")) return "faq";
+  if (type.includes("Split") || type.includes("Content")) return "content";
+  if (type.includes("Hero")) return "heroes";
+  if (type.includes("Blog")) return "blog";
+  if (type.includes("Feature")) return "features";
   return "all";
 };
 
@@ -206,7 +182,7 @@ export function SectionLibraryModal() {
 
       <div className="flex h-[80vh] max-h-[800px]">
         {/* Sidebar */}
-        <div className="w-52 border-r border-border/50 bg-muted/20 p-4 shrink-0 flex flex-col gap-1.5">
+        <div className="w-52 border-r border-border/50 bg-muted/20 p-4 shrink-0 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar">
           <h2 className="font-semibold px-2 mb-4 text-sm flex items-center gap-2 text-foreground">
             <LayoutTemplate className="w-4 h-4 text-blue-500" /> Block Library
           </h2>
