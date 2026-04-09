@@ -46,23 +46,6 @@ import { CTASimple } from "../components/macro/CTA/CTASimple";
 import { CTAWithAvatars } from "../components/macro/CTA/CTAWithAvatars";
 import { CTAWithBackground } from "../components/macro/CTA/CTAWithBackground";
 
-// Hero Components
-import { HeroClarityBlog } from "../components/macro/Hero/HeroClarityBlog";
-import { HeroFeedbackApp } from "../components/macro/Hero/HeroFeedbackApp";
-import { HeroRemoteCollab } from "../components/macro/Hero/HeroRemoteCollab";
-import { HeroSectionOne } from "../components/macro/Hero/HeroSectionOne";
-import { HeroWithForm } from "../components/macro/Hero/HeroWithForm";
-
-// Features Components
-import { FeaturesCards } from "../components/macro/Features/FeaturesCards";
-import { FeaturesSection } from "../components/macro/Features/FeaturesSection";
-import { FeaturesShowcase } from "../components/macro/Features/FeaturesShowcase";
-
-// Footer Components
-import { FooterCentered } from "../components/macro/Footer/FooterCentered";
-import { FooterDark } from "../components/macro/Footer/FooterDark";
-import { FooterGradient } from "../components/macro/Footer/FooterGradient";
-import { FooterLinks } from "../components/macro/Footer/FooterLinks";
 
 // Pricing Components
 import { PricingComparison } from "../components/macro/Pricing/PricingComparison";
@@ -247,18 +230,6 @@ export type ComponentType =
   | "CTASimple"
   | "CTAWithAvatars"
   | "CTAWithBackground"
-  | "HeroClarityBlog"
-  | "HeroFeedbackApp"
-  | "HeroRemoteCollab"
-  | "HeroSectionOne"
-  | "HeroWithForm"
-  | "FeaturesCards"
-  | "FeaturesSection"
-  | "FeaturesShowcase"
-  | "FooterCentered"
-  | "FooterDark"
-  | "FooterGradient"
-  | "FooterLinks"
   | "PricingComparison"
   | "PricingFlexible"
   | "PricingTiers";
