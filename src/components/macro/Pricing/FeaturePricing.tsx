@@ -175,10 +175,10 @@ export function FeaturePricing({
                     })}
                   </ul>
 
-                  <motion.a
+                  <motion.button
+                    type="button"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    href="#"
                     className={`w-full py-4 rounded-xl flex items-center justify-center font-semibold text-sm transition-colors ${
                       isPopular 
                         ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md' 
@@ -187,7 +187,7 @@ export function FeaturePricing({
                     style={elementStyles[`tier_${idx}_button`]}
                   >
                     {tier.buttonText || (tier as any).ctaText || 'Get Started'}
-                  </motion.a>
+                  </motion.button>
                 </div>
               </motion.div>
             );

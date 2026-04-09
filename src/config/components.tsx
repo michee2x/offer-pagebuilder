@@ -1,32 +1,73 @@
-import React from 'react';
-import { PricingCards } from '../components/macro/Pricing';
+import React from "react";
+import { PricingCards } from "../components/macro/Pricing";
 
 // HeyMessage Components
-import { HeyMessageHeader } from '../components/macro/Header';
-import { HeyMessageFeatures } from '../components/macro/Features';
-import { HeyMessageSplit } from '../components/macro/Content';
-import { HeyMessageFAQ } from '../components/macro/FAQ';
-import { HeyMessageCTA } from '../components/macro/CTA';
-import { HeyMessageFooter } from '../components/macro/Footer';
+import { HeyMessageHeader } from "../components/macro/Header";
+import { HeyMessageFeatures } from "../components/macro/Features";
+import { HeyMessageSplit } from "../components/macro/Content";
+import { HeyMessageFAQ } from "../components/macro/FAQ";
+import { HeyMessageCTA } from "../components/macro/CTA";
+import { HeyMessageFooter } from "../components/macro/Footer";
 
 // Feature Components
-import { FeatureHeader } from '../components/macro/Header';
-import { FeatureHero, HeroCenter } from '../components/macro/Hero';
-import { FeatureLogos } from '../components/macro/Logos';
-import { FeatureTestimonials } from '../components/macro/Testimonials';
-import { FeatureFAQ } from '../components/macro/FAQ';
-import { FeaturePricing } from '../components/macro/Pricing';
-import { FeatureCTA } from '../components/macro/CTA';
-import { FeatureFooter } from '../components/macro/Footer';
-import { FeaturesGrid } from '../components/macro/Features/FeaturesGrid';
-import { FeatureSplit } from '../components/macro/Content/FeatureSplit';
+import { FeatureHeader } from "../components/macro/Header";
+import { FeatureHero, HeroCenter } from "../components/macro/Hero";
+import { FeatureLogos } from "../components/macro/Logos";
+import { FeatureTestimonials } from "../components/macro/Testimonials";
+import { FeatureFAQ } from "../components/macro/FAQ";
+import { FeaturePricing } from "../components/macro/Pricing";
+import { FeatureCTA } from "../components/macro/CTA";
+import { FeatureFooter } from "../components/macro/Footer";
+import { FeaturesGrid } from "../components/macro/Features/FeaturesGrid";
+import { FeatureSplit } from "../components/macro/Content/FeatureSplit";
 
-import { UpsellHero } from '../components/macro/Funnel/UpsellHero';
-import { DownsellHero } from '../components/macro/Funnel/DownsellHero';
-import { ThankYouHero } from '../components/macro/Funnel/ThankYouHero';
-// ─────────────────────────────────────────────────────────────────────────────
-// Component Registry
-// ─────────────────────────────────────────────────────────────────────────────
+import { UpsellHero } from "../components/macro/Funnel/UpsellHero";
+import { DownsellHero } from "../components/macro/Funnel/DownsellHero";
+import { ThankYouHero } from "../components/macro/Funnel/ThankYouHero";
+
+// Countdown Components
+import { CountdownLaunch } from "../components/macro/Countdown/CountdownLaunch";
+import { CountdownAnnouncement } from "../components/macro/Countdown/CountdownAnnouncement";
+import { CountdownLiveEvent } from "../components/macro/Countdown/CountdownLiveEvent";
+import { CountdownOptIn } from "../components/macro/Countdown/CountdownOptIn";
+import { CountdownProgressBar } from "../components/macro/Countdown/CountdownProgressBar";
+
+// Blog Components
+import { FeatureBlog } from "../components/macro/Blog/FeatureBlog";
+
+// FAQ Components
+import { FAQAccordion } from "../components/macro/FAQ/FAQAccordion";
+import { FAQGrid } from "../components/macro/FAQ/FAQGrid";
+import { FAQWithImage } from "../components/macro/FAQ/FAQWithImage";
+
+// CTA Components
+import { CTAHero } from "../components/macro/CTA/CTAHero";
+import { CTASimple } from "../components/macro/CTA/CTASimple";
+import { CTAWithAvatars } from "../components/macro/CTA/CTAWithAvatars";
+import { CTAWithBackground } from "../components/macro/CTA/CTAWithBackground";
+
+// Hero Components
+import { HeroClarityBlog } from "../components/macro/Hero/HeroClarityBlog";
+import { HeroFeedbackApp } from "../components/macro/Hero/HeroFeedbackApp";
+import { HeroRemoteCollab } from "../components/macro/Hero/HeroRemoteCollab";
+import { HeroSectionOne } from "../components/macro/Hero/HeroSectionOne";
+import { HeroWithForm } from "../components/macro/Hero/HeroWithForm";
+
+// Features Components
+import { FeaturesCards } from "../components/macro/Features/FeaturesCards";
+import { FeaturesSection } from "../components/macro/Features/FeaturesSection";
+import { FeaturesShowcase } from "../components/macro/Features/FeaturesShowcase";
+
+// Footer Components
+import { FooterCentered } from "../components/macro/Footer/FooterCentered";
+import { FooterDark } from "../components/macro/Footer/FooterDark";
+import { FooterGradient } from "../components/macro/Footer/FooterGradient";
+import { FooterLinks } from "../components/macro/Footer/FooterLinks";
+
+// Pricing Components
+import { PricingComparison } from "../components/macro/Pricing/PricingComparison";
+import { PricingFlexible } from "../components/macro/Pricing/PricingFlexible";
+import { PricingTiers } from "../components/macro/Pricing/PricingTiers";
 //
 // HOW STYLING WORKS (UPDATED):
 // Every component accepts BOTH a `className` prop (Tailwind string) AND a
@@ -41,25 +82,113 @@ import { ThankYouHero } from '../components/macro/Funnel/ThankYouHero';
 
 // Lucide — statically imported whitelist (~50 icons the AI can reference by name)
 import {
-  Zap, Shield, BarChart2, Star, Check, ArrowRight, Globe, Lock, Rocket,
-  Heart, Users, TrendingUp, Award, Target, Clock, ChevronRight,
-  CheckCircle, XCircle, Sparkles, Layers, DollarSign, Mail, Phone,
-  Play, Eye, Brain, Flame, Crown, Gem, Timer, Infinity as InfinityIcon,
-  AlertCircle, Lightbulb, ThumbsUp, MessageSquare, Share2, Settings,
-  BarChart, PieChart, Activity, Briefcase, BookOpen, Code2, Database,
-  Headphones, RefreshCw, Search, Send, ShoppingCart, Tag, Wifi,
+  Zap,
+  Shield,
+  BarChart2,
+  Star,
+  Check,
+  ArrowRight,
+  Globe,
+  Lock,
+  Rocket,
+  Heart,
+  Users,
+  TrendingUp,
+  Award,
+  Target,
+  Clock,
+  ChevronRight,
+  CheckCircle,
+  XCircle,
+  Sparkles,
+  Layers,
+  DollarSign,
+  Mail,
+  Phone,
+  Play,
+  Eye,
+  Brain,
+  Flame,
+  Crown,
+  Gem,
+  Timer,
+  Infinity as InfinityIcon,
+  AlertCircle,
+  Lightbulb,
+  ThumbsUp,
+  MessageSquare,
+  Share2,
+  Settings,
+  BarChart,
+  PieChart,
+  Activity,
+  Briefcase,
+  BookOpen,
+  Code2,
+  Database,
+  Headphones,
+  RefreshCw,
+  Search,
+  Send,
+  ShoppingCart,
+  Tag,
+  Wifi,
   type LucideProps,
-} from 'lucide-react';
+} from "lucide-react";
 
 // Map string name → Lucide component
 const ICON_MAP: Record<string, React.FC<LucideProps>> = {
-  Zap, Shield, BarChart2, Star, Check, ArrowRight, Globe, Lock, Rocket,
-  Heart, Users, TrendingUp, Award, Target, Clock, ChevronRight,
-  CheckCircle, XCircle, Sparkles, Layers, DollarSign, Mail, Phone,
-  Play, Eye, Brain, Flame, Crown, Gem, Timer, Infinity: InfinityIcon,
-  AlertCircle, Lightbulb, ThumbsUp, MessageSquare, Share2, Settings,
-  BarChart, PieChart, Activity, Briefcase, BookOpen, Code2, Database,
-  Headphones, RefreshCw, Search, Send, ShoppingCart, Tag, Wifi,
+  Zap,
+  Shield,
+  BarChart2,
+  Star,
+  Check,
+  ArrowRight,
+  Globe,
+  Lock,
+  Rocket,
+  Heart,
+  Users,
+  TrendingUp,
+  Award,
+  Target,
+  Clock,
+  ChevronRight,
+  CheckCircle,
+  XCircle,
+  Sparkles,
+  Layers,
+  DollarSign,
+  Mail,
+  Phone,
+  Play,
+  Eye,
+  Brain,
+  Flame,
+  Crown,
+  Gem,
+  Timer,
+  Infinity: InfinityIcon,
+  AlertCircle,
+  Lightbulb,
+  ThumbsUp,
+  MessageSquare,
+  Share2,
+  Settings,
+  BarChart,
+  PieChart,
+  Activity,
+  Briefcase,
+  BookOpen,
+  Code2,
+  Database,
+  Headphones,
+  RefreshCw,
+  Search,
+  Send,
+  ShoppingCart,
+  Tag,
+  Wifi,
 };
 
 // Exported list for AI prompts
@@ -68,45 +197,73 @@ export const LUCIDE_ICON_NAMES = Object.keys(ICON_MAP);
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type ComponentType =
-  | 'Section'
-  | 'Flex'
-  | 'Grid'
-  | 'Container'
-  | 'Heading'
-  | 'Text'
-  | 'Button'
-  | 'Image'
-  | 'Card'
-  | 'Divider'
-  | 'List'
-  | 'Icon'
-  | 'Badge'
-  | 'StatBlock'
-  | 'TestimonialCard'
-  | 'FeatureCard'
-  | 'PricingCards'
-  | 'HeyMessageHeader'
-  | 'HeyMessageFeatures'
-  | 'HeyMessageSplit'
-  | 'HeyMessageFAQ'
-  | 'HeyMessageCTA'
-  | 'HeyMessageFooter'
-  | 'FeatureHeader'
-  | 'FeatureHero'
-  | 'HeroCenter'
-  | 'FeatureLogos'
-  | 'FeatureTestimonials'
-  | 'FeatureFAQ'
-  | 'FeaturePricing'
-  | 'FeatureCTA'
-  | 'FeaturesGrid'
-  | 'FeatureSplit'
-  | 'FeatureFooter'
-  | 'UpsellHero'
-  | 'DownsellHero'
-  | 'ThankYouHero';
+  | "Section"
+  | "Flex"
+  | "Grid"
+  | "Container"
+  | "Heading"
+  | "Text"
+  | "Button"
+  | "Image"
+  | "Card"
+  | "Divider"
+  | "List"
+  | "Icon"
+  | "Badge"
+  | "StatBlock"
+  | "TestimonialCard"
+  | "FeatureCard"
+  | "PricingCards"
+  | "HeyMessageHeader"
+  | "HeyMessageFeatures"
+  | "HeyMessageSplit"
+  | "HeyMessageFAQ"
+  | "HeyMessageCTA"
+  | "HeyMessageFooter"
+  | "FeatureHeader"
+  | "FeatureHero"
+  | "HeroCenter"
+  | "FeatureLogos"
+  | "FeatureTestimonials"
+  | "FeatureFAQ"
+  | "FeaturePricing"
+  | "FeatureCTA"
+  | "FeaturesGrid"
+  | "FeatureSplit"
+  | "FeatureFooter"
+  | "UpsellHero"
+  | "DownsellHero"
+  | "ThankYouHero"
+  | "CountdownLaunch"
+  | "CountdownAnnouncement"
+  | "CountdownLiveEvent"
+  | "CountdownOptIn"
+  | "CountdownProgressBar"
+  | "FeatureBlog"
+  | "FAQAccordion"
+  | "FAQGrid"
+  | "FAQWithImage"
+  | "CTAHero"
+  | "CTASimple"
+  | "CTAWithAvatars"
+  | "CTAWithBackground"
+  | "HeroClarityBlog"
+  | "HeroFeedbackApp"
+  | "HeroRemoteCollab"
+  | "HeroSectionOne"
+  | "HeroWithForm"
+  | "FeaturesCards"
+  | "FeaturesSection"
+  | "FeaturesShowcase"
+  | "FooterCentered"
+  | "FooterDark"
+  | "FooterGradient"
+  | "FooterLinks"
+  | "PricingComparison"
+  | "PricingFlexible"
+  | "PricingTiers";
 export type FieldDef = {
-  type: 'text' | 'textarea' | 'select' | 'color' | 'number' | 'array' | 'image';
+  type: "text" | "textarea" | "select" | "color" | "number" | "array" | "image";
   label: string;
   options?: string[];
   arrayFields?: Record<string, FieldDef>;
@@ -131,28 +288,29 @@ const applyStyle = (style?: Record<string, string>): React.CSSProperties =>
 export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   // ── Section ────────────────────────────────────────────────────────────
   Section: {
-    type: 'Section',
-    label: 'Section',
+    type: "Section",
+    label: "Section",
     semantic: {
-      purpose: 'A full-width semantic <section> used as the outermost wrapper for a part of the landing page. Must supply an ID if used for navigation.',
-      example: { id: 'features', className: 'w-full py-24 bg-background' }
+      purpose:
+        "A full-width semantic <section> used as the outermost wrapper for a part of the landing page. Must supply an ID if used for navigation.",
+      example: { id: "features", className: "w-full py-24 bg-background" },
     },
     defaultProps: {
-      id: '',
-      className: 'w-full py-24 bg-background',
+      id: "",
+      className: "w-full py-24 bg-background",
       style: {},
     },
     fields: {
-      id: { type: 'text', label: 'Section ID (for anchor links)' },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      id: { type: "text", label: "Section ID (for anchor links)" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ id, className, style, children, isPreviewMode }: any) => (
       <section
         id={id || undefined}
-        className={`w-full relative ${className ?? ''} ${
+        className={`w-full relative ${className ?? ""} ${
           !isPreviewMode
-            ? 'min-h-[100px] outline-dashed outline-1 outline-transparent hover:outline-slate-300/40 transition-all'
-            : ''
+            ? "min-h-[100px] outline-dashed outline-1 outline-transparent hover:outline-slate-300/40 transition-all"
+            : ""
         }`}
         style={applyStyle(style)}
       >
@@ -163,25 +321,29 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── Flex ───────────────────────────────────────────────────────────────
   Flex: {
-    type: 'Flex',
-    label: 'Flex',
+    type: "Flex",
+    label: "Flex",
     semantic: {
-      purpose: 'A flexbox container. Use this to align items in a row or column.',
-      example: { className: 'flex flex-col md:flex-row items-center justify-between gap-8 w-full max-w-7xl mx-auto px-6' }
+      purpose:
+        "A flexbox container. Use this to align items in a row or column.",
+      example: {
+        className:
+          "flex flex-col md:flex-row items-center justify-between gap-8 w-full max-w-7xl mx-auto px-6",
+      },
     },
     defaultProps: {
-      className: 'flex flex-col gap-4 w-full',
+      className: "flex flex-col gap-4 w-full",
       style: {},
     },
     fields: {
-      className: { type: 'text', label: 'Tailwind Classes' },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ className, style, children, isPreviewMode }: any) => (
       <div
-        className={`relative ${className ?? ''} ${
+        className={`relative ${className ?? ""} ${
           !isPreviewMode
-            ? 'min-h-[50px] outline-dashed outline-1 outline-transparent hover:outline-blue-300/40 transition-all'
-            : ''
+            ? "min-h-[50px] outline-dashed outline-1 outline-transparent hover:outline-blue-300/40 transition-all"
+            : ""
         }`}
         style={applyStyle(style)}
       >
@@ -192,25 +354,29 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── Grid ───────────────────────────────────────────────────────────────
   Grid: {
-    type: 'Grid',
-    label: 'Grid',
+    type: "Grid",
+    label: "Grid",
     semantic: {
-      purpose: 'A CSS grid container. Use this to lay out multiple identical items (like feature cards).',
-      example: { className: 'grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-7xl mx-auto' }
+      purpose:
+        "A CSS grid container. Use this to lay out multiple identical items (like feature cards).",
+      example: {
+        className:
+          "grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-7xl mx-auto",
+      },
     },
     defaultProps: {
-      className: 'grid grid-cols-1 md:grid-cols-3 gap-6 w-full',
+      className: "grid grid-cols-1 md:grid-cols-3 gap-6 w-full",
       style: {},
     },
     fields: {
-      className: { type: 'text', label: 'Tailwind Classes' },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ className, style, children, isPreviewMode }: any) => (
       <div
-        className={`relative ${className ?? ''} ${
+        className={`relative ${className ?? ""} ${
           !isPreviewMode
-            ? 'min-h-[50px] outline-dashed outline-1 outline-transparent hover:outline-purple-300/40 transition-all'
-            : ''
+            ? "min-h-[50px] outline-dashed outline-1 outline-transparent hover:outline-purple-300/40 transition-all"
+            : ""
         }`}
         style={applyStyle(style)}
       >
@@ -219,28 +385,30 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     ),
   },
 
-
   // ── Container ────────────────────────────────────────────────────────────
   Container: {
-    type: 'Container',
-    label: 'Container',
+    type: "Container",
+    label: "Container",
     semantic: {
-      purpose: 'A generic div layout wrapper. You can use this for absolute positioning, specific sizing, or flex/grid if you provide the right tailwind classes.',
-      example: { className: 'flex flex-col gap-4 p-8 w-full bg-card border rounded-xl' }
+      purpose:
+        "A generic div layout wrapper. You can use this for absolute positioning, specific sizing, or flex/grid if you provide the right tailwind classes.",
+      example: {
+        className: "flex flex-col gap-4 p-8 w-full bg-card border rounded-xl",
+      },
     },
     defaultProps: {
-      className: 'flex flex-col gap-4 p-8 w-full',
+      className: "flex flex-col gap-4 p-8 w-full",
       style: {},
     },
     fields: {
-      className: { type: 'text', label: 'Tailwind Classes' },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ className, style, children, isPreviewMode }: any) => (
       <div
-        className={`w-full relative ${className ?? ''} ${
+        className={`w-full relative ${className ?? ""} ${
           !isPreviewMode
-            ? 'min-h-[50px] outline-dashed outline-1 outline-transparent hover:outline-slate-300/40 transition-all rounded'
-            : ''
+            ? "min-h-[50px] outline-dashed outline-1 outline-transparent hover:outline-slate-300/40 transition-all rounded"
+            : ""
         }`}
         style={applyStyle(style)}
       >
@@ -251,48 +419,95 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── Heading ──────────────────────────────────────────────────────────────
   Heading: {
-    type: 'Heading',
-    label: 'Heading',
+    type: "Heading",
+    label: "Heading",
     semantic: {
-      purpose: 'A semantic HTML heading (H1-H6).',
-      example: { text: 'Welcome to our platform', level: '2', className: 'font-extrabold text-4xl text-foreground tracking-tight' }
+      purpose: "A semantic HTML heading (H1-H6).",
+      example: {
+        text: "Welcome to our platform",
+        level: "2",
+        className: "font-extrabold text-4xl text-foreground tracking-tight",
+      },
     },
-    defaultProps: { text: 'New Heading', level: '2', className: 'font-bold text-4xl', style: {} },
+    defaultProps: {
+      text: "New Heading",
+      level: "2",
+      className: "font-bold text-4xl",
+      style: {},
+    },
     fields: {
-      text: { type: 'text', label: 'Text Content' },
-      level: { type: 'select', label: 'Heading Level', options: ['1', '2', '3', '4', '5', '6'] },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      text: { type: "text", label: "Text Content" },
+      level: {
+        type: "select",
+        label: "Heading Level",
+        options: ["1", "2", "3", "4", "5", "6"],
+      },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ text, level, className, style }: any) => {
       const s = applyStyle(style);
-      const cls = className ?? 'font-bold text-4xl';
+      const cls = className ?? "font-bold text-4xl";
       const map: Record<string, React.ReactNode> = {
-        '1': <h1 className={cls} style={s}>{text}</h1>,
-        '2': <h2 className={cls} style={s}>{text}</h2>,
-        '3': <h3 className={cls} style={s}>{text}</h3>,
-        '4': <h4 className={cls} style={s}>{text}</h4>,
-        '5': <h5 className={cls} style={s}>{text}</h5>,
-        '6': <h6 className={cls} style={s}>{text}</h6>,
+        "1": (
+          <h1 className={cls} style={s}>
+            {text}
+          </h1>
+        ),
+        "2": (
+          <h2 className={cls} style={s}>
+            {text}
+          </h2>
+        ),
+        "3": (
+          <h3 className={cls} style={s}>
+            {text}
+          </h3>
+        ),
+        "4": (
+          <h4 className={cls} style={s}>
+            {text}
+          </h4>
+        ),
+        "5": (
+          <h5 className={cls} style={s}>
+            {text}
+          </h5>
+        ),
+        "6": (
+          <h6 className={cls} style={s}>
+            {text}
+          </h6>
+        ),
       };
-      return map[String(level)] ?? map['2'];
+      return map[String(level)] ?? map["2"];
     },
   },
 
   // ── Text / Paragraph ─────────────────────────────────────────────────────
   Text: {
-    type: 'Text',
-    label: 'Text Block',
+    type: "Text",
+    label: "Text Block",
     semantic: {
-      purpose: 'A standard paragraph of text.',
-      example: { text: 'We offer the best service.', className: 'text-muted-foreground text-lg leading-relaxed' }
+      purpose: "A standard paragraph of text.",
+      example: {
+        text: "We offer the best service.",
+        className: "text-muted-foreground text-lg leading-relaxed",
+      },
     },
-    defaultProps: { text: 'This is some text content.', className: 'leading-relaxed text-base', style: {} },
+    defaultProps: {
+      text: "This is some text content.",
+      className: "leading-relaxed text-base",
+      style: {},
+    },
     fields: {
-      text: { type: 'textarea', label: 'Content' },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      text: { type: "textarea", label: "Content" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ text, className, style }: any) => (
-      <p className={className ?? 'leading-relaxed text-base'} style={applyStyle(style)}>
+      <p
+        className={className ?? "leading-relaxed text-base"}
+        style={applyStyle(style)}
+      >
         {text}
       </p>
     ),
@@ -300,56 +515,76 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── Button ───────────────────────────────────────────────────────────────
   Button: {
-    type: 'Button',
-    label: 'Button',
+    type: "Button",
+    label: "Button",
     semantic: {
-      purpose: 'A clickable button or link.',
-      example: { text: 'Get Started', href: '#signup', className: 'inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity' }
+      purpose: "A clickable button or link.",
+      example: {
+        text: "Get Started",
+        href: "#signup",
+        className:
+          "inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity",
+      },
     },
     defaultProps: {
-      text: 'Click Me',
-      href: '',
-      className: 'inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105 cursor-pointer',
+      text: "Click Me",
+      href: "",
+      className:
+        "inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105 cursor-pointer",
       style: {},
     },
     fields: {
-      text: { type: 'text', label: 'Label' },
-      href: { type: 'text', label: 'Link URL (optional)' },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      text: { type: "text", label: "Label" },
+      href: { type: "text", label: "Link URL (optional)" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ text, href, className, style }: any) => {
-      const cls = className ?? 'inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105 cursor-pointer';
+      const cls =
+        className ??
+        "inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105 cursor-pointer";
       if (href) {
-        return <a href={href} className={cls} style={applyStyle(style)}>{text}</a>;
+        return (
+          <a href={href} className={cls} style={applyStyle(style)}>
+            {text}
+          </a>
+        );
       }
-      return <button className={cls} style={applyStyle(style)}>{text}</button>;
+      return (
+        <button className={cls} style={applyStyle(style)}>
+          {text}
+        </button>
+      );
     },
   },
 
   // ── Image ─────────────────────────────────────────────────────────────────
   Image: {
-    type: 'Image',
-    label: 'Image',
+    type: "Image",
+    label: "Image",
     semantic: {
-      purpose: 'An image element.',
-      example: { src: 'https://images.unsplash.com/photo-1...', alt: 'Dashboard preview', className: 'w-full rounded-2xl shadow-2xl border border-border' }
+      purpose: "An image element.",
+      example: {
+        src: "https://images.unsplash.com/photo-1...",
+        alt: "Dashboard preview",
+        className: "w-full rounded-2xl shadow-2xl border border-border",
+      },
     },
     defaultProps: {
-      src: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop',
-      alt: 'Image',
-      className: 'w-full h-auto object-cover rounded-2xl',
+      src: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop",
+      alt: "Image",
+      className: "w-full h-auto object-cover rounded-2xl",
       style: {},
     },
     fields: {
-      src: { type: 'image', label: 'Image' },
-      alt: { type: 'text', label: 'Alt Text' },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      src: { type: "image", label: "Image" },
+      alt: { type: "text", label: "Alt Text" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ src, alt, className, style }: any) => (
       <img
         src={src}
         alt={alt}
-        className={className ?? 'w-full h-auto object-cover rounded-2xl'}
+        className={className ?? "w-full h-auto object-cover rounded-2xl"}
         style={applyStyle(style)}
       />
     ),
@@ -357,26 +592,36 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── Card ─────────────────────────────────────────────────────────────────
   Card: {
-    type: 'Card',
-    label: 'Card',
+    type: "Card",
+    label: "Card",
     semantic: {
-      purpose: 'A versatile container with a border and background. Used heavily in Shadcn.',
-      example: { title: 'Analytics', content: 'Real-time data insights.', className: 'rounded-xl border border-border bg-card text-card-foreground p-6 flex flex-col gap-2' }
+      purpose:
+        "A versatile container with a border and background. Used heavily in Shadcn.",
+      example: {
+        title: "Analytics",
+        content: "Real-time data insights.",
+        className:
+          "rounded-xl border border-border bg-card text-card-foreground p-6 flex flex-col gap-2",
+      },
     },
     defaultProps: {
-      title: 'Card Title',
-      content: 'Card body content goes here.',
-      className: 'rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02]',
+      title: "Card Title",
+      content: "Card body content goes here.",
+      className:
+        "rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02]",
       style: {},
     },
     fields: {
-      title: { type: 'text', label: 'Title' },
-      content: { type: 'textarea', label: 'Content' },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      title: { type: "text", label: "Title" },
+      content: { type: "textarea", label: "Content" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ title, content, className, style }: any) => (
       <div
-        className={className ?? 'rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02]'}
+        className={
+          className ??
+          "rounded-2xl border p-6 transition-all duration-300 hover:scale-[1.02]"
+        }
         style={applyStyle(style)}
       >
         <h3 className="font-semibold text-lg mb-2">{title}</h3>
@@ -387,45 +632,63 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── Divider ──────────────────────────────────────────────────────────────
   Divider: {
-    type: 'Divider',
-    label: 'Divider',
+    type: "Divider",
+    label: "Divider",
     semantic: {
-      purpose: 'A horizontal line separator.',
-      example: { className: 'w-full h-px bg-border my-8' }
+      purpose: "A horizontal line separator.",
+      example: { className: "w-full h-px bg-border my-8" },
     },
-    defaultProps: { className: 'my-8 border-t opacity-20', style: {} },
+    defaultProps: { className: "my-8 border-t opacity-20", style: {} },
     fields: {
-      className: { type: 'text', label: 'Tailwind Classes' },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ className, style }: any) => (
-      <hr className={className ?? 'my-8 border-t opacity-20'} style={applyStyle(style)} />
+      <hr
+        className={className ?? "my-8 border-t opacity-20"}
+        style={applyStyle(style)}
+      />
     ),
   },
 
   // ── List ─────────────────────────────────────────────────────────────────
   List: {
-    type: 'List',
-    label: 'List',
+    type: "List",
+    label: "List",
     semantic: {
-      purpose: 'An unordered or ordered list of items.',
-      example: { items: 'Fast setup\nReliable\nCheap', ordered: 'false', className: 'pl-6 space-y-2 text-muted-foreground list-disc' }
+      purpose: "An unordered or ordered list of items.",
+      example: {
+        items: "Fast setup\nReliable\nCheap",
+        ordered: "false",
+        className: "pl-6 space-y-2 text-muted-foreground list-disc",
+      },
     },
-    defaultProps: { items: 'First item\nSecond item\nThird item', ordered: 'false', className: 'pl-5 space-y-2', style: {} },
+    defaultProps: {
+      items: "First item\nSecond item\nThird item",
+      ordered: "false",
+      className: "pl-5 space-y-2",
+      style: {},
+    },
     fields: {
-      items: { type: 'textarea', label: 'Items (one per line)' },
-      ordered: { type: 'select', label: 'List Type', options: ['false', 'true'] },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      items: { type: "textarea", label: "Items (one per line)" },
+      ordered: {
+        type: "select",
+        label: "List Type",
+        options: ["false", "true"],
+      },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ items, ordered, className, style }: any) => {
-      const lines = (items ?? '').split('\n').filter(Boolean);
-      const Tag = ordered === 'true' ? 'ol' : 'ul';
+      const lines = (items ?? "").split("\n").filter(Boolean);
+      const Tag = ordered === "true" ? "ol" : "ul";
       return (
         <Tag
-          className={`${className ?? 'pl-5 space-y-2'} ${ordered === 'true' ? 'list-decimal' : 'list-disc'}`}
+          className={`${className ?? "pl-5 space-y-2"} ${ordered === "true" ? "list-decimal" : "list-disc"}`}
           style={applyStyle(style)}
         >
           {lines.map((item: string, i: number) => (
-            <li key={i} className="leading-relaxed">{item}</li>
+            <li key={i} className="leading-relaxed">
+              {item}
+            </li>
           ))}
         </Tag>
       );
@@ -434,24 +697,24 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── Icon — Lucide icon by string name ────────────────────────────────────
   Icon: {
-    type: 'Icon',
-    label: 'Icon',
+    type: "Icon",
+    label: "Icon",
     semantic: {
-      purpose: 'A Lucide icon.',
-      example: { name: 'Zap', size: 24, className: 'text-primary' }
+      purpose: "A Lucide icon.",
+      example: { name: "Zap", size: 24, className: "text-primary" },
     },
-    defaultProps: { name: 'Zap', size: 24, className: '', style: {} },
+    defaultProps: { name: "Zap", size: 24, className: "", style: {} },
     fields: {
-      name: { type: 'text', label: 'Icon Name (from Lucide list)' },
-      size: { type: 'number', label: 'Size (px)' },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      name: { type: "text", label: "Icon Name (from Lucide list)" },
+      size: { type: "number", label: "Size (px)" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ name, size, className, style }: any) => {
       const IconComponent = ICON_MAP[name] ?? Zap;
       return (
         <IconComponent
           size={size ?? 24}
-          className={className ?? ''}
+          className={className ?? ""}
           style={applyStyle(style)}
         />
       );
@@ -460,24 +723,32 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── Badge — pill label ────────────────────────────────────────────────────
   Badge: {
-    type: 'Badge',
-    label: 'Badge',
+    type: "Badge",
+    label: "Badge",
     semantic: {
-      purpose: 'A small pill label or tag.',
-      example: { text: 'NEW', className: 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/20 text-primary uppercase' }
+      purpose: "A small pill label or tag.",
+      example: {
+        text: "NEW",
+        className:
+          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/20 text-primary uppercase",
+      },
     },
     defaultProps: {
-      text: 'New',
-      className: 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase',
+      text: "New",
+      className:
+        "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase",
       style: {},
     },
     fields: {
-      text: { type: 'text', label: 'Label' },
-      className: { type: 'text', label: 'Tailwind Classes' },
+      text: { type: "text", label: "Label" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
     render: ({ text, className, style }: any) => (
       <span
-        className={className ?? 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase'}
+        className={
+          className ??
+          "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase"
+        }
         style={applyStyle(style)}
       >
         {text}
@@ -487,73 +758,125 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── StatBlock — big number + label ───────────────────────────────────────
   StatBlock: {
-    type: 'StatBlock',
-    label: 'Stat Block',
+    type: "StatBlock",
+    label: "Stat Block",
     semantic: {
-      purpose: 'A large number with a small label, used for metrics.',
-      example: { value: '99%', label: 'Uptime', className: 'flex flex-col gap-2 items-center', valueClassName: 'text-5xl font-black text-foreground', labelClassName: 'text-sm text-muted-foreground uppercase tracking-widest' }
+      purpose: "A large number with a small label, used for metrics.",
+      example: {
+        value: "99%",
+        label: "Uptime",
+        className: "flex flex-col gap-2 items-center",
+        valueClassName: "text-5xl font-black text-foreground",
+        labelClassName:
+          "text-sm text-muted-foreground uppercase tracking-widest",
+      },
     },
     defaultProps: {
-      value: '2,500+',
-      label: 'Happy Customers',
-      className: 'flex flex-col items-center gap-1 text-center',
-      valueClassName: 'text-4xl font-extrabold',
-      labelClassName: 'text-sm opacity-60 uppercase tracking-widest',
+      value: "2,500+",
+      label: "Happy Customers",
+      className: "flex flex-col items-center gap-1 text-center",
+      valueClassName: "text-4xl font-extrabold",
+      labelClassName: "text-sm opacity-60 uppercase tracking-widest",
       style: {},
     },
     fields: {
-      value: { type: 'text', label: 'Stat Value' },
-      label: { type: 'text', label: 'Stat Label' },
-      valueClassName: { type: 'text', label: 'Value Tailwind Classes' },
-      labelClassName: { type: 'text', label: 'Label Tailwind Classes' },
-      className: { type: 'text', label: 'Wrapper Tailwind Classes' },
+      value: { type: "text", label: "Stat Value" },
+      label: { type: "text", label: "Stat Label" },
+      valueClassName: { type: "text", label: "Value Tailwind Classes" },
+      labelClassName: { type: "text", label: "Label Tailwind Classes" },
+      className: { type: "text", label: "Wrapper Tailwind Classes" },
     },
-    render: ({ value, label, className, valueClassName, labelClassName, style }: any) => (
-      <div className={className ?? 'flex flex-col items-center gap-1 text-center'} style={applyStyle(style)}>
-        <span className={valueClassName ?? 'text-4xl font-extrabold'}>{value}</span>
-        <span className={labelClassName ?? 'text-sm opacity-60 uppercase tracking-widest'}>{label}</span>
+    render: ({
+      value,
+      label,
+      className,
+      valueClassName,
+      labelClassName,
+      style,
+    }: any) => (
+      <div
+        className={className ?? "flex flex-col items-center gap-1 text-center"}
+        style={applyStyle(style)}
+      >
+        <span className={valueClassName ?? "text-4xl font-extrabold"}>
+          {value}
+        </span>
+        <span
+          className={
+            labelClassName ?? "text-sm opacity-60 uppercase tracking-widest"
+          }
+        >
+          {label}
+        </span>
       </div>
     ),
   },
 
   // ── TestimonialCard ───────────────────────────────────────────────────────
   TestimonialCard: {
-    type: 'TestimonialCard',
-    label: 'Testimonial Card',
+    type: "TestimonialCard",
+    label: "Testimonial Card",
     defaultProps: {
-      name: 'Alex Johnson',
-      role: 'Founder, Acme Inc.',
-      quote: 'This completely changed how I operate my business. Absolute game changer.',
+      name: "Alex Johnson",
+      role: "Founder, Acme Inc.",
+      quote:
+        "This completely changed how I operate my business. Absolute game changer.",
       stars: 5,
-      initials: 'AJ',
-      className: 'rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02]',
-      avatarClassName: 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0',
+      initials: "AJ",
+      className:
+        "rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02]",
+      avatarClassName:
+        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
       style: {},
     },
     fields: {
-      name: { type: 'text', label: 'Name' },
-      role: { type: 'text', label: 'Role / Company' },
-      quote: { type: 'textarea', label: 'Quote' },
-      stars: { type: 'number', label: 'Star Rating (1-5)' },
-      initials: { type: 'text', label: 'Avatar Initials' },
-      className: { type: 'text', label: 'Card Tailwind Classes' },
-      avatarClassName: { type: 'text', label: 'Avatar Tailwind Classes' },
+      name: { type: "text", label: "Name" },
+      role: { type: "text", label: "Role / Company" },
+      quote: { type: "textarea", label: "Quote" },
+      stars: { type: "number", label: "Star Rating (1-5)" },
+      initials: { type: "text", label: "Avatar Initials" },
+      className: { type: "text", label: "Card Tailwind Classes" },
+      avatarClassName: { type: "text", label: "Avatar Tailwind Classes" },
     },
-    render: ({ name, role, quote, stars, initials, className, avatarClassName, style }: any) => {
+    render: ({
+      name,
+      role,
+      quote,
+      stars,
+      initials,
+      className,
+      avatarClassName,
+      style,
+    }: any) => {
       const count = Math.min(5, Math.max(1, Number(stars) || 5));
       return (
-        <div className={className ?? 'rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02]'} style={applyStyle(style)}>
+        <div
+          className={
+            className ??
+            "rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02]"
+          }
+          style={applyStyle(style)}
+        >
           {/* Stars */}
           <div className="flex gap-1">
             {Array.from({ length: count }).map((_, i) => (
-              <Star key={i} size={14} className="fill-current text-yellow-400" />
+              <Star
+                key={i}
+                size={14}
+                className="fill-current text-yellow-400"
+              />
             ))}
           </div>
           {/* Quote */}
           <p className="leading-relaxed text-sm opacity-90 italic">"{quote}"</p>
           {/* Author */}
           <div className="flex items-center gap-3 pt-2">
-            <div className={avatarClassName ?? 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0'}>
+            <div
+              className={
+                avatarClassName ??
+                "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+              }
+            >
               {initials}
             </div>
             <div>
@@ -568,36 +891,61 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── FeatureCard — icon + title + description ──────────────────────────────
   FeatureCard: {
-    type: 'FeatureCard',
-    label: 'Feature Card',
+    type: "FeatureCard",
+    label: "Feature Card",
     defaultProps: {
-      icon: 'Zap',
-      title: 'Lightning Fast',
-      description: 'Built for speed and performance at every level of scale.',
-      className: 'rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02] hover:border-opacity-60 group',
-      iconClassName: 'w-10 h-10 rounded-xl flex items-center justify-center mb-2',
-      titleClassName: 'font-bold text-lg',
-      descClassName: 'text-sm leading-relaxed opacity-70',
+      icon: "Zap",
+      title: "Lightning Fast",
+      description: "Built for speed and performance at every level of scale.",
+      className:
+        "rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02] hover:border-opacity-60 group",
+      iconClassName:
+        "w-10 h-10 rounded-xl flex items-center justify-center mb-2",
+      titleClassName: "font-bold text-lg",
+      descClassName: "text-sm leading-relaxed opacity-70",
       iconSize: 20,
       style: {},
     },
     fields: {
-      icon: { type: 'text', label: 'Icon Name (Lucide)' },
-      title: { type: 'text', label: 'Title' },
-      description: { type: 'textarea', label: 'Description' },
-      className: { type: 'text', label: 'Card Tailwind Classes' },
-      iconClassName: { type: 'text', label: 'Icon Wrapper Classes' },
-      iconSize: { type: 'number', label: 'Icon Size (px)' },
+      icon: { type: "text", label: "Icon Name (Lucide)" },
+      title: { type: "text", label: "Title" },
+      description: { type: "textarea", label: "Description" },
+      className: { type: "text", label: "Card Tailwind Classes" },
+      iconClassName: { type: "text", label: "Icon Wrapper Classes" },
+      iconSize: { type: "number", label: "Icon Size (px)" },
     },
-    render: ({ icon, title, description, className, iconClassName, titleClassName, descClassName, iconSize, style }: any) => {
+    render: ({
+      icon,
+      title,
+      description,
+      className,
+      iconClassName,
+      titleClassName,
+      descClassName,
+      iconSize,
+      style,
+    }: any) => {
       const IconComp = ICON_MAP[icon] ?? Zap;
       return (
-        <div className={className ?? 'rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02] group'} style={applyStyle(style)}>
-          <div className={iconClassName ?? 'w-10 h-10 rounded-xl flex items-center justify-center mb-2'}>
+        <div
+          className={
+            className ??
+            "rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-300 hover:scale-[1.02] group"
+          }
+          style={applyStyle(style)}
+        >
+          <div
+            className={
+              iconClassName ??
+              "w-10 h-10 rounded-xl flex items-center justify-center mb-2"
+            }
+          >
             <IconComp size={iconSize ?? 20} />
           </div>
-          <h3 className={titleClassName ?? 'font-bold text-lg'}>{title}</h3>
-          <p className={descClassName ?? 'text-sm leading-relaxed opacity-70'}>{description}</p>
+          <h3 className={titleClassName ?? "font-bold text-lg"}>{title}</h3>
+          <p className={descClassName ?? "text-sm leading-relaxed opacity-70"}>
+            {description}
+          </p>
         </div>
       );
     },
@@ -605,516 +953,1368 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
 
   // ── PRICING (KEPT) ───────────────────────────────────────────────────────
   PricingCards: {
-    type: 'PricingCards',
-    label: 'Pricing Cards',
+    type: "PricingCards",
+    label: "Pricing Cards",
     semantic: {
-      purpose: 'Tiered pricing cards showing different plans, prices, and features. Usually 2 or 3 tiers.',
+      purpose:
+        "Tiered pricing cards showing different plans, prices, and features. Usually 2 or 3 tiers.",
       example: {
-        sectionTitle: 'Simple, Transparent Pricing',
+        sectionTitle: "Simple, Transparent Pricing",
         tiers: [
-          { name: 'Starter', price: '$29/mo', description: 'Perfect for new entrepreneurs.', features: [{ text: '3 Funnels' }, { text: 'Basic AI Generation' }, { text: 'Standard Themes' }], buttonText: 'Start Free Trial' },
-          { name: 'Pro', price: '$99/mo', description: 'For growing businesses.', features: [{ text: 'Unlimited Funnels' }, { text: 'Advanced GPT-4 Copy' }, { text: 'All 40+ Themes' }, { text: 'Priority Support' }], buttonText: 'Upgrade to Pro', isPopular: true }
-        ]
-      }
+          {
+            name: "Starter",
+            price: "$29/mo",
+            description: "Perfect for new entrepreneurs.",
+            features: [
+              { text: "3 Funnels" },
+              { text: "Basic AI Generation" },
+              { text: "Standard Themes" },
+            ],
+            buttonText: "Start Free Trial",
+          },
+          {
+            name: "Pro",
+            price: "$99/mo",
+            description: "For growing businesses.",
+            features: [
+              { text: "Unlimited Funnels" },
+              { text: "Advanced GPT-4 Copy" },
+              { text: "All 40+ Themes" },
+              { text: "Priority Support" },
+            ],
+            buttonText: "Upgrade to Pro",
+            isPopular: true,
+          },
+        ],
+      },
     },
-    defaultProps: { sectionTitle: 'Pricing', tiers: [] },
+    defaultProps: { sectionTitle: "Pricing", tiers: [] },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      sectionTitle: { type: 'text', label: 'Section Title' },
-      sectionSubtitle: { type: 'textarea', label: 'Section Subtitle' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      sectionTitle: { type: "text", label: "Section Title" },
+      sectionSubtitle: { type: "textarea", label: "Section Subtitle" },
       tiers: {
-        type: 'array',
-        label: 'Pricing Tiers',
+        type: "array",
+        label: "Pricing Tiers",
         arrayFields: {
-          name: { type: 'text', label: 'Plan Name' },
-          price: { type: 'text', label: 'Price (e.g. $99/mo)' },
-          description: { type: 'textarea', label: 'Description' },
-          buttonText: { type: 'text', label: 'CTA Button Text' },
+          name: { type: "text", label: "Plan Name" },
+          price: { type: "text", label: "Price (e.g. $99/mo)" },
+          description: { type: "textarea", label: "Description" },
+          buttonText: { type: "text", label: "CTA Button Text" },
           // Note: features is now an array of objects to map smoothly with the ArrayEditor
           features: {
-            type: 'array',
-            label: 'Bullet Points',
+            type: "array",
+            label: "Bullet Points",
             arrayFields: {
-              text: { type: 'text', label: 'Feature Text' }
-            }
-          }
-        }
-      }
+              text: { type: "text", label: "Feature Text" },
+            },
+          },
+        },
+      },
     },
-    render: (props: any) => <PricingCards {...props} />
+    render: (props: any) => <PricingCards {...props} />,
   },
 
   // ── HEYMESSAGE COMPONENTS ──────────────────────────────────────────
 
   HeyMessageHeader: {
-    type: 'HeyMessageHeader',
-    label: 'HM Header',
+    type: "HeyMessageHeader",
+    label: "HeyMessage Header",
     semantic: {
-      purpose: 'A sticky top navigation bar inspired by HeyMessage.',
-      example: { logoText: 'MyBrand', ctaText: 'Get Started' }
+      purpose: "A sticky top navigation bar inspired by HeyMessage.",
+      example: { logoText: "MyBrand", ctaText: "Get Started" },
     },
-    defaultProps: { logoText: 'HeyMessage', ctaText: 'Get Started' },
+    defaultProps: { logoText: "HeyMessage", ctaText: "Get Started" },
     fields: {
-      logoText: { type: 'text', label: 'Logo Text' },
-      ctaText: { type: 'text', label: 'CTA Text' },
-      ctaHref: { type: 'text', label: 'CTA Link' },
+      logoText: { type: "text", label: "Logo Text" },
+      ctaText: { type: "text", label: "CTA Text" },
+      ctaHref: { type: "text", label: "CTA Link" },
     },
-    render: (props: any) => <HeyMessageHeader {...props} />
+    render: (props: any) => <HeyMessageHeader {...props} />,
   },
 
   HeyMessageFeatures: {
-    type: 'HeyMessageFeatures',
-    label: 'HM Features Grid',
+    type: "HeyMessageFeatures",
+    label: "HeyMessage Features Grid",
     semantic: {
-      purpose: 'A modern 3-column features grid with image cards and staggered animations.',
-      example: { badgeText: 'FEATURES', headline: 'Awesome features.' }
+      purpose:
+        "A modern 3-column features grid with image cards and staggered animations.",
+      example: { badgeText: "FEATURES", headline: "Awesome features." },
     },
-    defaultProps: { 
-      badgeText: 'FEATURES', 
-      headline: 'Discover the power.',
+    defaultProps: {
+      badgeText: "FEATURES",
+      headline: "Discover the power.",
       features: [
-        { id: 'f1', title: 'Context Aware', description: 'Understands your whole project so it writes perfect, context-rich responses instantly.', imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop' },
-        { id: 'f2', title: 'Natural Responses', description: 'Reads and writes like a human, natively adapting to your precise brand voice.', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop' },
-        { id: 'f3', title: 'Brilliant Clarity', description: 'Breaks down complex problems into surprisingly clear and actionable steps.', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop' }
-      ]
+        {
+          id: "f1",
+          title: "Context Aware",
+          description:
+            "Understands your whole project so it writes perfect, context-rich responses instantly.",
+          imageUrl:
+            "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop",
+        },
+        {
+          id: "f2",
+          title: "Natural Responses",
+          description:
+            "Reads and writes like a human, natively adapting to your precise brand voice.",
+          imageUrl:
+            "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop",
+        },
+        {
+          id: "f3",
+          title: "Brilliant Clarity",
+          description:
+            "Breaks down complex problems into surprisingly clear and actionable steps.",
+          imageUrl:
+            "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop",
+        },
+      ],
     },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      badgeText: { type: 'text', label: 'Badge Text' },
-      headline: { type: 'textarea', label: 'Headline' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge Text" },
+      headline: { type: "textarea", label: "Headline" },
       features: {
-        type: 'array',
-        label: 'Features List',
+        type: "array",
+        label: "Features List",
         arrayFields: {
-          title: { type: 'text', label: 'Title' },
-          description: { type: 'textarea', label: 'Description' },
-          imageUrl: { type: 'image', label: 'Image URL' }
-        }
-      }
+          title: { type: "text", label: "Title" },
+          description: { type: "textarea", label: "Description" },
+          imageUrl: { type: "image", label: "Image URL" },
+        },
+      },
     },
-    render: (props: any) => <HeyMessageFeatures {...props} />
+    render: (props: any) => <HeyMessageFeatures {...props} />,
   },
 
   HeyMessageSplit: {
-    type: 'HeyMessageSplit',
-    label: 'HM Split Content',
+    type: "HeyMessageSplit",
+    label: "HeyMessage Split Content",
     semantic: {
-      purpose: 'A highly versatile section that splits an image and a vertical list of item points.',
-      example: { badgeText: 'HOW IT WORKS', imagePosition: 'left' }
+      purpose:
+        "A highly versatile section that splits an image and a vertical list of item points.",
+      example: { badgeText: "HOW IT WORKS", imagePosition: "left" },
     },
-    defaultProps: { 
-      badgeText: 'ONBOARDING', 
-      imagePosition: 'left',
-      imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop',
+    defaultProps: {
+      badgeText: "ONBOARDING",
+      imagePosition: "left",
+      imageUrl:
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop",
       contentItems: [
-        { id: '1', title: '1 — Call', description: 'Just type a simple prompt and command the AI to begin.' },
-        { id: '2', title: '2 — Execute', description: 'The invisible system runs deeply connected reasoning.' },
-        { id: '3', title: '3 — Enhance', description: 'Get actionable clarity delivered instantly.' }
-      ]
+        {
+          id: "1",
+          title: "1 — Call",
+          description: "Just type a simple prompt and command the AI to begin.",
+        },
+        {
+          id: "2",
+          title: "2 — Execute",
+          description: "The invisible system runs deeply connected reasoning.",
+        },
+        {
+          id: "3",
+          title: "3 — Enhance",
+          description: "Get actionable clarity delivered instantly.",
+        },
+      ],
     },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      badgeText: { type: 'text', label: 'Badge' },
-      headline: { type: 'textarea', label: 'Headline' },
-      imagePosition: { type: 'select', label: 'Image Position', options: ['left', 'right'] },
-      imageUrl: { type: 'image', label: 'Image URL' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge" },
+      headline: { type: "textarea", label: "Headline" },
+      imagePosition: {
+        type: "select",
+        label: "Image Position",
+        options: ["left", "right"],
+      },
+      imageUrl: { type: "image", label: "Image URL" },
       contentItems: {
-        type: 'array',
-        label: 'Split Items',
+        type: "array",
+        label: "Split Items",
         arrayFields: {
-          title: { type: 'text', label: 'Title' },
-          description: { type: 'textarea', label: 'Description' }
-        }
-      }
+          title: { type: "text", label: "Title" },
+          description: { type: "textarea", label: "Description" },
+        },
+      },
     },
-    render: (props: any) => <HeyMessageSplit {...props} />
+    render: (props: any) => <HeyMessageSplit {...props} />,
   },
 
   HeyMessageFAQ: {
-    type: 'HeyMessageFAQ',
-    label: 'HM FAQ Accordion',
+    type: "HeyMessageFAQ",
+    label: "HeyMessage FAQ Accordion",
     semantic: {
-      purpose: 'A clean, animated accordion FAQ list.',
-      example: { badgeText: 'SUPPORT', headline: 'Your Questions' }
+      purpose: "A clean, animated accordion FAQ list.",
+      example: { badgeText: "SUPPORT", headline: "Your Questions" },
     },
-    defaultProps: { badgeText: 'FAQ', headline: 'Your questions, answered.' },
+    defaultProps: { badgeText: "FAQ", headline: "Your questions, answered." },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      badgeText: { type: 'text', label: 'Badge' },
-      headline: { type: 'textarea', label: 'Headline' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge" },
+      headline: { type: "textarea", label: "Headline" },
     },
-    render: (props: any) => <HeyMessageFAQ {...props} />
+    render: (props: any) => <HeyMessageFAQ {...props} />,
   },
 
   HeyMessageCTA: {
-    type: 'HeyMessageCTA',
-    label: 'HM Container CTA',
+    type: "HeyMessageCTA",
+    label: "HeyMessage Call-to-Action",
     semantic: {
-      purpose: 'A bottom-of-page containerized CTA with a background image overlay.',
-      example: { headline: 'Ready to start?', buttonText: 'Try Now' }
+      purpose:
+        "A bottom-of-page containerized CTA with a background image overlay.",
+      example: { headline: "Ready to start?", buttonText: "Try Now" },
     },
-    defaultProps: { headline: 'Step into the future.', buttonText: 'Get Started', bgImageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop' },
+    defaultProps: {
+      headline: "Step into the future.",
+      buttonText: "Get Started",
+      bgImageUrl:
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop",
+    },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      headline: { type: 'textarea', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Sub-headline' },
-      buttonText: { type: 'text', label: 'Button Text' },
-      bgImageUrl: { type: 'image', label: 'Background Image' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
+      buttonText: { type: "text", label: "Button Text" },
+      bgImageUrl: { type: "image", label: "Background Image" },
     },
-    render: (props: any) => <HeyMessageCTA {...props} />
+    render: (props: any) => <HeyMessageCTA {...props} />,
   },
 
   HeyMessageFooter: {
-    type: 'HeyMessageFooter',
-    label: 'HM Minimal Footer',
+    type: "HeyMessageFooter",
+    label: "HeyMessage Footer",
     semantic: {
-      purpose: 'A simple, minimal footer with logo on the left and vertical links on the right.',
-      example: { logoText: 'MyBrand', description: 'Your data is safe.' }
+      purpose:
+        "A simple, minimal footer with logo on the left and vertical links on the right.",
+      example: { logoText: "MyBrand", description: "Your data is safe." },
     },
-    defaultProps: { logoText: 'HeyMessage', description: 'Secure and fast.' },
+    defaultProps: { logoText: "HeyMessage", description: "Secure and fast." },
     fields: {
-      logoText: { type: 'text', label: 'Logo Text' },
-      description: { type: 'textarea', label: 'Description' },
+      logoText: { type: "text", label: "Logo Text" },
+      description: { type: "textarea", label: "Description" },
     },
-    render: (props: any) => <HeyMessageFooter {...props} />
+    render: (props: any) => <HeyMessageFooter {...props} />,
   },
 
   // ── FEATURE COMPONENTS ───────────────────────────────────────────────
 
   FeatureHeader: {
-    type: 'FeatureHeader',
-    label: 'Feature Header',
+    type: "FeatureHeader",
+    label: "Feature Header",
     semantic: {
-      purpose: 'A minimal top navigation bar with a blur effect.',
-      example: { logoText: 'Feature', ctaText: 'Get Feature' }
+      purpose: "A minimal top navigation bar with a blur effect.",
+      example: { logoText: "Feature", ctaText: "Get Feature" },
     },
-    defaultProps: { logoText: 'Feature', ctaText: 'Get Feature' },
+    defaultProps: { logoText: "Feature", ctaText: "Get Feature" },
     fields: {
-      logoText: { type: 'text', label: 'Logo Text' },
-      ctaText: { type: 'text', label: 'CTA Text' },
-      ctaHref: { type: 'text', label: 'CTA Link' },
+      logoText: { type: "text", label: "Logo Text" },
+      ctaText: { type: "text", label: "CTA Text" },
+      ctaHref: { type: "text", label: "CTA Link" },
     },
-    render: (props: any) => <FeatureHeader {...props} />
+    render: (props: any) => <FeatureHeader {...props} />,
   },
 
   FeatureHero: {
-    type: 'FeatureHero',
-    label: 'Feature Hero',
+    type: "FeatureHero",
+    label: "Feature Hero",
     semantic: {
-      purpose: 'A glowing dark-mode hero section with a dashboard graphic.',
-      example: { headline: 'Turn data into decisions' }
+      purpose: "A glowing dark-mode hero section with a dashboard graphic.",
+      example: { headline: "Turn data into decisions" },
     },
-    defaultProps: { badgeText: '', headline: 'Turn data into decisions', dashboardImageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop' },
+    defaultProps: {
+      badgeText: "",
+      headline: "Turn data into decisions",
+      dashboardImageUrl:
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
+    },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      badgeText: { type: 'text', label: 'Badge Text' },
-      headline: { type: 'textarea', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Sub-headline' },
-      dashboardImageUrl: { type: 'image', label: 'Dashboard Image' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge Text" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
+      dashboardImageUrl: { type: "image", label: "Dashboard Image" },
     },
-    render: (props: any) => <FeatureHero {...props} />
+    render: (props: any) => <FeatureHero {...props} />,
   },
 
   HeroCenter: {
-    type: 'HeroCenter',
-    label: 'Hero (Centered)',
+    type: "HeroCenter",
+    label: "Hero (Centered)",
     semantic: {
-      purpose: 'A bright, clean, centered hero section. Best for simple and direct value propositions.',
-      example: { headline: 'The easiest way to build', subheadline: 'Start for free today.' }
+      purpose:
+        "A bright, clean, centered hero section. Best for simple and direct value propositions.",
+      example: {
+        headline: "The easiest way to build",
+        subheadline: "Start for free today.",
+      },
     },
-    defaultProps: { badgeText: 'NEW', headline: 'The easiest way to build', subheadline: 'Start for free today.', primaryCta: 'Get Started' },
+    defaultProps: {
+      badgeText: "NEW",
+      headline: "The easiest way to build",
+      subheadline: "Start for free today.",
+      primaryCta: "Get Started",
+    },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      badgeText: { type: 'text', label: 'Badge Text' },
-      headline: { type: 'textarea', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Sub-headline' },
-      primaryCta: { type: 'text', label: 'Primary CTA' },
-      secondaryCta: { type: 'text', label: 'Secondary CTA' },
-      imageUrl: { type: 'image', label: 'Image URL' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge Text" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
+      primaryCta: { type: "text", label: "Primary CTA" },
+      secondaryCta: { type: "text", label: "Secondary CTA" },
+      imageUrl: { type: "image", label: "Image URL" },
     },
-    render: (props: any) => <HeroCenter {...props} />
+    render: (props: any) => <HeroCenter {...props} />,
   },
 
   FeaturesGrid: {
-    type: 'FeaturesGrid',
-    label: 'Features (Grid)',
+    type: "FeaturesGrid",
+    label: "Features (Grid)",
     semantic: {
-      purpose: 'A clean 3-column grid of feature cards. Excellent for listing multiple benefits concisely.',
-      example: { sectionTitle: 'Everything you need', features: [{ title: 'Fast', description: 'Very fast', icon: 'Zap' }] }
+      purpose:
+        "A clean 3-column grid of feature cards. Excellent for listing multiple benefits concisely.",
+      example: {
+        sectionTitle: "Everything you need",
+        features: [{ title: "Fast", description: "Very fast", icon: "Zap" }],
+      },
     },
-    defaultProps: { sectionTitle: 'Everything you need', features: [{ title: 'Fast', description: 'Very fast', icon: 'Zap' }] },
+    defaultProps: {
+      sectionTitle: "Everything you need",
+      features: [{ title: "Fast", description: "Very fast", icon: "Zap" }],
+    },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      sectionTitle: { type: 'text', label: 'Section Title' },
-      sectionSubtitle: { type: 'textarea', label: 'Section Subtitle' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      sectionTitle: { type: "text", label: "Section Title" },
+      sectionSubtitle: { type: "textarea", label: "Section Subtitle" },
       features: {
-        type: 'array',
-        label: 'Features Box',
+        type: "array",
+        label: "Features Box",
         arrayFields: {
-          icon: { type: 'text', label: 'Icon (Lucide)' },
-          title: { type: 'text', label: 'Title' },
-          description: { type: 'textarea', label: 'Description' }
-        }
-      }
+          icon: { type: "text", label: "Icon (Lucide)" },
+          title: { type: "text", label: "Title" },
+          description: { type: "textarea", label: "Description" },
+        },
+      },
     },
-    render: (props: any) => <FeaturesGrid {...props} />
+    render: (props: any) => <FeaturesGrid {...props} />,
   },
 
   FeatureSplit: {
-    type: 'FeatureSplit',
-    label: 'Feature (Split)',
+    type: "FeatureSplit",
+    label: "Feature (Split)",
     semantic: {
-      purpose: 'A dark-mode split section with an image on one side and a vertical list of benefits on the other.',
-      example: { headline: 'Stop jumping between tools' }
+      purpose:
+        "A dark-mode split section with an image on one side and a vertical list of benefits on the other.",
+      example: { headline: "Stop jumping between tools" },
     },
-    defaultProps: { badgeText: 'INTEGRATION', headline: 'Stop jumping between tools', imagePosition: 'right', imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop', contentItems: [] },
+    defaultProps: {
+      badgeText: "INTEGRATION",
+      headline: "Stop jumping between tools",
+      imagePosition: "right",
+      imageUrl:
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
+      contentItems: [],
+    },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      badgeText: { type: 'text', label: 'Badge Text' },
-      headline: { type: 'textarea', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Sub-headline' },
-      imageUrl: { type: 'image', label: 'Image URL' },
-      imagePosition: { type: 'select', label: 'Image Position', options: ['left', 'right'] },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge Text" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
+      imageUrl: { type: "image", label: "Image URL" },
+      imagePosition: {
+        type: "select",
+        label: "Image Position",
+        options: ["left", "right"],
+      },
       contentItems: {
-        type: 'array',
-        label: 'Split Items',
+        type: "array",
+        label: "Split Items",
         arrayFields: {
-          id: { type: 'text', label: 'ID' },
-          title: { type: 'text', label: 'Title' },
-          description: { type: 'textarea', label: 'Description' },
-        }
-      }
+          id: { type: "text", label: "ID" },
+          title: { type: "text", label: "Title" },
+          description: { type: "textarea", label: "Description" },
+        },
+      },
     },
-    render: (props: any) => <FeatureSplit {...props} />
+    render: (props: any) => <FeatureSplit {...props} />,
   },
 
   FeatureLogos: {
-    type: 'FeatureLogos',
-    label: 'Feature Logos',
+    type: "FeatureLogos",
+    label: "Feature Logos",
     semantic: {
-      purpose: 'A grid of faint logos for social proof.',
-      example: { headline: 'TRUSTED BY INNOVATIVE TEAMS' }
+      purpose: "A grid of faint logos for social proof.",
+      example: { headline: "TRUSTED BY INNOVATIVE TEAMS" },
     },
-    defaultProps: { headline: 'TRUSTED BY INNOVATIVE TEAMS' },
+    defaultProps: { headline: "TRUSTED BY INNOVATIVE TEAMS" },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      headline: { type: 'text', label: 'Headline' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "text", label: "Headline" },
       logos: {
-        type: 'array',
-        label: 'Logos',
+        type: "array",
+        label: "Logos",
         arrayFields: {
-          name: { type: 'text', label: 'Company Name' },
-          domain: { type: 'text', label: 'Company Domain (e.g. stripe.com)' }
-        }
-      }
+          name: { type: "text", label: "Company Name" },
+          domain: { type: "text", label: "Company Domain (e.g. stripe.com)" },
+        },
+      },
     },
-    render: (props: any) => <FeatureLogos {...props} />
+    render: (props: any) => <FeatureLogos {...props} />,
   },
 
   FeatureTestimonials: {
-    type: 'FeatureTestimonials',
-    label: 'Feature Testimonials',
+    type: "FeatureTestimonials",
+    label: "Feature Testimonials",
     semantic: {
-      purpose: 'A 6-card masonry grid detailing user reviews.',
-      example: { headline: 'Reviews that make us blush' }
+      purpose: "A 6-card masonry grid detailing user reviews.",
+      example: { headline: "Reviews that make us blush" },
     },
-    defaultProps: { 
-      headline: 'Reviews that make us blush',
+    defaultProps: {
+      headline: "Reviews that make us blush",
       testimonials: [
-        { id: '1', name: 'Sarah Chen', role: 'Growth Lead @ StartupX', content: "This entirely changed how we look at our user retention.", avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
-        { id: '2', name: 'Marcus Bell', role: 'Founder @ ScaleIt', content: "I've tried every BI tool on the market.", avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704e' },
-        { id: '3', name: 'Elena Silva', role: 'Head of Data @ Nexus', content: "The automated board reporting alone saves me ten hours a week.", avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704f' }
-      ]
+        {
+          id: "1",
+          name: "Sarah Chen",
+          role: "Growth Lead @ StartupX",
+          content: "This entirely changed how we look at our user retention.",
+          avatarUrl: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+        },
+        {
+          id: "2",
+          name: "Marcus Bell",
+          role: "Founder @ ScaleIt",
+          content: "I've tried every BI tool on the market.",
+          avatarUrl: "https://i.pravatar.cc/150?u=a042581f4e29026704e",
+        },
+        {
+          id: "3",
+          name: "Elena Silva",
+          role: "Head of Data @ Nexus",
+          content:
+            "The automated board reporting alone saves me ten hours a week.",
+          avatarUrl: "https://i.pravatar.cc/150?u=a042581f4e29026704f",
+        },
+      ],
     },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      headline: { type: 'textarea', label: 'Headline' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
       testimonials: {
-        type: 'array',
-        label: 'Testimonials',
+        type: "array",
+        label: "Testimonials",
         arrayFields: {
-          name: { type: 'text', label: 'Name' },
-          role: { type: 'text', label: 'Role / Company' },
-          content: { type: 'textarea', label: 'Review Content' },
-          avatarUrl: { type: 'image', label: 'Avatar URL (Optional)' },
-        }
-      }
+          name: { type: "text", label: "Name" },
+          role: { type: "text", label: "Role / Company" },
+          content: { type: "textarea", label: "Review Content" },
+          avatarUrl: { type: "image", label: "Avatar URL (Optional)" },
+        },
+      },
     },
-    render: (props: any) => <FeatureTestimonials {...props} />
+    render: (props: any) => <FeatureTestimonials {...props} />,
   },
 
   FeatureFAQ: {
-    type: 'FeatureFAQ',
-    label: 'Feature FAQ',
+    type: "FeatureFAQ",
+    label: "Feature FAQ",
     semantic: {
-      purpose: 'A clean accordion answering common questions.',
-      example: { headline: 'Any questions?' }
+      purpose: "A clean accordion answering common questions.",
+      example: { headline: "Any questions?" },
     },
-    defaultProps: { headline: 'Any questions?' },
+    defaultProps: { headline: "Any questions?" },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      headline: { type: 'textarea', label: 'Headline' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
       faqs: {
-        type: 'array',
-        label: 'FAQs',
+        type: "array",
+        label: "FAQs",
         arrayFields: {
-          question: { type: 'text', label: 'Question' },
-          answer: { type: 'textarea', label: 'Answer' },
-        }
-      }
+          question: { type: "text", label: "Question" },
+          answer: { type: "textarea", label: "Answer" },
+        },
+      },
     },
-    render: (props: any) => <FeatureFAQ {...props} />
+    render: (props: any) => <FeatureFAQ {...props} />,
   },
 
   FeaturePricing: {
-    type: 'FeaturePricing',
-    label: 'Feature Pricing',
+    type: "FeaturePricing",
+    label: "Feature Pricing",
     semantic: {
-      purpose: 'A 3-tier dark mode pricing card display.',
-      example: { headline: 'What will it cost?' }
+      purpose: "A 3-tier dark mode pricing card display.",
+      example: { headline: "What will it cost?" },
     },
-    defaultProps: { headline: 'What will it cost?' },
+    defaultProps: { headline: "What will it cost?" },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      headline: { type: 'textarea', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Sub-headline' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
       tiers: {
-        type: 'array',
-        label: 'Pricing Tiers',
+        type: "array",
+        label: "Pricing Tiers",
         arrayFields: {
-          name: { type: 'text', label: 'Plan Name' },
-          price: { type: 'text', label: 'Price' },
-          description: { type: 'textarea', label: 'Description' },
-          buttonText: { type: 'text', label: 'Button Text' },
-          isPopular: { type: 'select', label: 'Is Popular?', options: ['true', 'false'] },
+          name: { type: "text", label: "Plan Name" },
+          price: { type: "text", label: "Price" },
+          description: { type: "textarea", label: "Description" },
+          buttonText: { type: "text", label: "Button Text" },
+          isPopular: {
+            type: "select",
+            label: "Is Popular?",
+            options: ["true", "false"],
+          },
           features: {
-            type: 'array',
-            label: 'Features List',
+            type: "array",
+            label: "Features List",
             arrayFields: {
-              text: { type: 'text', label: 'Feature Item Text' },
-              included: { type: 'select', label: 'Included?', options: ['true', 'false'] }
+              text: { type: "text", label: "Feature Item Text" },
+              included: {
+                type: "select",
+                label: "Included?",
+                options: ["true", "false"],
+              },
+            },
+          },
+        },
+      },
+    },
+    render: (props: any) => <FeaturePricing {...props} />,
+  },
+
+  PricingComparison: {
+    type: "PricingComparison",
+    label: "Pricing Comparison",
+    semantic: {
+      purpose: "A detailed pricing comparison section with highlights and feature checklists.",
+      example: { title: "OUR PRICING" }
+    },
+    defaultProps: {
+      title: "OUR PRICING",
+      subtitle: "Choose a plan that fits your goals and scale.",
+      highlights: [
+        { text: "Advanced AI features included" },
+        { text: "Lightning fast load speed always" },
+        { text: "Clear honest usage with limits" }
+      ],
+      plans: [
+        { 
+          id: "1", 
+          name: "Basic", 
+          description: "Good for starting",
+          price: "$29", 
+          period: "/mo", 
+          buttonText: "Start Now", 
+          highlighted: "false",
+          features: [{text: "Feature 1"}] 
+        },
+        { 
+          id: "2", 
+          name: "Pro", 
+          description: "Best for teams",
+          price: "$99", 
+          period: "/mo", 
+          buttonText: "Get Pro", 
+          highlighted: "true",
+          features: [{text: "Feature A"}] 
+        }
+      ],
+      className: "",
+      elementStyles: {}
+    },
+    fields: {
+      title: { type: "text", label: "Title" },
+      subtitle: { type: "textarea", label: "Subtitle" },
+      highlights: {
+        type: "array",
+        label: "Highlights",
+        arrayFields: { text: { type: "text", label: "Highlight Text" } }
+      },
+      plans: {
+        type: "array",
+        label: "Plans",
+        arrayFields: {
+          id: { type: "text", label: "ID" },
+          name: { type: "text", label: "Name" },
+          description: { type: "textarea", label: "Description" },
+          price: { type: "text", label: "Price" },
+          period: { type: "text", label: "Period" },
+          buttonText: { type: "text", label: "Button Text" },
+          highlighted: { type: "select", label: "Highlighted?", options: ["true", "false"] },
+          features: {
+            type: "array", label: "Features", arrayFields: {
+              text: { type: "text", label: "Feature Text" }
             }
           }
         }
-      }
+      },
+      className: { type: "text", label: "Tailwind Classes" }
     },
-    render: (props: any) => <FeaturePricing {...props} />
+    render: (props: any) => <PricingComparison {...props} />
+  },
+
+  PricingFlexible: {
+    type: "PricingFlexible",
+    label: "Pricing Flexible",
+    semantic: {
+      purpose: "A flexible pricing section with annual/monthly toggle.",
+      example: { title: "Flexible Pricing Plans" }
+    },
+    defaultProps: {
+      title: "Flexible Pricing Plans",
+      subtitle: "Choose a plan that supports your business growth and digital goals.",
+      monthlyLabel: "Monthly",
+      annualLabel: "Annually",
+      buttonText: "Get Started",
+      plans: [
+        {
+          id: "1",
+          name: "Starter",
+          monthlyPrice: 29,
+          annualPrice: 19,
+          description: "For small teams",
+          mostPopular: false,
+          features: [{ text: "Feature 1" }]
+        },
+        {
+          id: "2",
+          name: "Pro",
+          monthlyPrice: 99,
+          annualPrice: 79,
+          description: "For growing teams",
+          mostPopular: true,
+          features: [{ text: "Feature A" }]
+        }
+      ],
+      className: "",
+      elementStyles: {}
+    },
+    fields: {
+      title: { type: "text", label: "Title" },
+      subtitle: { type: "textarea", label: "Subtitle" },
+      monthlyLabel: { type: "text", label: "Monthly Toggle Label" },
+      annualLabel: { type: "text", label: "Annually Toggle Label" },
+      buttonText: { type: "text", label: "Button Text" },
+      plans: {
+        type: "array",
+        label: "Plans",
+        arrayFields: {
+          id: { type: "text", label: "ID" },
+          name: { type: "text", label: "Name" },
+          monthlyPrice: { type: "number", label: "Monthly Price" },
+          annualPrice: { type: "number", label: "Annual Price" },
+          description: { type: "textarea", label: "Description" },
+          mostPopular: { type: "select", label: "Most Popular?", options: ["true", "false"] },
+          features: {
+            type: "array", label: "Features", arrayFields: {
+              text: { type: "text", label: "Feature Text" }
+            }
+          }
+        }
+      },
+      className: { type: "text", label: "Tailwind Classes" }
+    },
+    render: (props: any) => <PricingFlexible {...props} />
+  },
+
+  PricingTiers: {
+    type: "PricingTiers",
+    label: "Pricing Tiers",
+    semantic: {
+      purpose: "Standard clean 3-tier pricing table.",
+      example: { title: "Pricing that scales with you" }
+    },
+    defaultProps: {
+      title: "Pricing that scales with you",
+      subtitle: "Simple, transparent pricing for teams of all sizes.",
+      plans: [
+        {
+          name: "Starter",
+          description: "Perfect for exploring the platform",
+          price: "$29",
+          duration: "/mo",
+          buttonText: "Start free trial",
+          mostPopular: false,
+          features: [{ text: "Basic Features" }]
+        },
+        {
+          name: "Pro",
+          description: "Ideal for growing teams",
+          price: "$99",
+          duration: "/mo",
+          buttonText: "Get Pro",
+          mostPopular: true,
+          features: [{ text: "Advanced Features" }]
+        }
+      ],
+      className: "",
+      elementStyles: {}
+    },
+    fields: {
+      title: { type: "text", label: "Title" },
+      subtitle: { type: "textarea", label: "Subtitle" },
+      plans: {
+        type: "array",
+        label: "Plans",
+        arrayFields: {
+          name: { type: "text", label: "Name" },
+          description: { type: "textarea", label: "Description" },
+          price: { type: "text", label: "Price" },
+          duration: { type: "text", label: "Duration" },
+          buttonText: { type: "text", label: "Button Text" },
+          mostPopular: { type: "select", label: "Most Popular?", options: ["true", "false"] },
+          features: {
+            type: "array", label: "Features", arrayFields: {
+              text: { type: "text", label: "Feature Text" }
+            }
+          }
+        }
+      },
+      className: { type: "text", label: "Tailwind Classes" }
+    },
+    render: (props: any) => <PricingTiers {...props} />
   },
 
   FeatureCTA: {
-    type: 'FeatureCTA',
-    label: 'Feature CTA',
+    type: "FeatureCTA",
+    label: "Feature CTA",
     semantic: {
-      purpose: 'A golden-accented CTA container used at the bottom of pages.',
-      example: { headline: 'Ready to make better decisions with your data?' }
+      purpose: "A golden-accented CTA container used at the bottom of pages.",
+      example: { headline: "Ready to make better decisions with your data?" },
     },
-    defaultProps: { headline: 'Ready to make better decisions with your data?', imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop' },
+    defaultProps: {
+      headline: "Ready to make better decisions with your data?",
+      imageUrl:
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop",
+    },
     fields: {
-      sectionId: { type: 'text', label: 'Section ID (Anchor link)' },
-      headline: { type: 'textarea', label: 'Headline' },
-      buttonText: { type: 'text', label: 'Button Text' },
-      imageUrl: { type: 'image', label: 'Image URL' },
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
+      buttonText: { type: "text", label: "Button Text" },
+      imageUrl: { type: "image", label: "Image URL" },
     },
-    render: (props: any) => <FeatureCTA {...props} />
+    render: (props: any) => <FeatureCTA {...props} />,
   },
 
   FeatureFooter: {
-    type: 'FeatureFooter',
-    label: 'Feature Footer',
+    type: "FeatureFooter",
+    label: "Feature Footer",
     semantic: {
-      purpose: 'A minimal footer with logo on the left and vertical links.',
-      example: { logoText: 'Feature', description: 'Data decisions, un-complicated.' }
+      purpose: "A minimal footer with logo on the left and vertical links.",
+      example: {
+        logoText: "Feature",
+        description: "Data decisions, un-complicated.",
+      },
     },
-    defaultProps: { logoText: 'Feature', description: 'Data decisions, un-complicated.' },
+    defaultProps: {
+      logoText: "Feature",
+      description: "Data decisions, un-complicated.",
+    },
     fields: {
-      logoText: { type: 'text', label: 'Logo Text' },
-      description: { type: 'textarea', label: 'Description' },
+      logoText: { type: "text", label: "Logo Text" },
+      description: { type: "textarea", label: "Description" },
     },
-    render: (props: any) => <FeatureFooter {...props} />
+    render: (props: any) => <FeatureFooter {...props} />,
   },
 
   UpsellHero: {
-    type: 'UpsellHero',
-    label: 'Upsell Video Hero',
+    type: "UpsellHero",
+    label: "Upsell Video Hero",
     defaultProps: {
-      headline: 'WAIT! Your order is not complete...',
-      subheadline: 'Do not close this page. Add our comprehensive video masterclass for 80% off.',
-      videoUrl: '',
-      price: '$97',
-      originalPrice: '$497',
-      primaryCta: 'Yes, Upgrade My Order Now',
-      declineCta: 'No thanks, I choose to skip this one-time discount and pass up on the value.',
-      className: '',
-      style: {}
+      headline: "WAIT! Your order is not complete...",
+      subheadline:
+        "Do not close this page. Add our comprehensive video masterclass for 80% off.",
+      videoUrl: "",
+      price: "$97",
+      originalPrice: "$497",
+      primaryCta: "Yes, Upgrade My Order Now",
+      declineCta:
+        "No thanks, I choose to skip this one-time discount and pass up on the value.",
+      className: "",
+      style: {},
     },
     fields: {
-      headline: { type: 'textarea', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Subheadline' },
-      videoUrl: { type: 'text', label: 'Video Embed URL' },
-      price: { type: 'text', label: 'Upsell Price' },
-      originalPrice: { type: 'text', label: 'Original Price (Crossed out)' },
-      primaryCta: { type: 'text', label: 'Add-to-Order Text' },
-      declineCta: { type: 'textarea', label: 'Decline Link Text' },
-      className: { type: 'text', label: 'Tailwind Classes' }
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Subheadline" },
+      videoUrl: { type: "text", label: "Video Embed URL" },
+      price: { type: "text", label: "Upsell Price" },
+      originalPrice: { type: "text", label: "Original Price (Crossed out)" },
+      primaryCta: { type: "text", label: "Add-to-Order Text" },
+      declineCta: { type: "textarea", label: "Decline Link Text" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
-    semantic: { purpose: 'Main video sales letter for an Upsell page.', example: { headline: 'WAIT! Your order is almost complete...' } },
-    render: (props) => <UpsellHero {...props} />
+    semantic: {
+      purpose: "Main video sales letter for an Upsell page.",
+      example: { headline: "WAIT! Your order is almost complete..." },
+    },
+    render: (props) => <UpsellHero {...props} />,
   },
 
   DownsellHero: {
-    type: 'DownsellHero',
-    label: 'Downsell Offer Hero',
+    type: "DownsellHero",
+    label: "Downsell Offer Hero",
     defaultProps: {
-      headline: 'Lets Make This Easier...',
-      subheadline: 'I know times might be tight. How about a 3-part payment plan?',
-      price: '$33/mo',
-      originalPrice: '$97',
-      paymentPlanText: '3 Split Payments',
-      primaryCta: 'Yes, Upgrade My Order Now',
-      declineCta: 'No thanks, I will pass on this final offer.',
-      className: '',
-      style: {}
+      headline: "Lets Make This Easier...",
+      subheadline:
+        "I know times might be tight. How about a 3-part payment plan?",
+      price: "$33/mo",
+      originalPrice: "$97",
+      paymentPlanText: "3 Split Payments",
+      primaryCta: "Yes, Upgrade My Order Now",
+      declineCta: "No thanks, I will pass on this final offer.",
+      className: "",
+      style: {},
     },
     fields: {
-      headline: { type: 'textarea', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Subheadline' },
-      price: { type: 'text', label: 'Downsell Price' },
-      originalPrice: { type: 'text', label: 'Original Price' },
-      paymentPlanText: { type: 'text', label: 'Payment Plan Taglet' },
-      primaryCta: { type: 'text', label: 'Add-to-Order Text' },
-      declineCta: { type: 'textarea', label: 'Decline Link Text' },
-      className: { type: 'text', label: 'Tailwind Classes' }
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Subheadline" },
+      price: { type: "text", label: "Downsell Price" },
+      originalPrice: { type: "text", label: "Original Price" },
+      paymentPlanText: { type: "text", label: "Payment Plan Taglet" },
+      primaryCta: { type: "text", label: "Add-to-Order Text" },
+      declineCta: { type: "textarea", label: "Decline Link Text" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
-    semantic: { purpose: 'Offer variant optimized for downsells or payment plans.', example: { headline: 'Lets Make This Easier...' } },
-    render: (props) => <DownsellHero {...props} />
+    semantic: {
+      purpose: "Offer variant optimized for downsells or payment plans.",
+      example: { headline: "Lets Make This Easier..." },
+    },
+    render: (props) => <DownsellHero {...props} />,
   },
 
   ThankYouHero: {
-    type: 'ThankYouHero',
-    label: 'Thank You Hero',
+    type: "ThankYouHero",
+    label: "Thank You Hero",
     defaultProps: {
-      headline: 'Order Confirmed!',
-      subheadline: 'Your payment was successfully processed. Welcome aboard.',
-      receiptTotal: '$1,997.00',
-      nextStep1: 'Check your email for your receipt and login credentials directly.',
-      nextStep2: 'Join our exclusive Facebook community to network with other members.',
-      nextStep3: 'Click the button below to instantly access your product.',
-      primaryCta: 'Access the Product',
-      className: '',
-      style: {}
+      headline: "Order Confirmed!",
+      subheadline: "Your payment was successfully processed. Welcome aboard.",
+      receiptTotal: "$1,997.00",
+      nextStep1:
+        "Check your email for your receipt and login credentials directly.",
+      nextStep2:
+        "Join our exclusive Facebook community to network with other members.",
+      nextStep3: "Click the button below to instantly access your product.",
+      primaryCta: "Access the Product",
+      className: "",
+      style: {},
     },
     fields: {
-      headline: { type: 'text', label: 'Headline' },
-      subheadline: { type: 'textarea', label: 'Subheadline' },
-      receiptTotal: { type: 'text', label: 'Receipt Total' },
-      nextStep1: { type: 'textarea', label: 'Next Step 1' },
-      nextStep2: { type: 'textarea', label: 'Next Step 2' },
-      nextStep3: { type: 'textarea', label: 'Next Step 3' },
-      primaryCta: { type: 'text', label: 'Primary CTA Text' },
-      className: { type: 'text', label: 'Tailwind Classes' }
+      headline: { type: "text", label: "Headline" },
+      subheadline: { type: "textarea", label: "Subheadline" },
+      receiptTotal: { type: "text", label: "Receipt Total" },
+      nextStep1: { type: "textarea", label: "Next Step 1" },
+      nextStep2: { type: "textarea", label: "Next Step 2" },
+      nextStep3: { type: "textarea", label: "Next Step 3" },
+      primaryCta: { type: "text", label: "Primary CTA Text" },
+      className: { type: "text", label: "Tailwind Classes" },
     },
-    semantic: { purpose: 'Post-purchase order confirmation and next steps screen.', example: { headline: 'Order Confirmed!' } },
-    render: (props) => <ThankYouHero {...props} />
-  }
+    semantic: {
+      purpose: "Post-purchase order confirmation and next steps screen.",
+      example: { headline: "Order Confirmed!" },
+    },
+    render: (props) => <ThankYouHero {...props} />,
+  },
 
+  // ── BLOG COMPONENTS ───────────────────────────────────────────────────────
+  FeatureBlog: {
+    type: "FeatureBlog",
+    label: "Blog Section",
+    semantic: {
+      purpose:
+        "A blog/articles section displaying featured content with images and categories.",
+      example: {
+        headline: "Latest Insights",
+        articles: [{ title: "How to Scale", category: "Growth" }],
+      },
+    },
+    defaultProps: {
+      badgeText: "FEATURE INSIGHTS",
+      headline: "Learn to make better decisions",
+      subheadline:
+        "Explore our industry research, platform updates, and best practices for scaling operations.",
+      articles: [
+        {
+          id: "1",
+          category: "Growth",
+          title: "How to Scale Your Business 10x",
+          imageUrl:
+            "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop",
+          linkUrl: "#",
+        },
+        {
+          id: "2",
+          category: "Strategy",
+          title: "Building a Winning Team Culture",
+          imageUrl:
+            "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&auto=format&fit=crop",
+          linkUrl: "#",
+        },
+        {
+          id: "3",
+          category: "Operations",
+          title: "Optimizing Your Workflow",
+          imageUrl:
+            "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop",
+          linkUrl: "#",
+        },
+      ],
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge Text" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
+      articles: {
+        type: "array",
+        label: "Articles",
+        arrayFields: {
+          category: { type: "text", label: "Category" },
+          title: { type: "text", label: "Title" },
+          imageUrl: { type: "image", label: "Image URL" },
+          linkUrl: { type: "text", label: "Link URL" },
+        },
+      },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <FeatureBlog {...props} />,
+  },
+
+  // ── COUNTDOWN COMPONENTS ───────────────────────────────────────────────────
+  CountdownLaunch: {
+    type: "CountdownLaunch",
+    label: "Countdown Launch",
+    semantic: {
+      purpose:
+        "A launch countdown timer with compelling copy to drive urgency and conversions.",
+      example: {
+        headline: "Lifetime Access at Launch Pricing",
+        targetDate: "2024-12-31T23:59:59",
+      },
+    },
+    defaultProps: {
+      badgeText: "Limited offer",
+      headline: "Lifetime Access at Launch Pricing",
+      description:
+        "Join 1,847 founders who locked in lifetime access. Price increases permanently when timer hits zero.",
+      buttonText: "Lock In Lifetime Access →",
+      buttonHref: "#",
+      targetDate: new Date(
+        Date.now() +
+          1000 * 60 * 60 * 24 * 8 +
+          1000 * 60 * 60 * 14 +
+          1000 * 60 * 36,
+      ),
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge Text" },
+      headline: { type: "textarea", label: "Headline" },
+      description: { type: "textarea", label: "Description" },
+      buttonText: { type: "text", label: "Button Text" },
+      buttonHref: { type: "text", label: "Button Link" },
+      targetDate: { type: "text", label: "Target Date (ISO string or Date)" },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CountdownLaunch {...props} />,
+  },
+
+  CountdownAnnouncement: {
+    type: "CountdownAnnouncement",
+    label: "Countdown Announcement",
+    semantic: {
+      purpose:
+        "An announcement banner with countdown timer for upcoming events or launches.",
+      example: {
+        title: "Big Announcement Coming",
+        message: "Something amazing is about to happen...",
+      },
+    },
+    defaultProps: {
+      title: "Big Announcement Coming",
+      message: "Something amazing is about to happen. Stay tuned!",
+      buttonText: "Learn More",
+      buttonHref: "#",
+      targetDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3),
+      showClose: true,
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      title: { type: "text", label: "Title" },
+      message: { type: "textarea", label: "Message" },
+      buttonText: { type: "text", label: "Button Text" },
+      buttonHref: { type: "text", label: "Button Link" },
+      targetDate: { type: "text", label: "Target Date (ISO string or Date)" },
+      showClose: {
+        type: "select",
+        label: "Show Close Button",
+        options: ["true", "false"],
+      },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CountdownAnnouncement {...props} />,
+  },
+
+  CountdownLiveEvent: {
+    type: "CountdownLiveEvent",
+    label: "Countdown Live Event",
+    semantic: {
+      purpose:
+        "A countdown timer for live events with registration or join functionality.",
+      example: {
+        headline: "Live Webinar Starting Soon",
+        buttonText: "Reserve Your Spot",
+      },
+    },
+    defaultProps: {
+      badgeText: "LIVE EVENT",
+      headline: "Live Webinar Starting Soon",
+      description:
+        "Join thousands of entrepreneurs for this exclusive live training.",
+      buttonText: "Reserve Your Spot",
+      buttonHref: "#",
+      targetDate: new Date(Date.now() + 1000 * 60 * 60 * 2),
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge Text" },
+      headline: { type: "textarea", label: "Headline" },
+      description: { type: "textarea", label: "Description" },
+      buttonText: { type: "text", label: "Button Text" },
+      buttonHref: { type: "text", label: "Button Link" },
+      targetDate: { type: "text", label: "Target Date (ISO string or Date)" },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CountdownLiveEvent {...props} />,
+  },
+
+  CountdownOptIn: {
+    type: "CountdownOptIn",
+    label: "Countdown Opt-in",
+    semantic: {
+      purpose:
+        "A countdown timer with email opt-in form to capture leads before an event or deadline.",
+      example: {
+        title: "Don't Miss Out",
+        subtitle: "Limited time offer ending soon",
+      },
+    },
+    defaultProps: {
+      title: "Don't Miss Out",
+      subtitle: "Limited time offer ending soon. Join our waitlist!",
+      callout: "⏰ Only 24 hours left!",
+      buttonText: "Join Waitlist",
+      inputPlaceholder: "Enter your email...",
+      targetDate: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      title: { type: "text", label: "Title" },
+      subtitle: { type: "textarea", label: "Subtitle" },
+      callout: { type: "text", label: "Callout Text" },
+      buttonText: { type: "text", label: "Button Text" },
+      inputPlaceholder: { type: "text", label: "Email Placeholder" },
+      targetDate: { type: "text", label: "Target Date (ISO string or Date)" },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CountdownOptIn {...props} />,
+  },
+
+  CountdownProgressBar: {
+    type: "CountdownProgressBar",
+    label: "Countdown Progress Bar",
+    semantic: {
+      purpose:
+        "A visual progress bar countdown showing time remaining with percentage completion.",
+      example: { headline: "Sale Ends In", targetDate: "2024-12-31T23:59:59" },
+    },
+    defaultProps: {
+      headline: "Sale Ends In",
+      targetDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "text", label: "Headline" },
+      targetDate: { type: "text", label: "Target Date (ISO string or Date)" },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CountdownProgressBar {...props} />,
+  },
+
+  // ── FAQ COMPONENTS ──────────────────────────────────────────────────────
+  FAQAccordion: {
+    type: "FAQAccordion",
+    label: "FAQ Accordion",
+    semantic: {
+      purpose:
+        "An expandable FAQ section with accordion-style questions and answers.",
+      example: {
+        title: "Frequently Asked Questions",
+        faqs: [{ question: "How does it work?", answer: "It's simple..." }],
+      },
+    },
+    defaultProps: {
+      badgeText: "FAQ's",
+      title: "Looking for answer?",
+      subtitle:
+        "Ship Beautiful Frontends Without the Overhead — Customizable, Scalable and Developer-Friendly UI Components.",
+      faqs: [
+        {
+          question: "How does it work?",
+          answer: "It's simple and straightforward. Just follow the steps.",
+        },
+        {
+          question: "Is it secure?",
+          answer: "Yes, we use industry-standard security measures.",
+        },
+        {
+          question: "Can I cancel anytime?",
+          answer: "Yes, you can cancel your subscription at any time.",
+        },
+      ],
+      className: "",
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      badgeText: { type: "text", label: "Badge Text" },
+      title: { type: "text", label: "Title" },
+      subtitle: { type: "textarea", label: "Subtitle" },
+      faqs: {
+        type: "array",
+        label: "FAQ Items",
+        arrayFields: {
+          question: { type: "text", label: "Question" },
+          answer: { type: "textarea", label: "Answer" },
+        },
+      },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <FAQAccordion {...props} />,
+  },
+
+  FAQGrid: {
+    type: "FAQGrid",
+    label: "FAQ Grid",
+    semantic: {
+      purpose:
+        "A grid layout FAQ section displaying questions and answers in a structured grid.",
+      example: {
+        title: "Common Questions",
+        faqs: [{ question: "What is this?", answer: "This is..." }],
+      },
+    },
+    defaultProps: {
+      title: "Frequently Asked Questions",
+      subtitle: "Find answers to the most common questions about our service.",
+      faqs: [
+        {
+          question: "What makes us different?",
+          answer: "We focus on quality and customer satisfaction.",
+        },
+        {
+          question: "How long does it take?",
+          answer: "Typically 2-4 weeks depending on complexity.",
+        },
+        {
+          question: "Do you offer support?",
+          answer: "Yes, we provide comprehensive support.",
+        },
+      ],
+      className: "",
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      title: { type: "text", label: "Title" },
+      subtitle: { type: "textarea", label: "Subtitle" },
+      faqs: {
+        type: "array",
+        label: "FAQ Items",
+        arrayFields: {
+          question: { type: "text", label: "Question" },
+          answer: { type: "textarea", label: "Answer" },
+        },
+      },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <FAQGrid {...props} />,
+  },
+
+  FAQWithImage: {
+    type: "FAQWithImage",
+    label: "FAQ with Image",
+    semantic: {
+      purpose: "An FAQ section with accompanying images for visual appeal.",
+      example: {
+        title: "Your Questions Answered",
+        imageUrl: "https://example.com/image.jpg",
+      },
+    },
+    defaultProps: {
+      title: "Frequently Asked Questions",
+      subtitle: "Everything you need to know about our service.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop",
+      faqs: [
+        {
+          question: "How do I get started?",
+          answer: "Simply sign up and follow the onboarding process.",
+        },
+        {
+          question: "What features are included?",
+          answer: "All features are included in your plan.",
+        },
+        {
+          question: "Can I upgrade later?",
+          answer: "Yes, you can upgrade at any time.",
+        },
+      ],
+      className: "",
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      title: { type: "text", label: "Title" },
+      subtitle: { type: "textarea", label: "Subtitle" },
+      imageUrl: { type: "image", label: "Image URL" },
+      faqs: {
+        type: "array",
+        label: "FAQ Items",
+        arrayFields: {
+          question: { type: "text", label: "Question" },
+          answer: { type: "textarea", label: "Answer" },
+        },
+      },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <FAQWithImage {...props} />,
+  },
+
+  // ── CTA COMPONENTS ──────────────────────────────────────────────────────
+  CTAHero: {
+    type: "CTAHero",
+    label: "CTA Hero",
+    semantic: {
+      purpose: "A prominent call-to-action section designed as a hero banner.",
+      example: { headline: "Ready to Get Started?", buttonText: "Start Now" },
+    },
+    defaultProps: {
+      headline: "Ready to Transform Your Business?",
+      subheadline: "Join thousands of companies already using our platform.",
+      buttonText: "Start Free Trial",
+      buttonHref: "#",
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
+      buttonText: { type: "text", label: "Button Text" },
+      buttonHref: { type: "text", label: "Button Link" },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CTAHero {...props} />,
+  },
+
+  CTASimple: {
+    type: "CTASimple",
+    label: "CTA Simple",
+    semantic: {
+      purpose: "A clean, minimal call-to-action section.",
+      example: { headline: "Get Started Today", buttonText: "Sign Up" },
+    },
+    defaultProps: {
+      headline: "Ready to Get Started?",
+      buttonText: "Get Started",
+      buttonHref: "#",
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
+      buttonText: { type: "text", label: "Button Text" },
+      buttonHref: { type: "text", label: "Button Link" },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CTASimple {...props} />,
+  },
+
+  CTAWithAvatars: {
+    type: "CTAWithAvatars",
+    label: "CTA with Avatars",
+    semantic: {
+      purpose: "A call-to-action section with user avatars for social proof.",
+      example: { headline: "Join 10,000+ Users", buttonText: "Join Now" },
+    },
+    defaultProps: {
+      headline: "Join Thousands of Happy Customers",
+      subheadline: "See what others are saying about our platform.",
+      buttonText: "Start Your Free Trial",
+      buttonHref: "#",
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
+      buttonText: { type: "text", label: "Button Text" },
+      buttonHref: { type: "text", label: "Button Link" },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CTAWithAvatars {...props} />,
+  },
+
+  CTAWithBackground: {
+    type: "CTAWithBackground",
+    label: "CTA with Background",
+    semantic: {
+      purpose: "A call-to-action section with a background image or pattern.",
+      example: {
+        headline: "Ready to Change Everything?",
+        buttonText: "Get Started",
+      },
+    },
+    defaultProps: {
+      headline: "Ready to Transform Your Workflow?",
+      subheadline: "Experience the difference with our innovative platform.",
+      buttonText: "Start Free Trial",
+      buttonHref: "#",
+      backgroundImageUrl:
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "textarea", label: "Headline" },
+      subheadline: { type: "textarea", label: "Sub-headline" },
+      buttonText: { type: "text", label: "Button Text" },
+      buttonHref: { type: "text", label: "Button Link" },
+      backgroundImageUrl: { type: "image", label: "Background Image" },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <CTAWithBackground {...props} />,
+  },
 };

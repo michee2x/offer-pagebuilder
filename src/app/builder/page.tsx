@@ -315,6 +315,7 @@ export default function BuilderPage() {
               {/* Device mode toggles */}
               <div className="flex items-center bg-muted/30 rounded-md border border-border mr-2 p-0.5">
                 <button
+                  type="button"
                   title="Desktop"
                   onClick={() => setDeviceMode('desktop')}
                   className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'desktop' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
@@ -322,6 +323,7 @@ export default function BuilderPage() {
                   <Monitor className="h-3.5 w-3.5" />
                 </button>
                 <button
+                  type="button"
                   title="Tablet"
                   onClick={() => setDeviceMode('tablet')}
                   className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'tablet' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
@@ -329,6 +331,7 @@ export default function BuilderPage() {
                   <Tablet className="h-3.5 w-3.5" />
                 </button>
                 <button
+                  type="button"
                   title="Mobile"
                   onClick={() => setDeviceMode('mobile')}
                   className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'mobile' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
@@ -341,10 +344,10 @@ export default function BuilderPage() {
               <div className="w-px h-5 bg-border mx-1" />
 
               {/* Undo / Redo */}
-              <button title="Undo" onClick={undo} disabled={past.length === 0} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              <button type="button" title="Undo" onClick={undo} disabled={past.length === 0} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 <Undo2 className="h-4 w-4" />
               </button>
-              <button title="Redo" onClick={redo} disabled={future.length === 0} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              <button type="button" title="Redo" onClick={redo} disabled={future.length === 0} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 <Redo2 className="h-4 w-4" />
               </button>
 
@@ -355,12 +358,12 @@ export default function BuilderPage() {
               <ThemeSwitcher />
 
               {/* Preview */}
-              <button title="Preview page" onClick={() => setIsPreviewMode(true)} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+              <button type="button" title="Preview page" onClick={() => setIsPreviewMode(true)} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
                 <Eye className="w-4 h-4" />
               </button>
 
               {/* AI Build */}
-              <button title="AI Build: Generate page with AI" onClick={handleGeneratePage} disabled={isGenerating} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              <button type="button" title="AI Build: Generate page with AI" onClick={handleGeneratePage} disabled={isGenerating} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
               </button>
 
@@ -369,6 +372,7 @@ export default function BuilderPage() {
 
               {/* Save */}
               <button
+                type="button"
                 title={!pageId ? 'Save draft' : hasUnsavedChanges ? 'Save changes' : 'All changes saved'}
                 onClick={handleSave}
                 disabled={isSaving || (pageId !== null && !hasUnsavedChanges)}
@@ -379,6 +383,7 @@ export default function BuilderPage() {
               
               {/* Publish CTA — kept as a labeled button since it's the primary action */}
               <button
+                type="button"
                 onClick={() => {
                   if (!pageId) {
                     toast.error('Please save your draft first before publishing.');

@@ -1,92 +1,129 @@
-import React from 'react';
-import { Card, CardContent, Avatar, AvatarFallback } from '@/components/micro';
+"use client";
+
+import React from "react";
+import { cn } from "@/lib/utils";
 
 export interface TestimonialItem {
-  quote: string;
+  id: number;
+  text: string;
   name: string;
-  role?: string;
-  stars: number;
+  role: string;
+  image: string;
 }
 
 export interface TestimonialsGridProps {
-  sectionTitle: string;
   testimonials: TestimonialItem[];
+  title?: string;
+  subtitle?: string;
+  className?: string;
   elementStyles?: Record<string, React.CSSProperties>;
 }
 
 export function TestimonialsGrid({
-  sectionTitle,
-  testimonials = [],
+  testimonials,
+  title = "Our Testimonials",
+  subtitle = "See what our customers are saying as they build and launch projects at lightning speed.",
+  className,
   elementStyles = {},
 }: TestimonialsGridProps) {
   return (
-    <section className="w-full py-24 px-4 md:px-8 bg-muted/30 text-foreground border-b border-border overflow-hidden">
-      <div className="max-w-6xl mx-auto">
+    <section
+      className={cn(
+        "py-16 px-4 md:px-8 flex items-center justify-center bg-background",
+        className,
+      )}
+      style={elementStyles.section}
+    >
+      <div className="max-w-6xl w-full">
+        <div className="mb-12" style={elementStyles.header}>
+          <h1
+            className="text-4xl font-medium text-foreground text-center md:text-start mb-4"
+            style={elementStyles.title}
+          >
+            {title}
+          </h1>
+          <p
+            className="text-muted-foreground text-sm/6 text-center md:text-start mx-auto md:mx-0 max-w-md"
+            style={elementStyles.subtitle}
+          >
+            {subtitle}
+          </p>
+        </div>
 
-        <h2
-          className="text-4xl md:text-5xl font-bold mb-16 text-center"
-          data-field="sectionTitle"
-          style={elementStyles?.['sectionTitle']}
-        >
-          {sectionTitle}
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
-            <Card
-              key={i}
-              className="bg-card border border-border hover:-translate-y-1 hover:shadow-xl transition-all duration-300 animate-fade-in-up"
-              style={{ animationDelay: `${i * 120}ms` }}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {testimonials.map((testimonial, index) => (
+            <div
+              key={testimonial.id}
+              className={cn(
+                "border border-border rounded-2xl p-6 hover:border-border/80 transition-colors bg-card",
+                index === 0
+                  ? "md:col-span-2"
+                  : index === 1
+                    ? "md:col-span-1"
+                    : index === 2
+                      ? "md:col-span-1"
+                      : "md:col-span-2",
+              )}
+              style={elementStyles.card}
             >
-              <CardContent className="p-8 flex flex-col h-full gap-4">
-
-                {/* Stars */}
-                <div className="flex gap-1">
-                  {Array.from({ length: Math.min(t.stars || 5, 5) }).map((_, s) => (
-                    <svg key={s} className="w-4 h-4 fill-primary text-primary" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              <div className="flex mb-4" style={elementStyles.stars}>
+                {Array(5)
+                  .fill(0)
+                  .map((_, i) => (
+                    <svg
+                      key={i}
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="lucide lucide-star text-transparent fill-[#FF8F20]"
+                      aria-hidden="true"
+                    >
+                      <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path>
                     </svg>
                   ))}
+              </div>
+
+              <p
+                className={cn(
+                  "text-muted-foreground text-sm leading-relaxed",
+                  index === 0 || index === 3 ? "max-w-xl mb-14" : "mb-8",
+                )}
+                style={elementStyles.text}
+              >
+                {testimonial.text}
+              </p>
+
+              <div
+                className="flex items-center gap-3"
+                style={elementStyles.author}
+              >
+                <img
+                  src={testimonial.image}
+                  alt={testimonial.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div className="flex flex-col gap-1">
+                  <h3
+                    className="text-foreground text-sm font-medium"
+                    style={elementStyles.authorName}
+                  >
+                    {testimonial.name}
+                  </h3>
+                  <p
+                    className="text-muted-foreground text-sm"
+                    style={elementStyles.authorRole}
+                  >
+                    {testimonial.role}
+                  </p>
                 </div>
-
-                {/* Quote */}
-                <p
-                  className="text-base italic text-muted-foreground leading-relaxed flex-1"
-                  data-field={`testimonials.${i}.quote`}
-                  style={elementStyles?.[`testimonials.${i}.quote`]}
-                >
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-
-                {/* Author */}
-                <div className="flex items-center gap-3 pt-4 border-t border-border mt-auto">
-                  <Avatar>
-                    <AvatarFallback className="bg-primary text-primary-foreground font-bold text-sm">
-                      {t.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h4
-                      className="font-semibold text-sm"
-                      data-field={`testimonials.${i}.name`}
-                      style={elementStyles?.[`testimonials.${i}.name`]}
-                    >
-                      {t.name}
-                    </h4>
-                    {t.role && (
-                      <p
-                        className="text-xs text-muted-foreground"
-                        data-field={`testimonials.${i}.role`}
-                        style={elementStyles?.[`testimonials.${i}.role`]}
-                      >
-                        {t.role}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       </div>
