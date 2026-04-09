@@ -68,8 +68,6 @@ EVERY page you generate MUST follow this rule:
 5. For the Downsell page ("/downsell"), it MUST contain exactly one component between Header and Footer: the \`DownsellHero\`.
 6. For the Thank You page ("/thankyou"), it MUST contain exactly one component between Header and Footer: the \`ThankYouHero\`. Do NOT put sales letters or complex features on the Thank You page.
 
-If you generate a FeatureLogos component, populate its "logos" array using real, highly recognizable companies related to the offer. For each logo, provide the exact web domain (e.g., "stripe.com", "shopify.com", "slack.com").
-
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ANCHOR NAVIGATION — CRITICAL
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -77,7 +75,6 @@ The FeatureHeader uses anchor links to scroll to sections on the page.
 Each section component you place MUST be given a "sectionId" prop matching the link.
 Follow this exact mapping:
   - Any Hero component (FeatureHero, HeroCenter)          → sectionId: "hero"
-  - FeatureLogos                                          → sectionId: "logos"
   - FeaturePricing                                        → sectionId: "pricing"
   - FeatureFAQ                                            → sectionId: "faq"
   - FeatureTestimonials                                   → sectionId: "testimonials"

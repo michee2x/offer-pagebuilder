@@ -12,7 +12,6 @@ import { HeyMessageFooter } from "../components/macro/Footer";
 // Feature Components
 import { FeatureHeader } from "../components/macro/Header";
 import { FeatureHero, HeroCenter } from "../components/macro/Hero";
-import { FeatureLogos } from "../components/macro/Logos";
 import { FeatureTestimonials } from "../components/macro/Testimonials";
 import { FeatureFAQ } from "../components/macro/FAQ";
 import { FeaturePricing } from "../components/macro/Pricing";
@@ -33,8 +32,6 @@ import { CountdownOptIn } from "../components/macro/Countdown/CountdownOptIn";
 import { CountdownProgressBar } from "../components/macro/Countdown/CountdownProgressBar";
 
 // Blog Components
-import { FeatureBlog } from "../components/macro/Blog/FeatureBlog";
-
 // FAQ Components
 import { FAQAccordion } from "../components/macro/FAQ/FAQAccordion";
 import { FAQGrid } from "../components/macro/FAQ/FAQGrid";
@@ -206,7 +203,6 @@ export type ComponentType =
   | "FeatureHeader"
   | "FeatureHero"
   | "HeroCenter"
-  | "FeatureLogos"
   | "FeatureTestimonials"
   | "FeatureFAQ"
   | "FeaturePricing"
@@ -222,7 +218,6 @@ export type ComponentType =
   | "CountdownLiveEvent"
   | "CountdownOptIn"
   | "CountdownProgressBar"
-  | "FeatureBlog"
   | "FAQAccordion"
   | "FAQGrid"
   | "FAQWithImage"
@@ -1310,28 +1305,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     render: (props: any) => <FeatureSplit {...props} />,
   },
 
-  FeatureLogos: {
-    type: "FeatureLogos",
-    label: "Feature Logos",
-    semantic: {
-      purpose: "A grid of faint logos for social proof.",
-      example: { headline: "TRUSTED BY INNOVATIVE TEAMS" },
-    },
-    defaultProps: { headline: "TRUSTED BY INNOVATIVE TEAMS" },
-    fields: {
-      sectionId: { type: "text", label: "Section ID (Anchor link)" },
-      headline: { type: "text", label: "Headline" },
-      logos: {
-        type: "array",
-        label: "Logos",
-        arrayFields: {
-          name: { type: "text", label: "Company Name" },
-          domain: { type: "text", label: "Company Domain (e.g. stripe.com)" },
-        },
-      },
-    },
-    render: (props: any) => <FeatureLogos {...props} />,
-  },
+  
 
   FeatureTestimonials: {
     type: "FeatureTestimonials",
@@ -1784,71 +1758,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   },
 
   // ── BLOG COMPONENTS ───────────────────────────────────────────────────────
-  FeatureBlog: {
-    type: "FeatureBlog",
-    label: "Blog Section",
-    semantic: {
-      purpose:
-        "A blog/articles section displaying featured content with images and categories.",
-      example: {
-        headline: "Latest Insights",
-        articles: [{ title: "How to Scale", category: "Growth" }],
-      },
-    },
-    defaultProps: {
-      badgeText: "FEATURE INSIGHTS",
-      headline: "Learn to make better decisions",
-      subheadline:
-        "Explore our industry research, platform updates, and best practices for scaling operations.",
-      articles: [
-        {
-          id: "1",
-          category: "Growth",
-          title: "How to Scale Your Business 10x",
-          imageUrl:
-            "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop",
-          linkUrl: "#",
-        },
-        {
-          id: "2",
-          category: "Strategy",
-          title: "Building a Winning Team Culture",
-          imageUrl:
-            "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&auto=format&fit=crop",
-          linkUrl: "#",
-        },
-        {
-          id: "3",
-          category: "Operations",
-          title: "Optimizing Your Workflow",
-          imageUrl:
-            "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop",
-          linkUrl: "#",
-        },
-      ],
-      className: "",
-      style: {},
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID (Anchor link)" },
-      badgeText: { type: "text", label: "Badge Text" },
-      headline: { type: "textarea", label: "Headline" },
-      subheadline: { type: "textarea", label: "Sub-headline" },
-      articles: {
-        type: "array",
-        label: "Articles",
-        arrayFields: {
-          category: { type: "text", label: "Category" },
-          title: { type: "text", label: "Title" },
-          imageUrl: { type: "image", label: "Image URL" },
-          linkUrl: { type: "text", label: "Link URL" },
-        },
-      },
-      className: { type: "text", label: "Tailwind Classes" },
-    },
-    render: (props: any) => <FeatureBlog {...props} />,
-  },
+  
 
   // ── COUNTDOWN COMPONENTS ───────────────────────────────────────────────────
   CountdownLaunch: {
