@@ -2,7 +2,7 @@
 // OfferIQ — AI Prompt Builders (Call 1, 2, 3)
 // Each builder returns { system, user } strings ready for the AI SDK
 // ─────────────────────────────────────────────────────────────────────────────
-import type { OfferFormData, Call1Output, Call2Output } from './offer-types';
+import type { OfferFormData, Call2Output } from './offer-types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -173,7 +173,7 @@ CRITICAL STANDARDS:
 * Name things. Name the positioning category. Name the persona's fear. Name the specific copy angle.
 * Where the structural analysis (Call 1) identified weaknesses, your narratives must address them — not ignore them or soften them.`;
 
-export function buildCall2UserPrompt(form: OfferFormData, call1: Call1Output): string {
+export function buildCall2UserPrompt(form: OfferFormData, call1: Record<string, string>): string {
   return `You have access to the structural intelligence already generated for this offer. Now produce the strategic intelligence layers that require deep analysis.
 
 === ORIGINAL OFFER INPUT ===
@@ -302,7 +302,7 @@ Paragraph 8: THE CRITICAL WARNING — the single most dangerous mistake for this
 
 export const COPY_SYSTEM = `You are OfferIQ Copy Engine. You produce world-class, conversion-optimized sales copy for all pages of a marketing funnel. You write at the level of a $10,000/day copywriter who has written copy for 200+ successful launches. Every word is purposeful. Every line moves the reader closer to a decision. You write in the voice and language of the buyer, not the seller.`;
 
-export function buildCopyUserPrompt(form: OfferFormData, call1: Call1Output, call2: Call2Output): string {
+export function buildCopyUserPrompt(form: OfferFormData, call1: Record<string, string>, call2: Call2Output): string {
   return `Generate complete sales copy for all pages of this funnel. Use the intelligence analysis below as your foundation. Every section of copy must be consistent with the strategic analysis — especially the persona psychology, hooks, and messaging angles.
 
 === OFFER ===

@@ -293,6 +293,7 @@ export default function CopyPage({ params }: { params: Promise<{ funnelId: strin
   const [funnelName, setFunnelName] = useState('');
   const [copy, setCopy] = useState<CopyOutput | null>(null);
   const [activePage, setActivePage] = useState<PageKey>('lead_capture');
+  const [intelligenceComplete, setIntelligenceComplete] = useState(false);
 
   // ── Load copy from DB or trigger generation ───────────────────────────────
 
@@ -305,8 +306,15 @@ export default function CopyPage({ params }: { params: Promise<{ funnelId: strin
 
       if (funnel.blocks?.copy_complete && funnel.blocks?.copy) {
         setCopy(funnel.blocks.copy);
-      } else {
-        // Trigger copy generation
+      }
+      
+      // Check if intelligence is complete
+      const intelligence = funnel.blocks?.intelligence;
+      const isComplete = intelligence?.call1_complete && intelligence?.call2_complete;
+      setIntelligenceComplete(!!isComplete);
+      
+      if (!funnel.blocks?.copy_complete && isComplete) {
+        // Only auto-generate if intelligence is complete
         await generateCopy();
       }
     }
@@ -330,7 +338,13 @@ export default function CopyPage({ params }: { params: Promise<{ funnelId: strin
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ funnelId }),
       });
-      if (!res.ok || !res.body) throw new Error('Copy generation failed');
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `HTTP ${res.status}`);
+      }
+
+      if (!res.body) throw new Error('No response body');
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -342,7 +356,8 @@ export default function CopyPage({ params }: { params: Promise<{ funnelId: strin
       }
       setCopy(parseCopyOutput(accumulated));
     } catch (e: any) {
-      toast.error('Copy generation failed. Please try again.');
+      toast.error(`Copy generation failed: ${e.message}`);
+      console.error('Copy generation error:', e);
     } finally {
       clearInterval(interval);
       setGenStep(GEN_STEPS.length);
@@ -486,11 +501,25 @@ export default function CopyPage({ params }: { params: Promise<{ funnelId: strin
               ) : (
                 <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
                   <FileText className="w-8 h-8 opacity-40" />
-                  <p className="text-sm">No copy yet.</p>
-                  <Button size="sm" onClick={generateCopy} className="gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Generate Copy
-                  </Button>
+                  <p className="text-sm">
+                    {intelligenceComplete ? 'No copy yet.' : 'Complete intelligence analysis first.'}
+                  </p>
+                  {intelligenceComplete && (
+                    <Button size="sm" onClick={generateCopy} className="gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Generate Copy
+                    </Button>
+                  )}
+                  {!intelligenceComplete && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => router.push(`/intelligence/${funnelId}`)} 
+                      className="gap-1.5"
+                    >
+                      <ArrowRight className="w-3.5 h-3.5" />
+                      Go to Intelligence
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

@@ -3,7 +3,7 @@ import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import { CALL2_SYSTEM, buildCall2UserPrompt } from '@/lib/offer-prompts';
 import { parseCall2Output } from '@/lib/offer-parser';
-import type { OfferFormData, Call1Output } from '@/lib/offer-types';
+import type { OfferFormData } from '@/lib/offer-types';
 
 export const maxDuration = 180;
 
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   let funnelId: string;
   let formData: OfferFormData;
-  let call1: Call1Output;
+  let call1: Record<string, string>;
 
   try {
     const body = await req.json();

@@ -20,6 +20,7 @@ export async function POST(req: Request) {
 
   let formData: OfferFormData;
   let existingFunnelId: string | undefined;
+  let workspaceId: string | undefined;
 
   const session = await getSession();
   if (!session || !session.user?.id) {
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     formData = body.formData;
     existingFunnelId = body.funnelId;
+    workspaceId = body.workspaceId;
   } catch {
     return Response.json({ error: 'Invalid request body' }, { status: 400 });
   }
@@ -38,22 +40,28 @@ export async function POST(req: Request) {
   let funnelId = existingFunnelId;
 
   if (!funnelId) {
+    const funnelData: any = {
+      name: formData.field_1_name || 'Untitled Funnel',
+      user_id: session.user.id,
+      blocks: {
+        intelligence: {
+          raw_input: formData,
+          call1_complete: false,
+          call2_complete: false,
+        },
+        pages: {
+          '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] },
+        },
+      },
+    };
+
+    if (workspaceId) {
+      funnelData.workspace_id = workspaceId;
+    }
+
     const { data, error } = await supabaseAdmin
       .from('builder_pages')
-      .insert({
-        name: formData.field_1_name || 'Untitled Funnel',
-        user_id: session.user.id,
-        blocks: {
-          intelligence: {
-            raw_input: formData,
-            call1_complete: false,
-            call2_complete: false,
-          },
-          pages: {
-            '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] },
-          },
-        },
-      })
+      .insert(funnelData)
       .select('id')
       .single();
 

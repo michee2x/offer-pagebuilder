@@ -1,69 +1,127 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import React, { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
-  Zap, CheckCircle2, Loader2, Globe, FileText, Video, PenLine,
-  ChevronRight, ArrowRight, X,
-} from 'lucide-react';
-import type { OfferFormData, TrafficChannel, OfferFormat, CurrencyCode } from '@/lib/offer-types';
+  Zap,
+  CheckCircle2,
+  Loader2,
+  Globe,
+  FileText,
+  Video,
+  PenLine,
+  ChevronRight,
+  ArrowRight,
+  X,
+} from "lucide-react";
+import type {
+  OfferFormData,
+  TrafficChannel,
+  OfferFormat,
+  CurrencyCode,
+} from "@/lib/offer-types";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const OFFER_FORMATS: { value: OfferFormat; label: string }[] = [
-  { value: 'course', label: 'Online Course' },
-  { value: 'coaching', label: 'Coaching / Mentorship' },
-  { value: 'consulting', label: 'Consulting / Done-For-You' },
-  { value: 'agency', label: 'Agency / Service' },
-  { value: 'ebook', label: 'Ebook / Digital Download' },
-  { value: 'membership', label: 'Membership / Community' },
-  { value: 'saas', label: 'SaaS / Software' },
-  { value: 'physical', label: 'Physical Product / E-commerce' },
-  { value: 'affiliate', label: 'Affiliate / Lead Gen' },
-  { value: 'local', label: 'Local Business' },
+  { value: "course", label: "Online Course" },
+  { value: "coaching", label: "Coaching / Mentorship" },
+  { value: "consulting", label: "Consulting / Done-For-You" },
+  { value: "agency", label: "Agency / Service" },
+  { value: "ebook", label: "Ebook / Digital Download" },
+  { value: "membership", label: "Membership / Community" },
+  { value: "saas", label: "SaaS / Software" },
+  { value: "physical", label: "Physical Product / E-commerce" },
+  { value: "affiliate", label: "Affiliate / Lead Gen" },
+  { value: "local", label: "Local Business" },
 ];
 
-const CURRENCIES: CurrencyCode[] = ['USD', 'GBP', 'EUR', 'AUD', 'CAD', 'NZD', 'ZAR', 'INR', 'NGN', 'GHS'];
+const CURRENCIES: CurrencyCode[] = [
+  "USD",
+  "GBP",
+  "EUR",
+  "AUD",
+  "CAD",
+  "NZD",
+  "ZAR",
+  "INR",
+  "NGN",
+  "GHS",
+];
 
 const TRAFFIC_CHANNELS: TrafficChannel[] = [
-  'Meta Ads', 'Google Ads', 'YouTube Ads', 'TikTok Ads', 'LinkedIn Ads',
-  'Email List', 'Organic Social', 'SEO / Blog', 'Podcast', "Haven't started yet",
+  "Meta Ads",
+  "Google Ads",
+  "YouTube Ads",
+  "TikTok Ads",
+  "LinkedIn Ads",
+  "Email List",
+  "Organic Social",
+  "SEO / Blog",
+  "Podcast",
+  "Haven't started yet",
 ];
 
 const PROCESSING_STEPS = [
-  { label: 'Extracting offer signals', sub: 'Parsing input for key conversion data' },
-  { label: 'Mapping target persona', sub: 'Demographics & buying triggers' },
-  { label: 'Analysing pain points & hooks', sub: 'Identifying conversion angles' },
-  { label: 'Designing revenue architecture', sub: 'Pricing, upsells, funnel blueprint' },
-  { label: 'Generating Traffic Intelligence', sub: 'Ad copy, scripts, media buying strategy' },
-  { label: 'Calculating Funnel Health Score', sub: 'Leakage detection & optimisation map' },
+  {
+    label: "Extracting offer signals",
+    sub: "Parsing input for key conversion data",
+  },
+  { label: "Mapping target persona", sub: "Demographics & buying triggers" },
+  {
+    label: "Analysing pain points & hooks",
+    sub: "Identifying conversion angles",
+  },
+  {
+    label: "Designing revenue architecture",
+    sub: "Pricing, upsells, funnel blueprint",
+  },
+  {
+    label: "Generating Traffic Intelligence",
+    sub: "Ad copy, scripts, media buying strategy",
+  },
+  {
+    label: "Calculating Funnel Health Score",
+    sub: "Leakage detection & optimisation map",
+  },
 ];
 
 const EMPTY_FORM: OfferFormData = {
-  field_1_name: '', field_1_format: 'course',
-  field_2_outcome: '', field_3_persona: '',
-  field_4_price: '', field_4_currency: 'USD', field_4_upsell: '',
-  field_5_proof: '', field_6_mechanism: '',
-  field_7_channels: [], field_7_detail: '', field_8_challenge: '',
+  field_1_name: "",
+  field_1_format: "course",
+  field_2_outcome: "",
+  field_3_persona: "",
+  field_4_price: "",
+  field_4_currency: "USD",
+  field_4_upsell: "",
+  field_5_proof: "",
+  field_6_mechanism: "",
+  field_7_channels: [],
+  field_7_detail: "",
+  field_8_challenge: "",
 };
 
 const WIZARD_STEPS = [
-  { id: 1, label: 'Upload', status: 'active' as const },
-  { id: 2, label: 'Intelligence', status: 'pending' as const },
-  { id: 3, label: 'Copy', status: 'pending' as const },
-  { id: 4, label: 'Build Pages', status: 'pending' as const },
-  { id: 5, label: 'Publish', status: 'pending' as const },
+  { id: 1, label: "Upload", status: "active" as const },
+  { id: 2, label: "Intelligence", status: "pending" as const },
+  { id: 3, label: "Copy", status: "pending" as const },
+  { id: 4, label: "Build Pages", status: "pending" as const },
+  { id: 5, label: "Publish", status: "pending" as const },
 ];
 
 // ─── Processing Overlay ───────────────────────────────────────────────────────
@@ -102,7 +160,9 @@ function ProcessingOverlay({
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="text-right text-xs text-muted-foreground mb-6">{progress}%</div>
+        <div className="text-right text-xs text-muted-foreground mb-6">
+          {progress}%
+        </div>
 
         {/* Steps */}
         <div className="divide-y divide-border rounded-xl border border-border overflow-hidden bg-card">
@@ -113,17 +173,17 @@ function ProcessingOverlay({
               <div
                 key={i}
                 className={cn(
-                  'flex items-center gap-3 px-4 py-3 transition-colors',
-                  isDone && 'bg-emerald-500/5',
-                  isRunning && 'bg-primary/5',
+                  "flex items-center gap-3 px-4 py-3 transition-colors",
+                  isDone && "bg-emerald-500/5",
+                  isRunning && "bg-primary/5",
                 )}
               >
                 <div
                   className={cn(
-                    'w-6 h-6 rounded-full flex items-center justify-center shrink-0',
-                    isDone && 'bg-emerald-500/15 text-emerald-400',
-                    isRunning && 'bg-primary/15 text-primary',
-                    !isDone && !isRunning && 'bg-muted text-muted-foreground',
+                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
+                    isDone && "bg-emerald-500/15 text-emerald-400",
+                    isRunning && "bg-primary/15 text-primary",
+                    !isDone && !isRunning && "bg-muted text-muted-foreground",
                   )}
                 >
                   {isDone ? (
@@ -137,18 +197,22 @@ function ProcessingOverlay({
                 <div className="min-w-0">
                   <div
                     className={cn(
-                      'text-sm font-medium',
-                      isDone && 'text-emerald-400',
-                      isRunning && 'text-foreground',
-                      !isDone && !isRunning && 'text-muted-foreground',
+                      "text-sm font-medium",
+                      isDone && "text-emerald-400",
+                      isRunning && "text-foreground",
+                      !isDone && !isRunning && "text-muted-foreground",
                     )}
                   >
                     {step.label}
                   </div>
-                  <div className="text-xs text-muted-foreground truncate">{step.sub}</div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {step.sub}
+                  </div>
                 </div>
                 {isDone && (
-                  <span className="ml-auto text-xs text-muted-foreground shrink-0">Done</span>
+                  <span className="ml-auto text-xs text-muted-foreground shrink-0">
+                    Done
+                  </span>
                 )}
               </div>
             );
@@ -161,40 +225,93 @@ function ProcessingOverlay({
 
 // ─── Input method tabs ────────────────────────────────────────────────────────
 
-type InputMethod = 'manual' | 'url' | 'pdf' | 'video';
+type InputMethod = "manual" | "url" | "pdf" | "video";
 
-const INPUT_METHODS: { id: InputMethod; label: string; icon: React.ReactNode; badge?: string }[] = [
-  { id: 'manual', label: 'Manual Entry', icon: <PenLine className="w-4 h-4" /> },
-  { id: 'url', label: 'Website URL', icon: <Globe className="w-4 h-4" />, badge: 'Soon' },
-  { id: 'pdf', label: 'PDF / Doc', icon: <FileText className="w-4 h-4" />, badge: 'Soon' },
-  { id: 'video', label: 'Video URL', icon: <Video className="w-4 h-4" />, badge: 'Soon' },
+const INPUT_METHODS: {
+  id: InputMethod;
+  label: string;
+  icon: React.ReactNode;
+  badge?: string;
+}[] = [
+  {
+    id: "manual",
+    label: "Manual Entry",
+    icon: <PenLine className="w-4 h-4" />,
+  },
+  {
+    id: "url",
+    label: "Website URL",
+    icon: <Globe className="w-4 h-4" />,
+    badge: "Soon",
+  },
+  {
+    id: "pdf",
+    label: "PDF / Doc",
+    icon: <FileText className="w-4 h-4" />,
+    badge: "Soon",
+  },
+  {
+    id: "video",
+    label: "Video URL",
+    icon: <Video className="w-4 h-4" />,
+    badge: "Soon",
+  },
 ];
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function OnboardPage() {
   const router = useRouter();
-  const [method, setMethod] = useState<InputMethod>('manual');
+  const searchParams = useSearchParams();
+  const workspaceId = searchParams.get("workspace");
+  const [method, setMethod] = useState<InputMethod>("manual");
   const [form, setForm] = useState<OfferFormData>(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [processingStep, setProcessingStep] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [errors, setErrors] = useState<Partial<Record<keyof OfferFormData, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof OfferFormData, string>>
+  >({});
 
   // ── Helpers ──
 
   function set<K extends keyof OfferFormData>(key: K, value: OfferFormData[K]) {
-    setForm(prev => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors(prev => ({ ...prev, [key]: undefined }));
+    setForm((prev) => ({ ...prev, [key]: value }));
+    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+  }
+
+  function fillDemoData() {
+    setForm({
+      field_1_name: "Creator Launch Lab",
+      field_1_format: "course",
+      field_2_outcome:
+        "Helps creators and coaches launch a premium group program and enroll 10 paying clients in 90 days without paid ads.",
+      field_3_persona:
+        "Content creators, coaches, and consultants with 5k+ followers who struggle to turn their audience into consistent paying clients.",
+      field_4_price: "1497",
+      field_4_currency: "USD",
+      field_4_upsell:
+        "VIP Launch Support at $4,997 with 4 live strategy calls and offer refinement.",
+      field_5_proof:
+        "Helped 27 founders launch first 5-figure offers. Average launch revenue $98k. 3 case studies showing 3x ROI in 60 days.",
+      field_6_mechanism:
+        "The Launch Clarity Ladder™ — a 5-step system that turns your existing content into a high-converting offer, messaging map, and launch funnel in 30 days.",
+      field_7_channels: ["Email List", "Organic Social"],
+      field_7_detail:
+        "Weekly LinkedIn and Instagram posts, 2 newsletter sends per week to 1,800 subscribers, and guest podcast appearances twice a month.",
+      field_8_challenge:
+        "Need a repeatable launch framework that converts audience into buyers without burning out on ads or content.",
+    });
+    setErrors({});
   }
 
   function toggleChannel(ch: TrafficChannel) {
-    setForm(prev => {
+    setForm((prev) => {
       const has = prev.field_7_channels.includes(ch);
       return {
         ...prev,
         field_7_channels: has
-          ? prev.field_7_channels.filter(c => c !== ch)
+          ? prev.field_7_channels.filter((c) => c !== ch)
           : [...prev.field_7_channels, ch],
       };
     });
@@ -202,12 +319,13 @@ export default function OnboardPage() {
 
   function validate(): boolean {
     const e: typeof errors = {};
-    if (!form.field_1_name.trim()) e.field_1_name = 'Required';
-    if (!form.field_2_outcome.trim()) e.field_2_outcome = 'Required';
-    if (!form.field_3_persona.trim()) e.field_3_persona = 'Required';
-    if (!form.field_4_price.trim()) e.field_4_price = 'Required';
-    if (!form.field_6_mechanism.trim()) e.field_6_mechanism = 'Required';
-    if (form.field_7_channels.length === 0) e.field_7_channels = 'Select at least one channel';
+    if (!form.field_1_name.trim()) e.field_1_name = "Required";
+    if (!form.field_2_outcome.trim()) e.field_2_outcome = "Required";
+    if (!form.field_3_persona.trim()) e.field_3_persona = "Required";
+    if (!form.field_4_price.trim()) e.field_4_price = "Required";
+    if (!form.field_6_mechanism.trim()) e.field_6_mechanism = "Required";
+    if (form.field_7_channels.length === 0)
+      e.field_7_channels = "Select at least one channel";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -234,7 +352,9 @@ export default function OnboardPage() {
       const prevProgress = progress;
       function tick() {
         const ratio = Math.min((Date.now() - start) / dur, 1);
-        setProgress(Math.round(prevProgress + (targetProgress - prevProgress) * ratio));
+        setProgress(
+          Math.round(prevProgress + (targetProgress - prevProgress) * ratio),
+        );
         if (ratio < 1) requestAnimationFrame(tick);
         else {
           stepIdx++;
@@ -246,14 +366,14 @@ export default function OnboardPage() {
     advanceStep();
 
     try {
-      const res = await fetch('/api/offer-intelligence/call1', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ formData: form }),
+      const res = await fetch("/api/offer-intelligence/call1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ formData: form, workspaceId }),
       });
 
-      const funnelId = res.headers.get('X-Funnel-Id');
-      if (!funnelId) throw new Error('No funnel ID returned');
+      const funnelId = res.headers.get("X-Funnel-Id");
+      if (!funnelId) throw new Error("No funnel ID returned");
 
       // Drain the stream (progress bar will finish on redirect)
       if (res.body) {
@@ -266,7 +386,7 @@ export default function OnboardPage() {
 
       setProgress(100);
       setProcessingStep(PROCESSING_STEPS.length);
-      await new Promise(r => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 600));
       router.push(`/intelligence/${funnelId}`);
     } catch (err: any) {
       console.error(err);
@@ -281,16 +401,21 @@ export default function OnboardPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
+      <div
+        className="flex-1 flex flex-col min-w-0 overflow-hidden"
+        style={{ marginLeft: "56px" }}
+      >
         <Topbar
-          breadcrumbs={[{ label: 'Funnels', href: '/' }, { label: 'New Funnel' }]}
+          breadcrumbs={[
+            { label: "Funnels", href: "/" },
+            { label: "New Funnel" },
+          ]}
           steps={WIZARD_STEPS}
         />
 
         {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-2xl mx-auto px-6 py-10">
-
             {/* Header */}
             <div className="mb-8 text-center">
               <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3 py-1 text-xs font-semibold text-primary mb-3">
@@ -300,23 +425,33 @@ export default function OnboardPage() {
               <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">
                 Tell us about your offer
               </h1>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
-                Give OfferIQ the signal it needs to build your Revenue Blueprint. The more specific you are, the sharper the intelligence.
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto mb-4">
+                Give OfferIQ the signal it needs to build your Revenue
+                Blueprint. The more specific you are, the sharper the
+                intelligence.
               </p>
+              <Button
+                onClick={fillDemoData}
+                variant="outline"
+                size="sm"
+                className="text-xs"
+              >
+                Fill Demo Data
+              </Button>
             </div>
 
             {/* Input method tabs */}
             <div className="grid grid-cols-4 gap-1 bg-card border border-border rounded-xl p-1 mb-6">
-              {INPUT_METHODS.map(m => (
+              {INPUT_METHODS.map((m) => (
                 <button
                   key={m.id}
-                  onClick={() => m.id === 'manual' && setMethod(m.id)}
-                  disabled={m.id !== 'manual'}
+                  onClick={() => m.id === "manual" && setMethod(m.id)}
+                  disabled={m.id !== "manual"}
                   className={cn(
-                    'relative flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                    "relative flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                     method === m.id
-                      ? 'bg-background text-foreground shadow-sm border border-border'
-                      : 'text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed',
+                      ? "bg-background text-foreground shadow-sm border border-border"
+                      : "text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed",
                   )}
                 >
                   {m.icon}
@@ -333,17 +468,22 @@ export default function OnboardPage() {
             {/* Form card */}
             <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
               <div className="divide-y divide-border">
-
                 {/* Section 1: Core Offer */}
                 <FormSection title="Core Offer" step="01">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2">
-                      <Field label="Offer / Product Name" required error={errors.field_1_name}>
+                      <Field
+                        label="Offer / Product Name"
+                        required
+                        error={errors.field_1_name}
+                      >
                         <Input
                           placeholder="e.g. The Corporate Exit Accelerator"
                           value={form.field_1_name}
-                          onChange={e => set('field_1_name', e.target.value)}
-                          className={errors.field_1_name ? 'border-destructive' : ''}
+                          onChange={(e) => set("field_1_name", e.target.value)}
+                          className={
+                            errors.field_1_name ? "border-destructive" : ""
+                          }
                         />
                       </Field>
                     </div>
@@ -351,12 +491,18 @@ export default function OnboardPage() {
                       <Field label="Offer Format" required>
                         <Select
                           value={form.field_1_format}
-                          onValueChange={v => set('field_1_format', v as OfferFormat)}
+                          onValueChange={(v) =>
+                            set("field_1_format", v as OfferFormat)
+                          }
                         >
-                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
                           <SelectContent>
-                            {OFFER_FORMATS.map(f => (
-                              <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                            {OFFER_FORMATS.map((f) => (
+                              <SelectItem key={f.value} value={f.value}>
+                                {f.label}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -377,8 +523,11 @@ export default function OnboardPage() {
                       placeholder="Describe the specific transformation or result your offer delivers…"
                       rows={3}
                       value={form.field_2_outcome}
-                      onChange={e => set('field_2_outcome', e.target.value)}
-                      className={cn('resize-none', errors.field_2_outcome && 'border-destructive')}
+                      onChange={(e) => set("field_2_outcome", e.target.value)}
+                      className={cn(
+                        "resize-none",
+                        errors.field_2_outcome && "border-destructive",
+                      )}
                     />
                   </Field>
                 </FormSection>
@@ -395,8 +544,11 @@ export default function OnboardPage() {
                       placeholder="e.g. VP-level corporate professionals aged 38–52 who want to monetise their expertise as consultants…"
                       rows={3}
                       value={form.field_3_persona}
-                      onChange={e => set('field_3_persona', e.target.value)}
-                      className={cn('resize-none', errors.field_3_persona && 'border-destructive')}
+                      onChange={(e) => set("field_3_persona", e.target.value)}
+                      className={cn(
+                        "resize-none",
+                        errors.field_3_persona && "border-destructive",
+                      )}
                     />
                   </Field>
                 </FormSection>
@@ -405,12 +557,18 @@ export default function OnboardPage() {
                 <FormSection title="Pricing" step="04">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="col-span-2">
-                      <Field label="Price" required error={errors.field_4_price}>
+                      <Field
+                        label="Price"
+                        required
+                        error={errors.field_4_price}
+                      >
                         <Input
                           placeholder="e.g. 997"
                           value={form.field_4_price}
-                          onChange={e => set('field_4_price', e.target.value)}
-                          className={errors.field_4_price ? 'border-destructive' : ''}
+                          onChange={(e) => set("field_4_price", e.target.value)}
+                          className={
+                            errors.field_4_price ? "border-destructive" : ""
+                          }
                         />
                       </Field>
                     </div>
@@ -418,23 +576,34 @@ export default function OnboardPage() {
                       <Field label="Currency">
                         <Select
                           value={form.field_4_currency}
-                          onValueChange={v => set('field_4_currency', v as CurrencyCode)}
+                          onValueChange={(v) =>
+                            set("field_4_currency", v as CurrencyCode)
+                          }
                         >
-                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
                           <SelectContent>
-                            {CURRENCIES.map(c => (
-                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            {CURRENCIES.map((c) => (
+                              <SelectItem key={c} value={c}>
+                                {c}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </Field>
                     </div>
                     <div className="col-span-3">
-                      <Field label="Upsell / Premium Tier" hint="Optional — if you have or plan one">
+                      <Field
+                        label="Upsell / Premium Tier"
+                        hint="Optional — if you have or plan one"
+                      >
                         <Input
                           placeholder="e.g. VIP Day at $4,997 — hands-on implementation"
                           value={form.field_4_upsell}
-                          onChange={e => set('field_4_upsell', e.target.value)}
+                          onChange={(e) =>
+                            set("field_4_upsell", e.target.value)
+                          }
                         />
                       </Field>
                     </div>
@@ -451,7 +620,7 @@ export default function OnboardPage() {
                       placeholder="e.g. 47 clients. Average first client lands within 90 days. Jennifer K. made $12,500 on Day 47…"
                       rows={3}
                       value={form.field_5_proof}
-                      onChange={e => set('field_5_proof', e.target.value)}
+                      onChange={(e) => set("field_5_proof", e.target.value)}
                       className="resize-none"
                     />
                   </Field>
@@ -469,8 +638,11 @@ export default function OnboardPage() {
                       placeholder="e.g. The Expertise Extraction Framework — a 3-phase system that identifies your top 5 billable skill clusters and packages them into a $7,500+ consulting offer…"
                       rows={3}
                       value={form.field_6_mechanism}
-                      onChange={e => set('field_6_mechanism', e.target.value)}
-                      className={cn('resize-none', errors.field_6_mechanism && 'border-destructive')}
+                      onChange={(e) => set("field_6_mechanism", e.target.value)}
+                      className={cn(
+                        "resize-none",
+                        errors.field_6_mechanism && "border-destructive",
+                      )}
                     />
                   </Field>
                 </FormSection>
@@ -484,7 +656,7 @@ export default function OnboardPage() {
                     error={errors.field_7_channels}
                   >
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {TRAFFIC_CHANNELS.map(ch => {
+                      {TRAFFIC_CHANNELS.map((ch) => {
                         const active = form.field_7_channels.includes(ch);
                         return (
                           <button
@@ -492,13 +664,15 @@ export default function OnboardPage() {
                             type="button"
                             onClick={() => toggleChannel(ch)}
                             className={cn(
-                              'px-3 py-1.5 rounded-lg text-xs font-medium border transition-all',
+                              "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all",
                               active
-                                ? 'bg-primary/10 border-primary/40 text-primary'
-                                : 'bg-background border-border text-muted-foreground hover:border-border/80 hover:text-foreground',
+                                ? "bg-primary/10 border-primary/40 text-primary"
+                                : "bg-background border-border text-muted-foreground hover:border-border/80 hover:text-foreground",
                             )}
                           >
-                            {active && <X className="inline w-2.5 h-2.5 mr-1 -mt-0.5" />}
+                            {active && (
+                              <X className="inline w-2.5 h-2.5 mr-1 -mt-0.5" />
+                            )}
                             {ch}
                           </button>
                         );
@@ -506,12 +680,15 @@ export default function OnboardPage() {
                     </div>
                   </Field>
                   <div className="mt-4">
-                    <Field label="Traffic detail" hint="Any additional context on your current traffic situation.">
+                    <Field
+                      label="Traffic detail"
+                      hint="Any additional context on your current traffic situation."
+                    >
                       <Textarea
                         placeholder="e.g. Running $50/day Meta campaigns to a lead capture page. 3% opt-in rate, mostly 35–55 female audience…"
                         rows={2}
                         value={form.field_7_detail}
-                        onChange={e => set('field_7_detail', e.target.value)}
+                        onChange={(e) => set("field_7_detail", e.target.value)}
                         className="resize-none"
                       />
                     </Field>
@@ -528,12 +705,11 @@ export default function OnboardPage() {
                       placeholder="e.g. Launching for the first time. Want to validate the offer before spending on ads…"
                       rows={2}
                       value={form.field_8_challenge}
-                      onChange={e => set('field_8_challenge', e.target.value)}
+                      onChange={(e) => set("field_8_challenge", e.target.value)}
                       className="resize-none"
                     />
                   </Field>
                 </FormSection>
-
               </div>
 
               {/* Submit */}
@@ -558,7 +734,8 @@ export default function OnboardPage() {
                   )}
                 </Button>
                 <p className="text-center text-xs text-muted-foreground mt-3">
-                  Takes ~60 seconds · Dual-AI analysis · Results saved to your workspace
+                  Takes ~60 seconds · Dual-AI analysis · Results saved to your
+                  workspace
                 </p>
               </div>
             </div>
@@ -618,7 +795,11 @@ function Field({
         {label}
         {required && <span className="text-primary ml-1">*</span>}
       </Label>
-      {hint && <p className="text-xs text-muted-foreground/70 leading-relaxed -mt-0.5">{hint}</p>}
+      {hint && (
+        <p className="text-xs text-muted-foreground/70 leading-relaxed -mt-0.5">
+          {hint}
+        </p>
+      )}
       {children}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>

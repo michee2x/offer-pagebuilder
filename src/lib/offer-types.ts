@@ -101,17 +101,7 @@ export interface PlatformPriorityMatrix {
 }
 
 export interface Call1Output {
-  offer_score: OfferScore;
-  score_summary: string;
-  revenue_model_architecture: string;
-  pain_point_mapping: string;
-  funnel_structure_blueprint: string;
-  pricing_strategy: string;
-  upsell_downsell_paths: string;
-  strategic_bonus_recommendations: string;
-  design_intelligence_recommendation: string;
-  funnel_health_score: FunnelHealthScore;
-  platform_priority_matrix: PlatformPriorityMatrix;
+  [key: string]: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

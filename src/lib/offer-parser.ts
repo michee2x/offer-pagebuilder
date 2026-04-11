@@ -49,9 +49,9 @@ export function extractSection(text: string, sectionName: string): string {
   const result = text.substring(contentStart, nextSectionIndex).trim();
   
   if (result) {
-    console.log(`[Parser] Successfully extracted section: ${sectionName} (${result.length} characters)`);
+    // Removed console.log for cleaner output
   } else {
-    console.warn(`[Parser] Failed to extract section: ${sectionName}`);
+    // Removed console.warn for cleaner output
   }
   
   return result;
@@ -64,11 +64,11 @@ function extractJSON<T>(text: string, fallback: T): T {
     const end = text.lastIndexOf('}');
     if (start !== -1 && end !== -1 && end > start) {
       const parsed = JSON.parse(text.substring(start, end + 1)) as T;
-      console.log(`[Parser] Successfully parsed JSON object`, Object.keys(parsed as any));
+      // Removed console.log for cleaner output
       return parsed;
     }
   } catch (e: any) {
-    console.warn(`[Parser] JSON parsing failed: ${e.message}`);
+    // Removed console.warn for cleaner output
   }
   return fallback;
 }
@@ -96,24 +96,18 @@ const DEFAULT_PLATFORM_MATRIX = {
   hold: { platforms: [], reason: '' }, total_allocation_check: '100%', high_risk_warning: null,
 };
 
-export function parseCall1Output(rawText: string): Call1Output {
-  const scoreRaw = extractSection(rawText, 'OFFER_SCORE');
-  const healthRaw = extractSection(rawText, 'FUNNEL_HEALTH_SCORE');
-  const platformRaw = extractSection(rawText, 'PLATFORM_PRIORITY_MATRIX');
+export function parseCall1Output(rawText: string): Record<string, string> {
+  const sections: Record<string, string> = {};
 
-  return {
-    offer_score: extractJSON(scoreRaw, DEFAULT_OFFER_SCORE),
-    score_summary: extractSection(rawText, 'SCORE_SUMMARY'),
-    revenue_model_architecture: extractSection(rawText, 'REVENUE_MODEL_ARCHITECTURE'),
-    pain_point_mapping: extractSection(rawText, 'PAIN_POINT_MAPPING'),
-    funnel_structure_blueprint: extractSection(rawText, 'FUNNEL_STRUCTURE_BLUEPRINT'),
-    pricing_strategy: extractSection(rawText, 'PRICING_STRATEGY'),
-    upsell_downsell_paths: extractSection(rawText, 'UPSELL_DOWNSELL_PATHS'),
-    strategic_bonus_recommendations: extractSection(rawText, 'STRATEGIC_BONUS_RECOMMENDATIONS'),
-    design_intelligence_recommendation: extractSection(rawText, 'DESIGN_INTELLIGENCE_RECOMMENDATION'),
-    funnel_health_score: extractJSON(healthRaw, DEFAULT_HEALTH_SCORE),
-    platform_priority_matrix: extractJSON(platformRaw, DEFAULT_PLATFORM_MATRIX),
-  };
+  // Extract all sections into key-value pairs
+  for (const sectionName of ALL_SECTIONS) {
+    const content = extractSection(rawText, sectionName);
+    if (content) {
+      sections[sectionName] = content;
+    }
+  }
+
+  return sections;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -154,7 +148,7 @@ function extractPageCopy(rawText: string, pageName: string): PageCopy {
   }
 
   const wordCount = sections.reduce((acc, s) => acc + s.content.split(/\s+/).length, 0);
-  console.log(`[Parser] Extracted PAGE COPY: ${pageName} (${sections.length} sections, ${wordCount} words)`);
+  // Removed console.log for cleaner output
   return { sections, score: 85, word_count: wordCount };
 }
 
@@ -175,7 +169,7 @@ function extractEmailSequence(rawText: string): EmailCopy[] {
     });
   }
 
-  console.log(`[Parser] Extracted EMAIL SEQUENCE: ${emails.length} emails found`);
+  // Removed console.log for cleaner output
   return emails;
 }
 
