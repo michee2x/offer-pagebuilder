@@ -14,7 +14,9 @@ export function ScoreBar({ label, value, className }: ScoreBarProps) {
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex justify-between items-center">
-        <span className="text-sm font-medium text-muted-foreground">{label}</span>
+        <span className="text-sm font-medium text-muted-foreground">
+          {label}
+        </span>
         <span className="text-sm font-semibold">{value}/100</span>
       </div>
       <Progress value={value} className="h-2" />

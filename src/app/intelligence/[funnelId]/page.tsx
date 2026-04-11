@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { ScoreBar } from "@/components/ui/score-bar";
+import { NarrativeText } from "@/components/ui/narrative-text";
 import { cn } from "@/lib/utils";
 import {
   Zap,
