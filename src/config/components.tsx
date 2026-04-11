@@ -19,6 +19,7 @@ import { FeatureCTA } from "../components/macro/CTA";
 import { FeatureFooter } from "../components/macro/Footer";
 import { FeaturesGrid } from "../components/macro/Features/FeaturesGrid";
 import { FeatureSplit } from "../components/macro/Content/FeatureSplit";
+import { FeatureLogos } from "../components/macro/Logos";
 
 import { UpsellHero } from "../components/macro/Funnel/UpsellHero";
 import { DownsellHero } from "../components/macro/Funnel/DownsellHero";
@@ -209,6 +210,7 @@ export type ComponentType =
   | "FeatureCTA"
   | "FeaturesGrid"
   | "FeatureSplit"
+  | "FeatureLogos"
   | "FeatureFooter"
   | "UpsellHero"
   | "DownsellHero"
@@ -2197,5 +2199,48 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       className: { type: "text", label: "Tailwind Classes" },
     },
     render: (props: any) => <CTAWithBackground {...props} />,
+  },
+
+  FeatureLogos: {
+    type: "FeatureLogos",
+    label: "Feature Logos",
+    semantic: {
+      purpose: "A section displaying company logos to build trust and credibility.",
+      example: {
+        headline: "TRUSTED BY INNOVATIVE TEAMS WORLDWIDE",
+        logos: [
+          { name: "Stripe", domain: "stripe.com" },
+          { name: "Linear", domain: "linear.app" }
+        ]
+      },
+    },
+    defaultProps: {
+      headline: "TRUSTED BY INNOVATIVE TEAMS WORLDWIDE",
+      logos: [
+        { name: "Stripe", domain: "stripe.com" },
+        { name: "Linear", domain: "linear.app" },
+        { name: "Vercel", domain: "vercel.com" },
+        { name: "Notion", domain: "notion.so" },
+        { name: "GitHub", domain: "github.com" },
+      ],
+      sectionId: "",
+      className: "",
+      style: {},
+      elementStyles: {},
+    },
+    fields: {
+      sectionId: { type: "text", label: "Section ID (Anchor link)" },
+      headline: { type: "text", label: "Headline" },
+      logos: {
+        type: "array",
+        label: "Logos",
+        arrayFields: {
+          name: { type: "text", label: "Company Name" },
+          domain: { type: "text", label: "Domain" },
+        },
+      },
+      className: { type: "text", label: "Tailwind Classes" },
+    },
+    render: (props: any) => <FeatureLogos {...props} />,
   },
 };
