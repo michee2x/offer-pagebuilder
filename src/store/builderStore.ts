@@ -77,7 +77,7 @@ const captureHistory = (state: BuilderState) => ({
   future: []
 });
 
-export const useBuilderStore = create<BuilderState>((set, get) => ({
+export const useBuilderStore = create<BuilderState>((set) => ({
   components: {},
   rootList: [],
   selectedId: null,

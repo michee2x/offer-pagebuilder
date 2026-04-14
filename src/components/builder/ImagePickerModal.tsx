@@ -70,7 +70,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
     }
   };
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) { toast.error('Please choose an image file'); return; }
     if (file.size > 10 * 1024 * 1024)   { toast.error('File must be under 10 MB'); return; }
     try {
@@ -86,14 +86,14 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
     } finally {
       setIsUploading(false);
     }
-  };
+  }, [onSelect]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) uploadFile(file);
-  }, []);
+  }, [uploadFile]);
 
   const handleLinkConfirm = () => {
     const trimmed = linkUrl.trim();

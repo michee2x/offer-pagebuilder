@@ -25,7 +25,7 @@ export function ViewerHydrator({ blocks }: { blocks: any }) {
           setTheme(blocks.theme);
       }
 
-      setMounted(true);
+      queueMicrotask(() => setMounted(true));
     }
   }, [blocks, setFullState, setIsPreviewMode]);
 

@@ -88,7 +88,7 @@ export default async function LiveViewerPage({ params }: Props) {
 
     // Support new multi-page format
     if (page.blocks.pages) {
-        let targetPage = page.blocks.pages[requestedPath];
+        const targetPage = page.blocks.pages[requestedPath];
 
         if (!targetPage) {
             return notFound();

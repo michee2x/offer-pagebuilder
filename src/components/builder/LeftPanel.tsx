@@ -4,7 +4,7 @@ import React from 'react';
 import { useBuilderStore } from '@/store/builderStore';
 import { cn } from '@/lib/utils';
 import {
-  Plus, Target, CircleDollarSign, Rocket,
+  Plus, Target,
   HeartHandshake, Layout, Layers,
   ArrowUpRight, ArrowDownRight
 } from 'lucide-react';

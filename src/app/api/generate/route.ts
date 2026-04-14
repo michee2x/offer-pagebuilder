@@ -1,6 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
-import { ShadcnTheme } from '@/lib/themes';
 import { COMPONENT_REGISTRY, LUCIDE_ICON_NAMES } from '@/config/components';
 import { createAdminClient } from '@/utils/supabase/admin';
 
@@ -135,9 +134,9 @@ RETURN FORMAT
 // ─────────────────────────────────────────────────────────────────────────────
 function buildContentPrompt(offerContext: any, copyContext: string | null): string {
   const hasOffer = offerContext && (offerContext.niche || offerContext.productType || offerContext.audience);
-  
+
   let offerSection = '';
-  
+
   if (copyContext) {
     offerSection = `OFFER INTELLIGENCE COPY:
 We have already run an AI intelligence engine for this offer. The following is the highly-optimized sales copy generated specifically for this funnel.
@@ -218,7 +217,7 @@ export async function POST(req: Request) {
 
   try {
     const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5';
-    
+
     // We stream the raw text back to the client so it can visualize the <thinking> block
     const result = streamText({
       model: anthropic(model),

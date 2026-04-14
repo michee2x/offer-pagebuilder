@@ -3,7 +3,7 @@
 // Extracts named sections from the structured text format
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { Call1Output, Call2Output, CopyOutput, PageCopy, EmailCopy } from './offer-types';
+import type { CopyOutput, PageCopy, EmailCopy, Call2Output } from './offer-types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Generic section extractor
@@ -57,44 +57,8 @@ export function extractSection(text: string, sectionName: string): string {
   return result;
 }
 
-function extractJSON<T>(text: string, fallback: T): T {
-  if (!text) return fallback;
-  try {
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
-    if (start !== -1 && end !== -1 && end > start) {
-      const parsed = JSON.parse(text.substring(start, end + 1)) as T;
-      // Removed console.log for cleaner output
-      return parsed;
-    }
-  } catch (e: any) {
-    // Removed console.warn for cleaner output
-  }
-  return fallback;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Call 1 parser
 // ─────────────────────────────────────────────────────────────────────────────
-
-const DEFAULT_OFFER_SCORE = {
-  overall: 0, market_viability: 0, audience_clarity: 0, offer_strength: 0,
-  price_value_alignment: 0, uniqueness: 0, proof_strength: 0, conversion_readiness: 0,
-};
-
-const DEFAULT_HEALTH_SCORE = {
-  score: 0, cvr_cold_traffic: '0%', cvr_warm_traffic: '0%',
-  revenue_per_lead_estimate: '$0', primary_leakage_point: '',
-  primary_leakage_cause: '', fix_1: '', fix_2: '', fix_3: '',
-  validation_required_before_scaling: true,
-};
-
-const DEFAULT_PLATFORM = { platform: '', budget_allocation: '0%', campaign_objective: '', cold_cpl_estimate: '$0', rationale: '' };
-
-const DEFAULT_PLATFORM_MATRIX = {
-  primary: DEFAULT_PLATFORM, secondary: DEFAULT_PLATFORM, tertiary: DEFAULT_PLATFORM,
-  hold: { platforms: [], reason: '' }, total_allocation_check: '100%', high_risk_warning: null,
-};
 
 export function parseCall1Output(rawText: string): Record<string, string> {
   const sections: Record<string, string> = {};

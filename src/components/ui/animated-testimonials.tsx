@@ -24,13 +24,13 @@ export function AnimatedTestimonials({
 }: AnimatedTestimonialsProps) {
   const [active, setActive] = useState(0);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setActive((prev) => (prev + 1) % testimonials.length);
-  };
+  }, [testimonials.length]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
+  }, [testimonials.length]);
 
   const isActive = (index: number) => index === active;
 
@@ -39,8 +39,10 @@ export function AnimatedTestimonials({
       const interval = window.setInterval(handleNext, 5000);
       return () => window.clearInterval(interval);
     }
-  }, [autoplay, testimonials.length]);
+  }, [autoplay, testimonials.length, handleNext]);
 
+  // Intentionally impure — used to generate animation variety, not stored in state
+  // eslint-disable-next-line react-hooks/purity
   const randomRotateY = () => Math.floor(Math.random() * 21) - 10;
 
   return (

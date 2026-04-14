@@ -12,7 +12,6 @@ import {
   Loader2,
   Copy,
   RefreshCw,
-  CheckCircle2,
   ChevronRight,
   Mail,
   LayoutTemplate,
@@ -55,31 +54,31 @@ const PAGE_NAV: {
     key: "lead_capture",
     label: "Lead Capture",
     icon: <Target className="w-3.5 h-3.5" />,
-    color: "text-sky-400",
+    color: "text-foreground",
   },
   {
     key: "sales_page",
     label: "Sales Page",
     icon: <TrendingUp className="w-3.5 h-3.5" />,
-    color: "text-amber-400",
+    color: "text-foreground",
   },
   {
     key: "upsell",
     label: "Upsell Page",
     icon: <Zap className="w-3.5 h-3.5" />,
-    color: "text-emerald-400",
+    color: "text-foreground",
   },
   {
     key: "thankyou",
     label: "Thank You",
     icon: <Heart className="w-3.5 h-3.5" />,
-    color: "text-rose-400",
+    color: "text-foreground",
   },
   {
     key: "email_sequence",
     label: "Email Sequence",
     icon: <Mail className="w-3.5 h-3.5" />,
-    color: "text-violet-400",
+    color: "text-foreground",
   },
 ];
 
@@ -121,49 +120,29 @@ function GenerationOverlay({
   step: number;
 }) {
   if (!visible) return null;
+  const currentStepText = GEN_STEPS[Math.min(step, GEN_STEPS.length - 1)];
+  const progressPercent = Math.min(100, Math.round((step / GEN_STEPS.length) * 100));
+
   return (
-    <div className="fixed inset-0 z-50 bg-background/97 backdrop-blur-md flex items-center justify-center">
-      <div className="w-full max-w-sm mx-auto px-6 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-5 animate-pulse">
-          <Sparkles className="w-7 h-7 text-primary" />
+    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center">
+      <div className="w-full max-w-sm mx-auto px-6 text-center flex flex-col items-center">
+        <div className="relative w-24 h-24 mb-8">
+           <svg className="animate-spin w-full h-full text-muted border-border" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"></circle>
+              <path className="opacity-75 text-foreground" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+           </svg>
+           <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
+             {progressPercent}%
+           </div>
         </div>
-        <h2 className="text-xl font-bold text-foreground mb-1 tracking-tight">
-          Writing Your Copy
+        
+        <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
+          Synthesizing Copy
         </h2>
-        <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-          Opus is writing high-converting copy for all 5 pages using your
-          intelligence report.
-        </p>
-        <div className="space-y-2 text-left">
-          {GEN_STEPS.map((s, i) => {
-            const isDone = i < step;
-            const isActive = i === step;
-            return (
-              <div
-                key={i}
-                className={cn(
-                  "flex items-center gap-3 px-3.5 py-2.5 rounded-lg border text-sm transition-all",
-                  isDone &&
-                    "bg-emerald-500/5 border-emerald-500/20 text-emerald-400",
-                  isActive && "bg-primary/5 border-primary/20 text-foreground",
-                  !isDone &&
-                    !isActive &&
-                    "bg-muted/30 border-border text-muted-foreground",
-                )}
-              >
-                <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0">
-                  {isDone ? (
-                    <CheckCircle2 className="w-4 h-4" />
-                  ) : isActive ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <span className="text-[10px] font-bold">{i + 1}</span>
-                  )}
-                </div>
-                {s}
-              </div>
-            );
-          })}
+        <div className="h-6 overflow-hidden">
+           <p className="text-sm font-medium text-muted-foreground animate-pulse">
+             {step >= GEN_STEPS.length ? "Finalizing rendering..." : currentStepText}
+           </p>
         </div>
       </div>
     </div>
@@ -176,7 +155,7 @@ function ScoreRing({ score, size = 64 }: { score: number; size?: number }) {
   const r = (size - 8) / 2;
   const circumference = 2 * Math.PI * r;
   const dash = (score / 100) * circumference;
-  const color = score >= 80 ? "#10b981" : score >= 65 ? "#f59e0b" : "#f43f5e";
+  const color = score >= 80 ? "hsl(var(--foreground))" : score >= 65 ? "hsl(var(--brand-yellow))" : "hsl(var(--destructive))";
   return (
     <svg
       width={size}
@@ -264,11 +243,11 @@ function EmailCard({ email, index }: { email: EmailCopy; index: number }) {
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors text-left"
         onClick={() => setOpen((o) => !o)}
       >
-        <div className="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex flex-col items-center justify-center shrink-0">
-          <span className="text-sm font-bold text-violet-400 leading-none">
+        <div className="w-10 h-10 rounded-lg bg-muted border border-border flex flex-col items-center justify-center shrink-0">
+          <span className="text-sm font-bold text-foreground leading-none">
             {email.day}
           </span>
-          <span className="text-[9px] text-violet-400/70 font-bold">DAY</span>
+          <span className="text-[9px] text-muted-foreground font-bold">DAY</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-semibold text-foreground truncate">
@@ -413,6 +392,7 @@ export default function CopyPage({
   const { funnelId } = use(params);
   const router = useRouter();
 
+  const [isInitializing, setIsInitializing] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [genStep, setGenStep] = useState(0);
   const [funnelName, setFunnelName] = useState("");
@@ -433,16 +413,16 @@ export default function CopyPage({
         setCopy(funnel.blocks.copy);
       }
 
-      // Check if intelligence is complete
+      // Check if intelligence is complete (bypass strictly required internal fields for robust access)
       const intelligence = funnel.blocks?.intelligence;
-      const isComplete =
-        intelligence?.call1_complete && intelligence?.call2_complete;
-      setIntelligenceComplete(!!isComplete);
+      const isComplete = !!intelligence && Object.keys(intelligence).length > 0;
+      setIntelligenceComplete(isComplete);
 
       if (!funnel.blocks?.copy_complete && isComplete) {
         // Only auto-generate if intelligence is complete
-        await generateCopy();
+        generateCopy().catch(console.error);
       }
+      setIsInitializing(false);
     }
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -496,11 +476,11 @@ export default function CopyPage({
   // ── Active page copy ──────────────────────────────────────────────────────
 
   const PAGE_BADGES: Record<PageKey, string> = {
-    lead_capture: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-    sales_page: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    upsell: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    thankyou: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    email_sequence: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+    lead_capture: "bg-muted text-foreground border-border",
+    sales_page: "bg-muted text-foreground border-border",
+    upsell: "bg-muted text-foreground border-border",
+    thankyou: "bg-muted text-foreground border-border",
+    email_sequence: "bg-muted text-foreground border-border",
   };
 
   const overallScore = copy
@@ -579,18 +559,18 @@ export default function CopyPage({
                     key={page.key}
                     onClick={() => setActivePage(page.key)}
                     className={cn(
-                      "w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-lg border text-left transition-all",
+                      "w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-lg border text-left transition-all group",
                       active
-                        ? "bg-primary/5 border-primary/20"
+                        ? "bg-muted border-border"
                         : "border-transparent hover:bg-muted/40",
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={cn(page.color)}>{page.icon}</span>
+                      <span className={cn(active ? "text-brand-yellow" : "text-muted-foreground group-hover:text-foreground")}>{page.icon}</span>
                       <span
                         className={cn(
                           "text-xs font-semibold",
-                          active ? "text-foreground" : "text-muted-foreground",
+                          active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground",
                         )}
                       >
                         {page.label}
@@ -603,10 +583,10 @@ export default function CopyPage({
                             className={cn(
                               "h-full rounded-full",
                               score >= 80
-                                ? "bg-emerald-500"
+                                ? "bg-foreground"
                                 : score >= 65
-                                  ? "bg-amber-500"
-                                  : "bg-rose-500",
+                                  ? "bg-brand-yellow"
+                                  : "bg-destructive",
                             )}
                             style={{ width: `${score}%` }}
                           />
@@ -614,7 +594,7 @@ export default function CopyPage({
                         <span
                           className={cn(
                             "text-[10px] font-bold",
-                            active ? "text-primary" : "text-muted-foreground",
+                            active ? "text-foreground" : "text-muted-foreground",
                           )}
                         >
                           {score}
@@ -630,7 +610,11 @@ export default function CopyPage({
           {/* Main workspace */}
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto px-6 py-6">
-              {isGenerating ? (
+              {isInitializing ? (
+                <div className="flex items-center justify-center py-32">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground opacity-50" />
+                </div>
+              ) : isGenerating ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
                   <p className="text-sm">Generating copy…</p>
@@ -640,7 +624,7 @@ export default function CopyPage({
                   <div>
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <div className="inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full border bg-violet-500/10 text-violet-400 border-violet-500/20 mb-1.5">
+                        <div className="inline-flex text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border bg-muted text-foreground border-border mb-1.5">
                           Email Sequence
                         </div>
                         <h2 className="text-lg font-bold text-foreground">
@@ -749,8 +733,8 @@ export default function CopyPage({
                             className={cn(
                               "w-full flex items-center justify-between px-2 py-1.5 rounded-lg transition-colors text-xs",
                               activePage === page.key
-                                ? "bg-primary/10 text-primary"
-                                : "text-muted-foreground hover:text-foreground",
+                                ? "bg-muted text-foreground"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                             )}
                           >
                             <span>{page.label}</span>
@@ -763,15 +747,7 @@ export default function CopyPage({
                 </div>
               )}
 
-              {/* Build Pages CTA */}
-              <Button
-                className="w-full gap-1.5 font-bold text-xs"
-                size="sm"
-                onClick={() => router.push(`/builder?id=${funnelId}`)}
-              >
-                Build Pages
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
+
             </div>
           </div>
         </div>

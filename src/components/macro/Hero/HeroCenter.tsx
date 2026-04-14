@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Badge } from '@/components/micro';
 import { SystemIcon } from '../../system/Icon';
-import { cn } from '@/lib/utils';
 
 export interface HeroCenterProps {
   badgeText?: string;

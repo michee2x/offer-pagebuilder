@@ -1,11 +1,9 @@
 import { getSession } from "@/auth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Plus, Layout, Folder, Trash2 } from "lucide-react";
+import { Folder } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
-import { Button } from "@/components/ui/button";
 import { WorkspaceCard } from "@/components/WorkspaceCard";
 import { WorkspaceCreateDialog } from "@/components/WorkspaceCreateDialog";
 

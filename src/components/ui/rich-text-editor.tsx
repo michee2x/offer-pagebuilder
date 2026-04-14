@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -6,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
   Bold,
   Italic,
-  Link as LinkIcon,
   Heading1,
   Heading2,
   List,
@@ -16,15 +17,14 @@ import {
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
-  placeholder?: string;
 }
 
 export function RichTextEditor({
   content,
   onChange,
-  placeholder,
 }: RichTextEditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },

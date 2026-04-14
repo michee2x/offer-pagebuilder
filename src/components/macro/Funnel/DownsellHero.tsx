@@ -35,7 +35,7 @@ export function DownsellHero({
         <div className="mb-8 animate-fade-in-up">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-sm mb-4 mx-auto w-fit shadow-xl shadow-primary/20">
             <SystemIcon name="Target" size={16} />
-            Let's Make This Easier
+            Let&apos;s Make This Easier
           </div>
         </div>
 

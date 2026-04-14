@@ -5,33 +5,21 @@ import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { Button } from "@/components/ui/button";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { ScoreBar } from "@/components/ui/score-bar";
-import { NarrativeText } from "@/components/ui/narrative-text";
 import { cn } from "@/lib/utils";
+import { ScoreRadarChart } from "@/components/intelligence/charts/ScoreRadarChart";
+import { PricingBarChart } from "@/components/intelligence/charts/PricingBarChart";
+import { PlatformPieChart } from "@/components/intelligence/charts/PlatformPieChart";
 import {
   Zap,
-  FileText,
   ArrowRight,
   Loader2,
-  Edit,
-  Save,
   TrendingUp,
   Target,
-  Users,
   DollarSign,
   BarChart3,
   AlertTriangle,
-  CheckCircle2,
-  ChevronRight,
   Layers,
   MessageSquare,
   Sparkles,
@@ -41,15 +29,16 @@ import {
   Lightbulb,
   Cog,
   Palette,
-  BarChart,
   Users as UsersIcon,
   DollarSign as DollarIcon,
   Target as TargetIcon,
   MessageSquare as MessageIcon,
-  Palette as PaletteIcon,
-  Shield as ShieldIcon,
-  TrendingUp as TrendingIcon,
-  RefreshCw,
+  Download,
+  Copy,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Check
 } from "lucide-react";
 import type {
   Call2Output,
@@ -70,222 +59,350 @@ const WIZARD_STEPS = [
 
 // ─── Section configuration ───────────────────────────────────────────────────
 
-const SECTION_CONFIG: Record<
-  string,
-  { label: string; icon: React.ReactNode; color: string }
-> = {
+interface ReportSectionConfig {
+  id: string;
+  label: string;
+  subheader: string;
+  icon: React.ReactNode;
+  color: string;
+  badge?: string;
+  chartType?: "radar" | "bar" | "pie";
+}
+
+const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
   OFFER_SCORE: {
+    id: "OFFER_SCORE",
     label: "Offer Score",
+    subheader: "A comprehensive metric evaluating market viability, audience clarity, and conversion readiness.",
     icon: <BarChart3 className="w-4 h-4" />,
-    color: "text-primary",
+    color: "text-foreground",
+    chartType: "radar"
   },
   SCORE_SUMMARY: {
+    id: "SCORE_SUMMARY",
     label: "Score Summary",
+    subheader: "Detailed breakdown of the core metrics evaluating your offer's potential.",
     icon: <Target className="w-4 h-4" />,
-    color: "text-primary",
+    color: "text-foreground",
   },
   REVENUE_MODEL_ARCHITECTURE: {
+    id: "REVENUE_MODEL_ARCHITECTURE",
     label: "Revenue Model",
+    subheader: "Architectural blueprint detailing how profitability is structured and compounding avenues.",
     icon: <DollarSign className="w-4 h-4" />,
-    color: "text-emerald-500",
+    color: "text-foreground",
   },
   PAIN_POINT_MAPPING: {
+    id: "PAIN_POINT_MAPPING",
     label: "Pain Points",
+    subheader: "Identification of the most critical friction points your audience is experiencing.",
     icon: <AlertTriangle className="w-4 h-4" />,
-    color: "text-rose-500",
+    color: "text-foreground",
   },
   FUNNEL_STRUCTURE_BLUEPRINT: {
+    id: "FUNNEL_STRUCTURE_BLUEPRINT",
     label: "Funnel Blueprint",
+    subheader: "Step-by-step psychological layout mapped to funnel stages for maximum conversion efficiency.",
     icon: <Layers className="w-4 h-4" />,
-    color: "text-violet-500",
+    color: "text-foreground",
   },
   PRICING_STRATEGY: {
+    id: "PRICING_STRATEGY",
     label: "Pricing Strategy",
+    subheader: "Optimal price points, psychological thresholds, and elasticity simulation across tiers.",
     icon: <DollarIcon className="w-4 h-4" />,
-    color: "text-amber-500",
+    color: "text-foreground",
+    chartType: "bar"
   },
   UPSELL_DOWNSELL_PATHS: {
+    id: "UPSELL_DOWNSELL_PATHS",
     label: "Upsell Paths",
+    subheader: "Logical expansions maximizing Average Order Value (AOV) post-initial purchase.",
     icon: <TrendingUp className="w-4 h-4" />,
-    color: "text-emerald-500",
+    color: "text-foreground",
   },
   STRATEGIC_BONUS_RECOMMENDATIONS: {
+    id: "STRATEGIC_BONUS_RECOMMENDATIONS",
     label: "Bonus Stack",
+    subheader: "High-perceived-value additions mitigating specific purchase objections.",
     icon: <Sparkles className="w-4 h-4" />,
-    color: "text-orange-500",
+    color: "text-foreground",
   },
   DESIGN_INTELLIGENCE_RECOMMENDATION: {
+    id: "DESIGN_INTELLIGENCE_RECOMMENDATION",
     label: "Design Intelligence",
+    subheader: "Visual principles mapped uniquely to your demographic's trust factors.",
     icon: <Palette className="w-4 h-4" />,
-    color: "text-sky-500",
+    color: "text-foreground",
   },
   FUNNEL_HEALTH_SCORE: {
+    id: "FUNNEL_HEALTH_SCORE",
     label: "Health Score",
+    subheader: "Critical risk assessment defining potential leakage in the funnel.",
     icon: <Shield className="w-4 h-4" />,
-    color: "text-primary",
+    color: "text-foreground",
   },
   PLATFORM_PRIORITY_MATRIX: {
+    id: "PLATFORM_PRIORITY_MATRIX",
     label: "Platform Priority",
+    subheader: "Recommended budget allocation across high-leverage traffic channels.",
     icon: <Globe className="w-4 h-4" />,
-    color: "text-violet-500",
+    color: "text-foreground",
+    chartType: "pie"
   },
   OFFER_POSITIONING_ANALYSIS: {
+    id: "OFFER_POSITIONING_ANALYSIS",
     label: "Offer Positioning",
+    subheader: "Differentiating context framing how your market perceives this offer vs alternatives.",
     icon: <TargetIcon className="w-4 h-4" />,
-    color: "text-primary",
+    color: "text-foreground",
+    badge: "Opus"
   },
   TARGET_PERSONA_INTELLIGENCE: {
+    id: "TARGET_PERSONA_INTELLIGENCE",
     label: "Target Persona",
+    subheader: "Deep psychological profile and contextual awareness of your ideal customer.",
     icon: <UsersIcon className="w-4 h-4" />,
-    color: "text-blue-500",
+    color: "text-foreground",
+    badge: "Opus"
   },
   CONVERSION_HOOK_LIBRARY: {
+    id: "CONVERSION_HOOK_LIBRARY",
     label: "Conversion Hooks",
+    subheader: "Validated, high-impact statements geared to arrest attention instantly.",
     icon: <MessageIcon className="w-4 h-4" />,
-    color: "text-rose-500",
+    color: "text-foreground",
+    badge: "Opus"
   },
   MESSAGING_ANGLE_MATRIX: {
+    id: "MESSAGING_ANGLE_MATRIX",
     label: "Messaging Matrix",
+    subheader: "Combinatorial framework addressing unique desires and specific internal objections.",
     icon: <MessageSquare className="w-4 h-4" />,
-    color: "text-violet-500",
+    color: "text-foreground",
+    badge: "Opus"
   },
   PRODUCT_CORE_VALUE_PERCEPTION: {
+    id: "PRODUCT_CORE_VALUE_PERCEPTION",
     label: "Value Perception",
+    subheader: "Core transformational mechanics transitioning the prospect from state A to state B.",
     icon: <Lightbulb className="w-4 h-4" />,
-    color: "text-amber-500",
+    color: "text-brand-yellow",
+    badge: "Opus"
   },
   REAL_WORLD_USE_CASE_SCENARIOS: {
+    id: "REAL_WORLD_USE_CASE_SCENARIOS",
     label: "Use Cases",
+    subheader: "Relatable operational implementations proving the offer's impact in context.",
     icon: <BookOpen className="w-4 h-4" />,
-    color: "text-green-500",
+    color: "text-foreground",
+    badge: "Opus"
   },
   MONETIZATION_STRATEGY_NARRATIVE: {
+    id: "MONETIZATION_STRATEGY_NARRATIVE",
     label: "Monetization Strategy",
+    subheader: "Synthesized executive directive binding acquisition, monetization, and scale.",
     icon: <Cog className="w-4 h-4" />,
-    color: "text-emerald-500",
+    color: "text-foreground",
+    badge: "Opus"
   },
 };
 
-// ─── Small reusable UI ────────────────────────────────────────────────────────
+// Map Call2 outputs into standard keys matching config
+const CALL2_SECTION_MAP = {
+  offer_positioning_analysis: "OFFER_POSITIONING_ANALYSIS",
+  target_persona_intelligence: "TARGET_PERSONA_INTELLIGENCE",
+  conversion_hook_library: "CONVERSION_HOOK_LIBRARY",
+  messaging_angle_matrix: "MESSAGING_ANGLE_MATRIX",
+  product_core_value_perception: "PRODUCT_CORE_VALUE_PERCEPTION",
+  real_world_use_case_scenarios: "REAL_WORLD_USE_CASE_SCENARIOS",
+  monetization_strategy_narrative: "MONETIZATION_STRATEGY_NARRATIVE",
+};
 
-function SectionHeader({
-  icon,
-  label,
-  badge,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  badge?: string;
-}) {
+// ─── Interactive UI Components ────────────────────────────────────────────────
+
+function InteractiveCheckbox({ label }: { label: string }) {
+  const [checked, setChecked] = useState(false);
   return (
-    <div className="flex items-center gap-2 mb-4">
-      <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0">
-        {icon}
-      </div>
-      <h3 className="text-sm font-bold text-foreground tracking-tight">
-        {label}
-      </h3>
-      {badge && (
-        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-          {badge}
-        </span>
+    <div 
+      className={cn(
+        "flex items-start gap-3 my-2 cursor-pointer p-3 rounded-lg border transition-all",
+        checked ? "bg-muted/10 border-border" : "bg-card border-transparent hover:bg-muted/30"
       )}
+      onClick={(e) => {
+        e.stopPropagation();
+        setChecked(!checked);
+      }}
+    >
+      <div 
+        className={cn(
+          "w-5 h-5 rounded border mt-0.5 flex items-center justify-center shrink-0 transition-all", 
+          checked ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground bg-transparent"
+        )}
+      >
+        {checked && <CheckCircle2 className="w-3.5 h-3.5" />}
+      </div>
+      <span className={cn("text-sm leading-relaxed", checked ? "line-through text-muted-foreground" : "text-foreground")}>
+        {label}
+      </span>
     </div>
   );
 }
 
 function EditableNarrativeText({
   text,
-  isEditing,
   onChange,
 }: {
   text: string;
-  isEditing: boolean;
   onChange: (newText: string) => void;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  if (!text) return <StreamingPlaceholder />;
+
+  // Clean up any JSON codeblocks from view if they are just data payloads
+  const viewText = text.replace(/```json[\s\S]*?```/g, '').trim();
+
+  // If text is purely JSON object without backticks
+  let isPureJson = false;
+  try {
+    if ((text.trim().startsWith('{') || text.trim().startsWith('['))) {
+      JSON.parse(text.trim());
+      isPureJson = true;
+    }
+  } catch(e) {}
+
+  // If text is HTML from a previous Tiptap edit
+  const isHtml = text.trim().startsWith('<') && text.trim().endsWith('>');
+
+  let editorInitialContent = text;
+  if (!isHtml && isEditing) {
+    // If we're opening the editor to edit raw markdown, convert basic elements to HTML
+    editorInitialContent = viewText
+      .split('\n')
+      .map(line => {
+        if (!line.trim()) return '<p></p>';
+        const l = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        if (l.startsWith('# ')) return `<h1>${l.substring(2)}</h1>`;
+        if (l.startsWith('## ')) return `<h2>${l.substring(3)}</h2>`;
+        if (l.startsWith('### ')) return `<h3>${l.substring(4)}</h3>`;
+        return `<p>${l}</p>`;
+      })
+      .join('');
+  }
+
   if (isEditing) {
     return (
-      <RichTextEditor
-        content={text}
-        onChange={onChange}
-        placeholder="Edit this section..."
-      />
+      <div className="relative group rounded-xl border border-primary/30 p-2 bg-muted/10 transition-all">
+        <div className="flex justify-end p-2 border-b border-border mb-4 bg-background rounded-t-lg">
+          <Button 
+            size="sm" 
+            variant="default"
+            className="h-8 gap-2"
+            onClick={() => setIsEditing(false)}
+          >
+            <Check className="w-4 h-4" />
+            Done Editing
+          </Button>
+        </div>
+        <RichTextEditor
+          content={editorInitialContent}
+          onChange={onChange}
+          placeholder="Edit this section..."
+        />
+      </div>
     );
   }
-  if (!text) return <StreamingPlaceholder />;
-  return (
-    <div className="prose prose-sm prose-invert max-w-none">
-      {text
-        .split("\n")
-        .filter(Boolean)
-        .map((para, i) => (
-          <p
-            key={i}
-            className="text-sm text-foreground leading-relaxed mb-2 last:mb-0"
-          >
-            {para}
-          </p>
-        ))}
-    </div>
-  );
-}
 
-function PreformattedSection({ text }: { text: string }) {
-  if (!text) return <StreamingPlaceholder />;
+  if (isPureJson || !text) return <StreamingPlaceholder />;
+  
+  if (!viewText && !isEditing) {
+     return (
+       <div className="w-full mt-4 flex justify-end">
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+             + Add Narrative Analysis
+          </Button>
+       </div>
+     );
+  }
+
   return (
-    <div className="space-y-0.5">
-      {text
-        .split("\n")
-        .filter((l) => l.trim())
-        .map((line, i) => {
-          const isKey =
-            /^[A-Z_\s]+:/.test(line.trim()) ||
-            /^\[\d+\]/.test(line.trim()) ||
-            /^STAGE:|^BONUS|^HOOK|^ANGLE/.test(line.trim());
-          const isIntensity = /INTENSITY:\s*(CRITICAL|HIGH|MEDIUM|LOW)/.test(
-            line,
-          );
-          const intensity = isIntensity
-            ? line.match(/INTENSITY:\s*(\w+)/)?.[1]
-            : null;
-          return (
-            <div
-              key={i}
-              className={cn(
-                "text-sm leading-relaxed",
-                isKey
-                  ? "text-foreground font-semibold mt-3 first:mt-0"
-                  : "text-foreground",
-              )}
-            >
-              {isIntensity && intensity && (
-                <span
-                  className={cn(
-                    "text-[10px] font-bold mr-2 px-1.5 py-0.5 rounded-sm border",
-                    intensity === "CRITICAL" &&
-                      "bg-rose-500/10 text-rose-400 border-rose-500/20",
-                    intensity === "HIGH" &&
-                      "bg-amber-500/10 text-amber-400 border-amber-500/20",
-                    intensity === "MEDIUM" &&
-                      "bg-blue-500/10 text-blue-400 border-blue-500/20",
-                    intensity === "LOW" &&
-                      "bg-muted text-muted-foreground border-border",
-                  )}
-                >
-                  {intensity}
-                </span>
-              )}
-              {line}
-            </div>
-          );
-        })}
+    <div 
+      className="text-foreground text-[15px] leading-relaxed max-w-none p-4 -mx-4 rounded-xl transition-colors hover:bg-muted/30 cursor-text group relative space-y-4"
+      onClick={() => setIsEditing(true)}
+    >
+      <div className="absolute top-2 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-background border px-2 py-1 rounded text-xs text-muted-foreground shadow-sm z-10">
+        Click anywhere to edit
+      </div>
+      
+      {isHtml ? (
+         <div dangerouslySetInnerHTML={{ __html: text }} />
+      ) : (
+         viewText.split("\n").map((line, i) => {
+           if (!line.trim() || line.trim() === '---' || line.trim() === '##' || line.trim() === '***') return <div key={i} className="h-4" />;
+           
+           // Parse checkboxes
+           const isChecklist = line.trim().match(/^(-\s+\[\s?\])|(^\d+\.\s+)/);
+           if (isChecklist) {
+             const cleanText = line.replace(/^(-\s+\[\s?\])|(^\d+\.\s+)/, "").trim();
+             return <InteractiveCheckbox key={i} label={cleanText} />;
+           }
+           
+           // Smart Badges for INTENSITY or STAGE keys
+           const isIntensity = /INTENSITY:\s*(CRITICAL|HIGH|MEDIUM|LOW)/i.test(line);
+           if (isIntensity) {
+             const intensity = line.match(/INTENSITY:\s*(\w+)/i)?.[1].toUpperCase();
+             const cleanText = line.replace(/INTENSITY:\s*\w+/i, "").trim();
+             return (
+               <div key={i} className="text-sm leading-relaxed mb-3 flex items-start gap-2">
+                  <span
+                     className={cn(
+                       "text-[10px] font-bold px-1.5 py-0.5 rounded-sm border shrink-0 mt-0.5 uppercase tracking-wide",
+                       intensity === "CRITICAL" && "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/30",
+                       intensity === "HIGH" && "bg-foreground/10 text-foreground border-foreground/20",
+                       intensity === "MEDIUM" && "bg-muted text-muted-foreground border-border",
+                       intensity === "LOW" && "bg-muted text-muted-foreground border-border",
+                     )}
+                   >
+                     {intensity}
+                   </span>
+                   <span className="text-foreground">{cleanText}</span>
+               </div>
+             )
+           }
+
+           const isKey = /^[A-Z_\s]+:/.test(line.trim()) || /^STAGE:|^BONUS|^HOOK|^ANGLE/.test(line.trim());
+
+           // Handle simple bold markup **bold**
+           const renderLine = () => {
+             return line.split(/(\*\*.*?\*\*)/g).map((part, j) => {
+               if (part.startsWith('**') && part.endsWith('**')) {
+                 return <strong key={j} className="text-foreground">{part.slice(2, -2)}</strong>;
+               }
+               return <React.Fragment key={j}>{part}</React.Fragment>;
+             });
+           };
+
+           return (
+             <div
+               key={i}
+               className={cn(
+                 "text-sm leading-relaxed mb-2 last:mb-0",
+                 isKey ? "text-foreground font-semibold mt-4 first:mt-0" : "text-muted-foreground"
+               )}
+             >
+               {renderLine()}
+             </div>
+           );
+         })
+      )}
     </div>
   );
 }
 
 function StreamingPlaceholder() {
   return (
-    <div className="space-y-2 animate-pulse">
+    <div className="space-y-2 animate-pulse w-full max-w-3xl">
       <div className="h-3 bg-muted rounded w-3/4" />
       <div className="h-3 bg-muted rounded w-full" />
       <div className="h-3 bg-muted rounded w-5/6" />
@@ -294,132 +411,9 @@ function StreamingPlaceholder() {
   );
 }
 
-function OfferScoreDisplay({ content }: { content: string }) {
-  try {
-    const scores = JSON.parse(content);
-    return (
-      <div className="space-y-3">
-        <div className="text-2xl font-bold text-primary">
-          {scores.overall}/100
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <ScoreBar label="Market Viability" value={scores.market_viability} />
-          <ScoreBar label="Audience Clarity" value={scores.audience_clarity} />
-          <ScoreBar label="Offer Strength" value={scores.offer_strength} />
-          <ScoreBar
-            label="Price-Value Alignment"
-            value={scores.price_value_alignment}
-          />
-          <ScoreBar label="Uniqueness" value={scores.uniqueness} />
-          <ScoreBar label="Proof Strength" value={scores.proof_strength} />
-          <ScoreBar
-            label="Conversion Readiness"
-            value={scores.conversion_readiness}
-          />
-        </div>
-      </div>
-    );
-  } catch {
-    return <div className="text-sm text-muted-foreground">{content}</div>;
-  }
-}
-
-function PlatformCard({
-  platform,
-  allocation,
-  objective,
-  cpl,
-  rationale,
-  rank,
-}: {
-  platform: string;
-  allocation: string;
-  objective: string;
-  cpl: string;
-  rationale: string;
-  rank: 1 | 2 | 3;
-}) {
-  const colors = {
-    1: "border-primary/30 bg-primary/5",
-    2: "border-border bg-muted/20",
-    3: "border-border bg-background",
-  };
-  const rankColors = {
-    1: "bg-primary text-primary-foreground",
-    2: "bg-muted text-muted-foreground",
-    3: "bg-muted text-muted-foreground",
-  };
-  return (
-    <div
-      className={cn("rounded-xl border p-4 flex flex-col gap-3", colors[rank])}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <span
-              className={cn(
-                "text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center",
-                rankColors[rank],
-              )}
-            >
-              {rank}
-            </span>
-            <span className="font-bold text-sm text-foreground">
-              {platform}
-            </span>
-          </div>
-          <span className="text-xs text-muted-foreground">{objective}</span>
-        </div>
-        <span className="text-lg font-bold text-foreground shrink-0">
-          {allocation}
-        </span>
-      </div>
-      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        <span>
-          CPL: <strong className="text-foreground">{cpl}</strong>
-        </span>
-      </div>
-      <p className="text-xs text-muted-foreground leading-relaxed">
-        {rationale}
-      </p>
-    </div>
-  );
-}
-
-// ─── Divider with label ───────────────────────────────────────────────────────
-
-function SectionDivider({
-  label,
-  color = "default",
-}: {
-  label: string;
-  color?: "default" | "violet" | "amber";
-}) {
-  return (
-    <div className="flex items-center gap-3 my-6">
-      <div className="flex-1 h-px bg-border" />
-      <span
-        className={cn(
-          "text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border",
-          color === "violet" &&
-            "text-violet-400 bg-violet-500/10 border-violet-500/20",
-          color === "amber" &&
-            "text-amber-400 bg-amber-500/10 border-amber-500/20",
-          color === "default" && "text-muted-foreground bg-muted border-border",
-        )}
-      >
-        {label}
-      </span>
-      <div className="flex-1 h-px bg-border" />
-    </div>
-  );
-}
-
-// ─── Streaming state machine ──────────────────────────────────────────────────
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 type StreamPhase = "idle" | "call1" | "call2" | "done" | "error";
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function IntelligencePage({
   params,
@@ -433,26 +427,12 @@ export default function IntelligencePage({
   const [errorMsg, setErrorMsg] = useState("");
   const [funnelName, setFunnelName] = useState("");
   const [formData, setFormData] = useState<OfferFormData | null>(null);
-  const [call1Data, setCall1Data] = useState<Record<string, string> | null>(
-    null,
-  );
   const [call1, setCall1] = useState<Record<string, string> | null>(null);
   const [call2, setCall2] = useState<Call2Output | null>(null);
   const [streamingText, setStreamingText] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedCall1, setEditedCall1] = useState<Record<string, string> | null>(
-    null,
-  );
-
-  const enterEditMode = useCallback(() => {
-    setEditedCall1(call1 ? { ...call1 } : {});
-    setIsEditing(true);
-  }, [call1]);
-
-  const cancelEdit = useCallback(() => {
-    setEditedCall1(null);
-    setIsEditing(false);
-  }, []);
+  
+  // Navigation State
+  const [activeSectionId, setActiveSectionId] = useState<string>("OFFER_SCORE");
 
   // ── Load & optionally stream ──────────────────────────────────────────────
 
@@ -463,7 +443,7 @@ export default function IntelligencePage({
         return existingCall1;
       }
       setPhase("call1");
-      setStreamingText(""); // Clear previous streaming text
+      setStreamingText(""); 
       const res = await fetch("/api/offer-intelligence/call1", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -478,29 +458,24 @@ export default function IntelligencePage({
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         accumulated += chunk;
-        setStreamingText(accumulated); // Update streaming text in real-time
+        setStreamingText(accumulated);
       }
       const parsed = parseCall1Output(accumulated);
       setCall1(parsed);
-      setCall1Data(parsed);
-      setStreamingText(""); // Clear streaming text when done
+      setStreamingText("");
       return parsed;
     },
     [funnelId],
   );
 
   const streamCall2 = useCallback(
-    async (
-      fd: OfferFormData,
-      c1: Record<string, string>,
-      existingCall2?: Call2Output,
-    ) => {
+    async (fd: OfferFormData, c1: Record<string, string>, existingCall2?: Call2Output) => {
       if (existingCall2) {
         setCall2(existingCall2);
         return;
       }
       setPhase("call2");
-      setStreamingText(""); // Clear previous streaming text
+      setStreamingText("");
       const res = await fetch("/api/offer-intelligence/call2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -515,14 +490,13 @@ export default function IntelligencePage({
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         accumulated += chunk;
-        setStreamingText(accumulated); // Update streaming text in real-time
-        // Parse and update progressively every ~500 chars
+        setStreamingText(accumulated);
         if (accumulated.length % 500 < 50) {
           setCall2(parseCall2Output(accumulated));
         }
       }
       setCall2(parseCall2Output(accumulated));
-      setStreamingText(""); // Clear streaming text when done
+      setStreamingText("");
     },
     [funnelId],
   );
@@ -543,22 +517,43 @@ export default function IntelligencePage({
     }
   }, [call1, call2, formData, streamCall1, streamCall2]);
 
-  const saveEditedCall1 = useCallback(async () => {
-    if (!editedCall1) return;
+  const updateSectionContent = useCallback(async (key: string, newText: string) => {
+    // Determine if it's Call1 or Call2
     try {
-      const res = await fetch(`/api/offer-data/${funnelId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ intelligence: { call1: editedCall1 } }),
-      });
-      if (!res.ok) throw new Error("Save failed");
-      setCall1(editedCall1);
-      setCall1Data(editedCall1);
-      setIsEditing(false);
+      if (call1 && key in call1) {
+        const updated = { ...call1, [key]: newText };
+        setCall1(updated);
+        await fetch(`/api/offer-data/${funnelId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ intelligence: { call1: updated } }),
+        });
+      } else if (call2) {
+        // Map from SECTION key back to call2 mapping
+        const originalKey = Object.keys(CALL2_SECTION_MAP).find((k) => CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === key);
+        if (originalKey) {
+          const updated = { ...call2, [originalKey]: newText };
+          setCall2(updated);
+          await fetch(`/api/offer-data/${funnelId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ intelligence: { call2: updated } }),
+          });
+        }
+      }
     } catch (e: any) {
-      setErrorMsg(e.message || "Save failed");
+      setErrorMsg("Failed to auto-save section");
     }
-  }, [editedCall1, funnelId]);
+  }, [call1, call2, funnelId]);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    // Optional: show toast notification here
+  };
+
+  const handlePrintPdf = () => {
+    window.print();
+  };
 
   useEffect(() => {
     async function init() {
@@ -567,20 +562,12 @@ export default function IntelligencePage({
         if (!res.ok) throw new Error("Funnel not found");
         const { funnel } = await res.json();
 
-        const intelligence: OfferIntelligence =
-          funnel.blocks?.intelligence || {};
-        const fd: OfferFormData = intelligence.raw_input;
-        setFormData(fd);
+        const intelligence: OfferIntelligence = funnel.blocks?.intelligence || {};
+        setFormData(intelligence.raw_input || null);
         setFunnelName(funnel.name || "Untitled Funnel");
 
-        if (intelligence.call1) {
-          setCall1(intelligence.call1);
-          setCall1Data(intelligence.call1);
-        }
-
-        if (intelligence.call2) {
-          setCall2(intelligence.call2);
-        }
+        if (intelligence.call1) setCall1(intelligence.call1);
+        if (intelligence.call2) setCall2(intelligence.call2);
 
         if (intelligence.call1_complete && intelligence.call2_complete) {
           setPhase("done");
@@ -593,530 +580,269 @@ export default function IntelligencePage({
       }
     }
     init();
-  }, [funnelId, streamCall1, streamCall2]);
+  }, [funnelId]);
 
-  // ── Phase indicator ───────────────────────────────────────────────────────
-
-  const PhaseStatus = () => {
-    if (phase === "done") return null;
-    if (phase === "error")
-      return (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-xs font-medium">
-          <AlertTriangle className="w-3.5 h-3.5" />
-          {errorMsg}
-        </div>
-      );
-
-    // Show streaming text if available
-    if (streamingText) {
-      return (
-        <div className="px-4 py-3 rounded-lg bg-primary/5 border border-primary/20">
-          <div className="flex items-center gap-2 mb-2">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-            <span className="text-xs font-medium text-primary">
-              {phase === "call1"
-                ? "AI Structural Analysis (Sonnet)"
-                : "AI Strategic Analysis (Opus)"}
-            </span>
-          </div>
-          <div className="text-xs text-muted-foreground font-mono bg-background/50 p-2 rounded border max-h-32 overflow-y-auto">
-            {streamingText}
-          </div>
-        </div>
-      );
+  // Derive consolidated list of available sections
+  const availableSections = React.useMemo(() => {
+    const list: string[] = [];
+    if (call1) {
+      list.push(...Object.keys(call1).filter(k => SECTION_CONFIG[k]));
     }
+    if (call2) {
+      list.push(...Object.values(CALL2_SECTION_MAP));
+    }
+    // Ensure activeSectionId is valid
+    if (list.length > 0 && !list.includes(activeSectionId)) {
+      setActiveSectionId(list[0]);
+    }
+    return list;
+  }, [call1, call2, activeSectionId]);
 
-    if (phase === "idle") return null;
+  const activeIndex = availableSections.indexOf(activeSectionId);
+  const prevSectionId = activeIndex > 0 ? availableSections[activeIndex - 1] : null;
+  const nextSectionId = activeIndex < availableSections.length - 1 ? availableSections[activeIndex + 1] : null;
 
-    // Default loading state
-    return (
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs font-medium">
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        {phase === "call1"
-          ? "Initializing structural analysis..."
-          : phase === "call2"
-            ? "Initializing strategic analysis..."
-            : "Loading..."}
-      </div>
-    );
-  };
+  // Active section data lookup
+  let activeContent = "";
+  if (call1 && activeSectionId in call1) {
+    activeContent = call1[activeSectionId];
+  } else if (call2) {
+    const origKey = Object.keys(CALL2_SECTION_MAP).find(k => CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === activeSectionId);
+    if (origKey && origKey in call2) {
+      activeContent = call2[origKey as keyof Call2Output] || "";
+    }
+  }
+
+  const activeConfig = SECTION_CONFIG[activeSectionId] || SECTION_CONFIG["OFFER_SCORE"];
 
   // ── Layout ────────────────────────────────────────────────────────────────
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
-      <div
-        className="flex-1 flex flex-col min-w-0 overflow-hidden"
-        style={{ marginLeft: "56px" }}
-      >
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: "56px" }}>
         {/* Topbar */}
         <Topbar
           breadcrumbs={[
             { label: "Funnels", href: "/" },
-            {
-              label: funnelName || funnelId,
-              href: `/intelligence/${funnelId}`,
-            },
-            { label: "Intelligence" },
+            { label: funnelName || funnelId, href: `/intelligence/${funnelId}` },
+            { label: "Intelligence Reports" },
           ]}
           steps={WIZARD_STEPS}
         >
-          <PhaseStatus />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push(`/intelligence/${funnelId}`)}
-            className="gap-1.5 text-muted-foreground"
-            title="Refresh report"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
+          {phase !== "idle" && phase !== "done" && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+          
+          <Button variant="outline" size="sm" onClick={handlePrintPdf} className="gap-2 print:hidden">
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export PDF</span>
           </Button>
+
           <Button
             size="sm"
-            disabled={!call1 || !call2}
+            disabled={availableSections.length === 0}
             onClick={() => router.push(`/copy/${funnelId}`)}
-            className="gap-1.5 font-semibold"
+            className="gap-1.5 font-semibold print:hidden"
           >
             Generate Copy
             <ArrowRight className="w-3.5 h-3.5" />
           </Button>
         </Topbar>
 
-        {/* Main + Right Sidebar */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Center scroll */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl mx-auto px-6 py-6 space-y-4">
-              {/* Report header */}
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
-                      <Zap className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Intelligence Report
-                    </span>
-                  </div>
-                  <h1 className="text-2xl font-bold text-foreground tracking-tight">
-                    {funnelName || "—"}
-                  </h1>
-                  {formData && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {formData.field_1_format} · {formData.field_4_price}{" "}
-                      {formData.field_4_currency} ·{" "}
-                      {formData.field_7_channels.join(", ")}
-                    </p>
-                  )}
+        {/* Hidden PDF Stacking Container for window.print() */}
+        <div className="hidden print:block absolute inset-0 bg-white text-black p-8 z-50 overflow-visible h-auto max-w-none">
+          <div className="mb-8 border-b pb-4">
+            <h1 className="text-3xl font-bold">{funnelName || "Intelligence Report"}</h1>
+            <p className="text-gray-500 mt-2">Comprehensive Funnel Architecture & Strategic Blueprint</p>
+          </div>
+          {availableSections.map(sectionId => {
+            const config = SECTION_CONFIG[sectionId] || { label: sectionId, subheader: "" };
+            let content = "";
+            if (call1 && sectionId in call1) content = call1[sectionId];
+            else if (call2) {
+              const orig = Object.keys(CALL2_SECTION_MAP).find(k => CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === sectionId);
+              if (orig) content = call2[orig as keyof Call2Output];
+            }
+            return (
+              <div key={sectionId} className="page-break-after-always mb-12">
+                <h2 className="text-xl font-bold mb-1 pb-1 border-b text-gray-800 flex items-center justify-between">
+                  {config.label}
+                  {config.badge && <span className="text-xs font-normal bg-gray-100 px-2 py-0.5 rounded-full">{config.badge}</span>}
+                </h2>
+                <p className="text-xs text-gray-500 mb-4">{config.subheader}</p>
+                <div className="text-sm prose max-w-none">
+                  {content.split("\n").filter(Boolean).map((line, i) => (
+                    <p key={i} className="mb-2">{line.replace(/INTENSITY:\s*\w+/i, "")}</p>
+                  ))}
                 </div>
-                {call1Data && Object.keys(call1Data).length > 0 && (
-                  <div className="shrink-0 text-right">
-                    <div className="text-3xl font-bold text-primary">
-                      {Object.keys(call1Data).length}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      Intelligence Sections
-                    </div>
-                  </div>
-                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Main Interface Layout */}
+        <div className="flex flex-1 overflow-hidden print:hidden">
+          
+          {/* Left Sidebar Sections Navigation */}
+          <div className="w-64 shrink-0 border-r border-border bg-card/50 flex flex-col h-full hidden md:flex overflow-hidden">
+              <div className="p-4 border-b border-border bg-card sticky top-0 z-10 flex-shrink-0">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Report Sections</div>
               </div>
 
-              {/* Report Content */}
-              {!call1Data || Object.keys(call1Data).length === 0 ? (
-                <Card className="border border-border bg-card p-6">
-                  <CardContent className="space-y-4">
-                    <div>
-                      <h2 className="text-xl font-semibold text-foreground">
-                        Start your intelligence analysis
-                      </h2>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        This page will stream the structural and strategic
-                        intelligence for your offer in real time. Click the
-                        button below to begin.
-                      </p>
-                    </div>
-                    <Button size="lg" onClick={runAnalysis} className="w-full">
-                      Analyze Offer
-                    </Button>
-                    {phase !== "idle" && phase !== "done" && (
-                      <div className="text-xs text-muted-foreground">
-                        Analysis is in progress — keep this page open and watch
-                        the AI stream.
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-4">
-                  {/* Edit Controls */}
-                  <div className="flex justify-end gap-2">
-                    {!isEditing ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={enterEditMode}
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit Report
-                      </Button>
-                    ) : (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={cancelEdit}
-                        >
-                          Cancel
-                        </Button>
-                        <Button size="sm" onClick={saveEditedCall1}>
-                          <Save className="w-4 h-4 mr-2" />
-                          Save Changes
-                        </Button>
-                      </>
-                    )}
-                  </div>
+             <nav className="p-2 overflow-y-auto space-y-0.5 flex-1 custom-scrollbar pb-6 text-sm">
+                {availableSections.map((sid) => {
+                  const cfg = SECTION_CONFIG[sid] || { label: sid, color: "text-muted-foreground", badge: "" };
+                  const isActive = sid === activeSectionId;
+                  return (
+                    <button
+                      key={sid}
+                      onClick={() => setActiveSectionId(sid)}
+                      className={cn(
+                        "w-full flex items-center justify-between px-3 py-2 rounded-md transition-all text-left group",
+                        isActive 
+                          ? "bg-brand-yellow/10 text-brand-yellow font-medium" 
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                       <span className="truncate pr-2">{cfg.label}</span>
+                       {(cfg.badge || isActive) && (
+                         <div className="shrink-0 flex items-center gap-1.5">
+                           {cfg.badge && !isActive && (
+                             <span className="text-[9px] uppercase tracking-wider opacity-60 font-bold">{cfg.badge}</span>
+                           )}
+                           {isActive && <ChevronRight className="w-3.5 h-3.5" />}
+                         </div>
+                       )}
+                    </button>
+                  );
+                })}
+             </nav>
 
-                  <Accordion type="single" collapsible className="space-y-3">
-                    {Object.entries(
-                      isEditing ? editedCall1 || {} : call1Data,
-                    ).map(([key, content], index) => {
-                      const config = SECTION_CONFIG[key] || {
-                        label: key.replace(/_/g, " "),
-                        icon: <FileText className="w-4 h-4" />,
-                        color: "text-muted-foreground",
-                      };
-                      return (
-                        <AccordionItem
-                          key={key}
-                          value={key}
-                          className="border border-border rounded-xl overflow-hidden"
-                        >
-                          <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-muted/20 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={cn(
-                                  "p-2 rounded-lg bg-muted",
-                                  config.color
-                                    .replace("text-", "bg-")
-                                    .replace("-500", "-500/10"),
-                                )}
-                              >
-                                {config.icon}
-                              </div>
-                              <div className="text-left">
-                                <h3 className="text-sm font-semibold text-foreground">
-                                  {config.label}
-                                </h3>
-                                <p className="text-xs text-muted-foreground">
-                                  Section {index + 1} of{" "}
-                                  {
-                                    Object.keys(
-                                      isEditing ? editedCall1 || {} : call1Data,
-                                    ).length
-                                  }
-                                </p>
-                              </div>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-6 pb-6">
-                            <Card className="border-0 shadow-none bg-transparent">
-                              <CardContent className="p-0">
-                                {key === "OFFER_SCORE" && !isEditing ? (
-                                  <OfferScoreDisplay content={content} />
-                                ) : (
-                                  <EditableNarrativeText
-                                    text={content}
-                                    isEditing={isEditing}
-                                    onChange={(newText) => {
-                                      if (editedCall1) {
-                                        setEditedCall1({
-                                          ...editedCall1,
-                                          [key]: newText,
-                                        });
-                                      }
-                                    }}
-                                  />
-                                )}
-                              </CardContent>
-                            </Card>
-                          </AccordionContent>
-                        </AccordionItem>
-                      );
-                    })}
-                  </Accordion>
-
-                  {call2 ? (
-                    <div className="space-y-2">
-                      <Accordion
-                        type="single"
-                        collapsible
-                        className="space-y-2"
-                      >
-                        <AccordionItem
-                          value="offer-positioning"
-                          className="border border-border rounded-lg"
-                        >
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/20 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
-                                <Layers className="w-3.5 h-3.5" />
-                              </div>
-                              <span className="text-sm font-semibold text-foreground">
-                                Offer Positioning Analysis
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <NarrativeText
-                              text={call2.offer_positioning_analysis}
-                            />
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem
-                          value="target-persona"
-                          className="border border-border rounded-lg"
-                        >
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/20 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
-                                <Users className="w-3.5 h-3.5" />
-                              </div>
-                              <span className="text-sm font-semibold text-foreground">
-                                Target Persona Intelligence
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <NarrativeText
-                              text={call2.target_persona_intelligence}
-                            />
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem
-                          value="conversion-hooks"
-                          className="border border-border rounded-lg"
-                        >
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/20 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
-                                <MessageSquare className="w-3.5 h-3.5" />
-                              </div>
-                              <span className="text-sm font-semibold text-foreground">
-                                Conversion Hook Library
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <PreformattedSection
-                              text={call2.conversion_hook_library}
-                            />
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem
-                          value="messaging-angles"
-                          className="border border-border rounded-lg"
-                        >
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/20 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
-                                <Lightbulb className="w-3.5 h-3.5" />
-                              </div>
-                              <span className="text-sm font-semibold text-foreground">
-                                Messaging Angle Matrix
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <PreformattedSection
-                              text={call2.messaging_angle_matrix}
-                            />
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem
-                          value="product-core-value"
-                          className="border border-border rounded-lg"
-                        >
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/20 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
-                                <TargetIcon className="w-3.5 h-3.5" />
-                              </div>
-                              <span className="text-sm font-semibold text-foreground">
-                                Product Core Value Perception
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <NarrativeText
-                              text={call2.product_core_value_perception}
-                            />
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem
-                          value="operator-scenarios"
-                          className="border border-border rounded-lg"
-                        >
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/20 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
-                                <Users className="w-3.5 h-3.5" />
-                              </div>
-                              <span className="text-sm font-semibold text-foreground">
-                                Real-World Operator Scenarios
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <PreformattedSection
-                              text={call2.real_world_use_case_scenarios}
-                            />
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem
-                          value="monetization-narrative"
-                          className="border border-primary/20 bg-primary/[0.02] rounded-lg"
-                        >
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-primary/5 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center text-primary">
-                                <Sparkles className="w-3.5 h-3.5" />
-                              </div>
-                              <span className="text-sm font-semibold text-foreground">
-                                Monetization Strategy Narrative
-                              </span>
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-                                Master Strategy
-                              </span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4">
-                            <NarrativeText
-                              text={call2.monetization_strategy_narrative}
-                            />
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </div>
-                  ) : (
-                    call1Data &&
-                    phase === "idle" && (
-                      <Card className="border border-border p-6">
-                        <CardContent className="space-y-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-foreground">
-                              Strategic intelligence is ready to generate
-                            </h3>
-                            <p className="text-sm text-muted-foreground mt-2">
-                              You can now generate the full call2 strategy
-                              report based on the structural analysis.
-                            </p>
-                          </div>
-                          <Button
-                            size="lg"
-                            onClick={runAnalysis}
-                            className="w-full"
-                          >
-                            Generate Strategic Intelligence
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    )
-                  )}
-
-                  {/* Next Steps */}
-                  {call2 && (
-                    <div className="mt-8 text-center">
-                      <Card className="max-w-md mx-auto">
-                        <CardContent className="p-6">
-                          <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <ArrowRight className="w-5 h-5 text-primary" />
-                          </div>
-                          <h3 className="text-lg font-semibold text-foreground mb-2">
-                            Ready for Copy Generation
-                          </h3>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Use this intelligence to generate high-converting
-                            sales copy for your funnel pages.
-                          </p>
-                          <Button
-                            onClick={() => router.push(`/copy/${funnelId}`)}
-                            className="w-full"
-                          >
-                            Generate Sales Copy
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Loading state */}
-              {phase === "call1" && !call1Data && (
-                <div className="space-y-4">
-                  <div className="text-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Generating Intelligence Report
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      AI is analyzing your offer and creating a comprehensive
-                      revenue blueprint...
-                    </p>
+             {/* Placeholder Advertisement Block */}
+             <div className="p-3 shrink-0 mb-2">
+                <div className="relative w-full h-[120px] rounded-xl overflow-hidden group cursor-pointer border border-white/10">
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" 
+                    alt="Advertisement"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute bottom-3 left-3 right-3 z-20">
+                     <span className="text-[10px] font-black tracking-widest uppercase text-brand-yellow mb-1 block">OfferIQ Pro</span>
+                     <p className="text-[11px] font-medium text-foreground leading-tight opacity-90 line-clamp-2">Unlock AI-driven split testing for your funnels.</p>
                   </div>
                 </div>
-              )}
-            </div>
+             </div>
           </div>
 
-          {/* Right sidebar — quick nav */}
-          <div className="w-52 shrink-0 border-l border-border bg-card overflow-y-auto hidden xl:block">
-            <div className="p-4 sticky top-0 bg-card border-b border-border">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                Sections
-              </p>
-            </div>
-            <nav className="p-2 space-y-0.5 text-xs">
-              {[
-                ["Offer Score", ""],
-                ["Funnel Health", ""],
-                ["Revenue Model", ""],
-                ["Pain Points", ""],
-                ["Funnel Blueprint", ""],
-                ["Pricing", ""],
-                ["Upsell Paths", ""],
-                ["Bonuses", ""],
-                ["Design", ""],
-                ["Platforms", ""],
-                ["Positioning", "Opus"],
-                ["Persona", "Opus"],
-                ["Hooks", "Opus"],
-                ["Messaging", "Opus"],
-                ["Value Perception", "Opus"],
-                ["Scenarios", "Opus"],
-                ["Strategy Narrative", "Opus"],
-              ].map(([label, badge]) => (
-                <div
-                  key={label}
-                  className="flex items-center justify-between px-2 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 cursor-pointer transition-colors"
-                >
-                  <span>{label}</span>
-                  {badge && (
-                    <span className="text-[9px] text-violet-400 font-bold">
-                      {badge}
-                    </span>
-                  )}
+          {/* Central Main Document */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar relative bg-background">
+             
+             {!call1 || availableSections.length === 0 ? (
+               <div className="flex items-center justify-center h-full p-8">
+                 <Card className="max-w-md w-full border-border">
+                    <CardContent className="p-8 text-center space-y-4">
+                      {phase === "call1" || phase === "call2" ? (
+                        <>
+                          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+                          <h2 className="text-xl font-semibold">Generating Intelligence...</h2>
+                          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded text-left mt-4 max-h-32 overflow-y-auto w-full">
+                            {streamingText || "Connecting to core AI processor..."}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                          <h2 className="text-xl font-semibold">Start your intelligence analysis</h2>
+                          <p className="text-sm text-muted-foreground">This generates structural and strategic intelligence for your offer.</p>
+                          <Button size="lg" onClick={runAnalysis} className="w-full mt-4">Generate Report</Button>
+                        </>
+                      )}
+                    </CardContent>
+                 </Card>
+               </div>
+             ) : (
+                <div className="max-w-4xl mx-auto px-6 lg:px-12 py-10">
+                   
+                   {/* Section Header */}
+                   <div className="mb-8 flex items-baseline justify-between gap-4">
+                      <div className="flex items-baseline gap-3 flex-wrap">
+                         <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                           {activeConfig.label}
+                         </h1>
+                         {activeConfig.badge && (
+                           <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 translate-y-[-2px]">
+                             {activeConfig.badge} Engine
+                           </span>
+                         )}
+                         <p className="text-sm font-medium text-muted-foreground ml-2">
+                           — {activeConfig.subheader}
+                         </p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(activeContent)} className="text-muted-foreground hover:text-foreground gap-2 shrink-0">
+                        <Copy className="w-4 h-4" />
+                        <span className="hidden lg:inline">Copy Text</span>
+                      </Button>
+                   </div>
+
+                   {/* Dynamic Chart Integration */}
+                   {activeConfig.chartType === "radar" && activeSectionId === "OFFER_SCORE" && (
+                     <ScoreRadarChart content={activeContent} />
+                   )}
+                   {activeConfig.chartType === "bar" && activeSectionId === "PRICING_STRATEGY" && (
+                     <PricingBarChart content={activeContent} />
+                   )}
+                   {activeConfig.chartType === "pie" && activeSectionId === "PLATFORM_PRIORITY_MATRIX" && (
+                     <PlatformPieChart content={activeContent} />
+                   )}
+
+                   {/* Editable Markdown Body */}
+                   <div className="min-h-[250px] mb-12">
+                      <EditableNarrativeText 
+                        text={activeContent} 
+                        onChange={(newText) => updateSectionContent(activeSectionId, newText)} 
+                      />
+                   </div>
+
+                   {/* Shadcn-style Footer Navigation */}
+                   <div className="flex items-center justify-between border-t border-border pt-8 mt-12 pb-12">
+                      {prevSectionId ? (
+                        <Button 
+                          variant="outline" 
+                          className="h-12 px-6 gap-3 group"
+                          onClick={() => setActiveSectionId(prevSectionId)}
+                        >
+                          <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                          <div className="flex flex-col items-start">
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Previous</span>
+                            <span className="truncate max-w-[120px] sm:max-w-xs">{SECTION_CONFIG[prevSectionId]?.label}</span>
+                          </div>
+                        </Button>
+                      ) : (
+                        <div /> // Spacer
+                      )}
+
+                      {nextSectionId ? (
+                        <Button 
+                          variant="outline" 
+                          className="h-12 px-6 gap-3 group bg-primary/5 hover:bg-primary/10"
+                          onClick={() => setActiveSectionId(nextSectionId)}
+                        >
+                          <div className="flex flex-col items-end">
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Next Section</span>
+                            <span className="truncate max-w-[120px] sm:max-w-xs">{SECTION_CONFIG[nextSectionId]?.label}</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        </Button>
+                      ) : (
+                         <Button onClick={() => router.push(`/copy/${funnelId}`)} className="h-12 px-6">
+                           Finish & Build Pages
+                         </Button>
+                      )}
+                   </div>
+
                 </div>
-              ))}
-            </nav>
+             )}
           </div>
         </div>
       </div>

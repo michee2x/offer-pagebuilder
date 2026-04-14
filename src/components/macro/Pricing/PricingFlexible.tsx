@@ -93,7 +93,7 @@ export function PricingFlexible({
         className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         style={elementStyles.grid}
       >
-        {plans.map((plan, index) => (
+        {plans.map((plan) => (
           <div
             key={plan.id}
             className={cn(

@@ -7,8 +7,7 @@ import { ThemeSwitcher } from '@/components/builder/ThemeSwitcher';
 import { SectionLibraryModal } from '@/components/builder/SectionLibraryModal';
 import { AiStreamBoard } from '@/components/builder/AiStreamBoard';
 import { useBuilderStore } from '@/store/builderStore';
-import { Button } from '@/components/ui/button';
-import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus, Globe, Save, Edit2 } from 'lucide-react';
+import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Undo2, Redo2, Globe, Save, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
@@ -17,18 +16,16 @@ import { cn } from '@/lib/utils';
 
 export default function BuilderPage() {
   const { 
-    addComponent, moveComponent, setFullState, components, rootList, 
+    setFullState, components, rootList, 
     canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, 
     pageId, setPageId, theme, setTheme, hasUnsavedChanges, setHasUnsavedChanges,
-    pages, activePagePath, switchPage,
+    pages, activePagePath,
     funnelName, setFunnelName,
     undo, redo, past, future 
   } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [streamText, setStreamText] = React.useState('');
   const [isSaving, setIsSaving] = React.useState(false);
-  const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
-  const [copied, setCopied] = React.useState(false);
   const [initialLoading, setInitialLoading] = React.useState(true);
   const [hasIntelligence, setHasIntelligence] = React.useState(false);
 
@@ -69,16 +66,6 @@ export default function BuilderPage() {
                     if (data.page.blocks.theme) {
                         setTheme(data.page.blocks.theme);
                     }
-                    if (data.page.custom_domain) {
-                        setPublishedUrl(`https://${data.page.custom_domain}`);
-                    } else if (data.page.subdomain) {
-                        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                        const proto = isLocal ? 'http://' : 'https://';
-                        const base = isLocal ? window.location.host : 'ofiq.app';
-                        setPublishedUrl(`${proto}${data.page.subdomain}.${base}`);
-                    } else {
-                        setPublishedUrl(null);
-                    }
                 }
             })
             .catch(err => console.error("Failed to fetch page:", err))
@@ -91,7 +78,7 @@ export default function BuilderPage() {
           setInitialLoading(false);
       }
     }
-  }, [setPageId, setFullState, setFunnelName]);
+  }, [setPageId, setFullState, setFunnelName, setTheme]);
 
   // No more DND sensors or event handlers needed
 
@@ -235,19 +222,6 @@ export default function BuilderPage() {
 
       toast.dismiss();
       
-      // We only update published URL if the publish endpoint returns them, 
-      // otherwise it remains what it was (maybe they configured it on Deploy page)
-      if (data.custom_domain || data.subdomain) {
-          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-          const proto = isLocal ? 'http://' : 'https://';
-          const base = isLocal ? window.location.host : 'ofiq.app';
-          
-          if (data.custom_domain) {
-              setPublishedUrl(`https://${data.custom_domain}`);
-          } else {
-              setPublishedUrl(`${proto}${data.subdomain}.${base}`);
-          }
-      }
       setHasUnsavedChanges(false);
       
       if (!pageId && data.pageId) {

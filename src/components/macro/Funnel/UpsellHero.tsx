@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Badge } from '@/components/micro';
+import { Button } from '@/components/micro';
 import { SystemIcon } from '../../system/Icon';
 
 export interface UpsellHeroProps {

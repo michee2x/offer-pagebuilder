@@ -40,11 +40,9 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Intelligence not found. Run Call 1 and Call 2 first.' }, { status: 400 });
   }
 
-  const { raw_input: formData, call1, call2 } = data.blocks.intelligence;
-
-  if (!formData || !call1 || !call2) {
-    return Response.json({ error: 'Intelligence data incomplete. Complete both calls first.' }, { status: 400 });
-  }
+  const formData = data.blocks.intelligence.raw_input || {};
+  const call1 = data.blocks.intelligence.call1 || {};
+  const call2 = data.blocks.intelligence.call2 || {};
 
   const userPrompt = buildCopyUserPrompt(formData, call1, call2);
 

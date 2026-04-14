@@ -16,7 +16,7 @@ export default function NotFound() {
             Page not found
           </h2>
           <p className="text-sm md:text-base text-white/40 max-w-sm mx-auto leading-relaxed">
-            The funnel destination you are looking for doesn't exist, has been paused, or was moved.
+            The funnel destination you are looking for doesn&apos;t exist, has been paused, or was moved.
           </p>
         </div>
 

@@ -104,6 +104,20 @@ export interface Call1Output {
   [key: string]: string;
 }
 
+export interface Call1Parsed {
+  offer_score: OfferScore;
+  score_summary: string;
+  funnel_structure_blueprint: string;
+  revenue_model_architecture: string;
+  pain_point_mapping: string;
+  platform_priority_matrix: PlatformPriorityMatrix;
+  funnel_health_score: FunnelHealthScore;
+  pricing_strategy: string;
+  upsell_downsell_paths: string;
+  strategic_bonus_recommendations: string;
+  design_intelligence_recommendation: string;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Call 2 — Opus Strategic Output
 // ─────────────────────────────────────────────────────────────────────────────

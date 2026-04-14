@@ -113,7 +113,7 @@ export function FeatureTestimonials({
                 className="text-lg text-foreground/90 leading-relaxed font-medium"
                 style={elementStyles[`card_${idx}_content`]}
               >
-                "{item.content || (item as any).quote || (item as any).text || 'This entirely changed how we look at our user retention. Absolutely indispensable.'}"
+                &ldquo;{item.content || (item as any).quote || (item as any).text || 'This entirely changed how we look at our user retention. Absolutely indispensable.'}&rdquo;
               </p>
 
               <div className="flex items-center gap-4">

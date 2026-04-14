@@ -18,7 +18,7 @@ export default function middleware(req: NextRequest) {
   const url = req.nextUrl
   
   // Get hostname of request (e.g. demo.vercel.pub, demo.localhost:3000)
-  let hostname = req.headers.get('host') || 'localhost:3000'
+  const hostname = req.headers.get('host') || 'localhost:3000'
 
   // Remove port if present for matching (e.g. localhost:3000 -> localhost)
   const hostnameWithoutPort = hostname.split(':')[0]

@@ -42,28 +42,18 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
     updateProps,
   } = useBuilderStore();
 
-  const component = components[id];
-  if (!component) return null;
-
-  const config = COMPONENT_REGISTRY[component.type];
-  if (!config) return null; // Skip components not in registry
-
-  const isSelected = selectedId === id && !isPreviewMode;
-  const isHeader = component.type.includes("Header");
-  const currentIndex = rootList.indexOf(id);
-
-  // ── Image replacement state ─────────────────────────────────────────────────
+  // ── All hooks MUST be called unconditionally before any early return ──────
   const contentRef = React.useRef<HTMLDivElement>(null);
   const hideTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Store prop match at hover time so it survives mouseout when dialog opens
   const pendingMatchRef = React.useRef<ImagePropMatch>(null);
-
-  const [hoveredImg, setHoveredImg] = React.useState<HoveredImgData | null>(
-    null,
-  );
+  const [hoveredImg, setHoveredImg] = React.useState<HoveredImgData | null>(null);
   const [pickerOpen, setPickerOpen] = React.useState(false);
 
+  const component = components[id];
+  const config = component ? COMPONENT_REGISTRY[component.type] : null;
+
   React.useEffect(() => {
+    if (!component || !config) return;
     if (isPreviewMode || !contentRef.current) return;
     const container = contentRef.current;
 
@@ -111,7 +101,14 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
     };
     // Re-attach if props change (prop keys might change after AI edit)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPreviewMode, component.props]);
+  }, [isPreviewMode, component?.props]);
+
+  // Guard after all hooks
+  if (!component || !config) return null;
+
+  const isSelected = selectedId === id && !isPreviewMode;
+  const isHeader = component.type.includes("Header");
+  const currentIndex = rootList.indexOf(id);
 
   // ── When picker selects a URL ───────────────────────────────────────────────
   const handleImageSelected = (url: string) => {
@@ -132,7 +129,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
       // If the component was saved in the store without a default image prop,
       // the string match fails. We can infer the correct prop directly from the schema.
       const imageFields = Object.entries(config.fields)
-        .filter(([_, field]) => field?.type === "image")
+        .filter(([_k, field]) => field?.type === "image")
         .map(([key]) => key);
 
       if (imageFields.length === 1) {

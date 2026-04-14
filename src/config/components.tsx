@@ -44,7 +44,6 @@ import { CTASimple } from "../components/macro/CTA/CTASimple";
 import { CTAWithAvatars } from "../components/macro/CTA/CTAWithAvatars";
 import { CTAWithBackground } from "../components/macro/CTA/CTAWithBackground";
 
-
 // Pricing Components
 import { PricingComparison } from "../components/macro/Pricing/PricingComparison";
 import { PricingFlexible } from "../components/macro/Pricing/PricingFlexible";
@@ -836,7 +835,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
             ))}
           </div>
           {/* Quote */}
-          <p className="leading-relaxed text-sm opacity-90 italic">"{quote}"</p>
+          <p className="leading-relaxed text-sm opacity-90 italic">&ldquo;{quote}&rdquo;</p>
           {/* Author */}
           <div className="flex items-center gap-3 pt-2">
             <div
@@ -1307,8 +1306,6 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     render: (props: any) => <FeatureSplit {...props} />,
   },
 
-  
-
   FeatureTestimonials: {
     type: "FeatureTestimonials",
     label: "Feature Testimonials",
@@ -1430,8 +1427,9 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     type: "PricingComparison",
     label: "Pricing Comparison",
     semantic: {
-      purpose: "A detailed pricing comparison section with highlights and feature checklists.",
-      example: { title: "OUR PRICING" }
+      purpose:
+        "A detailed pricing comparison section with highlights and feature checklists.",
+      example: { title: "OUR PRICING" },
     },
     defaultProps: {
       title: "OUR PRICING",
@@ -1439,32 +1437,32 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       highlights: [
         { text: "Advanced AI features included" },
         { text: "Lightning fast load speed always" },
-        { text: "Clear honest usage with limits" }
+        { text: "Clear honest usage with limits" },
       ],
       plans: [
-        { 
-          id: "1", 
-          name: "Basic", 
+        {
+          id: "1",
+          name: "Basic",
           description: "Good for starting",
-          price: "$29", 
-          period: "/mo", 
-          buttonText: "Start Now", 
+          price: "$29",
+          period: "/mo",
+          buttonText: "Start Now",
           highlighted: "false",
-          features: [{text: "Feature 1"}] 
+          features: [{ text: "Feature 1" }],
         },
-        { 
-          id: "2", 
-          name: "Pro", 
+        {
+          id: "2",
+          name: "Pro",
           description: "Best for teams",
-          price: "$99", 
-          period: "/mo", 
-          buttonText: "Get Pro", 
+          price: "$99",
+          period: "/mo",
+          buttonText: "Get Pro",
           highlighted: "true",
-          features: [{text: "Feature A"}] 
-        }
+          features: [{ text: "Feature A" }],
+        },
       ],
       className: "",
-      elementStyles: {}
+      elementStyles: {},
     },
     fields: {
       title: { type: "text", label: "Title" },
@@ -1472,7 +1470,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       highlights: {
         type: "array",
         label: "Highlights",
-        arrayFields: { text: { type: "text", label: "Highlight Text" } }
+        arrayFields: { text: { type: "text", label: "Highlight Text" } },
       },
       plans: {
         type: "array",
@@ -1484,17 +1482,23 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           price: { type: "text", label: "Price" },
           period: { type: "text", label: "Period" },
           buttonText: { type: "text", label: "Button Text" },
-          highlighted: { type: "select", label: "Highlighted?", options: ["true", "false"] },
+          highlighted: {
+            type: "select",
+            label: "Highlighted?",
+            options: ["true", "false"],
+          },
           features: {
-            type: "array", label: "Features", arrayFields: {
-              text: { type: "text", label: "Feature Text" }
-            }
-          }
-        }
+            type: "array",
+            label: "Features",
+            arrayFields: {
+              text: { type: "text", label: "Feature Text" },
+            },
+          },
+        },
       },
-      className: { type: "text", label: "Tailwind Classes" }
+      className: { type: "text", label: "Tailwind Classes" },
     },
-    render: (props: any) => <PricingComparison {...props} />
+    render: (props: any) => <PricingComparison {...props} />,
   },
 
   PricingFlexible: {
@@ -1502,11 +1506,12 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     label: "Pricing Flexible",
     semantic: {
       purpose: "A flexible pricing section with annual/monthly toggle.",
-      example: { title: "Flexible Pricing Plans" }
+      example: { title: "Flexible Pricing Plans" },
     },
     defaultProps: {
       title: "Flexible Pricing Plans",
-      subtitle: "Choose a plan that supports your business growth and digital goals.",
+      subtitle:
+        "Choose a plan that supports your business growth and digital goals.",
       monthlyLabel: "Monthly",
       annualLabel: "Annually",
       buttonText: "Get Started",
@@ -1518,7 +1523,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           annualPrice: 19,
           description: "For small teams",
           mostPopular: false,
-          features: [{ text: "Feature 1" }]
+          features: [{ text: "Feature 1" }],
         },
         {
           id: "2",
@@ -1527,11 +1532,11 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           annualPrice: 79,
           description: "For growing teams",
           mostPopular: true,
-          features: [{ text: "Feature A" }]
-        }
+          features: [{ text: "Feature A" }],
+        },
       ],
       className: "",
-      elementStyles: {}
+      elementStyles: {},
     },
     fields: {
       title: { type: "text", label: "Title" },
@@ -1548,17 +1553,23 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           monthlyPrice: { type: "number", label: "Monthly Price" },
           annualPrice: { type: "number", label: "Annual Price" },
           description: { type: "textarea", label: "Description" },
-          mostPopular: { type: "select", label: "Most Popular?", options: ["true", "false"] },
+          mostPopular: {
+            type: "select",
+            label: "Most Popular?",
+            options: ["true", "false"],
+          },
           features: {
-            type: "array", label: "Features", arrayFields: {
-              text: { type: "text", label: "Feature Text" }
-            }
-          }
-        }
+            type: "array",
+            label: "Features",
+            arrayFields: {
+              text: { type: "text", label: "Feature Text" },
+            },
+          },
+        },
       },
-      className: { type: "text", label: "Tailwind Classes" }
+      className: { type: "text", label: "Tailwind Classes" },
     },
-    render: (props: any) => <PricingFlexible {...props} />
+    render: (props: any) => <PricingFlexible {...props} />,
   },
 
   PricingTiers: {
@@ -1566,7 +1577,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     label: "Pricing Tiers",
     semantic: {
       purpose: "Standard clean 3-tier pricing table.",
-      example: { title: "Pricing that scales with you" }
+      example: { title: "Pricing that scales with you" },
     },
     defaultProps: {
       title: "Pricing that scales with you",
@@ -1579,7 +1590,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           duration: "/mo",
           buttonText: "Start free trial",
           mostPopular: false,
-          features: [{ text: "Basic Features" }]
+          features: [{ text: "Basic Features" }],
         },
         {
           name: "Pro",
@@ -1588,11 +1599,11 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           duration: "/mo",
           buttonText: "Get Pro",
           mostPopular: true,
-          features: [{ text: "Advanced Features" }]
-        }
+          features: [{ text: "Advanced Features" }],
+        },
       ],
       className: "",
-      elementStyles: {}
+      elementStyles: {},
     },
     fields: {
       title: { type: "text", label: "Title" },
@@ -1606,17 +1617,23 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           price: { type: "text", label: "Price" },
           duration: { type: "text", label: "Duration" },
           buttonText: { type: "text", label: "Button Text" },
-          mostPopular: { type: "select", label: "Most Popular?", options: ["true", "false"] },
+          mostPopular: {
+            type: "select",
+            label: "Most Popular?",
+            options: ["true", "false"],
+          },
           features: {
-            type: "array", label: "Features", arrayFields: {
-              text: { type: "text", label: "Feature Text" }
-            }
-          }
-        }
+            type: "array",
+            label: "Features",
+            arrayFields: {
+              text: { type: "text", label: "Feature Text" },
+            },
+          },
+        },
       },
-      className: { type: "text", label: "Tailwind Classes" }
+      className: { type: "text", label: "Tailwind Classes" },
     },
-    render: (props: any) => <PricingTiers {...props} />
+    render: (props: any) => <PricingTiers {...props} />,
   },
 
   FeatureCTA: {
@@ -1760,7 +1777,6 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   },
 
   // ── BLOG COMPONENTS ───────────────────────────────────────────────────────
-  
 
   // ── COUNTDOWN COMPONENTS ───────────────────────────────────────────────────
   CountdownLaunch: {
@@ -2205,13 +2221,14 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     type: "FeatureLogos",
     label: "Feature Logos",
     semantic: {
-      purpose: "A section displaying company logos to build trust and credibility.",
+      purpose:
+        "A section displaying company logos to build trust and credibility.",
       example: {
         headline: "TRUSTED BY INNOVATIVE TEAMS WORLDWIDE",
         logos: [
           { name: "Stripe", domain: "stripe.com" },
-          { name: "Linear", domain: "linear.app" }
-        ]
+          { name: "Linear", domain: "linear.app" },
+        ],
       },
     },
     defaultProps: {

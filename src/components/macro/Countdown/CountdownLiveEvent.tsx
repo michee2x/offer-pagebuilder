@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 
 export interface CountdownLiveEventProps {
   badgeText?: string;
-  liveText?: string;
   headline?: string;
   subtitle?: string;
   eventDateText?: string;
@@ -35,7 +34,6 @@ function getTimeRemaining(target: Date) {
 
 export function CountdownLiveEvent({
   badgeText = "LIVE EVENT",
-  liveText = "Free Masterclass: 7-Figure Funnel Secrets",
   headline = "Free Masterclass: 7-Figure Funnel Secrets",
   subtitle = "Join 2,847 founders learning our proven framework",
   eventDateText = "Thursday, April 10th • 2:00 PM EST",

@@ -27,6 +27,7 @@ export function ResponsiveIframe({ children, className, style, themeHtml }: Resp
     });
     
     // Copy HTML classes (like dark mode 'dark' class)
+    // eslint-disable-next-line react-hooks/immutability
     doc.documentElement.className = document.documentElement.className;
     
   }, [iframeRef, themeHtml]); // re-run if themeHtml changes to keep it in sync
