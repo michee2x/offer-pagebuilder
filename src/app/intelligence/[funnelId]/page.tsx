@@ -308,7 +308,6 @@ function EditableNarrativeText({
         <RichTextEditor
           content={editorInitialContent}
           onChange={onChange}
-          placeholder="Edit this section..."
         />
       </div>
     );
