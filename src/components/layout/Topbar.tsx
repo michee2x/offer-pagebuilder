@@ -18,10 +18,11 @@ export interface WizardStep {
 interface TopbarProps {
   breadcrumbs: Breadcrumb[];
   steps?: WizardStep[];
+  actions?: React.ReactNode;
   children?: React.ReactNode;
 }
 
-export function Topbar({ breadcrumbs, steps, children }: TopbarProps) {
+export function Topbar({ breadcrumbs, steps, actions, children }: TopbarProps) {
   return (
     <header className="h-14 bg-background border-b border-border flex items-center px-6 gap-4 shrink-0 z-10 w-full relative">
       {/* Breadcrumbs */}
@@ -45,6 +46,7 @@ export function Topbar({ breadcrumbs, steps, children }: TopbarProps) {
 
       {/* Right Side Actions */}
       <div className={cn('flex items-center justify-end gap-2 shrink-0 h-full', steps ? 'flex-1' : '')}>
+        {actions}
         {children}
       </div>
     </header>
