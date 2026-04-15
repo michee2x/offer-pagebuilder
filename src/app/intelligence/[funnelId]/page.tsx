@@ -581,6 +581,13 @@ export default function IntelligencePage({
     init();
   }, [funnelId]);
 
+  // Auto-start analysis if we have data but it hasn't run yet
+  useEffect(() => {
+    if (phase === "idle" && formData) {
+      runAnalysis();
+    }
+  }, [phase, formData, runAnalysis]);
+
   // Derive consolidated list of available sections
   const availableSections = React.useMemo(() => {
     const list: string[] = [];
@@ -590,12 +597,14 @@ export default function IntelligencePage({
     if (call2) {
       list.push(...Object.values(CALL2_SECTION_MAP));
     }
-    // Ensure activeSectionId is valid
-    if (list.length > 0 && !list.includes(activeSectionId)) {
-      setActiveSectionId(list[0]);
-    }
     return list;
-  }, [call1, call2, activeSectionId]);
+  }, [call1, call2]);
+
+  useEffect(() => {
+    if (availableSections.length > 0 && (!activeSectionId || !availableSections.includes(activeSectionId))) {
+      setActiveSectionId(availableSections[0]);
+    }
+  }, [availableSections, activeSectionId]);
 
   const activeIndex = availableSections.indexOf(activeSectionId);
   const prevSectionId = activeIndex > 0 ? availableSections[activeIndex - 1] : null;
@@ -741,20 +750,20 @@ export default function IntelligencePage({
                <div className="flex items-center justify-center h-full p-8">
                  <Card className="max-w-md w-full border-border">
                     <CardContent className="p-8 text-center space-y-4">
-                      {phase === "call1" || phase === "call2" ? (
+                      {phase === "error" ? (
+                        <>
+                          <Zap className="w-8 h-8 mx-auto text-destructive mb-2" />
+                          <h2 className="text-xl font-semibold text-destructive">Analysis Failed</h2>
+                          <p className="text-sm text-muted-foreground">{errorMsg || "An error occurred while generating intelligence."}</p>
+                          <Button size="lg" onClick={runAnalysis} className="w-full mt-4">Retry Analysis</Button>
+                        </>
+                      ) : (
                         <>
                           <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
                           <h2 className="text-xl font-semibold">Generating Intelligence...</h2>
                           <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded text-left mt-4 max-h-32 overflow-y-auto w-full">
                             {streamingText || "Connecting to core AI processor..."}
                           </div>
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                          <h2 className="text-xl font-semibold">Start your intelligence analysis</h2>
-                          <p className="text-sm text-muted-foreground">This generates structural and strategic intelligence for your offer.</p>
-                          <Button size="lg" onClick={runAnalysis} className="w-full mt-4">Generate Report</Button>
                         </>
                       )}
                     </CardContent>
