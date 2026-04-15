@@ -73,12 +73,12 @@ ANCHOR NAVIGATION — CRITICAL
 The FeatureHeader uses anchor links to scroll to sections on the page.
 Each section component you place MUST be given a "sectionId" prop matching the link.
 Follow this exact mapping:
-  - Any Hero component (FeatureHero, HeroCenter)          → sectionId: "hero"
-  - FeaturePricing                                        → sectionId: "pricing"
-  - FeatureFAQ                                            → sectionId: "faq"
-  - FeatureTestimonials                                   → sectionId: "testimonials"
-  - Any features/content block (FeatureSplit, FeaturesGrid) → sectionId: "features"
-  - FeatureCTA                                            → sectionId: "cta"
+  - Any Hero component (FeatureHero, HeroCenter, HeroClarityBlog, HeroFeedbackApp, HeroRemoteCollab, HeroSectionOne, HeroWithForm) → sectionId: "hero"
+  - FeaturePricing, PricingFlexible, PricingComparison, PricingTiers         → sectionId: "pricing"
+  - FeatureFAQ, FAQAccordion, FAQGrid, FAQWithImage                          → sectionId: "faq"
+  - FeatureTestimonials, TestimonialsCards, TestimonialsCarousel, TestimonialsGrid → sectionId: "testimonials"
+  - Any features/content block (FeatureSplit, FeaturesGrid, FeaturesSection, FeaturesShowcase, FeaturesCards) → sectionId: "features"
+  - FeatureCTA, CTAHero, CTASimple, CTAWithAvatars, CTAWithBackground        → sectionId: "cta"
 
 The FeatureHeader's "links" prop must include entries whose href values match the sectionIds like this:
   { "label": "Features",     "href": "#hero" }

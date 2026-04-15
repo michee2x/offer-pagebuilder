@@ -149,12 +149,7 @@ export function SectionLibraryModal() {
   const macroComponents = Object.entries(COMPONENT_REGISTRY).filter(
     ([type, conf]) =>
       conf.semantic &&
-      !(
-        type.startsWith("Feature") &&
-        type !== "FeatureCTA" &&
-        type !== "FeaturePricing"
-      ) &&
-      !type.includes("Blog") &&
+      !type.startsWith("HeyMessage") &&
       !type.includes("Logos"),
   );
 

@@ -514,10 +514,10 @@ export default function TrafficIntelligencePage({
                     <div className="bg-violet-400/6 border border-violet-400/18 rounded-2xl p-5">
                       <p className="text-xs font-bold text-violet-400 uppercase tracking-widest mb-3">Pro Tips</p>
                       {[
-                        'Create a separate retargeting ad set targeting anyone who visited your page but didn't opt in',
+                        "Create a separate retargeting ad set targeting anyone who visited your page but didn't opt in",
                         'Use social proof-heavy creatives for retargeting (testimonials, results)',
                         'Lower friction by offering something free first before the paid offer',
-                        'Cap frequency at 3–5 impressions/day to avoid ad fatigue',
+                        'Cap frequency at 3\u20135 impressions/day to avoid ad fatigue',
                       ].map((tip, i) => (
                         <div key={i} className="flex items-start gap-2.5 mb-2.5 last:mb-0">
                           <div className="w-1 h-1 rounded-full bg-violet-400 mt-2 flex-shrink-0" />
