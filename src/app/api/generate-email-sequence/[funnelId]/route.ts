@@ -16,7 +16,7 @@ function parseEmails(rawText: string): EmailCopy[] {
   const emails: EmailCopy[] = [];
   // Match EMAIL N — DAY X blocks
   const emailBlocks = rawText.split(/(?=\nEMAIL\s+\d+)/gi).filter(b => b.trim());
-  
+
   for (const block of emailBlocks) {
     const dayMatch = block.match(/EMAIL\s+\d+\s*[—\-–]\s*DAY\s+(\d+)/i);
     const subjectMatch = block.match(/SUBJECT:\s*(.+)/i);
@@ -142,7 +142,7 @@ BODY:
       model: anthropic('claude-3-5-sonnet-20241022'),
       system: systemPrompt,
       prompt: userPrompt,
-      maxTokens: 4000,
+      maxOutputTokens: 4000,
     });
 
     const parsedEmails = parseEmails(text);

@@ -120,7 +120,7 @@ Return this exact JSON shape (no extra text, just the JSON object):
             model: anthropic('claude-3-5-sonnet-20241022'),
             system: systemPrompt,
             prompt: userPrompt,
-            maxTokens: 3000,
+            maxOutputTokens: 3000,
         });
 
         // Extract JSON from response
