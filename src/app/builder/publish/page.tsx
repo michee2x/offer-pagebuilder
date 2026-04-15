@@ -172,8 +172,7 @@ function PublishContent() {
 
   // ─── Screenshot-based deploy flow ────────────────────────────────────
   const handleDeploy = async () => {
-    if (!id || !isSeoValid) {
-      if (!isSeoValid) toast.error('Check SEO Settings. Title and Description are too short.');
+    if (!id) {
       return;
     }
     
@@ -365,7 +364,7 @@ function PublishContent() {
           <Button
             size="sm"
             onClick={handleDeploy}
-            disabled={deploying || !isSeoValid}
+            disabled={deploying}
             className="h-8 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm font-medium"
           >
             <Rocket className="w-4 h-4" />
@@ -601,16 +600,16 @@ function PublishContent() {
               {/* Deploy Action */}
               <div className="bg-card border border-border rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden group">
                 {!isSeoValid && (
-                  <div className="absolute top-0 left-0 right-0 bg-red-500/10 border-b border-red-500/20 p-3 text-red-500 text-xs text-left flex gap-3">
+                  <div className="absolute top-0 left-0 right-0 bg-yellow-500/10 border-b border-yellow-500/20 p-3 text-yellow-600 dark:text-yellow-500 text-xs text-left flex gap-3">
                     <span className="text-lg leading-none">⚠️</span>
                     <p className="font-medium leading-relaxed">
-                      <strong>Deployment Blocked:</strong> OpenGraph standards require a Minimum 50 char Title and 110 char Description to reliably process Social Previews. Fix these via the right-hand panel constraints.
+                      <strong>Recommendation:</strong> OpenGraph standards suggest a Minimum 50 char Title and 110 char Description to reliably process Social Previews.
                     </p>
                   </div>
                 )}
                 
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center mb-5 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-3 duration-300 mt-6 ${isSeoValid ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-muted border-border text-muted-foreground'}`}>
+                <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center mb-5 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-3 duration-300 mt-6 bg-primary/10 border-primary/20 text-primary`}>
                   <Rocket className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold tracking-tight mb-2">Deploy Funnel</h3>
@@ -626,7 +625,7 @@ function PublishContent() {
                   size="lg"
                   className="w-full max-w-xs font-semibold shadow-sm transition-all bg-emerald-500 hover:bg-emerald-600 text-white"
                   onClick={handleDeploy}
-                  disabled={deploying || !isSeoValid}
+                  disabled={deploying}
                 >
                   {deploying ? (
                     <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -694,8 +693,8 @@ function PublishContent() {
                       placeholder="My Awesome Offer"
                       maxLength={70}
                     />
-                    <p className={`text-[10px] text-right font-medium ${isTitleValid ? 'text-emerald-500' : 'text-red-500'}`}>
-                      {seoTitle.length}/70 chars (min 50)
+                    <p className={`text-[10px] text-right font-medium ${isTitleValid ? 'text-emerald-500' : 'text-yellow-600 dark:text-yellow-500'}`}>
+                      {seoTitle.length}/70 chars (suggested min 50)
                     </p>
                   </div>
 
@@ -711,8 +710,8 @@ function PublishContent() {
                       placeholder="Describe what this page offers…"
                       maxLength={160}
                     />
-                    <p className={`text-[10px] text-right font-medium ${isDescValid ? 'text-emerald-500' : 'text-red-500'}`}>
-                      {seoDescription.length}/160 chars (min 110)
+                    <p className={`text-[10px] text-right font-medium ${isDescValid ? 'text-emerald-500' : 'text-yellow-600 dark:text-yellow-500'}`}>
+                      {seoDescription.length}/160 chars (suggested min 110)
                     </p>
                   </div>
 
