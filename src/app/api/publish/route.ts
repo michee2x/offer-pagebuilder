@@ -15,11 +15,26 @@ export async function POST(req: Request) {
 
     const supabase = createAdminClient()
 
+    let existingBlocks = {}
+    if (pageId) {
+      const { data: current } = await supabase.from('builder_pages').select('blocks').eq('id', pageId).single()
+      if (current?.blocks) {
+        existingBlocks = current.blocks
+      }
+    }
+
     const payload = {
-        user_id: userId,
-        name: name || 'Untitled Page',
-        blocks: { components, rootList, canvasStyle, theme, pages },
-        updated_at: new Date().toISOString()
+      user_id: userId,
+      name: name || 'Untitled Page',
+      blocks: {
+        ...existingBlocks,
+        components,
+        rootList,
+        canvasStyle,
+        theme,
+        pages
+      },
+      updated_at: new Date().toISOString()
     }
 
     let publishedPageId;
