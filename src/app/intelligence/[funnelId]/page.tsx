@@ -57,6 +57,54 @@ const WIZARD_STEPS = [
   { id: 5, label: "Publish", status: "pending" as const },
 ];
 
+// ─── Generation Overlay ───────────────────────────────────────────────────────
+
+const GEN_STEPS = [
+  "Analysing market context & structural foundations",
+  "Scoring offer viability & revenue architecture",
+  "Blueprinting funnel logic & upsell paths",
+  "Extracting psychological hooks & persona intelligence",
+  "Formulating messaging matrix & positioning",
+  "Finalizing strategic recommendations",
+];
+
+function GenerationOverlay({
+  visible,
+  step,
+}: {
+  visible: boolean;
+  step: number;
+}) {
+  if (!visible) return null;
+  const currentStepText = GEN_STEPS[Math.min(step, GEN_STEPS.length - 1)];
+  const progressPercent = Math.min(100, Math.round((step / GEN_STEPS.length) * 100));
+
+  return (
+    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center">
+      <div className="w-full max-w-sm mx-auto px-6 text-center flex flex-col items-center">
+        <div className="relative w-24 h-24 mb-8">
+           <svg className="animate-spin w-full h-full text-muted border-border" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"></circle>
+              <path className="opacity-75 text-foreground" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+           </svg>
+           <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
+             {progressPercent}%
+           </div>
+        </div>
+        
+        <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
+          Synthesizing Intelligence
+        </h2>
+        <div className="h-6 overflow-hidden">
+           <p className="text-sm font-medium text-muted-foreground animate-pulse">
+             {step >= GEN_STEPS.length ? "Finalizing rendering..." : currentStepText}
+           </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Section configuration ───────────────────────────────────────────────────
 
 interface ReportSectionConfig {
@@ -429,6 +477,7 @@ export default function IntelligencePage({
   const [call1, setCall1] = useState<Record<string, string> | null>(null);
   const [call2, setCall2] = useState<Call2Output | null>(null);
   const [streamingText, setStreamingText] = useState("");
+  const [genStep, setGenStep] = useState(0);
   
   // Navigation State
   const [activeSectionId, setActiveSectionId] = useState<string>("OFFER_SCORE");
@@ -502,6 +551,15 @@ export default function IntelligencePage({
 
   const runAnalysis = useCallback(async () => {
     if (!formData) return;
+    
+    // Animate steps
+    let step = 0;
+    setGenStep(0);
+    const interval = setInterval(() => {
+      step = Math.min(step + 1, GEN_STEPS.length - 1);
+      setGenStep(step);
+    }, 6000);
+
     try {
       setErrorMsg("");
       const c1 = await streamCall1(formData, call1 ?? undefined);
@@ -513,6 +571,9 @@ export default function IntelligencePage({
     } catch (e: any) {
       setErrorMsg(e.message || "Analysis failed");
       setPhase("error");
+    } finally {
+      clearInterval(interval);
+      setGenStep(GEN_STEPS.length);
     }
   }, [call1, call2, formData, streamCall1, streamCall2]);
 
@@ -581,12 +642,7 @@ export default function IntelligencePage({
     init();
   }, [funnelId]);
 
-  // Auto-start analysis if we have data but it hasn't run yet
-  useEffect(() => {
-    if (phase === "idle" && formData) {
-      runAnalysis();
-    }
-  }, [phase, formData, runAnalysis]);
+
 
   // Derive consolidated list of available sections
   const availableSections = React.useMemo(() => {
@@ -759,11 +815,10 @@ export default function IntelligencePage({
                         </>
                       ) : (
                         <>
-                          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-                          <h2 className="text-xl font-semibold">Generating Intelligence...</h2>
-                          <div className="text-xs text-muted-foreground font-mono bg-muted/50 p-3 rounded text-left mt-4 max-h-32 overflow-y-auto w-full">
-                            {streamingText || "Connecting to core AI processor..."}
-                          </div>
+                          <Zap className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                          <h2 className="text-xl font-semibold">Start your intelligence analysis</h2>
+                          <p className="text-sm text-muted-foreground">This generates structural and strategic intelligence for your offer.</p>
+                          <Button size="lg" onClick={runAnalysis} className="w-full mt-4">Generate Report</Button>
                         </>
                       )}
                     </CardContent>
@@ -854,6 +909,7 @@ export default function IntelligencePage({
           </div>
         </div>
       </div>
+      <GenerationOverlay visible={phase === "call1" || phase === "call2"} step={genStep} />
     </div>
   );
 }
