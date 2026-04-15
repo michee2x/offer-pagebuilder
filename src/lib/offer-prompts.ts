@@ -2,7 +2,7 @@
 // OfferIQ — AI Prompt Builders (Call 1, 2, 3)
 // Each builder returns { system, user } strings ready for the AI SDK
 // ─────────────────────────────────────────────────────────────────────────────
-import type { OfferFormData, Call1Parsed } from './offer-types';
+import type { OfferFormData, Call1Parsed, Call2Output } from './offer-types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -191,14 +191,14 @@ PRIMARY CHALLENGE: ${form.field_8_challenge || 'Not specified'}
 === END OFFER INPUT ===
 
 === CALL 1 STRUCTURAL INTELLIGENCE ===
-OVERALL SCORE: ${JSON.parse(call1.offer_score).overall}
+OVERALL SCORE: ${call1.offer_score.overall}
 SCORE SUMMARY: ${call1.score_summary}
 RECOMMENDED FUNNEL TYPE: ${call1.funnel_structure_blueprint.split('\n')[0] || 'See full blueprint'}
 REVENUE MODEL: ${call1.revenue_model_architecture}
 PAIN POINTS: ${call1.pain_point_mapping}
-PLATFORM PRIMARY: ${JSON.stringify(JSON.parse(call1.platform_priority_matrix).primary)}
-FUNNEL HEALTH SCORE: ${JSON.parse(call1.funnel_health_score).score}
-PRIMARY LEAKAGE POINT: ${JSON.parse(call1.funnel_health_score).primary_leakage_point}
+PLATFORM PRIMARY: ${JSON.stringify(call1.platform_priority_matrix.primary)}
+FUNNEL HEALTH SCORE: ${call1.funnel_health_score.score}
+PRIMARY LEAKAGE POINT: ${call1.funnel_health_score.primary_leakage_point}
 === END CALL 1 CONTEXT ===
 
 Now produce the following sections in this exact order:
@@ -302,9 +302,10 @@ Paragraph 8: THE CRITICAL WARNING — the single most dangerous mistake for this
 
 export const COPY_SYSTEM = `You are OfferIQ Copy Engine. You produce world-class, conversion-optimized sales copy for all pages of a marketing funnel. You write at the level of a $10,000/day copywriter who has written copy for 200+ successful launches. Every word is purposeful. Every line moves the reader closer to a decision. You write in the voice and language of the buyer, not the seller.`;
 
-export function buildCopyUserPrompt(form: any = {}, call1: any = {}, call2: any = {}): string {
-  const safeParse = (str: string | undefined, key: string) => {
-    try { return str ? (JSON.parse(str)[key] || 'N/A') : 'N/A'; } catch { return 'N/A'; }
+export function buildCopyUserPrompt(form: Partial<OfferFormData> = {}, call1: Partial<Call1Parsed> = {}, call2: Partial<Call2Output> = {}): string {
+  const getOverallScore = () => {
+    if (!call1.offer_score) return 'N/A';
+    return typeof call1.offer_score === 'object' ? call1.offer_score.overall : 'N/A';
   };
 
   return `Generate complete sales copy for all pages of this funnel. Use the intelligence analysis below as your foundation. Every section of copy must be consistent with the strategic analysis — especially the persona psychology, hooks, and messaging angles.
@@ -319,7 +320,7 @@ Mechanism: ${form.field_6_mechanism || 'Proprietary method'}
 Proof: ${form.field_5_proof || 'None provided'}
 
 === KEY INTELLIGENCE ===
-Overall Score: ${safeParse(call1.offer_score, 'overall')}
+Overall Score: ${getOverallScore()}
 Score Summary: ${call1.score_summary || 'N/A'}
 Pricing: ${call1.pricing_strategy || 'N/A'}
 Positioning: ${call2.offer_positioning_analysis || 'N/A'}
