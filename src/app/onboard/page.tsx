@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
@@ -258,7 +258,7 @@ const INPUT_METHODS: {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function OnboardPage() {
+function OnboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const workspaceId = searchParams.get("workspace");
@@ -801,5 +801,17 @@ function Field({
       {children}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
+  );
+}
+
+export default function OnboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <OnboardContent />
+    </Suspense>
   );
 }

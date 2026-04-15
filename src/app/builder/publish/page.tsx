@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -29,7 +29,7 @@ const DEPLOY_STAGES = [
   { id: 'done',       label: 'Deployment complete!',          duration: 0    },
 ];
 
-export default function PublishPage() {
+function PublishContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const router = useRouter();
@@ -765,5 +765,17 @@ export default function PublishPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PublishPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <PublishContent />
+    </Suspense>
   );
 }

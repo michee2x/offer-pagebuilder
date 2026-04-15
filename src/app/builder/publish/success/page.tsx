@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, ExternalLink, Globe, ArrowLeft, CheckCircle2, Zap, Share2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
-export default function DeploymentSuccessPage() {
+function DeploymentSuccessContent() {
   const searchParams = useSearchParams();
   const pageId = searchParams.get('id');
   const router = useRouter();
@@ -226,5 +226,17 @@ export default function DeploymentSuccessPage() {
         Back to all funnels
       </button>
     </div>
+  );
+}
+
+export default function DeploymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="w-7 h-7 animate-spin text-primary" />
+      </div>
+    }>
+      <DeploymentSuccessContent />
+    </Suspense>
   );
 }
