@@ -226,8 +226,17 @@ function CopyBlock({
         contentEditable
         suppressContentEditableWarning
         onInput={(e) => setLocalContent((e.target as HTMLDivElement).innerText)}
-        className="px-4 py-3 text-sm text-muted-foreground leading-relaxed outline-none focus:bg-primary/[0.02] min-h-[60px] whitespace-pre-wrap"
-        dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, "<br>") }}
+        className="px-4 py-3 text-[14px] text-muted-foreground leading-relaxed outline-none focus:bg-primary/[0.02] min-h-[60px]"
+        dangerouslySetInnerHTML={{ 
+          __html: content
+            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>')
+            .replace(/^### (.*?)$/gm, '<strong class="text-foreground text-sm">$1</strong>')
+            .replace(/^## (.*?)$/gm, '<strong class="text-foreground text-base mt-2 mb-1 block">$1</strong>')
+            .replace(/^# (.*?)$/gm, '<strong class="text-foreground text-lg mt-3 mb-1 block">$1</strong>')
+            .replace(/^---$/gm, '<hr class="my-3 border-border/50" />')
+            .replace(/\n/g, '<br>')
+            .replace(/<br><br><br>/g, '<br><br>')
+        }}
       />
     </div>
   );

@@ -420,14 +420,23 @@ function EditableNarrativeText({
 
            const isKey = /^[A-Z_\s]+:/.test(line.trim()) || /^STAGE:|^BONUS|^HOOK|^ANGLE/.test(line.trim());
 
-           // Handle simple bold markup **bold**
+           // Handle simple bold markup **bold** and headers
            const renderLine = () => {
-             return line.split(/(\*\*.*?\*\*)/g).map((part, j) => {
+             let textLine = line.trim();
+             let headerClass = "";
+             if (textLine.startsWith('###')) { textLine = textLine.replace(/^###\s*/, ''); headerClass = "text-lg font-bold text-foreground mt-4 mb-2"; }
+             else if (textLine.startsWith('##')) { textLine = textLine.replace(/^##\s*/, ''); headerClass = "text-xl font-bold text-foreground mt-6 mb-2"; }
+             else if (textLine.startsWith('#')) { textLine = textLine.replace(/^#\s*/, ''); headerClass = "text-2xl font-bold text-foreground mt-6 mb-3"; }
+             
+             const fragments = textLine.split(/(\*\*.*?\*\*)/g).map((part, j) => {
                if (part.startsWith('**') && part.endsWith('**')) {
                  return <strong key={j} className="text-foreground">{part.slice(2, -2)}</strong>;
                }
                return <React.Fragment key={j}>{part}</React.Fragment>;
              });
+
+             if (headerClass) return <div className={headerClass}>{fragments}</div>;
+             return fragments;
            };
 
            return (

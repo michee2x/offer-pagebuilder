@@ -155,6 +155,40 @@ function DeploymentSuccessContent() {
         <div className="px-7 pb-5">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-3">Next Steps</p>
           <div className="space-y-2">
+            {/* Email Sequence */}
+            <button
+              onClick={() => router.push(`/email-sequence/${pageId}`)}
+              className="w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all text-left group bg-gradient-to-r from-blue-500/5 to-transparent"
+            >
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/>
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-white/90">Generate Email Sequence</p>
+                <p className="text-xs text-white/40">Build a 5-email nurture sequence from your offer</p>
+              </div>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/20">New</span>
+            </button>
+
+            {/* Traffic Intelligence */}
+            <button
+              onClick={() => router.push(`/traffic/${pageId}`)}
+              className="w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all text-left group bg-gradient-to-r from-violet-500/5 to-transparent"
+            >
+              <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-white/90">Traffic Intelligence™</p>
+                <p className="text-xs text-white/40">Platform strategy, ad copy & ROAS projections</p>
+              </div>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-400 border border-violet-500/20">New</span>
+            </button>
+
             <button
               onClick={() => router.push(`/builder/publish?id=${pageId}`)}
               className="w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all text-left group"
@@ -185,20 +219,6 @@ function DeploymentSuccessContent() {
               <div className="flex-1">
                 <p className="text-sm font-semibold text-white/90">Share Funnel</p>
                 <p className="text-xs text-white/40">Send the link to your audience</p>
-              </div>
-              <span className="text-white/20 group-hover:text-white/50 transition-colors">→</span>
-            </button>
-
-            <button
-              onClick={() => router.push(`/builder?id=${pageId}`)}
-              className="w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all text-left group"
-            >
-              <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-primary/30">
-                <Zap className="w-4 h-4 text-white/40" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-white/90">Keep Editing</p>
-                <p className="text-xs text-white/40">Go back to the builder and refine</p>
               </div>
               <span className="text-white/20 group-hover:text-white/50 transition-colors">→</span>
             </button>

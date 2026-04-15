@@ -7,7 +7,8 @@ export function ScoreRadarChart({ content }: { content: string }) {
   let overall = 0;
   
   try {
-    const cleanContent = content.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    const cleanContent = jsonMatch ? jsonMatch[0] : content;
     const scores = JSON.parse(cleanContent);
     overall = scores.overall;
     data = [
