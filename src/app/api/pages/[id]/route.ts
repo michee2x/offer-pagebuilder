@@ -15,7 +15,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         .from('builder_pages')
         .select('*')
         .eq('id', id)
-        .eq('user_id', session.user.id)
         .single()
 
     if (error || !page) return NextResponse.json({ error: 'Page not found' }, { status: 404 })

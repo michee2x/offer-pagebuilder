@@ -526,7 +526,7 @@ export default function CopyPage({
           </Button>
           <Button
             size="sm"
-            onClick={() => router.push(`/builder?id=${funnelId}`)}
+            onClick={() => router.push(`/builder?id=${funnelId}&autoGen=true`)}
             className="gap-1.5 font-semibold"
           >
             <LayoutTemplate className="w-3.5 h-3.5" />

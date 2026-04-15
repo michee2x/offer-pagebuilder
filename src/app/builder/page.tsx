@@ -66,6 +66,13 @@ export default function BuilderPage() {
                     if (data.page.blocks.theme) {
                         setTheme(data.page.blocks.theme);
                     }
+                    
+                    if (qs.get('autoGen') === 'true' && Object.keys(initialPage.components).length === 0) {
+                        setTimeout(() => {
+                           window.history.replaceState({}, '', `/builder?id=${editId}`);
+                           document.getElementById('autoGenTrigger')?.click();
+                        }, 500);
+                    }
                 }
             })
             .catch(err => console.error("Failed to fetch page:", err))
@@ -251,6 +258,7 @@ export default function BuilderPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      <button id="autoGenTrigger" hidden onClick={handleGeneratePage} />
       {/* Sidebar is fixed-positioned — renders itself, just mount it */}
       <Sidebar />
 
