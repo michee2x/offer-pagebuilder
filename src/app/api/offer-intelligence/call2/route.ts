@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     funnelId = body.funnelId;
     formData = body.formData;
     call1Raw = body.call1;
-
+    
     // Parse the call1 data
     call1 = {
       offer_score: JSON.parse(call1Raw.offer_score),
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   const userPrompt = buildCall2UserPrompt(formData, call1);
 
   const result = streamText({
-    model: anthropic('claude-3-5-sonnet-20241022'),
+    model: anthropic('claude-opus-4-6'),
     system: CALL2_SYSTEM,
     prompt: userPrompt,
     onFinish: async ({ text }) => {

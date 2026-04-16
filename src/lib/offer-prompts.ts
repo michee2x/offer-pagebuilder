@@ -2,7 +2,7 @@
 // OfferIQ — AI Prompt Builders (Call 1, 2, 3)
 // Each builder returns { system, user } strings ready for the AI SDK
 // ─────────────────────────────────────────────────────────────────────────────
-import type { OfferFormData, Call1Parsed, Call2Output } from './offer-types';
+import type { OfferFormData, Call2Output, Call1Parsed } from './offer-types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -28,7 +28,7 @@ CRITICAL CALIBRATION RULES:
 export function buildCall1UserPrompt(form: OfferFormData): string {
   const zeroProofFlag =
     !form.field_5_proof &&
-      form.field_8_challenge?.toLowerCase().includes('launch')
+    form.field_8_challenge?.toLowerCase().includes('launch')
       ? 'ZERO_PROOF_PRE_LAUNCH — weight all strategies toward validation, mechanism authority, and future-pacing. Reduce conversion predictions by 30% from baseline.'
       : '';
 
@@ -191,14 +191,14 @@ PRIMARY CHALLENGE: ${form.field_8_challenge || 'Not specified'}
 === END OFFER INPUT ===
 
 === CALL 1 STRUCTURAL INTELLIGENCE ===
-OVERALL SCORE: ${call1.offer_score.overall}
+OVERALL SCORE: ${JSON.parse(call1.offer_score).overall}
 SCORE SUMMARY: ${call1.score_summary}
 RECOMMENDED FUNNEL TYPE: ${call1.funnel_structure_blueprint.split('\n')[0] || 'See full blueprint'}
 REVENUE MODEL: ${call1.revenue_model_architecture}
 PAIN POINTS: ${call1.pain_point_mapping}
-PLATFORM PRIMARY: ${JSON.stringify(call1.platform_priority_matrix.primary)}
-FUNNEL HEALTH SCORE: ${call1.funnel_health_score.score}
-PRIMARY LEAKAGE POINT: ${call1.funnel_health_score.primary_leakage_point}
+PLATFORM PRIMARY: ${JSON.stringify(JSON.parse(call1.platform_priority_matrix).primary)}
+FUNNEL HEALTH SCORE: ${JSON.parse(call1.funnel_health_score).score}
+PRIMARY LEAKAGE POINT: ${JSON.parse(call1.funnel_health_score).primary_leakage_point}
 === END CALL 1 CONTEXT ===
 
 Now produce the following sections in this exact order:
@@ -302,35 +302,30 @@ Paragraph 8: THE CRITICAL WARNING — the single most dangerous mistake for this
 
 export const COPY_SYSTEM = `You are OfferIQ Copy Engine. You produce world-class, conversion-optimized sales copy for all pages of a marketing funnel. You write at the level of a $10,000/day copywriter who has written copy for 200+ successful launches. Every word is purposeful. Every line moves the reader closer to a decision. You write in the voice and language of the buyer, not the seller.`;
 
-export function buildCopyUserPrompt(form: Partial<OfferFormData> = {}, call1: Partial<Call1Parsed> = {}, call2: Partial<Call2Output> = {}): string {
-  const getOverallScore = () => {
-    if (!call1.offer_score) return 'N/A';
-    return typeof call1.offer_score === 'object' ? call1.offer_score.overall : 'N/A';
-  };
-
+export function buildCopyUserPrompt(form: OfferFormData, call1: Record<string, string>, call2: Call2Output): string {
   return `Generate complete sales copy for all pages of this funnel. Use the intelligence analysis below as your foundation. Every section of copy must be consistent with the strategic analysis — especially the persona psychology, hooks, and messaging angles.
 
 === OFFER ===
-Name: ${form.field_1_name || 'Generic Offer'}
-Format: ${form.field_1_format || 'Not specified'}
-Outcome: ${form.field_2_outcome || 'Improve business results'}
-Persona: ${form.field_3_persona || 'Target audience'}
-Price: ${form.field_4_price || '99'} ${form.field_4_currency || 'USD'}
-Mechanism: ${form.field_6_mechanism || 'Proprietary method'}
+Name: ${form.field_1_name}
+Format: ${form.field_1_format}
+Outcome: ${form.field_2_outcome}
+Persona: ${form.field_3_persona}
+Price: ${form.field_4_price} ${form.field_4_currency}
+Mechanism: ${form.field_6_mechanism}
 Proof: ${form.field_5_proof || 'None provided'}
 
 === KEY INTELLIGENCE ===
-Overall Score: ${getOverallScore()}
-Score Summary: ${call1.score_summary || 'N/A'}
-Pricing: ${call1.pricing_strategy || 'N/A'}
-Positioning: ${call2.offer_positioning_analysis || 'N/A'}
+Overall Score: ${JSON.parse(call1.offer_score).overall}
+Score Summary: ${call1.score_summary}
+Pricing: ${call1.pricing_strategy}
+Positioning: ${call2.offer_positioning_analysis}
 Persona Deep Desire: [Extract from persona intelligence below]
 Dominant Fear: [Extract from persona intelligence below]
-Persona Intelligence: ${call2.target_persona_intelligence || 'N/A'}
-Top Hooks: ${call2.conversion_hook_library || 'N/A'}
-Top Messaging Angles: ${call2.messaging_angle_matrix || 'N/A'}
-Pain Points: ${call1.pain_point_mapping || 'N/A'}
-Bonus Stack: ${call1.strategic_bonus_recommendations || 'N/A'}
+Persona Intelligence: ${call2.target_persona_intelligence}
+Top Hooks: ${call2.conversion_hook_library}
+Top Messaging Angles: ${call2.messaging_angle_matrix}
+Pain Points: ${call1.pain_point_mapping}
+Bonus Stack: ${call1.strategic_bonus_recommendations}
 
 Now generate copy for all 5 sections below. Use these exact section markers so the output can be parsed.
 

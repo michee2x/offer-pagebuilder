@@ -174,7 +174,7 @@ BODY:
       }
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (e: any) {
     console.error('[generate-email-sequence]', e);
     return Response.json({ error: e.message || 'Generation failed' }, { status: 500 });
