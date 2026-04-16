@@ -5,16 +5,44 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, Filter, Mail, LineChart,
-  Globe, PieChart, Settings, Zap
+  Globe, PieChart, Settings, Zap, FileText
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
   const pathname = usePathname();
 
-  const workspaceLinks = [
+  const getFunnelId = () => {
+    if (pathname === '/builder' || pathname?.startsWith('/builder/')) {
+      // In a client component we could use searchParams, but let's just 
+      // rely on it if we can extract it. Since we don't have useSearchParams
+      // here to keep it simple, we might not show funnel sidebar on '/builder?id='
+      // without converting it or using window.location.
+      // We will add logic for paths we know.
+      return null;
+    }
+    const parts = pathname?.split('/') || [];
+    if (parts.length >= 3) {
+      if (['intelligence', 'copy', 'email-sequence', 'traffic', 'funnels'].includes(parts[1])) {
+        return parts[2];
+      }
+    }
+    return null;
+  };
+
+  const funnelId = getFunnelId();
+
+  const links = funnelId ? [
+    { label: 'Back to Workspaces', href: '/', icon: LayoutDashboard },
+    { label: 'Funnel Overview', href: `/funnels/${funnelId}`, icon: PieChart },
+    { label: 'Page Builder', href: `/builder?id=${funnelId}`, icon: Filter },
+    { label: 'Sales Copy', href: `/copy/${funnelId}`, icon: FileText || Filter },
+    { label: 'Email Sequence', href: `/email-sequence/${funnelId}`, icon: Mail },
+    { label: 'Traffic Intelligence', href: `/traffic/${funnelId}`, icon: LineChart },
+    { label: 'Sales Report', href: `/intelligence/${funnelId}`, icon: Zap },
+  ] : [
     { label: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { label: 'Funnels', href: '/builder', icon: Filter, badge: 7 },
+    { label: 'Funnels', href: '/', icon: Filter, badge: 7 },
     { label: 'Email Campaigns', href: '#', icon: Mail },
     { label: 'Traffic Intelligence', href: '#', icon: LineChart },
     { label: 'Publish & Deploy', href: '/builder/publish', icon: Globe },
@@ -35,7 +63,7 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-full z-50 flex flex-col overflow-hidden group transition-[width] duration-200 ease-out w-14 hover:w-56 bg-background border-r border-border hover:shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
       
       {/* Logo */}
-      <div className="flex items-center gap-3 px-[14px] h-14 shrink-0 overflow-hidden">
+      <div className="flex items-center gap-3 px-[14px] h-14 shrink-0 overflow-hidden text-foreground hover:bg-muted cursor-pointer">
         <div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
           <Zap className="w-3.5 h-3.5" />
         </div>
@@ -48,11 +76,11 @@ export function Sidebar() {
       <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden flex flex-col gap-0.5">
         <div className="h-5 px-[18px] mb-1 flex items-center">
           <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap">
-            Workspace
+            {funnelId ? 'Funnel Menu' : 'Workspace'}
           </span>
         </div>
 
-        {workspaceLinks.map((item, i) => {
+        {links.map((item, i) => {
           const active = isActive(item.href);
           return (
             <Link

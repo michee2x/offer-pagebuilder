@@ -1,5 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic';
-import { generateText } from 'ai';
+import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import type { EmailCopy, OfferFormData } from '@/lib/offer-types';
 
@@ -138,38 +138,43 @@ BODY:
 ---`;
 
   try {
-    const { text } = await generateText({
-      model: anthropic('claude-3-5-sonnet-20241022'),
+    const result = streamText({
+      model: anthropic('claude-3-5-sonnet-latest'),
       system: systemPrompt,
       prompt: userPrompt,
-      maxOutputTokens: 4000,
+      maxTokens: 4000,
+      onFinish: async ({ text }) => {
+        try {
+          const parsedEmails = parseEmails(text);
+          if (parsedEmails.length === 0) {
+            console.error('[generate-email-sequence] AI returned no parseable emails onFinish.');
+            return;
+          }
+
+          // Persist to DB
+          const { data: current } = await supabaseAdmin
+            .from('builder_pages')
+            .select('blocks')
+            .eq('id', funnelId)
+            .single();
+
+          await supabaseAdmin
+            .from('builder_pages')
+            .update({
+              blocks: {
+                ...(current?.blocks || {}),
+                email_sequence: parsedEmails,
+                email_sequence_generated_at: new Date().toISOString(),
+              },
+            })
+            .eq('id', funnelId);
+        } catch (dbErr) {
+          console.error('[generate-email-sequence] DB Update failed onFinish', dbErr);
+        }
+      }
     });
 
-    const parsedEmails = parseEmails(text);
-
-    if (parsedEmails.length === 0) {
-      return Response.json({ error: 'AI returned no parseable emails. Please retry.' }, { status: 500 });
-    }
-
-    // Persist to DB
-    const { data: current } = await supabaseAdmin
-      .from('builder_pages')
-      .select('blocks')
-      .eq('id', funnelId)
-      .single();
-
-    await supabaseAdmin
-      .from('builder_pages')
-      .update({
-        blocks: {
-          ...(current?.blocks || {}),
-          email_sequence: parsedEmails,
-          email_sequence_generated_at: new Date().toISOString(),
-        },
-      })
-      .eq('id', funnelId);
-
-    return Response.json({ emails: parsedEmails });
+    return result.toDataStreamResponse();
   } catch (e: any) {
     console.error('[generate-email-sequence]', e);
     return Response.json({ error: e.message || 'Generation failed' }, { status: 500 });

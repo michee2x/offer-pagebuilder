@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Folder, Plus } from 'lucide-react';
 
 interface WorkspacePageProps {
@@ -33,6 +32,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
           id,
           name,
           updated_at,
+          og_image_url,
           blocks
         )
       `,
@@ -87,29 +87,37 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             </div>
 
             {workspace.builder_pages && workspace.builder_pages.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {workspace.builder_pages.map((funnel: any) => (
-                  <Card key={funnel.id} className="overflow-hidden">
-                    <CardHeader>
-                      <CardTitle>{funnel.name}</CardTitle>
-                      <p className="text-xs text-muted-foreground">
-                        Updated {new Date(funnel.updated_at).toLocaleDateString()}
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <Link
-                          href={
-                            funnel.blocks?.intelligence?.call1_complete
-                              ? `/intelligence/${funnel.id}`
-                              : `/builder?id=${funnel.id}`
-                          }
-                        >
-                          <Button className="w-full">Open Funnel</Button>
-                        </Link>
+                  <a href={`/funnels/${funnel.id}`} key={funnel.id} className="group block h-full">
+                    <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg h-full flex flex-col relative">
+                      <div className="aspect-[16/10] bg-muted/20 relative overflow-hidden border-b border-border">
+                        {funnel.og_image_url ? (
+                          <img 
+                            src={funnel.og_image_url} 
+                            alt={funnel.name} 
+                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" 
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground opacity-30">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                              <line x1="3" y1="9" x2="21" y2="9"/>
+                              <line x1="9" y1="21" x2="9" y2="9"/>
+                            </svg>
+                          </div>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="p-4 flex flex-col border-t border-border/50 bg-background/50">
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                          {funnel.name}
+                        </h3>
+                        <span className="text-xs text-muted-foreground mt-1">
+                          Updated {new Date(funnel.updated_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
                 ))}
               </div>
             ) : (

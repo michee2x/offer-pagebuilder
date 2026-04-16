@@ -74,7 +74,7 @@ export async function POST(req: Request) {
   const userPrompt = buildCall1UserPrompt(formData);
 
   const result = streamText({
-    model: anthropic('claude-sonnet-4-6'),
+    model: anthropic('claude-3-5-sonnet-20241022'),
     system: CALL1_SYSTEM,
     prompt: userPrompt,
     onFinish: async ({ text }) => {

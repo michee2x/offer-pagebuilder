@@ -56,7 +56,7 @@ Instructions:
 2. If the user asks to style, color, or resize an element, YOU MUST ALWAYS CALL THE update_component_props TOOL and write to the \`elementStyles\` prop dict.
 3. Keep conversational responses extremely brief and professional. Let the tool execution do the heavy lifting! Never output raw JSON in your chat message.`;
 
-  const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5';
+  const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-20241022';
 
   const result = streamText({
     model: anthropic(model),

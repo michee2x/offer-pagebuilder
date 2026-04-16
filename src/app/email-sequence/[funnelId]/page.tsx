@@ -14,45 +14,30 @@ import type { EmailCopy } from '@/lib/offer-types';
 
 // ─── Generation overlay ───────────────────────────────────────────────────────
 
-const GEN_STEPS = [
-  'Analysing offer intelligence',
-  'Mapping buyer persona journey',
-  'Writing Day 1 welcome sequence',
-  'Writing nurture + story emails',
-  'Writing offer + urgency emails',
-  'Finalising sequence structure',
-];
-
-function GenerationOverlay({ visible, step }: { visible: boolean; step: number }) {
+function GenerationOverlay({ visible, streamText }: { visible: boolean; streamText: string }) {
   if (!visible) return null;
-  const currentStepText = GEN_STEPS[Math.min(step, GEN_STEPS.length - 1)];
-  const progressPercent = Math.min(100, Math.round((step / GEN_STEPS.length) * 100));
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center">
-      <div className="w-full max-w-sm mx-auto px-6 text-center flex flex-col items-center">
-        <div className="relative w-24 h-24 mb-8">
-          <svg className="animate-spin w-full h-full" viewBox="0 0 24 24">
-            <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-            <path className="opacity-80 text-foreground" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
-            {progressPercent}%
+    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-3xl mx-auto flex flex-col items-center h-[80vh]">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="relative w-8 h-8">
+            <svg className="animate-spin w-full h-full text-foreground/80" viewBox="0 0 24 24">
+              <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+              <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
           </div>
+          <h2 className="text-xl font-bold text-foreground tracking-tight">
+            Generating Email Sequence...
+          </h2>
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
-          Building Email Sequence
-        </h2>
-        <div className="h-6 overflow-hidden">
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">
-            {step >= GEN_STEPS.length ? 'Finalising…' : currentStepText}
-          </p>
-        </div>
-        <div className="w-64 h-1 bg-border rounded-full mt-6 overflow-hidden">
-          <div
-            className="h-full bg-foreground rounded-full transition-all duration-700"
-            style={{ width: `${progressPercent}%` }}
-          />
+        
+        <div className="flex-1 w-full bg-card/50 border border-border rounded-xl p-6 overflow-y-auto text-left shadow-2xl relative custom-scrollbar">
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent animate-pulse" />
+          <pre className="text-sm font-mono text-muted-foreground whitespace-pre-wrap break-words leading-relaxed">
+            {streamText || "Analysing offer intelligence...\nLoading persona profiles...\nConnecting neural pathways...\n"}
+            <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
+          </pre>
         </div>
       </div>
     </div>
@@ -213,6 +198,8 @@ function EmptyState({ onGenerate, generating }: { onGenerate: () => void; genera
   );
 }
 
+import { useCompletion } from '@ai-sdk/react';
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function EmailSequencePage({
@@ -226,9 +213,30 @@ export default function EmailSequencePage({
   const [funnelName, setFunnelName] = useState('Your Funnel');
   const [emails, setEmails] = useState<EmailCopy[]>([]);
   const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [genStep, setGenStep] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const { completion, complete, isLoading } = useCompletion({
+    api: `/api/generate-email-sequence/${funnelId}`,
+    onFinish: async () => {
+      // After generation finishes, fetch the parsed JSON from DB
+      try {
+        const r = await fetch(`/api/offer-data/${funnelId}`);
+        const data = await r.json();
+        const saved = data.funnel?.blocks?.email_sequence;
+        if (saved && Array.isArray(saved) && saved.length > 0) {
+          setEmails(saved);
+          toast.success('Email sequence generated!');
+        } else {
+          toast.error('AI returned unparseable text. Please retry.');
+        }
+      } catch (e) {
+        toast.error('Failed to load generated sequence.');
+      }
+    },
+    onError: (e) => {
+      toast.error(e.message || 'Generation failed');
+    }
+  });
 
   // Load funnel data + existing emails
   useEffect(() => {
@@ -248,36 +256,7 @@ export default function EmailSequencePage({
   }, [funnelId]);
 
   const handleGenerate = async () => {
-    setGenerating(true);
-    setGenStep(0);
-
-    // Simulate step progression
-    const stepInterval = setInterval(() => {
-      setGenStep(s => Math.min(s + 1, GEN_STEPS.length - 1));
-    }, 2000);
-
-    try {
-      const resp = await fetch(`/api/generate-email-sequence/${funnelId}`, {
-        method: 'POST',
-      });
-      clearInterval(stepInterval);
-      setGenStep(GEN_STEPS.length);
-
-      if (!resp.ok) {
-        const err = await resp.json();
-        throw new Error(err.error || 'Generation failed');
-      }
-
-      const { emails: generatedEmails } = await resp.json();
-      setEmails(generatedEmails);
-      toast.success('Email sequence generated!');
-    } catch (e: any) {
-      clearInterval(stepInterval);
-      toast.error(e.message || 'Failed to generate email sequence');
-    } finally {
-      setGenerating(false);
-      setGenStep(0);
-    }
+    await complete("");
   };
 
   if (loading) {
@@ -292,7 +271,7 @@ export default function EmailSequencePage({
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <GenerationOverlay visible={generating} step={genStep} />
+      <GenerationOverlay visible={isLoading} streamText={completion} />
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
         <Topbar
@@ -307,7 +286,7 @@ export default function EmailSequencePage({
                 size="sm"
                 variant="outline"
                 onClick={handleGenerate}
-                disabled={generating}
+                disabled={isLoading}
                 className="gap-1.5 font-semibold"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
@@ -397,7 +376,7 @@ export default function EmailSequencePage({
             />
 
             {!hasCopy ? (
-              <EmptyState onGenerate={handleGenerate} generating={generating} />
+              <EmptyState onGenerate={handleGenerate} generating={isLoading} />
             ) : (
               <div className="flex flex-col items-center py-8 pb-20 relative z-10">
                 <TriggerNode funnelName={funnelName} />
