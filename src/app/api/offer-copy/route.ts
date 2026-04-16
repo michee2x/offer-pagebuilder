@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   const userPrompt = buildCopyUserPrompt(formData, call1, call2);
 
   const result = streamText({
-    model: anthropic('claude-3-5-sonnet-20241022'),
+    model: anthropic('claude-sonnet-4-20250514'),
     system: COPY_SYSTEM,
     prompt: userPrompt,
     onFinish: async ({ text }) => {
