@@ -10,31 +10,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// ─── Parser ───────────────────────────────────────────────────────────────────
-
-function parseEmails(rawText: string): EmailCopy[] {
-  const emails: EmailCopy[] = [];
-  // Match EMAIL N — DAY X blocks
-  const emailBlocks = rawText.split(/(?=\nEMAIL\s+\d+)/gi).filter(b => b.trim());
-
-  for (const block of emailBlocks) {
-    const dayMatch = block.match(/EMAIL\s+\d+\s*[—\-–]\s*DAY\s+(\d+)/i);
-    const subjectMatch = block.match(/SUBJECT:\s*(.+)/i);
-    const previewMatch = block.match(/PREVIEW:\s*(.+)/i);
-    const bodyMatch = block.match(/BODY:\n([\s\S]*?)(?=---\s*$|EMAIL\s+\d+|$)/i);
-
-    if (dayMatch && subjectMatch && bodyMatch) {
-      emails.push({
-        day: parseInt(dayMatch[1]),
-        subject: subjectMatch[1].trim(),
-        preview: previewMatch?.[1]?.trim() || '',
-        body: bodyMatch[1].replace(/^---\s*$/, '').trim(),
-      });
-    }
-  }
-
-  return emails;
-}
+import { parseEmailSequence } from '@/lib/offer-parser';
 
 // ─── Route ────────────────────────────────────────────────────────────────────
 
@@ -145,7 +121,7 @@ BODY:
       maxOutputTokens: 4000,
       onFinish: async ({ text }) => {
         try {
-          const parsedEmails = parseEmails(text);
+          const parsedEmails = parseEmailSequence(text);
           if (parsedEmails.length === 0) {
             console.error('[generate-email-sequence] AI returned no parseable emails onFinish.');
             return;

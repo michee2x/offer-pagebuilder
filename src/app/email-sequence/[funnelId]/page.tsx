@@ -199,6 +199,7 @@ function EmptyState({ onGenerate, generating }: { onGenerate: () => void; genera
 }
 
 import { useCompletion } from '@ai-sdk/react';
+import { parseEmailSequence } from '@/lib/offer-parser';
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
@@ -217,20 +218,27 @@ export default function EmailSequencePage({
 
   const { completion, complete, isLoading } = useCompletion({
     api: `/api/generate-email-sequence/${funnelId}`,
-    onFinish: async () => {
-      // After generation finishes, fetch the parsed JSON from DB
+    onFinish: async (text) => {
+      // Direct parse for instant UI update
+      const parsed = parseEmailSequence(text);
+      if (parsed.length > 0) {
+        setEmails(parsed);
+        toast.success('Email sequence generated!');
+        return;
+      }
+
+      // Sync/Fallback check
       try {
         const r = await fetch(`/api/offer-data/${funnelId}`);
         const data = await r.json();
         const saved = data.funnel?.blocks?.email_sequence;
         if (saved && Array.isArray(saved) && saved.length > 0) {
           setEmails(saved);
-          toast.success('Email sequence generated!');
         } else {
           toast.error('AI returned unparseable text. Please retry.');
         }
       } catch (e) {
-        toast.error('Failed to load generated sequence.');
+        // quiet error
       }
     },
     onError: (e) => {

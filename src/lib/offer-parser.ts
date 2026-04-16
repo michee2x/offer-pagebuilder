@@ -137,6 +137,31 @@ function extractEmailSequence(rawText: string): EmailCopy[] {
   return emails;
 }
 
+export function parseEmailSequence(text: string): EmailCopy[] {
+  const emails: EmailCopy[] = [];
+  // Split by "EMAIL N" markers to get individual email blocks
+  const emailBlocks = text.split(/(?=EMAIL\s+\d+)/gi).filter(b => b.trim().length > 20);
+
+  for (const block of emailBlocks) {
+    const dayMatch = block.match(/DAY\s+(\d+)/i);
+    const subjectMatch = block.match(/SUBJECT:\s*(.*)/i);
+    const previewMatch = block.match(/PREVIEW:\s*(.*)/i);
+    // Body is from BODY: to the separator --- or the next EMAIL or end
+    const bodyMatch = block.match(/BODY:\s*\n?([\s\S]*?)(?=\n?---\s*|\n?EMAIL\s+\d+|$)/i);
+
+    if (dayMatch && subjectMatch && bodyMatch) {
+      emails.push({
+        day: parseInt(dayMatch[1]),
+        subject: subjectMatch[1].trim().replace(/^\[|\]$/g, ''), // remove optional brackets
+        preview: previewMatch ? previewMatch[1].trim().replace(/^\[|\]$/g, '') : '',
+        body: bodyMatch[1].trim(),
+      });
+    }
+  }
+
+  return emails;
+}
+
 export function parseCopyOutput(rawText: string): CopyOutput {
   return {
     lead_capture: extractPageCopy(rawText, 'LEAD_CAPTURE'),
