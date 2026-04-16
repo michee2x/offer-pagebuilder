@@ -216,7 +216,7 @@ export async function POST(req: Request) {
   const contentPrompt = buildContentPrompt(offerContext, copyContext);
 
   try {
-    const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-20241022';
+    const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-20250514';
 
     // We stream the raw text back to the client so it can visualize the <thinking> block
     const result = streamText({
