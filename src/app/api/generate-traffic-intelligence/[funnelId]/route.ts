@@ -117,7 +117,7 @@ Return this exact JSON shape (no extra text, just the JSON object):
 
     try {
         const { text } = await generateText({
-            model: anthropic('claude-3-5-sonnet-20241022'),
+            model: anthropic('claude-sonnet-4-20250514'),
             system: systemPrompt,
             prompt: userPrompt,
             maxOutputTokens: 3000,
