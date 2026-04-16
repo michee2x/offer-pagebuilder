@@ -142,7 +142,7 @@ BODY:
       model: anthropic('claude-3-5-sonnet-latest'),
       system: systemPrompt,
       prompt: userPrompt,
-      maxTokens: 4000,
+      maxOutputTokens: 4000,
       onFinish: async ({ text }) => {
         try {
           const parsedEmails = parseEmails(text);
