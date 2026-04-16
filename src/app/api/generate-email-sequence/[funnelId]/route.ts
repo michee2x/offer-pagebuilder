@@ -115,7 +115,7 @@ BODY:
 
   try {
     const result = streamText({
-      model: anthropic('claude-3-5-sonnet-latest'),
+      model: anthropic('claude-sonnet-4-20250514'),
       system: systemPrompt,
       prompt: userPrompt,
       maxOutputTokens: 4000,
