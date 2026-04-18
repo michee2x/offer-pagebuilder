@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { ScoreRadarChart } from "@/components/intelligence/charts/ScoreRadarChart";
 import { PricingBarChart } from "@/components/intelligence/charts/PricingBarChart";
 import { PlatformPieChart } from "@/components/intelligence/charts/PlatformPieChart";
+import { DesignPreviewCard } from "@/components/intelligence/charts/DesignPreviewCard";
 import {
   Zap,
   ArrowRight,
@@ -614,9 +615,7 @@ export default function IntelligencePage({
     // Optional: show toast notification here
   };
 
-  import { DesignPreviewCard } from "@/components/intelligence/charts/DesignPreviewCard";
 
-  // ... (inside component)
   const isAutoRunTriggered = React.useRef(false);
 
   useEffect(() => {
