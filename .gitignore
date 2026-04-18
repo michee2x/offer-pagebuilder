@@ -43,3 +43,4 @@ kkkkkm
 # Puppeteer
 chrome/
 .local-chromium/
+.env.local

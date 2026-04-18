@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Toaster } from 'sonner'
+import { PostHogProvider } from './providers'
 
 export const metadata: Metadata = {
   title: 'OfferIQ AI Builder',
@@ -23,8 +24,10 @@ export default function RootLayout({
         `}} />
       </head>
       <body className="min-h-screen bg-background text-foreground overflow-x-hidden text-sm">
-        {children}
-        <Toaster theme="dark" position="bottom-right" />
+        <PostHogProvider>
+          {children}
+          <Toaster theme="dark" position="bottom-right" />
+        </PostHogProvider>
       </body>
     </html>
   )

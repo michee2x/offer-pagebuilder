@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createAdminClient } from "@/utils/supabase/admin"
 import { notFound } from "next/navigation"
 import { ViewerHydrator } from "@/components/builder/ViewerHydrator"
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker"
 
 type Props = { params: Promise<{ domain: string; path?: string[] }> }
 
@@ -105,6 +106,9 @@ export default async function LiveViewerPage({ params }: Props) {
     }
 
     return (
-        <ViewerHydrator blocks={hydratedBlocks} />
+        <>
+            <AnalyticsTracker pageId={page.id} />
+            <ViewerHydrator blocks={hydratedBlocks} />
+        </>
     )
 }
