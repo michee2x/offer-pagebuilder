@@ -13,7 +13,7 @@ const ALL_SECTIONS = [
   'OFFER_SCORE', 'SCORE_SUMMARY', 'REVENUE_MODEL_ARCHITECTURE', 'PAIN_POINT_MAPPING',
   'FUNNEL_STRUCTURE_BLUEPRINT', 'PRICING_STRATEGY', 'UPSELL_DOWNSELL_PATHS',
   'STRATEGIC_BONUS_RECOMMENDATIONS', 'DESIGN_INTELLIGENCE_RECOMMENDATION',
-  'FUNNEL_HEALTH_SCORE', 'PLATFORM_PRIORITY_MATRIX',
+  'PLATFORM_PRIORITY_MATRIX',
   'OFFER_POSITIONING_ANALYSIS', 'TARGET_PERSONA_INTELLIGENCE', 'CONVERSION_HOOK_LIBRARY',
   'MESSAGING_ANGLE_MATRIX', 'PRODUCT_CORE_VALUE_PERCEPTION', 'REAL_WORLD_USE_CASE_SCENARIOS',
   'MONETIZATION_STRATEGY_NARRATIVE'
@@ -25,35 +25,35 @@ export function extractSection(text: string, sectionName: string): string {
 
   const afterName = text.substring(nameIndex + sectionName.length);
   const bottomDividerMatch = afterName.match(/^\s*(?:—|-|=){3,}\s*\n/);
-  
+
   let contentStart = nameIndex + sectionName.length;
   if (bottomDividerMatch) {
-      contentStart += bottomDividerMatch[0].length;
+    contentStart += bottomDividerMatch[0].length;
   }
 
   let nextSectionIndex = text.length;
   for (const name of ALL_SECTIONS) {
-      if (name === sectionName) continue;
-      const index = text.indexOf(name, contentStart);
-      if (index !== -1 && index < nextSectionIndex) {
-          const textBeforeNext = text.substring(contentStart, index);
-          const topDividerMatch = textBeforeNext.match(/(?:—|-|=){3,}\s*$/);
-          if (topDividerMatch) {
-             nextSectionIndex = contentStart + topDividerMatch.index!;
-          } else {
-             nextSectionIndex = index;
-          }
+    if (name === sectionName) continue;
+    const index = text.indexOf(name, contentStart);
+    if (index !== -1 && index < nextSectionIndex) {
+      const textBeforeNext = text.substring(contentStart, index);
+      const topDividerMatch = textBeforeNext.match(/(?:—|-|=){3,}\s*$/);
+      if (topDividerMatch) {
+        nextSectionIndex = contentStart + topDividerMatch.index!;
+      } else {
+        nextSectionIndex = index;
       }
+    }
   }
 
   const result = text.substring(contentStart, nextSectionIndex).trim();
-  
+
   if (result) {
     // Removed console.log for cleaner output
   } else {
     // Removed console.warn for cleaner output
   }
-  
+
   return result;
 }
 

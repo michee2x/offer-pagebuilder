@@ -182,13 +182,7 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Visual principles mapped uniquely to your demographic's trust factors.",
     icon: <Palette className="w-4 h-4" />,
     color: "text-foreground",
-  },
-  FUNNEL_HEALTH_SCORE: {
-    id: "FUNNEL_HEALTH_SCORE",
-    label: "Health Score",
-    subheader: "Critical risk assessment defining potential leakage in the funnel.",
-    icon: <Shield className="w-4 h-4" />,
-    color: "text-foreground",
+    chartType: "design"
   },
   PLATFORM_PRIORITY_MATRIX: {
     id: "PLATFORM_PRIORITY_MATRIX",
@@ -620,9 +614,10 @@ export default function IntelligencePage({
     // Optional: show toast notification here
   };
 
-  const handlePrintPdf = () => {
-    window.print();
-  };
+  import { DesignPreviewCard } from "@/components/intelligence/charts/DesignPreviewCard";
+
+  // ... (inside component)
+  const isAutoRunTriggered = React.useRef(false);
 
   useEffect(() => {
     async function init() {
@@ -642,6 +637,15 @@ export default function IntelligencePage({
           setPhase("done");
         } else {
           setPhase("idle");
+          // AUTO RUN MAGIC HERE
+          if (intelligence.raw_input && !isAutoRunTriggered.current) {
+             isAutoRunTriggered.current = true;
+             // Delay just a bit so states have a chance to settle
+             setTimeout(() => {
+                const btn = document.getElementById("auto-run-btn");
+                if (btn) btn.click();
+             }, 100);
+          }
         }
       } catch (e: any) {
         setErrorMsg(e.message || "Something went wrong");
@@ -650,8 +654,6 @@ export default function IntelligencePage({
     }
     init();
   }, [funnelId]);
-
-
 
   // Derive consolidated list of available sections
   const availableSections = React.useMemo(() => {
@@ -756,7 +758,7 @@ export default function IntelligencePage({
         <div className="flex flex-1 overflow-hidden print:hidden">
           
           {/* Left Sidebar Sections Navigation */}
-          <div className="w-64 shrink-0 border-r border-border bg-card/50 flex flex-col h-full hidden md:flex overflow-hidden">
+          <div className="w-64 shrink-0 border-r border-border bg-card flex flex-col h-full hidden md:flex overflow-hidden">
               <div className="p-4 border-b border-border bg-card sticky top-0 z-10 flex-shrink-0">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Report Sections</div>
               </div>
@@ -789,23 +791,6 @@ export default function IntelligencePage({
                   );
                 })}
              </nav>
-
-             {/* Placeholder Advertisement Block */}
-             <div className="p-3 shrink-0 mb-2">
-                <div className="relative w-full h-[120px] rounded-xl overflow-hidden group cursor-pointer border border-white/10">
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" 
-                    alt="Advertisement"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute bottom-3 left-3 right-3 z-20">
-                     <span className="text-[10px] font-black tracking-widest uppercase text-brand-yellow mb-1 block">OfferIQ Pro</span>
-                     <p className="text-[11px] font-medium text-foreground leading-tight opacity-90 line-clamp-2">Unlock AI-driven split testing for your funnels.</p>
-                  </div>
-                </div>
-             </div>
           </div>
 
           {/* Central Main Document */}
@@ -824,17 +809,17 @@ export default function IntelligencePage({
                         </>
                       ) : (
                         <>
-                          <Zap className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                          <h2 className="text-xl font-semibold">Start your intelligence analysis</h2>
-                          <p className="text-sm text-muted-foreground">This generates structural and strategic intelligence for your offer.</p>
-                          <Button size="lg" onClick={runAnalysis} className="w-full mt-4">Generate Report</Button>
+                          <Zap className="w-8 h-8 mx-auto text-muted-foreground mb-2 animate-pulse" />
+                          <h2 className="text-xl font-semibold">Starting AI Analysis</h2>
+                          <p className="text-sm text-muted-foreground">Automatically synthesizing your intelligence profile...</p>
+                          <Button id="auto-run-btn" size="lg" onClick={runAnalysis} className="w-full mt-4 hidden">Generate Report (Hidden Trigger)</Button>
                         </>
                       )}
                     </CardContent>
                  </Card>
                </div>
              ) : (
-                <div className="max-w-4xl mx-auto px-6 lg:px-12 py-10">
+                <div className="max-w-4xl mx-auto px-6 lg:px-12 py-10 pb-32 relative">
                    
                    {/* Section Header */}
                    <div className="mb-8 flex items-baseline justify-between gap-4">
@@ -867,6 +852,9 @@ export default function IntelligencePage({
                    {activeConfig.chartType === "pie" && activeSectionId === "PLATFORM_PRIORITY_MATRIX" && (
                      <PlatformPieChart content={activeContent} />
                    )}
+                   {activeConfig.chartType === "design" && activeSectionId === "DESIGN_INTELLIGENCE_RECOMMENDATION" && (
+                     <DesignPreviewCard content={activeContent} />
+                   )}
 
                    {/* Editable Markdown Body */}
                    <div className="min-h-[250px] mb-12">
@@ -877,7 +865,7 @@ export default function IntelligencePage({
                    </div>
 
                    {/* Shadcn-style Footer Navigation */}
-                   <div className="flex items-center justify-between border-t border-border pt-8 mt-12 pb-12">
+                   <div className="flex items-center justify-between border-t border-border pt-8 mt-12 mb-6">
                       {prevSectionId ? (
                         <Button 
                           variant="outline" 
@@ -912,12 +900,23 @@ export default function IntelligencePage({
                          </Button>
                       )}
                    </div>
-
                 </div>
              )}
           </div>
         </div>
       </div>
+
+      {/* Floating OfferIQ Pro Upgrade Widget (Outside Main Document) */}
+      <div className="fixed bottom-6 right-6 z-50 shadow-2xl rounded-xl border border-primary/20 bg-background/95 backdrop-blur-sm overflow-hidden w-72 flex print:hidden group">
+         <div className="p-3 bg-brand-yellow/10 border-r border-primary/20 flex items-center justify-center">
+            <Zap className="w-5 h-5 text-brand-yellow" />
+         </div>
+         <div className="p-3 flex-1">
+            <div className="text-[10px] font-black tracking-widest uppercase text-brand-yellow mb-0.5">OfferIQ Pro</div>
+            <p className="text-xs font-medium text-foreground leading-tight">Unlock AI-driven split testing and custom domains.</p>
+         </div>
+      </div>
+
       <GenerationOverlay visible={phase === "call1" || phase === "call2"} step={genStep} />
     </div>
   );

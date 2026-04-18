@@ -6,19 +6,25 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { WorkspaceCreateDialog } from "@/components/WorkspaceCreateDialog";
 
-export default async function DashboardPage() {
+import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
+import { use } from "react";
+
+export default async function DashboardPage(props: {
+  searchParams: Promise<{ workspace?: string }>;
+}) {
   const session = await getSession();
   if (!session || !session.user?.id) {
     redirect("/login");
   }
 
+  const { workspace } = await props.searchParams;
+
   const supabase = createAdminClient();
 
-  console.log("Home page loading workspaces for user:", session.user.id);
+  // ... (keep the query)
   const { data: workspaces, error: workspacesError } = await supabase
     .from("workspaces")
-    .select(
-      `
+    .select(`
             id,
             name,
             created_at,
@@ -29,8 +35,7 @@ export default async function DashboardPage() {
                 og_image_url,
                 blocks
             )
-        `,
-    )
+        `)
     .eq("user_id", session.user.id)
     .order("created_at", { ascending: false });
 
@@ -39,34 +44,18 @@ export default async function DashboardPage() {
   }
 
   const allWorkspaces = workspaces || [];
-  console.log("Home page loaded workspaces count:", allWorkspaces.length);
-  console.log("Home page workspaces payload:", allWorkspaces);
+  const activeWorkspaceId = workspace || (allWorkspaces.length > 0 ? allWorkspaces[0].id : null);
+  const activeWorkspace = allWorkspaces.find((w: any) => w.id === activeWorkspaceId);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
-      {/* ml-14 offsets the fixed sidebar's icon strip */}
       <div
         className="flex-1 flex flex-col min-w-0 overflow-hidden"
         style={{ marginLeft: "56px" }}
       >
         <Topbar breadcrumbs={[{ label: "Workspaces" }]}>
-          <button className="w-8 h-8 rounded-md bg-muted border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors relative">
-            <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary" />
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
-            </svg>
-          </button>
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary cursor-pointer">
-            SC
-          </div>
+          <WorkspaceSwitcher workspaces={allWorkspaces} activeId={activeWorkspaceId} />
         </Topbar>
 
         <main className="flex-1 overflow-y-auto p-8">
@@ -83,7 +72,7 @@ export default async function DashboardPage() {
               <WorkspaceCreateDialog />
             </div>
 
-            {allWorkspaces.length === 0 ? (
+            {!activeWorkspace ? (
               <div className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl p-16 text-center bg-card shadow-sm">
                 <Folder className="w-10 h-10 text-muted-foreground mb-4 opacity-50" />
                 <h3 className="text-base font-semibold text-foreground">
@@ -95,63 +84,60 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-12">
-                {allWorkspaces.map((workspace: any) => (
-                  <div key={workspace.id} className="flex flex-col space-y-6">
-                    <div className="flex items-center justify-between border-b border-border pb-4">
-                      <h2 className="text-xl font-semibold flex items-center gap-2">
-                        <Folder className="w-5 h-5 text-primary" />
-                        {workspace.name}
-                      </h2>
-                      <a href={`/onboard?workspace=${workspace.id}`} className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
-                        + New Funnel
+                <div className="flex flex-col space-y-6">
+                  <div className="flex items-center justify-between border-b border-border pb-4">
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <Folder className="w-5 h-5 text-primary" />
+                      {activeWorkspace.name}
+                    </h2>
+                    <a href={`/onboard?workspace=${activeWorkspace.id}`} className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+                      + New Funnel
+                    </a>
+                  </div>
+
+                  {activeWorkspace.builder_pages && activeWorkspace.builder_pages.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {activeWorkspace.builder_pages.map((funnel: any) => (
+                        <a href={`/funnels/${funnel.id}`} key={funnel.id} className="group block h-full">
+                          <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg h-full flex flex-col relative">
+                            <div className="aspect-[16/10] bg-muted/20 relative overflow-hidden border-b border-border">
+                              {funnel.og_image_url ? (
+                                <img 
+                                  src={funnel.og_image_url} 
+                                  alt={funnel.name} 
+                                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" 
+                                />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground opacity-30">
+                                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="3" y1="9" x2="21" y2="9"/>
+                                    <line x1="9" y1="21" x2="9" y2="9"/>
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-4 flex flex-col border-t border-border/50 bg-background/50">
+                              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                                {funnel.name}
+                              </h3>
+                              <span className="text-xs text-muted-foreground mt-1">
+                                Updated {new Date(funnel.updated_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground bg-muted/10 p-10 rounded-xl border border-dashed border-border text-center">
+                      <p>No funnels in this workspace yet.</p>
+                      <a href={`/onboard?workspace=${activeWorkspace.id}`} className="text-primary hover:underline mt-2 inline-block">
+                        Create your first funnel
                       </a>
                     </div>
-
-                    {workspace.builder_pages && workspace.builder_pages.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {workspace.builder_pages.map((funnel: any) => (
-                          <a href={`/funnels/${funnel.id}`} key={funnel.id} className="group block h-full">
-                            <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg h-full flex flex-col relative">
-                              <div className="aspect-[16/10] bg-muted/20 relative overflow-hidden border-b border-border">
-                                {funnel.og_image_url ? (
-                                  <img 
-                                    src={funnel.og_image_url} 
-                                    alt={funnel.name} 
-                                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" 
-                                  />
-                                ) : (
-                                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground opacity-30">
-                                    {/* Placeholder icon */}
-                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                      <line x1="3" y1="9" x2="21" y2="9"/>
-                                      <line x1="9" y1="21" x2="9" y2="9"/>
-                                    </svg>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="p-4 flex flex-col border-t border-border/50 bg-background/50">
-                                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                                  {funnel.name}
-                                </h3>
-                                <span className="text-xs text-muted-foreground mt-1">
-                                  Updated {new Date(funnel.updated_at).toLocaleDateString()}
-                                </span>
-                              </div>
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-muted-foreground bg-muted/10 p-10 rounded-xl border border-dashed border-border text-center">
-                        <p>No funnels in this workspace yet.</p>
-                        <a href={`/onboard?workspace=${workspace.id}`} className="text-primary hover:underline mt-2 inline-block">
-                          Create your first funnel
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -505,7 +505,7 @@ export default function TrafficIntelligencePage({
                     <div>
                       <p className="text-[10px] uppercase tracking-widest font-bold text-violet-400 mb-1">O · Retargeting</p>
                       <h1 className="text-2xl font-black text-foreground tracking-tight mb-1">Warm Audience Strategy</h1>
-                      <p className="text-sm text-muted-foreground">How to re-capture and convert visitors who didn't convert on first touch.</p>
+                      <p className="text-sm text-muted-foreground">How to re-capture and convert visitors who didn&apos;t convert on first touch.</p>
                     </div>
                     <div className="bg-card border border-border rounded-2xl p-6">
                       <p className="text-sm text-foreground leading-relaxed">{data.retargeting_strategy}</p>

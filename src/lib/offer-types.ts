@@ -70,19 +70,6 @@ export interface OfferScore {
   conversion_readiness: number;
 }
 
-export interface FunnelHealthScore {
-  score: number;
-  cvr_cold_traffic: string;
-  cvr_warm_traffic: string;
-  revenue_per_lead_estimate: string;
-  primary_leakage_point: string;
-  primary_leakage_cause: string;
-  fix_1: string;
-  fix_2: string;
-  fix_3: string;
-  validation_required_before_scaling: boolean;
-}
-
 export interface PlatformEntry {
   platform: string;
   budget_allocation: string;
@@ -111,7 +98,7 @@ export interface Call1Parsed {
   revenue_model_architecture: string;
   pain_point_mapping: string;
   platform_priority_matrix: PlatformPriorityMatrix;
-  funnel_health_score: FunnelHealthScore;
+
   pricing_strategy: string;
   upsell_downsell_paths: string;
   strategic_bonus_recommendations: string;
