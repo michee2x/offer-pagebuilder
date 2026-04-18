@@ -115,7 +115,7 @@ interface ReportSectionConfig {
   icon: React.ReactNode;
   color: string;
   badge?: string;
-  chartType?: "radar" | "bar" | "pie";
+  chartType?: "radar" | "bar" | "pie" | "design";
 }
 
 const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
@@ -615,6 +615,9 @@ export default function IntelligencePage({
     // Optional: show toast notification here
   };
 
+  const handlePrintPdf = () => {
+    window.print();
+  };
 
   const isAutoRunTriggered = React.useRef(false);
 
