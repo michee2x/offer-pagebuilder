@@ -12,6 +12,7 @@ import { ScoreRadarChart } from "@/components/intelligence/charts/ScoreRadarChar
 import { PricingBarChart } from "@/components/intelligence/charts/PricingBarChart";
 import { PlatformPieChart } from "@/components/intelligence/charts/PlatformPieChart";
 import { DesignPreviewCard } from "@/components/intelligence/charts/DesignPreviewCard";
+import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 import {
   Zap,
   ArrowRight,
@@ -759,6 +760,9 @@ export default function IntelligencePage({
         {/* Main Interface Layout */}
         <div className="flex flex-1 overflow-hidden print:hidden">
           
+          {/* Funnel secondary sidebar (collapsible icon rail) */}
+          <FunnelSidebar funnelId={funnelId} funnelName={funnelName || funnelId} collapsible />
+
           {/* Left Sidebar Sections Navigation */}
           <div className="w-64 shrink-0 border-r border-border bg-card flex flex-col h-full hidden md:flex overflow-hidden">
               <div className="p-4 border-b border-border bg-card sticky top-0 z-10 flex-shrink-0">
@@ -908,16 +912,7 @@ export default function IntelligencePage({
         </div>
       </div>
 
-      {/* Floating OfferIQ Pro Upgrade Widget (Outside Main Document) */}
-      <div className="fixed bottom-6 right-6 z-50 shadow-2xl rounded-xl border border-primary/20 bg-background/95 backdrop-blur-sm overflow-hidden w-72 flex print:hidden group">
-         <div className="p-3 bg-brand-yellow/10 border-r border-primary/20 flex items-center justify-center">
-            <Zap className="w-5 h-5 text-brand-yellow" />
-         </div>
-         <div className="p-3 flex-1">
-            <div className="text-[10px] font-black tracking-widest uppercase text-brand-yellow mb-0.5">OfferIQ Pro</div>
-            <p className="text-xs font-medium text-foreground leading-tight">Unlock AI-driven split testing and custom domains.</p>
-         </div>
-      </div>
+
 
       <GenerationOverlay visible={phase === "call1" || phase === "call2"} step={genStep} />
     </div>

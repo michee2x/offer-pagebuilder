@@ -24,6 +24,7 @@ import {
 import type { CopyOutput, PageCopy, EmailCopy } from "@/lib/offer-types";
 import { parseCopyOutput } from "@/lib/offer-parser";
 import { toast } from "sonner";
+import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 
 // ─── Wizard step config ───────────────────────────────────────────────────────
 
@@ -545,6 +546,8 @@ export default function CopyPage({
         </Topbar>
 
         <div className="flex flex-1 overflow-hidden">
+          {/* Funnel secondary sidebar (collapsible icon rail) */}
+          <FunnelSidebar funnelId={funnelId} funnelName={funnelName || funnelId} collapsible />
           {/* Left Copy Nav */}
           <div className="w-52 shrink-0 border-r border-border bg-card flex flex-col overflow-hidden">
             <div className="px-4 py-3 border-b border-border">

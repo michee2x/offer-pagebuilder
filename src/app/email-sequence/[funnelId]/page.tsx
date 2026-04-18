@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import type { EmailCopy } from '@/lib/offer-types';
+import { FunnelSidebar } from '@/components/layout/FunnelSidebar';
 
 // ─── Generation overlay ───────────────────────────────────────────────────────
 
@@ -305,6 +306,8 @@ export default function EmailSequencePage({
         />
 
         <div className="flex flex-1 overflow-hidden">
+          {/* Funnel secondary sidebar (collapsible icon rail) */}
+          <FunnelSidebar funnelId={funnelId} funnelName={funnelName} collapsible />
           {/* Left panel */}
           <div className="w-[230px] border-r border-border bg-card flex flex-col overflow-hidden flex-shrink-0">
             <div className="px-4 py-3 border-b border-border">

@@ -134,6 +134,37 @@ export function Sidebar() {
         })}
       </nav>
 
+      {/* Pro card — fades in when sidebar is open, fixed width so it never reflows */}
+      <div className="px-2 pb-1 overflow-hidden shrink-0">
+        <div
+          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 relative rounded-xl overflow-hidden"
+          style={{ width: 196, height: 110 }}
+        >
+          {/* Unsplash background image — vivid aurora/neon gradient */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80&fit=crop&crop=center"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* Subtle dark overlay for text readability only */}
+          <div className="absolute inset-0 bg-black/35" />
+          {/* Content */}
+          <div className="relative z-10 p-3 h-full flex flex-col justify-between">
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-widest text-white/80 mb-0.5">OfferIQ Pro</p>
+              <p className="text-white font-bold text-[12px] leading-tight drop-shadow-sm">
+                Unlock split testing &amp;<br />custom domains
+              </p>
+            </div>
+            <button className="self-start text-[9px] font-bold bg-white/25 hover:bg-white/40 text-white px-2.5 py-0.5 rounded-full transition-colors border border-white/30 whitespace-nowrap">
+              Try Pro →
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Footer */}
       <div className="p-2 border-t border-border shrink-0">
         <div className="flex items-center gap-3 px-[10px] py-1.5 rounded-md cursor-pointer overflow-hidden hover:bg-muted transition-colors">

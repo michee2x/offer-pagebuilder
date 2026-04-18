@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { FunnelSidebar } from '@/components/layout/FunnelSidebar';
 import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -313,6 +314,8 @@ export default function TrafficIntelligencePage({
         />
 
         <div className="flex flex-1 overflow-hidden">
+          {/* Funnel secondary sidebar (collapsible icon rail) */}
+          <FunnelSidebar funnelId={funnelId} funnelName={funnelName} collapsible />
           {/* Left nav */}
           <div className="w-[230px] border-r border-border bg-card flex flex-col overflow-hidden flex-shrink-0">
             <div className="px-4 py-3 border-b border-border">
