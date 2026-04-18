@@ -286,7 +286,7 @@ export default function BuilderPage() {
         <Topbar 
           breadcrumbs={[
               { label: 'Workspace' },
-              { label: 'Funnels', href: '/' },
+              { label: 'Funnels', href: pageId ? `/funnels/${pageId}` : '/' },
               { label: (
                 <div className="flex items-center gap-1.5 group relative">
                   <div className="absolute right-2.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-muted-foreground/60">

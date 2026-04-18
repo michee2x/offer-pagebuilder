@@ -284,7 +284,7 @@ export default function EmailSequencePage({
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
         <Topbar
           breadcrumbs={[
-            { label: 'Funnels', href: '/' },
+            { label: 'Funnels', href: `/funnels/${funnelId}` },
             { label: funnelName, href: '#' },
             { label: 'Email Sequence' },
           ]}

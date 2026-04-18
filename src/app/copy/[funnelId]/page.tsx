@@ -512,10 +512,10 @@ export default function CopyPage({
       >
         <Topbar
           breadcrumbs={[
-            { label: "Funnels", href: "/" },
+            { label: "Funnels", href: `/funnels/${funnelId}` },
             {
               label: funnelName || funnelId,
-              href: `/intelligence/${funnelId}`,
+              href: `/funnels/${funnelId}`,
             },
             { label: "Copy Engine" },
           ]}

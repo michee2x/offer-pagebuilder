@@ -701,8 +701,8 @@ export default function IntelligencePage({
         {/* Topbar */}
         <Topbar
           breadcrumbs={[
-            { label: "Funnels", href: "/" },
-            { label: funnelName || funnelId, href: `/intelligence/${funnelId}` },
+            { label: "Funnels", href: `/funnels/${funnelId}` },
+            { label: funnelName || funnelId, href: `/funnels/${funnelId}` },
             { label: "Intelligence Reports" },
           ]}
           steps={WIZARD_STEPS}
@@ -717,7 +717,7 @@ export default function IntelligencePage({
           <Button
             size="sm"
             disabled={availableSections.length === 0}
-            onClick={() => router.push(`/copy/${funnelId}`)}
+            onClick={() => router.push(`/funnels/${funnelId}/copy`)}
             className="gap-1.5 font-semibold print:hidden"
           >
             Generate Copy

@@ -3,19 +3,17 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
+import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 import {
-  PieChart,
-  LineChart,
-  Mail,
-  FileText,
   Activity,
   Globe,
-  Settings,
-  Layout,
-  ExternalLink
+  Eye,
+  Users,
+  TrendingUp,
+  ArrowUpRight,
+  Clock,
+  MapPin,
 } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 interface FunnelDashboardPageProps {
   params: Promise<{
@@ -45,10 +43,17 @@ export default async function FunnelDashboardPage({ params }: FunnelDashboardPag
   }
 
   const stats = [
-    { label: "Total Views", value: "0", icon: Activity },
-    { label: "Conversion Rate", value: "0%", icon: PieChart },
-    { label: "Total Leads", value: "0", icon: Mail },
-    { label: "Sales Generated", value: "$0", icon: LineChart },
+    { label: "Page Views (7d)", value: "—", change: null, icon: Eye, color: "text-sky-400" },
+    { label: "Unique Visitors", value: "—", change: null, icon: Users, color: "text-violet-400" },
+    { label: "Conversion Rate", value: "—", change: null, icon: TrendingUp, color: "text-emerald-400" },
+    { label: "Avg. Time on Page", value: "—", change: null, icon: Clock, color: "text-amber-400" },
+  ];
+
+  const topCountries = [
+    { country: "United States", pct: 0 },
+    { country: "United Kingdom", pct: 0 },
+    { country: "Canada", pct: 0 },
+    { country: "Australia", pct: 0 },
   ];
 
   return (
@@ -63,102 +68,137 @@ export default async function FunnelDashboardPage({ params }: FunnelDashboardPag
             { label: "Workspaces", href: "/" },
             { label: funnel.name },
           ]}
-        >
-          <div className="flex items-center gap-2">
-            <Link href={`/builder?id=${funnel.id}`}>
-              <Button size="sm" variant="outline">
-                <Layout className="w-4 h-4 mr-2" />
-                Edit Page
-              </Button>
-            </Link>
-          </div>
-        </Topbar>
+        />
 
-        <main className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-7xl mx-auto space-y-8">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex flex-1 overflow-hidden">
+          {/* Funnel-specific sidebar */}
+          <FunnelSidebar funnelId={funnelId} funnelName={funnel.name} />
+
+          {/* Main content */}
+          <main className="flex-1 overflow-y-auto p-8 bg-background">
+            <div className="max-w-5xl mx-auto space-y-8">
+
+              {/* Header */}
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                  {funnel.name} - Overview
+                <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-1">
+                  Funnel Overview
+                </p>
+                <h1 className="text-3xl font-black tracking-tight text-foreground">
+                  {funnel.name}
                 </h1>
-                <p className="text-muted-foreground mt-1">
-                  Created {new Date(funnel.created_at).toLocaleDateString()}
+                <p className="text-sm text-muted-foreground mt-1">
+                  Created {new Date(funnel.created_at).toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })}
                 </p>
               </div>
 
-              <div className="flex gap-3">
-                <Link href={`/intelligence/${funnel.id}`}>
-                  <Button variant="secondary" className="gap-2">
-                    <PieChart className="w-4 h-4" />
-                    Sales Report
-                  </Button>
-                </Link>
-                <Link href={`/builder?id=${funnel.id}`}>
-                  <Button className="gap-2">
-                    <Globe className="w-4 h-4" />
-                    Open Builder
-                  </Button>
-                </Link>
+              {/* Stats grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {stats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-muted-foreground">{stat.label}</p>
+                      <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                    </div>
+                    <p className="text-3xl font-black text-foreground">{stat.value}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Analytics integration coming soon
+                    </p>
+                  </div>
+                ))}
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {stats.map((stat, idx) => (
-                <div
-                  key={idx}
-                  className="p-6 rounded-2xl border border-border bg-card flex flex-col gap-3"
-                >
-                  <div className="flex items-center gap-3 text-muted-foreground font-medium">
-                    <stat.icon className="w-5 h-5" />
-                    {stat.label}
-                  </div>
-                  <div className="text-3xl font-bold text-foreground">
-                    {stat.value}
-                  </div>
-                </div>
-              ))}
-            </div>
+              {/* Two-col layout: traffic + geography */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* Quick Actions / Modules */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Link href={`/copy/${funnel.id}`} className="block group">
-                <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/50 transition-colors h-full flex flex-col">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <FileText className="w-6 h-6" />
+                {/* Traffic over time (placeholder) */}
+                <div className="bg-card border border-border rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Traffic Over Time</p>
+                      <p className="text-xs text-muted-foreground">Last 7 days</p>
+                    </div>
+                    <Activity className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Sales Copy</h3>
-                  <p className="text-muted-foreground text-sm flex-1">
-                    Manage and edit the AI-generated sales copy for your funnel.
+                  <div className="h-32 flex items-end gap-1.5">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                      <div key={i} className="flex-1 flex flex-col justify-end gap-1">
+                        <div
+                          className="bg-primary/10 border border-primary/10 rounded-sm"
+                          style={{ height: `${16 + Math.random() * 10}px`, opacity: 0.5 }}
+                        />
+                        <p className="text-[9px] text-muted-foreground text-center">
+                          {["M", "T", "W", "T", "F", "S", "S"][i]}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-3 text-center">
+                    Connect your analytics to see real data
                   </p>
                 </div>
-              </Link>
 
-              <Link href={`/email-sequence/${funnel.id}`} className="block group">
-                <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/50 transition-colors h-full flex flex-col">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Mail className="w-6 h-6" />
+                {/* Top countries (placeholder) */}
+                <div className="bg-card border border-border rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Top Countries</p>
+                      <p className="text-xs text-muted-foreground">By traffic source</p>
+                    </div>
+                    <Globe className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Email Sequence</h3>
-                  <p className="text-muted-foreground text-sm flex-1">
-                    Configure your automated follow-up emails and nurture sequences.
+                  <div className="space-y-3">
+                    {topCountries.map((c) => (
+                      <div key={c.country} className="flex items-center gap-3">
+                        <MapPin className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-xs font-semibold text-foreground">{c.country}</p>
+                            <p className="text-xs text-muted-foreground">—</p>
+                          </div>
+                          <div className="h-1 bg-muted rounded-full">
+                            <div
+                              className="h-full bg-primary/40 rounded-full"
+                              style={{ width: "0%" }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-4 text-center">
+                    Real geo-data requires analytics integration
                   </p>
                 </div>
-              </Link>
+              </div>
 
-              <Link href={`/traffic/${funnel.id}`} className="block group">
-                <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/50 transition-colors h-full flex flex-col">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Activity className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Traffic Intelligence</h3>
-                  <p className="text-muted-foreground text-sm flex-1">
-                    View ad creative ideas, audience targeting, and traffic strategies.
-                  </p>
+              {/* Quick links */}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Quick Access</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: "View Sales Report", href: `/funnels/${funnelId}/report`, color: "from-violet-500/10 to-violet-500/5 border-violet-500/20", accent: "text-violet-400" },
+                    { label: "Edit Sales Copy", href: `/funnels/${funnelId}/copy`, color: "from-sky-500/10 to-sky-500/5 border-sky-500/20", accent: "text-sky-400" },
+                    { label: "Email Sequence", href: `/funnels/${funnelId}/email`, color: "from-emerald-500/10 to-emerald-500/5 border-emerald-500/20", accent: "text-emerald-400" },
+                    { label: "Traffic Intelligence", href: `/funnels/${funnelId}/traffic`, color: "from-amber-500/10 to-amber-500/5 border-amber-500/20", accent: "text-amber-400" },
+                  ].map((q) => (
+                    <a
+                      key={q.label}
+                      href={q.href}
+                      className={`bg-gradient-to-br ${q.color} border rounded-2xl p-4 flex items-center justify-between group hover:scale-[1.02] transition-all`}
+                    >
+                      <p className={`text-xs font-bold ${q.accent}`}>{q.label}</p>
+                      <ArrowUpRight className={`w-3.5 h-3.5 ${q.accent} opacity-0 group-hover:opacity-100 transition-opacity`} />
+                    </a>
+                  ))}
                 </div>
-              </Link>
+              </div>
+
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     </div>
   );
