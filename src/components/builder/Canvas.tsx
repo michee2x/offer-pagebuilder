@@ -60,7 +60,7 @@ function buildThemeInlineVars(theme: ShadcnTheme): React.CSSProperties {
     '--radius-md':                  `calc(${v.radius} - 2px)`,
     '--radius-sm':                  `calc(${v.radius} - 4px)`,
 
-    'font-family': `"${theme.bodyFont}", sans-serif`,
+    fontFamily: `"${theme.bodyFont}", sans-serif`,
   };
 
   return cssVars as React.CSSProperties;

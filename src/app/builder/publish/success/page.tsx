@@ -229,7 +229,7 @@ function DeploymentSuccessContent() {
         <div className="px-5 pb-6">
           <Button
             className="w-full h-11 bg-white text-black hover:bg-white/90 font-semibold text-sm"
-            onClick={() => router.push('/')}
+            onClick={() => router.push(`/funnels/${pageId}`)}
           >
             <CheckCircle2 className="w-4 h-4 mr-2" />
             Continue to Dashboard

@@ -152,6 +152,21 @@ export function FeaturesSection({
   style = {},
   elementStyles = {},
 }: FeaturesSectionProps) {
+  const normalizedFeatures = React.useMemo(() => {
+    if (!features || !Array.isArray(features)) return [];
+    if (features.length === 0) return [];
+    if (Array.isArray(features[0])) return features as FeatureCard[][];
+    
+    // Fallback: AI sometimes generates a flat array instead of nested rows.
+    const flat = features as unknown as FeatureCard[];
+    const chunked: FeatureCard[][] = [];
+    // Chunk into rows of 2
+    for (let i = 0; i < flat.length; i += 2) {
+      chunked.push(flat.slice(i, i + 2));
+    }
+    return chunked;
+  }, [features]);
+
   return (
     <section
       id={sectionId || undefined}
@@ -181,7 +196,7 @@ export function FeaturesSection({
         </div>
 
         <div className="flex flex-col gap-5" style={elementStyles.featuresGrid}>
-          {features.map((row, rowIndex) => (
+          {normalizedFeatures.map((row, rowIndex) => (
             <div
               key={rowIndex}
               className="flex flex-col md:flex-row gap-5"

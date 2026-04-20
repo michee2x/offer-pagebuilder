@@ -93,7 +93,22 @@ export default function BuilderPage() {
     }
   }, [setPageId, setFullState, setFunnelName]);
 
-  // No more DND sensors or event handlers needed
+  // Auto-generate if directed from the Copy wizard
+  React.useEffect(() => {
+    if (!initialLoading && typeof window !== 'undefined') {
+      const qs = new URLSearchParams(window.location.search);
+      if (qs.get('autoGen') === 'true' && rootList.length === 0 && !isGenerating) {
+         const editId = qs.get('id');
+         window.history.replaceState({}, '', `/builder?id=${editId || ''}`);
+         
+         // Slight delay to ensure UI paints before locking main thread
+         setTimeout(() => {
+            handleGeneratePage();
+         }, 500);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLoading]);
 
   const handleGeneratePage = async () => {
     try {
