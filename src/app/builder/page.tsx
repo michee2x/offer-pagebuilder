@@ -8,7 +8,7 @@ import { SectionLibraryModal } from '@/components/builder/SectionLibraryModal';
 import { AiStreamBoard } from '@/components/builder/AiStreamBoard';
 import { useBuilderStore } from '@/store/builderStore';
 import { Button } from '@/components/ui/button';
-import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus, Globe, Save, Edit2 } from 'lucide-react';
+import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus, Globe, Save, Edit2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
@@ -31,6 +31,8 @@ export default function BuilderPage() {
   const [copied, setCopied] = React.useState(false);
   const [initialLoading, setInitialLoading] = React.useState(true);
   const [hasIntelligence, setHasIntelligence] = React.useState(false);
+  // Unsaved-changes guard
+  const [pendingNav, setPendingNav] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -92,6 +94,26 @@ export default function BuilderPage() {
       }
     }
   }, [setPageId, setFullState, setFunnelName]);
+
+  // ── Unsaved-changes: block browser back/close ────────────────────────
+  React.useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasUnsavedChanges]);
+
+  /** Intercept in-app navigation links that use the Publish button */
+  const guardedNavigate = React.useCallback((href: string) => {
+    if (hasUnsavedChanges) {
+      setPendingNav(href);
+    } else {
+      window.location.href = href;
+    }
+  }, [hasUnsavedChanges]);
 
   // Auto-generate if directed from the Copy wizard
   React.useEffect(() => {
@@ -301,7 +323,7 @@ export default function BuilderPage() {
         <Topbar 
           breadcrumbs={[
               { label: 'Workspace' },
-              { label: 'Funnels', href: pageId ? `/funnels/${pageId}` : '/' },
+              { label: 'Funnel', href: pageId ? `/funnels/${pageId}` : '/' },
               { label: (
                 <div className="flex items-center gap-1.5 group relative">
                   <div className="absolute right-2.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-muted-foreground/60">
@@ -404,7 +426,7 @@ export default function BuilderPage() {
                     toast.error('Please save your draft first before publishing.');
                     return;
                   }
-                  window.location.href = `/builder/publish?id=${pageId}`;
+                  guardedNavigate(`/builder/publish?id=${pageId}`);
                 }}
                 className="ml-1 h-8 px-3 flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
               >
@@ -427,6 +449,53 @@ export default function BuilderPage() {
         {/* Modals outside main flex flow */}
         <SectionLibraryModal />
         <AiStreamBoard isOpen={isGenerating} thinkingText={streamText} />
+
+        {/* ─ Unsaved Changes Guard Modal ─ */}
+        {pendingNav && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-card border border-border rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 flex flex-col gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-foreground">Unsaved changes</h3>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    You have unsaved changes. Save your project before leaving or your work will be lost.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button
+                  className="w-full gap-2"
+                  onClick={async () => {
+                    await handleSave();
+                    window.location.href = pendingNav;
+                  }}
+                  disabled={isSaving}
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {isSaving ? 'Saving…' : 'Save & Continue'}
+                </Button>
+                <button
+                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 rounded-lg hover:bg-muted"
+                  onClick={() => {
+                    setHasUnsavedChanges(false);
+                    window.location.href = pendingNav;
+                  }}
+                >
+                  Discard changes & leave
+                </button>
+                <button
+                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 rounded-lg hover:bg-muted"
+                  onClick={() => setPendingNav(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

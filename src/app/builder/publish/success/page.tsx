@@ -61,12 +61,17 @@ function DeploymentSuccessContent() {
   const baseDomain = isLocal ? (typeof window !== 'undefined' ? window.location.host : 'localhost:3000') : 'ofiq.app';
 
   let liveUrl = '';
+  let displayUrl = ''; // human-friendly label shown in the copy row
   if (pageData?.custom_domain) {
     liveUrl = `https://${pageData.custom_domain}`;
+    displayUrl = pageData.custom_domain;
   } else if (pageData?.subdomain) {
     liveUrl = `${proto}${pageData.subdomain}.${baseDomain}`;
+    displayUrl = `${pageData.subdomain}.${baseDomain}`;
   } else {
+    // Fallback — no domain configured yet
     liveUrl = `${proto}${baseDomain}/p/${pageId}`;
+    displayUrl = `${baseDomain}/p/${pageId}`;
   }
 
   // Screenshot: use the literal uploaded screenshot URL from the bucket
@@ -134,7 +139,7 @@ function DeploymentSuccessContent() {
         {/* Live URL row */}
         <div className="mx-5 mb-5 flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5">
           <Globe className="w-3.5 h-3.5 text-white/40 shrink-0" />
-          <span className="flex-1 text-xs font-mono text-white/70 truncate">{liveUrl}</span>
+          <span className="flex-1 text-xs font-mono text-white/70 truncate">{displayUrl}</span>
           <button
             onClick={handleCopy}
             className="shrink-0 p-1.5 rounded-md hover:bg-white/10 transition-colors text-white/50 hover:text-white"

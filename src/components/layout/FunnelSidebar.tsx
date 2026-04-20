@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Hammer,
   ArrowLeft,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,11 +35,12 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
   const [open, setOpen] = useState(false);
 
   const navItems: FunnelNavItem[] = [
-    { label: "Overview",             href: `/funnels/${funnelId}`,         icon: BarChart2  },
-    { label: "Sales Report",         href: `/funnels/${funnelId}/report`,  icon: Brain      },
-    { label: "Sales Copy",           href: `/funnels/${funnelId}/copy`,    icon: FileText   },
-    { label: "Email Sequence",       href: `/funnels/${funnelId}/email`,   icon: Mail       },
-    { label: "Traffic Intelligence", href: `/funnels/${funnelId}/traffic`, icon: TrendingUp },
+    { label: "Overview",             href: `/funnels/${funnelId}`,                      icon: BarChart2  },
+    { label: "Sales Report",         href: `/funnels/${funnelId}/report`,               icon: Brain      },
+    { label: "Sales Copy",           href: `/funnels/${funnelId}/copy`,                 icon: FileText   },
+    { label: "Email Sequence",       href: `/funnels/${funnelId}/email`,                icon: Mail       },
+    { label: "Traffic Intelligence", href: `/funnels/${funnelId}/traffic`,              icon: TrendingUp },
+    { label: "Publish",              href: `/builder/publish?id=${funnelId}`,           icon: Globe      },
   ];
 
   if (collapsible) {
@@ -96,10 +98,13 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
           {/* Nav */}
           <nav className="flex-1 overflow-y-auto py-2 space-y-0.5" style={{ padding: "8px 6px" }}>
             {navItems.map((item) => {
+              const itemPath = item.href.split('?')[0];
               const isActive =
                 item.href === `/funnels/${funnelId}`
                   ? pathname === `/funnels/${funnelId}`
-                  : pathname.startsWith(item.href);
+                  : itemPath === '/builder/publish'
+                  ? pathname === '/builder/publish'
+                  : pathname.startsWith(itemPath);
               const Icon = item.icon;
 
               return (
@@ -196,10 +201,13 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
 
       <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
         {navItems.map((item) => {
+          const itemPath = item.href.split('?')[0];
           const isActive =
             item.href === `/funnels/${funnelId}`
               ? pathname === `/funnels/${funnelId}`
-              : pathname.startsWith(item.href);
+              : itemPath === '/builder/publish'
+              ? pathname === '/builder/publish'
+              : pathname.startsWith(itemPath);
           const Icon = item.icon;
           return (
             <Link

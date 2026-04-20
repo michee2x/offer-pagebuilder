@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Settings,
   Camera,
+  Info,
 } from 'lucide-react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
@@ -58,6 +59,18 @@ function PublishContent() {
   const isTitleValid = seoTitle.length >= 50;
   const isDescValid = seoDescription.length >= 110;
   const isSeoValid = isTitleValid && isDescValid;
+  const hasSubdomain = subdomain.trim().length > 0;
+
+  // Track what was last saved server-side to detect local unsaved changes
+  const savedSubdomainRef = useRef('');
+  const savedSeoTitleRef  = useRef('');
+  const savedSeoDescRef   = useRef('');
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
+
+  const hasUnsavedLocalChanges =
+    subdomain      !== savedSubdomainRef.current ||
+    seoTitle       !== savedSeoTitleRef.current  ||
+    seoDescription !== savedSeoDescRef.current;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -101,6 +114,35 @@ function PublishContent() {
     fetchData();
   }, [id, router]);
 
+  // Sync saved refs once the page data arrives
+  useEffect(() => {
+    if (!loading && pageData) {
+      savedSubdomainRef.current = pageData.subdomain || '';
+      savedSeoTitleRef.current  = pageData.seo_title || pageData.name || '';
+      savedSeoDescRef.current   = pageData.seo_description || '';
+    }
+  }, [loading, pageData]);
+
+  // Block browser close / tab close when there are unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!hasUnsavedLocalChanges) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasUnsavedLocalChanges]);
+
+  /** Use this instead of direct navigation when there may be unsaved changes */
+  const guardedNavigate = (href: string) => {
+    if (hasUnsavedLocalChanges) {
+      setPendingNav(href);
+    } else {
+      window.location.href = href;
+    }
+  };
+
   // ─── Domain handlers ─────────────────────────────────────────────────
   const handleSaveDomain = async (type: 'subdomain' | 'custom') => {
     try {
@@ -120,6 +162,8 @@ function PublishContent() {
       const data = await res.json();
       toast.dismiss();
       if (!res.ok) throw new Error(data.error || 'Failed to update domain');
+      // Sync ref so the guard knows this value is now saved
+      if (type === 'subdomain') savedSubdomainRef.current = subdomain;
       toast.success(
         `${type === 'subdomain' ? 'Subdomain' : 'Custom domain'} updated!`
       );
@@ -151,6 +195,9 @@ function PublishContent() {
       const data = await res.json();
       toast.dismiss();
       if (!res.ok) throw new Error(data.error || 'Failed to save SEO');
+      // Sync refs so the guard knows these values are now saved
+      savedSeoTitleRef.current = seoTitle;
+      savedSeoDescRef.current  = seoDescription;
       toast.success('SEO settings saved!');
     } catch (err: any) {
       toast.dismiss();
@@ -172,7 +219,9 @@ function PublishContent() {
 
   // ─── Screenshot-based deploy flow ────────────────────────────────────
   const handleDeploy = async () => {
-    if (!id) {
+    if (!id) return;
+    if (!hasSubdomain) {
+      toast.error('Please set a subdomain before going live.');
       return;
     }
     
@@ -333,7 +382,7 @@ function PublishContent() {
         <Topbar
           breadcrumbs={[
             { label: 'Workspace' },
-            { label: 'Funnels', href: '/' },
+            { label: 'Funnel', href: id ? `/funnels/${id}` : '/' },
             { label: 'Page Builder', href: `/builder?id=${id}` },
             { label: 'Publish & Deploy' },
           ]}
@@ -364,8 +413,9 @@ function PublishContent() {
           <Button
             size="sm"
             onClick={handleDeploy}
-            disabled={deploying}
-            className="h-8 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm font-medium"
+            disabled={deploying || !hasSubdomain}
+            title={!hasSubdomain ? 'Set a subdomain before going live' : 'Deploy to live'}
+            className="h-8 gap-2 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Rocket className="w-4 h-4" />
             Go Live
@@ -600,10 +650,10 @@ function PublishContent() {
               {/* Deploy Action */}
               <div className="bg-card border border-border rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden group">
                 {!isSeoValid && (
-                  <div className="absolute top-0 left-0 right-0 bg-yellow-500/10 border-b border-yellow-500/20 p-3 text-yellow-600 dark:text-yellow-500 text-xs text-left flex gap-3">
-                    <span className="text-lg leading-none">⚠️</span>
-                    <p className="font-medium leading-relaxed">
-                      <strong>Recommendation:</strong> OpenGraph standards suggest a Minimum 50 char Title and 110 char Description to reliably process Social Previews.
+                  <div className="absolute top-0 left-0 right-0 bg-blue-500/8 border-b border-blue-500/15 p-3 text-muted-foreground text-xs text-left flex gap-2.5 items-start">
+                    <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                    <p className="leading-relaxed">
+                      <strong className="text-foreground">Recommendation:</strong> OpenGraph standards suggest a minimum 50-char title and 110-char description for reliable social previews.
                     </p>
                   </div>
                 )}
@@ -621,11 +671,18 @@ function PublishContent() {
                   <Camera className="w-3.5 h-3.5" />
                   <span>Heavy literal screenshot processed securely in background.</span>
                 </div>
+                {!hasSubdomain && (
+                  <div className="flex items-start gap-2 mb-4 text-xs text-muted-foreground bg-muted/50 border border-border rounded-lg px-3 py-2.5 max-w-xs text-left">
+                    <Info className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
+                    <span>You must set a subdomain above before going live.</span>
+                  </div>
+                )}
                 <Button
                   size="lg"
-                  className="w-full max-w-xs font-semibold shadow-sm transition-all bg-emerald-500 hover:bg-emerald-600 text-white"
+                  className="w-full max-w-xs font-semibold shadow-sm transition-all bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleDeploy}
-                  disabled={deploying}
+                  disabled={deploying || !hasSubdomain}
+                  title={!hasSubdomain ? 'Set a subdomain to deploy' : 'Deploy Funnel'}
                 >
                   {deploying ? (
                     <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -693,9 +750,12 @@ function PublishContent() {
                       placeholder="My Awesome Offer"
                       maxLength={70}
                     />
-                    <p className={`text-[10px] text-right font-medium ${isTitleValid ? 'text-emerald-500' : 'text-yellow-600 dark:text-yellow-500'}`}>
-                      {seoTitle.length}/70 chars (suggested min 50)
-                    </p>
+                    <div className="flex items-center justify-end gap-1.5 mt-1">
+                      {!isTitleValid && <Info className="w-3 h-3 text-muted-foreground/60" />}
+                      <p className={`text-[10px] font-medium ${isTitleValid ? 'text-emerald-500' : 'text-muted-foreground/70'}`}>
+                        {seoTitle.length}/70 chars (min 50 for OpenGraph)
+                      </p>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -710,9 +770,12 @@ function PublishContent() {
                       placeholder="Describe what this page offers…"
                       maxLength={160}
                     />
-                    <p className={`text-[10px] text-right font-medium ${isDescValid ? 'text-emerald-500' : 'text-yellow-600 dark:text-yellow-500'}`}>
-                      {seoDescription.length}/160 chars (suggested min 110)
-                    </p>
+                    <div className="flex items-center justify-end gap-1.5 mt-1">
+                      {!isDescValid && <Info className="w-3 h-3 text-muted-foreground/60" />}
+                      <p className={`text-[10px] font-medium ${isDescValid ? 'text-emerald-500' : 'text-muted-foreground/70'}`}>
+                        {seoDescription.length}/160 chars (min 110 for OpenGraph)
+                      </p>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -763,6 +826,58 @@ function PublishContent() {
           </div>
         </div>
       </div>
+
+      {/* ─ Unsaved Changes Guard Modal ─ */}
+      {pendingNav && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 flex flex-col gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                <Info className="w-5 h-5 text-amber-500" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-foreground">Unsaved changes</h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  You have unsaved domain or SEO settings. Save before leaving or they will be lost.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button
+                className="w-full gap-2"
+                onClick={async () => {
+                  if (activeTab === 'subdomain') await handleSaveDomain('subdomain');
+                  else await handleSaveDomain('custom');
+                  await handleSaveSeo();
+                  window.location.href = pendingNav;
+                }}
+                disabled={saving || savingSeo}
+              >
+                {(saving || savingSeo) ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                {(saving || savingSeo) ? 'Saving...' : 'Save & Continue'}
+              </Button>
+              <button
+                className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 rounded-lg hover:bg-muted"
+                onClick={() => {
+                  // Mark as clean then navigate
+                  savedSubdomainRef.current = subdomain;
+                  savedSeoTitleRef.current  = seoTitle;
+                  savedSeoDescRef.current   = seoDescription;
+                  window.location.href = pendingNav;
+                }}
+              >
+                Discard changes &amp; leave
+              </button>
+              <button
+                className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 rounded-lg hover:bg-muted"
+                onClick={() => setPendingNav(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
