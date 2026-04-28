@@ -132,7 +132,7 @@ export function FeatureTestimonials({
                     src={
                       item.avatarUrl ||
                       (item as any).avatar ||
-                      `https://i.pravatar.cc/150?u=${(item.name || item.author || "avatar").replace(/\s/g, "")}`
+                      `https://i.pravatar.cc/150?u=${(item.name || (item as any).author || "avatar").replace(/\s/g, "")}`
                     }
                     alt={item.name || (item as any).author || "testimonial"}
                     className="w-full h-full object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"

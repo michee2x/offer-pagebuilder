@@ -33,7 +33,7 @@ const ICON_MAP: Record<string, React.FC<LucideProps>> = {
 };
 
 const iconOf = (name?: string, size = 20): React.ReactNode => {
-  const C = (name && ICON_MAP[name]) ?? Zap;
+  const C: React.FC<LucideProps> = (name ? ICON_MAP[name] : null) ?? Zap;
   return <C size={size} />;
 };
 
