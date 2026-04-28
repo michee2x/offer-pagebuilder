@@ -22,20 +22,39 @@ const PAGE_LABELS: Record<string, string> = {
 async function fetchPostHogStats(pageId: string) {
   const projectId = process.env.POSTHOG_PROJECT_ID;
   const pat       = process.env.POSTHOG_PERSONAL_API_KEY;
-  const host      = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
 
-  if (!projectId || !pat) return null;
+  // The management/query API lives at us.posthog.com, NOT the ingest host us.i.posthog.com.
+  // Derive by stripping the ".i." from the ingest host, or use a dedicated env var.
+  const ingestHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+  const apiHost    = process.env.POSTHOG_API_HOST
+    ?? ingestHost.replace(/^(https?:\/\/)(\w+)\.i\.posthog\.com/, "$1$2.posthog.com");
 
-  const run = async (query: string) => {
+  console.log("[posthog] config check — projectId:", projectId ? "✓" : "MISSING", "| pat:", pat ? `✓ (${pat.slice(0,6)}...)` : "MISSING", "| apiHost:", apiHost);
+
+  if (!projectId || !pat) {
+    console.error("[posthog] aborting — missing env vars");
+    return null;
+  }
+
+  const run = async (label: string, query: string) => {
     try {
-      const res = await fetch(`${host}/api/projects/${projectId}/query/`, {
+      const url = `${apiHost}/api/projects/${projectId}/query/`;
+      const res = await fetch(url, {
         method:  "POST",
         headers: { Authorization: `Bearer ${pat}`, "Content-Type": "application/json" },
         body:    JSON.stringify({ query: { kind: "HogQLQuery", query } }),
-        next:    { revalidate: 60 },
+        cache:   "no-store",
       });
-      return res.ok ? (await res.json()) : null;
-    } catch {
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        console.error(`[posthog:${label}] HTTP ${res.status} — ${body.slice(0, 300)}`);
+        return null;
+      }
+      const json = await res.json();
+      console.log(`[posthog:${label}] rows returned: ${json?.results?.length ?? "null"}`);
+      return json;
+    } catch (e) {
+      console.error(`[posthog:${label}] fetch threw:`, e);
       return null;
     }
   };
@@ -43,7 +62,7 @@ async function fetchPostHogStats(pageId: string) {
   // All queries in parallel
   const [overview, geo, devices, recent, pages] = await Promise.all([
     // 1 — current + today + prev 7d in one scan
-    run(`
+    run("overview", `
       SELECT
         countIf(timestamp > now() - interval 7 day)                                              AS views_7d,
         uniqIf(distinct_id, timestamp > now() - interval 7 day)                                  AS visitors_7d,
@@ -57,7 +76,7 @@ async function fetchPostHogStats(pageId: string) {
     `),
 
     // 2 — geo breakdown (7d)
-    run(`
+    run("geo", `
       SELECT properties.$geoip_country_name, count()
       FROM events
       WHERE event = 'funnel_page_view'
@@ -69,7 +88,7 @@ async function fetchPostHogStats(pageId: string) {
     `),
 
     // 3 — device types (7d)
-    run(`
+    run("devices", `
       SELECT properties.$device_type, count()
       FROM events
       WHERE event = 'funnel_page_view'
@@ -79,7 +98,7 @@ async function fetchPostHogStats(pageId: string) {
     `),
 
     // 4 — recent 10 hits (all-time)
-    run(`
+    run("recent", `
       SELECT properties.$geoip_country_name, timestamp, properties.$browser
       FROM events
       WHERE event = 'funnel_page_view'
@@ -89,7 +108,7 @@ async function fetchPostHogStats(pageId: string) {
     `),
 
     // 5 — per-page breakdown (7d) — needs page_path in events
-    run(`
+    run("pages", `
       SELECT properties.page_path, count(), uniq(distinct_id)
       FROM events
       WHERE event = 'funnel_page_view'
