@@ -145,6 +145,12 @@ PROOF PLACEMENT STRATEGY: [Where proof appears and why]
 DIFFERENTIATING VISUAL ELEMENT: [One specific design choice for this niche]
 
 ——————————————————
+FUNNEL_HEALTH_SCORE
+——————————————————
+Output a single JSON object on one line:
+{"score": X, "cvr_cold_traffic": "X.X%", "cvr_warm_traffic": "X.X%", "revenue_per_lead_estimate": "$X-$X", "primary_leakage_point": "string", "primary_leakage_cause": "string", "fix_1": "string", "fix_2": "string", "fix_3": "string", "validation_required_before_scaling": true/false}
+
+——————————————————
 PLATFORM_PRIORITY_MATRIX
 ——————————————————
 Output a single JSON object on one line:
@@ -191,6 +197,8 @@ RECOMMENDED FUNNEL TYPE: ${call1.funnel_structure_blueprint.split('\n')[0] || 'S
 REVENUE MODEL: ${call1.revenue_model_architecture}
 PAIN POINTS: ${call1.pain_point_mapping}
 PLATFORM PRIMARY: ${JSON.stringify(call1.platform_priority_matrix.primary)}
+FUNNEL HEALTH SCORE: ${call1.funnel_health_score.score}
+PRIMARY LEAKAGE POINT: ${call1.funnel_health_score.primary_leakage_point}
 === END CALL 1 CONTEXT ===
 
 Now produce the following sections in this exact order:

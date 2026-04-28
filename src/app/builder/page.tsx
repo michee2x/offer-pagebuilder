@@ -1,168 +1,245 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Canvas } from '@/components/builder/Canvas';
-import { RightPanel } from '@/components/builder/RightPanel';
-import { ThemeSwitcher } from '@/components/builder/ThemeSwitcher';
-import { SectionLibraryModal } from '@/components/builder/SectionLibraryModal';
-import { AiStreamBoard } from '@/components/builder/AiStreamBoard';
-import { useBuilderStore } from '@/store/builderStore';
-import { Button } from '@/components/ui/button';
-import { Loader2, Wand2, Monitor, Tablet, Smartphone, Eye, Link as LinkIcon, Check, Undo2, Redo2, Plus, Globe, Save, Edit2, AlertTriangle } from 'lucide-react';
-import { toast } from 'sonner';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
-import { LeftPanel } from '@/components/builder/LeftPanel';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Canvas } from "@/components/builder/Canvas";
+import { RightPanel } from "@/components/builder/RightPanel";
+import { ThemeSwitcher } from "@/components/builder/ThemeSwitcher";
+import { SectionLibraryModal } from "@/components/builder/SectionLibraryModal";
+import { AiStreamBoard } from "@/components/builder/AiStreamBoard";
+import { useBuilderStore } from "@/store/builderStore";
+import { Button } from "@/components/ui/button";
+import {
+  Loader2,
+  Wand2,
+  Monitor,
+  Tablet,
+  Smartphone,
+  Eye,
+  Link as LinkIcon,
+  Check,
+  Undo2,
+  Redo2,
+  Plus,
+  Globe,
+  Save,
+  Edit2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
+import { LeftPanel } from "@/components/builder/LeftPanel";
+import { cn } from "@/lib/utils";
 
 export default function BuilderPage() {
-  const { 
-    addComponent, moveComponent, setFullState, components, rootList, 
-    canvasStyle, deviceMode, setDeviceMode, isPreviewMode, setIsPreviewMode, 
-    pageId, setPageId, theme, setTheme, hasUnsavedChanges, setHasUnsavedChanges,
-    pages, activePagePath, switchPage,
-    funnelName, setFunnelName,
-    undo, redo, past, future 
+  const {
+    addComponent,
+    moveComponent,
+    setFullState,
+    components,
+    rootList,
+    canvasStyle,
+    deviceMode,
+    setDeviceMode,
+    isPreviewMode,
+    setIsPreviewMode,
+    pageId,
+    setPageId,
+    theme,
+    setTheme,
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
+    pages,
+    activePagePath,
+    switchPage,
+    funnelName,
+    setFunnelName,
+    undo,
+    redo,
+    past,
+    future,
   } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const [streamText, setStreamText] = React.useState('');
+  const [streamText, setStreamText] = React.useState("");
   const [isSaving, setIsSaving] = React.useState(false);
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
   const [initialLoading, setInitialLoading] = React.useState(true);
   const [hasIntelligence, setHasIntelligence] = React.useState(false);
-  // Unsaved-changes guard
-  const [pendingNav, setPendingNav] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const qs = new URLSearchParams(window.location.search);
-      const editId = qs.get('id');
-      
+      const editId = qs.get("id");
+
       if (editId) {
-          fetch(`/api/pages/${editId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.page && data.page.blocks) {
-                    setPageId(data.page.id);
-                    if (data.page.name) setFunnelName(data.page.name);
-                    const blocks = data.page.blocks;
-                    let loadedPages = blocks.pages;
-                    if (!loadedPages) {
-                        loadedPages = { '/': { name: 'Lead Capture', path: '/', components: blocks.components || {}, rootList: blocks.rootList || [] } }
-                    }
-                    const defaultPages = {
-                      '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] },
-                      '/upsell': { name: 'Upsell', path: '/upsell', components: {}, rootList: [] },
-                      '/downsell': { name: 'Downsell', path: '/downsell', components: {}, rootList: [] },
-                      '/thankyou': { name: 'Thank You', path: '/thankyou', components: {}, rootList: [] },
-                    };
-                    loadedPages = { ...defaultPages, ...loadedPages };
-                    
-                    if (blocks.intelligence?.call1_complete) {
-                      setHasIntelligence(true);
-                    }
-                    
-                    const initialPage = loadedPages['/'] || Object.values(loadedPages)[0];
-                    setFullState(initialPage.components, initialPage.rootList, loadedPages, initialPage.path);
-                    if (blocks.canvasStyle) {
-                        useBuilderStore.setState({ canvasStyle: blocks.canvasStyle });
-                    }
-                    if (data.page.blocks.theme) {
-                        setTheme(data.page.blocks.theme);
-                    }
-                    if (data.page.custom_domain) {
-                        setPublishedUrl(`https://${data.page.custom_domain}`);
-                    } else if (data.page.subdomain) {
-                        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                        const proto = isLocal ? 'http://' : 'https://';
-                        const base = isLocal ? window.location.host : 'ofiq.app';
-                        setPublishedUrl(`${proto}${data.page.subdomain}.${base}`);
-                    } else {
-                        setPublishedUrl(null);
-                    }
-                }
-            })
-            .catch(err => console.error("Failed to fetch page:", err))
-            .finally(() => setInitialLoading(false));
+        fetch(`/api/pages/${editId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.page && data.page.blocks) {
+              setPageId(data.page.id);
+              if (data.page.name) setFunnelName(data.page.name);
+              const blocks = data.page.blocks;
+              let loadedPages = blocks.pages;
+              if (!loadedPages) {
+                loadedPages = {
+                  "/": {
+                    name: "Lead Capture",
+                    path: "/",
+                    components: blocks.components || {},
+                    rootList: blocks.rootList || [],
+                  },
+                };
+              }
+              const defaultPages = {
+                "/": {
+                  name: "Lead Capture",
+                  path: "/",
+                  components: {},
+                  rootList: [],
+                },
+                "/upsell": {
+                  name: "Upsell",
+                  path: "/upsell",
+                  components: {},
+                  rootList: [],
+                },
+                "/downsell": {
+                  name: "Downsell",
+                  path: "/downsell",
+                  components: {},
+                  rootList: [],
+                },
+                "/thankyou": {
+                  name: "Thank You",
+                  path: "/thankyou",
+                  components: {},
+                  rootList: [],
+                },
+              };
+              loadedPages = { ...defaultPages, ...loadedPages };
+
+              if (blocks.intelligence?.call1_complete) {
+                setHasIntelligence(true);
+              }
+
+              const initialPage =
+                loadedPages["/"] || Object.values(loadedPages)[0];
+              setFullState(
+                initialPage.components,
+                initialPage.rootList,
+                loadedPages,
+                initialPage.path,
+              );
+              if (blocks.canvasStyle) {
+                useBuilderStore.setState({ canvasStyle: blocks.canvasStyle });
+              }
+              if (data.page.blocks.theme) {
+                setTheme(data.page.blocks.theme);
+              }
+              if (data.page.custom_domain) {
+                setPublishedUrl(`https://${data.page.custom_domain}`);
+              } else if (data.page.subdomain) {
+                const isLocal =
+                  window.location.hostname === "localhost" ||
+                  window.location.hostname === "127.0.0.1";
+                const proto = isLocal ? "http://" : "https://";
+                const base = isLocal ? window.location.host : "ofiq.app";
+                setPublishedUrl(`${proto}${data.page.subdomain}.${base}`);
+              } else {
+                setPublishedUrl(null);
+              }
+            }
+          })
+          .catch((err) => console.error("Failed to fetch page:", err))
+          .finally(() => setInitialLoading(false));
       } else {
-          // Reset store for Create New Mode
-          setPageId(null);
-          setFullState({}, [], { '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] } }, '/');
-          useBuilderStore.setState({ canvasStyle: {} });
-          setInitialLoading(false);
+        // Reset store for Create New Mode
+        setPageId(null);
+        setFullState(
+          {},
+          [],
+          {
+            "/": {
+              name: "Lead Capture",
+              path: "/",
+              components: {},
+              rootList: [],
+            },
+          },
+          "/",
+        );
+        useBuilderStore.setState({ canvasStyle: {} });
+        setInitialLoading(false);
       }
     }
   }, [setPageId, setFullState, setFunnelName]);
 
-  // ── Unsaved-changes: block browser back/close ────────────────────────
-  React.useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (!hasUnsavedChanges) return;
-      e.preventDefault();
-      e.returnValue = '';
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [hasUnsavedChanges]);
-
-  /** Intercept in-app navigation links that use the Publish button */
-  const guardedNavigate = React.useCallback((href: string) => {
-    if (hasUnsavedChanges) {
-      setPendingNav(href);
-    } else {
-      window.location.href = href;
-    }
-  }, [hasUnsavedChanges]);
-
-  // Auto-generate if directed from the Copy wizard
-  React.useEffect(() => {
-    if (!initialLoading && typeof window !== 'undefined') {
-      const qs = new URLSearchParams(window.location.search);
-      if (qs.get('autoGen') === 'true' && rootList.length === 0 && !isGenerating) {
-         const editId = qs.get('id');
-         window.history.replaceState({}, '', `/builder?id=${editId || ''}`);
-         
-         // Slight delay to ensure UI paints before locking main thread
-         setTimeout(() => {
-            handleGeneratePage();
-         }, 500);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialLoading]);
+  // No more DND sensors or event handlers needed
 
   const handleGeneratePage = async () => {
     try {
       setIsGenerating(true);
-      toast.info('Generating page from content doc...');
-      
+      toast.info("Generating page from content doc...");
+
       const qs = new URLSearchParams(window.location.search);
       const offerContext = {
-        niche: qs.get('niche'),
-        audience: qs.get('audience'),
-        tone: qs.get('tone'),
-        productType: qs.get('productType'),
+        niche: qs.get("niche"),
+        audience: qs.get("audience"),
+        tone: qs.get("tone"),
+        productType: qs.get("productType"),
       };
 
-      const res = await fetch('/api/generate', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ offerContext, funnelId: pageId })
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offerContext, funnelId: pageId }),
       });
-      
+
       if (!res.ok || !res.body) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to generate');
+        throw new Error(err.error || "Failed to generate");
       }
 
-      setStreamText(''); // Reset visual stream board
+      setStreamText(""); // Reset visual stream board
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let done = false;
-      let accumulatedText = '';
-      let thinkingText = '';
+      let sseBuffer = "";
+      let rawSseText = "";
+      let accumulatedText = "";
+      let thinkingText = "";
+
+      const processEventChunk = (chunk: string) => {
+        const lines = chunk.split(/\r?\n/);
+        for (const line of lines) {
+          if (!line.startsWith("data:")) continue;
+          const rawPayload = line.slice(5).trim();
+          if (!rawPayload) continue;
+
+          try {
+            const event = JSON.parse(rawPayload);
+            if (event.type === "thinking") {
+              thinkingText = String(event.data || "").trim();
+              setStreamText(thinkingText);
+            } else if (event.type === "complete") {
+              accumulatedText += String(event.data || "");
+            } else if (event.type === "error") {
+              console.error(
+                "[client] Received generation error event:",
+                event.data,
+              );
+            }
+          } catch (eventParseError) {
+            console.warn(
+              "[client] Failed to parse SSE event payload:",
+              eventParseError,
+              "payload:",
+              rawPayload,
+            );
+          }
+        }
+      };
 
       // Stream processor loop
       while (!done) {
@@ -170,24 +247,85 @@ export default function BuilderPage() {
         done = doneReading;
         if (value) {
           const chunk = decoder.decode(value, { stream: true });
-          accumulatedText += chunk;
+          rawSseText += chunk;
+          sseBuffer += chunk;
 
-          // Extract everything inside <thinking>...</thinking> OR everything after <thinking> if it hasn't closed yet
-          const thinkingMatch = accumulatedText.match(/<thinking>([\s\S]*?)(?:<\/thinking>|$)/);
-          if (thinkingMatch) {
-             thinkingText = thinkingMatch[1].trim();
-             // Update the board UI
-             setStreamText(thinkingText);
+          let boundaryIndex;
+          while ((boundaryIndex = sseBuffer.indexOf("\n\n")) !== -1) {
+            const eventChunk = sseBuffer.slice(0, boundaryIndex);
+            sseBuffer = sseBuffer.slice(boundaryIndex + 2);
+            processEventChunk(eventChunk);
+          }
+        }
+      }
+
+      if (sseBuffer.trim()) {
+        processEventChunk(sseBuffer);
+      }
+
+      if (!accumulatedText.trim() && rawSseText.trim()) {
+        // fallback: parse events from the complete raw SSE body if incremental parsing missed something
+        const eventRegex = /^data:\s*({[\s\S]*?})$/gm;
+        let match;
+        while ((match = eventRegex.exec(rawSseText)) !== null) {
+          try {
+            const event = JSON.parse(match[1]);
+            if (event.type === "thinking") {
+              thinkingText = String(event.data || "").trim();
+              setStreamText(thinkingText);
+            } else if (event.type === "complete") {
+              accumulatedText += String(event.data || "");
+            }
+          } catch (eventParseError) {
+            console.warn(
+              "[client] Fallback SSE event parse failed:",
+              eventParseError,
+              "payload:",
+              match[1],
+            );
           }
         }
       }
 
       // Generation finished, parse the <json> block out
       const jsonMatch = accumulatedText.match(/<json>([\s\S]*?)<\/json>/);
-      const rawJson = jsonMatch ? jsonMatch[1].trim() : accumulatedText.replace(/```(?:json)?\n?/g, '').replace(/```\n?/g, '').trim();
+      const rawJson = jsonMatch
+        ? jsonMatch[1].trim()
+        : accumulatedText
+            .replace(/```(?:json)?\n?/g, "")
+            .replace(/```\n?/g, "")
+            .trim();
 
-      const { pages: generatedPages } = JSON.parse(rawJson);
-      
+      console.log("[client] Raw JSON extracted length:", rawJson.length);
+      console.log("[client] Raw JSON preview:", rawJson.substring(0, 500));
+      console.log("[client] Raw JSON tail:", rawJson.slice(-200));
+
+      let parsedData;
+      try {
+        parsedData = JSON.parse(rawJson);
+      } catch (parseError: any) {
+        const positionMatch = parseError.message.match(/position (\d+)/);
+        const position = positionMatch ? Number(positionMatch[1]) : null;
+        if (position !== null && !Number.isNaN(position)) {
+          const start = Math.max(0, position - 50);
+          const end = Math.min(rawJson.length, position + 50);
+          console.error(
+            "[client] JSON parse error context:",
+            rawJson.slice(start, end),
+          );
+        }
+        console.error(
+          "[client] JSON parse error:",
+          parseError,
+          "Raw JSON length:",
+          rawJson.length,
+        );
+        throw new Error("Failed to parse generated JSON");
+      }
+
+      const { pages: generatedPages } = parsedData;
+      console.log("[client] Parsed generatedPages:", generatedPages);
+
       const newPages: Record<string, any> = {};
 
       generatedPages.forEach((aiPage: any) => {
@@ -196,103 +334,111 @@ export default function BuilderPage() {
         const flattenItems = (itemList: any[], parentId: string): string[] => {
           const ids: string[] = [];
           if (!Array.isArray(itemList)) return ids;
-          
+
           itemList.forEach((item) => {
             const compId = String(item.id);
             ids.push(compId);
-            
+
             let childrenIds: string[] = [];
             if (item.children && Array.isArray(item.children)) {
               childrenIds = flattenItems(item.children, compId);
             }
 
             newComponents[compId] = {
-               id: compId,
-               type: item.type,
-               props: item.props || {},
-               parentId,
-               childrenIds
+              id: compId,
+              type: item.type,
+              props: item.props || {},
+              parentId,
+              childrenIds,
             };
           });
           return ids;
         };
 
-        const newRootList = flattenItems(aiPage.items, 'root');
-        
+        const newRootList = flattenItems(aiPage.items, "root");
+
         newPages[aiPage.path] = {
-            name: aiPage.name,
-            path: aiPage.path,
-            components: newComponents,
-            rootList: newRootList
+          name: aiPage.name,
+          path: aiPage.path,
+          components: newComponents,
+          rootList: newRootList,
         };
       });
 
-      const initialPage = newPages['/'] || Object.values(newPages)[0];
-      setFullState(initialPage.components, initialPage.rootList, newPages, initialPage.path);
-      setHasUnsavedChanges(true); // Generation clears state, mark explicit unsaved 
+      const initialPage = newPages["/"] || Object.values(newPages)[0];
+      console.log("[client] Processed newPages:", newPages);
+      console.log("[client] Setting initialPage:", initialPage);
+      setFullState(
+        initialPage.components,
+        initialPage.rootList,
+        newPages,
+        initialPage.path,
+      );
+      setHasUnsavedChanges(true); // Generation clears state, mark explicit unsaved
       // Theme is NOT changed by generation — user keeps their chosen theme
-      toast.success('Generated page successfully!');
+      toast.success("Generated page successfully!");
     } catch (e: any) {
       toast.error(e.message);
     } finally {
       setIsGenerating(false);
-      setStreamText('');
+      setStreamText("");
     }
   };
 
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      toast.loading('Saving draft...');
-      
-      const payload: any = { 
+      toast.loading("Saving draft...");
+
+      const payload: any = {
         name: funnelName,
-        components, 
-        rootList, 
-        canvasStyle, 
+        components,
+        rootList,
+        canvasStyle,
         theme,
         pages: {
           ...pages,
-          [activePagePath]: { ...pages[activePagePath], components, rootList }
-        }
+          [activePagePath]: { ...pages[activePagePath], components, rootList },
+        },
       };
       if (pageId) payload.pageId = pageId;
 
-      const res = await fetch('/api/publish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      const res = await fetch("/api/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      
+
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to save');
+        throw new Error(data.error || "Failed to save");
       }
 
       toast.dismiss();
-      
-      // We only update published URL if the publish endpoint returns them, 
+
+      // We only update published URL if the publish endpoint returns them,
       // otherwise it remains what it was (maybe they configured it on Deploy page)
       if (data.custom_domain || data.subdomain) {
-          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-          const proto = isLocal ? 'http://' : 'https://';
-          const base = isLocal ? window.location.host : 'ofiq.app';
-          
-          if (data.custom_domain) {
-              setPublishedUrl(`https://${data.custom_domain}`);
-          } else {
-              setPublishedUrl(`${proto}${data.subdomain}.${base}`);
-          }
+        const isLocal =
+          window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1";
+        const proto = isLocal ? "http://" : "https://";
+        const base = isLocal ? window.location.host : "ofiq.app";
+
+        if (data.custom_domain) {
+          setPublishedUrl(`https://${data.custom_domain}`);
+        } else {
+          setPublishedUrl(`${proto}${data.subdomain}.${base}`);
+        }
       }
       setHasUnsavedChanges(false);
-      
-      if (!pageId && data.pageId) {
-          setPageId(data.pageId);
-      }
-      
-      toast.success('Saved successfully!');
 
+      if (!pageId && data.pageId) {
+        setPageId(data.pageId);
+      }
+
+      toast.success("Saved successfully!");
     } catch (e: any) {
       toast.dismiss();
       toast.error(e.message);
@@ -302,14 +448,16 @@ export default function BuilderPage() {
   };
 
   if (initialLoading) {
-      return (
-          <div className="flex h-screen w-screen items-center justify-center bg-background">
-              <div className="flex flex-col items-center gap-4">
-                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                 <p className="text-sm text-muted-foreground animate-pulse">Loading workspace...</p>
-              </div>
-          </div>
-      );
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Loading workspace...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -318,13 +466,17 @@ export default function BuilderPage() {
       <Sidebar />
 
       {/* Main content offset by sidebar icon strip width (w-14 = 56px) */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
+      <div
+        className="flex-1 flex flex-col min-w-0 overflow-hidden"
+        style={{ marginLeft: "56px" }}
+      >
         {/* Top Navigation Bar */}
-        <Topbar 
+        <Topbar
           breadcrumbs={[
-              { label: 'Workspace' },
-              { label: 'Funnel', href: pageId ? `/funnels/${pageId}` : '/' },
-              { label: (
+            { label: "Workspace" },
+            { label: "Funnels", href: "/" },
+            {
+              label: (
                 <div className="flex items-center gap-1.5 group relative">
                   <div className="absolute right-2.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-muted-foreground/60">
                     <Edit2 className="w-3 h-3" />
@@ -337,165 +489,165 @@ export default function BuilderPage() {
                     placeholder="Enter funnel name..."
                   />
                 </div>
-              ) }
+              ),
+            },
           ]}
-          steps={hasIntelligence ? [
-              { id: 1, label: 'Upload', status: 'done' },
-              { id: 2, label: 'Intelligence', status: 'done' },
-              { id: 3, label: 'Copy', status: 'done' },
-              { id: 4, label: 'Build Pages', status: 'active' },
-              { id: 5, label: 'Publish', status: 'pending' },
-          ] : undefined}
+          steps={
+            hasIntelligence
+              ? [
+                  { id: 1, label: "Upload", status: "done" },
+                  { id: 2, label: "Intelligence", status: "done" },
+                  { id: 3, label: "Copy", status: "done" },
+                  { id: 4, label: "Build Pages", status: "active" },
+                  { id: 5, label: "Publish", status: "pending" },
+                ]
+              : undefined
+          }
         >
-            <div className="flex items-center gap-1 ml-auto">
-              
-              {/* Device mode toggles */}
-              <div className="flex items-center bg-muted/30 rounded-md border border-border mr-2 p-0.5">
-                <button
-                  type="button"
-                  title="Desktop"
-                  onClick={() => setDeviceMode('desktop')}
-                  className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'desktop' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                >
-                  <Monitor className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  title="Tablet"
-                  onClick={() => setDeviceMode('tablet')}
-                  className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'tablet' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                >
-                  <Tablet className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  title="Mobile"
-                  onClick={() => setDeviceMode('mobile')}
-                  className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === 'mobile' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                >
-                  <Smartphone className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              {/* Separator */}
-              <div className="w-px h-5 bg-border mx-1" />
-
-              {/* Undo / Redo */}
-              <button type="button" title="Undo" onClick={undo} disabled={past.length === 0} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                <Undo2 className="h-4 w-4" />
-              </button>
-              <button type="button" title="Redo" onClick={redo} disabled={future.length === 0} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                <Redo2 className="h-4 w-4" />
-              </button>
-
-              {/* Separator */}
-              <div className="w-px h-5 bg-border mx-1" />
-
-              {/* Theme Switcher */}
-              <ThemeSwitcher />
-
-              {/* Preview */}
-              <button type="button" title="Preview page" onClick={() => setIsPreviewMode(true)} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                <Eye className="w-4 h-4" />
-              </button>
-
-              {/* AI Build */}
-              <button type="button" title="AI Build: Generate page with AI" onClick={handleGeneratePage} disabled={isGenerating} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
-              </button>
-
-              {/* Separator */}
-              <div className="w-px h-5 bg-border mx-1" />
-
-              {/* Save */}
+          <div className="flex items-center gap-1 ml-auto">
+            {/* Device mode toggles */}
+            <div className="flex items-center bg-muted/30 rounded-md border border-border mr-2 p-0.5">
               <button
                 type="button"
-                title={!pageId ? 'Save draft' : hasUnsavedChanges ? 'Save changes' : 'All changes saved'}
-                onClick={handleSave}
-                disabled={isSaving || (pageId !== null && !hasUnsavedChanges)}
-                className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed relative"
+                title="Desktop"
+                onClick={() => setDeviceMode("desktop")}
+                className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === "desktop" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : hasUnsavedChanges ? <Save className="w-4 h-4 text-primary" /> : <Save className="w-4 h-4" />}
+                <Monitor className="h-3.5 w-3.5" />
               </button>
-              
-              {/* Publish CTA — kept as a labeled button since it's the primary action */}
               <button
                 type="button"
-                onClick={() => {
-                  if (!pageId) {
-                    toast.error('Please save your draft first before publishing.');
-                    return;
-                  }
-                  guardedNavigate(`/builder/publish?id=${pageId}`);
-                }}
-                className="ml-1 h-8 px-3 flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                title="Tablet"
+                onClick={() => setDeviceMode("tablet")}
+                className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === "tablet" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <Globe className="w-3.5 h-3.5" /> Publish
+                <Tablet className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                title="Mobile"
+                onClick={() => setDeviceMode("mobile")}
+                className={`h-7 w-7 rounded flex items-center justify-center transition-colors ${deviceMode === "mobile" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Smartphone className="h-3.5 w-3.5" />
               </button>
             </div>
+
+            {/* Separator */}
+            <div className="w-px h-5 bg-border mx-1" />
+
+            {/* Undo / Redo */}
+            <button
+              type="button"
+              title="Undo"
+              onClick={undo}
+              disabled={past.length === 0}
+              className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Undo2 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              title="Redo"
+              onClick={redo}
+              disabled={future.length === 0}
+              className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Redo2 className="h-4 w-4" />
+            </button>
+
+            {/* Separator */}
+            <div className="w-px h-5 bg-border mx-1" />
+
+            {/* Theme Switcher */}
+            <ThemeSwitcher />
+
+            {/* Preview */}
+            <button
+              type="button"
+              title="Preview page"
+              onClick={() => setIsPreviewMode(true)}
+              className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+
+            {/* AI Build */}
+            <button
+              type="button"
+              title="AI Build: Generate page with AI"
+              onClick={handleGeneratePage}
+              disabled={isGenerating}
+              className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Wand2 className="w-4 h-4" />
+              )}
+            </button>
+
+            {/* Separator */}
+            <div className="w-px h-5 bg-border mx-1" />
+
+            {/* Save */}
+            <button
+              type="button"
+              title={
+                !pageId
+                  ? "Save draft"
+                  : hasUnsavedChanges
+                    ? "Save changes"
+                    : "All changes saved"
+              }
+              onClick={handleSave}
+              disabled={isSaving || (pageId !== null && !hasUnsavedChanges)}
+              className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed relative"
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : hasUnsavedChanges ? (
+                <Save className="w-4 h-4 text-primary" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+            </button>
+
+            {/* Publish CTA — kept as a labeled button since it's the primary action */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!pageId) {
+                  toast.error(
+                    "Please save your draft first before publishing.",
+                  );
+                  return;
+                }
+                window.location.href = `/builder/publish?id=${pageId}`;
+              }}
+              className="ml-1 h-8 px-3 flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+            >
+              <Globe className="w-3.5 h-3.5" /> Publish
+            </button>
+          </div>
         </Topbar>
-  
+
         {/* Main Extensible Editor Area */}
         <div className="flex flex-1 overflow-hidden relative">
           {/* LeftPanel is absolutely positioned — overlays the canvas */}
           {!isPreviewMode && <LeftPanel />}
           {/* Canvas fills full width — left padding reserves space for the icon strip */}
-          <div className={cn('flex-1 overflow-hidden', !isPreviewMode && 'pl-14')}>
+          <div
+            className={cn("flex-1 overflow-hidden", !isPreviewMode && "pl-14")}
+          >
             <Canvas />
           </div>
           {!isPreviewMode && <RightPanel />}
         </div>
-        
+
         {/* Modals outside main flex flow */}
         <SectionLibraryModal />
         <AiStreamBoard isOpen={isGenerating} thinkingText={streamText} />
-
-        {/* ─ Unsaved Changes Guard Modal ─ */}
-        {pendingNav && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="bg-card border border-border rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 flex flex-col gap-4">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                  <AlertTriangle className="w-5 h-5 text-amber-500" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-foreground">Unsaved changes</h3>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    You have unsaved changes. Save your project before leaving or your work will be lost.
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Button
-                  className="w-full gap-2"
-                  onClick={async () => {
-                    await handleSave();
-                    window.location.href = pendingNav;
-                  }}
-                  disabled={isSaving}
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  {isSaving ? 'Saving…' : 'Save & Continue'}
-                </Button>
-                <button
-                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 rounded-lg hover:bg-muted"
-                  onClick={() => {
-                    setHasUnsavedChanges(false);
-                    window.location.href = pendingNav;
-                  }}
-                >
-                  Discard changes & leave
-                </button>
-                <button
-                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 rounded-lg hover:bg-muted"
-                  onClick={() => setPendingNav(null)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

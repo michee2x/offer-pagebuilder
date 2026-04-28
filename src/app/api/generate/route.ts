@@ -1,233 +1,281 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
-import { COMPONENT_REGISTRY, LUCIDE_ICON_NAMES } from '@/config/components';
+import { LUCIDE_ICON_NAMES } from '@/config/components';
 import { createAdminClient } from '@/utils/supabase/admin';
 
-export const maxDuration = 300; // 5 minutes maximum for Vercel
+export const maxDuration = 600;
+
+const MODEL          = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
+const MAX_OUTPUT_TOKENS = 32_000;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helper — build the Macro-Component focused system prompt
+// System prompt — teaches the micro-component DSL; no macro definitions
 // ─────────────────────────────────────────────────────────────────────────────
 function buildSystemPrompt(): string {
-  const macroDefs = Object.values(COMPONENT_REGISTRY)
-    .filter(c => c.semantic)
-    .map(c => `
---- COMPONENT: ${c.type} ---
-PURPOSE: ${c.semantic!.purpose}
-EXAMPLE JSON USAGE:
-${JSON.stringify({ type: c.type, props: c.semantic!.example }, null, 2)}
-`)
-    .join('\n');
+  const icons = LUCIDE_ICON_NAMES.join(', ');
 
-  return `You are an elite funnel strategist and conversion copywriter building a world-class sales funnel page.
-You must output a <thinking> block explaining your strategy, followed by a <json> block containing ONLY the JSON object.
+  return `You are an elite conversion architect building world-class sales funnels.
+Pages are composed of PageSection items, each containing a blocks array.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-MACRO-COMPONENT REGISTRY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-You must build the page using ONLY the following Macro-Components.
-Do not invent components. Do not use generic layout blocks. 
-Just select these components and fill out their high-converting copywriting props.
-${macroDefs}
+━━━ PAGESECTION PROPS ━━━
+theme:   "default" | "muted" | "primary" | "card" | "dark"
+layout:  "center" | "left" | "split"
+padding: "none" | "sm" | "md" | "lg" | "xl"
+blocks:  Block[]
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-APPROVED LUCIDE ICON NAMES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-If a component REQUIRES an icon string, use ONE of these exact names:
-${LUCIDE_ICON_NAMES.join(', ')}
+━━━ BLOCK VOCABULARY ━━━
 
-🚫 NEVER use emojis.
+Layout (can nest other blocks):
+  Row   { type, align?:"start"|"center"|"end", justify?:"start"|"center"|"end"|"between", gap?:"sm"|"md"|"lg", wrap?:boolean, blocks }
+  Col   { type, align?:"start"|"center"|"end", gap?:"sm"|"md"|"lg", blocks }
+  Grid  { type, cols:2|3|4, gap?:"sm"|"md"|"lg", blocks }
+  Card  { type, accent?:boolean, blocks }
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-STYLING — DO NOTHING
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-The page is ALREADY perfectly styled by the user's chosen theme (a shadcn CSS variable theme).
-You do NOT write ANY CSS, Tailwind classes, colors, or style props.
-CRITICALLY IMPORTANT: NEVER inject inline CSS or hack the elementStyles or style props. Leave them completely empty or absent!
-Your ONLY job is: STRATEGY + COPYWRITING. Fill in the text props to maximise conversions.
+Typography:
+  H1 / H2 / H3 / H4   { type, text, align?:"left"|"center"|"right" }
+  Paragraph            { type, text, align?, size?:"sm"|"base"|"lg"|"xl", weight?:"normal"|"medium"|"semibold" }
+  Badge                { type, text, variant?:"default"|"secondary"|"outline" }
+  Checklist            { type, items:string[] }
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-TESTIMONIAL AVATARS — USE REALISTIC IMAGES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Whenever generating Testimonials, you MUST populate the avatarUrl field with realistic fake user portraits from pravatar. 
-Use this exact format: https://i.pravatar.cc/150?u=[RANDOM_6_CHAR_STRING]
-Do NOT leave it empty.
+UI atoms:
+  Button         { type, text, href, variant?:"default"|"outline"|"ghost"|"secondary", size?:"sm"|"default"|"lg", icon? }
+  Divider        { type }
+  Spacer         { type, size?:"sm"|"md"|"lg" }
+  Icon           { type, name, size?:"sm"|"md"|"lg" }
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-MANDATORY PAGE STRUCTURE — READ CAREFULLY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-EVERY page you generate MUST follow this rule:
-1. The FIRST item in the "items" array MUST ALWAYS be a FeatureHeader component.
-2. The LAST item in the "items" array MUST ALWAYS be a FeatureFooter component.
-3. For the Lead Capture page, freely choose 3-6 modern Feature components based on the offer strategy. 
-   CRITICAL: Do NOT simply output the same layout over and over. Choose different visual variants!
-   For example, choose either 'FeatureHero' OR 'HeroCenter'. For features, choose either 'FeaturesGrid' or 'FeatureSplit'. Give the page dynamic visual variety.
-   NEVER use UpsellHero, DownsellHero, or ThankYouHero on the Lead Capture page!
-4. For the Upsell page ("/upsell"), it MUST contain exactly two components between Header and Footer: the \`UpsellHero\` followed by \`FeatureTestimonials\`.
-5. For the Downsell page ("/downsell"), it MUST contain exactly one component between Header and Footer: the \`DownsellHero\`.
-6. For the Thank You page ("/thankyou"), it MUST contain exactly one component between Header and Footer: the \`ThankYouHero\`. Do NOT put sales letters or complex features on the Thank You page.
+Composites:
+  NavBar          { type, logo, links?:[{text,href}], ctaText?, ctaHref? }
+  Footer          { type, logo, copy, links?:[{text,href}] }
+  FeatureItem     { type, icon, title, description }
+  TestimonialCard { type, name, role, quote, initials, stars? }
+  StatItem        { type, value, label, icon? }
+  PricingTier     { type, name, price, period?, description?, features:string[], ctaText, ctaHref, highlighted? }
+  FAQList         { type, items:[{question,answer}] }
+  VideoEmbed      { type, url }
+  LeadCapturePopup { type, triggerText, headline, subheadline?, collectPhone?:boolean, submitText, successTitle?, successMessage? }
+  CountdownTimer  { type, targetHours:number, style?:"minimal"|"bold" }
+  UpsellOffer     { type, headline, subheadline?, price, originalPrice?, ctaText, ctaHref, declineText?, declineHref? }
+  DownsellOffer   { type, headline, subheadline?, price, paymentText?, ctaText, ctaHref, declineText?, declineHref? }
+  ThankYouBlock   { type, headline, subheadline?, receiptAmount?, steps?:string[], ctaText?, ctaHref? }
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ANCHOR NAVIGATION — CRITICAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-The FeatureHeader uses anchor links to scroll to sections on the page.
-Each section component you place MUST be given a "sectionId" prop matching the link.
-Follow this exact mapping:
-  - Any Hero component (FeatureHero, HeroCenter, HeroClarityBlog, HeroFeedbackApp, HeroRemoteCollab, HeroSectionOne, HeroWithForm) → sectionId: "hero"
-  - FeaturePricing, PricingFlexible, PricingComparison, PricingTiers         → sectionId: "pricing"
-  - FeatureFAQ, FAQAccordion, FAQGrid, FAQWithImage                          → sectionId: "faq"
-  - FeatureTestimonials, TestimonialsCards, TestimonialsCarousel, TestimonialsGrid → sectionId: "testimonials"
-  - Any features/content block (FeatureSplit, FeaturesGrid, FeaturesSection, FeaturesShowcase, FeaturesCards) → sectionId: "features"
-  - FeatureCTA, CTAHero, CTASimple, CTAWithAvatars, CTAWithBackground        → sectionId: "cta"
+Approved icons (use exact names): ${icons}
 
-The FeatureHeader's "links" prop must include entries whose href values match the sectionIds like this:
-  { "label": "Features",     "href": "#hero" }
-  { "label": "Testimonials", "href": "#testimonials" }
-  { "label": "Pricing",      "href": "#pricing" }
-  { "label": "FAQ",          "href": "#faq" }
-Only include links for sections that actually exist in the page you are generating.
+━━━ FUNNEL STRUCTURE RULES ━━━
+Lead Capture (/):
+  1. PageSection(theme:"default", padding:"sm") → NavBar block
+  2. PageSection(theme:"primary", padding:"xl") → hero: Col → Badge, H1, Paragraph, LeadCapturePopup (collectPhone:true)
+  3-6. Mix of muted/card/default sections with FeatureItems, TestimonialCards, StatItems, FAQList, CountdownTimer, etc.
+  Last: PageSection(theme:"muted", padding:"sm") → Footer block
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RETURN FORMAT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Upsell (/upsell):
+  1. PageSection(theme:"default", padding:"sm") → NavBar
+  2. PageSection(theme:"primary"|"dark", padding:"xl") → UpsellOffer
+  3. PageSection(theme:"muted", padding:"lg") → Grid(cols:3) of TestimonialCards
+  Last: PageSection(theme:"muted", padding:"sm") → Footer
+
+Downsell (/downsell):
+  1. PageSection(theme:"default", padding:"sm") → NavBar
+  2. PageSection(theme:"primary"|"dark", padding:"xl") → DownsellOffer
+  Last: PageSection(theme:"muted", padding:"sm") → Footer
+
+Thank You (/thankyou):
+  1. PageSection(theme:"default", padding:"sm") → NavBar
+  2. PageSection(theme:"primary", padding:"xl") → ThankYouBlock
+  Last: PageSection(theme:"muted", padding:"sm") → Footer
+
+━━━ COMPOSITION RULES ━━━
+• NavBar and Footer are always solo in their PageSection
+• UpsellOffer / DownsellOffer / ThankYouBlock each get their own PageSection
+• Group FeatureItems in Grid(cols:3), TestimonialCards in Grid(cols:3)
+• Group PricingTiers in Grid(cols:2) or Grid(cols:3) depending on tier count
+• FAQList stands alone inside a Col; max-width naturally constrains it
+• Use Col to stack Badge → H1 → Paragraph → Button for hero blocks
+• Alternate section themes for visual rhythm (never two "primary" sections in a row)
+• CountdownTimer adds urgency — use on lead capture hero and upsell sections
+• Split layout works well for feature explanations (text + FeatureItem list)
+• LeadCapturePopup is the ONLY opt-in mechanism on Lead Capture pages — never use a plain Button or EmailCapture for the main CTA
+• Set collectPhone:true on LeadCapturePopup; write a compelling headline ("Get Your Free Blueprint") and subheadline that reinforces the value exchange
+
+━━━ CTA LINK RULES ━━━
+• Lead Capture CTAs → href: "/upsell"
+• Upsell accept CTAs → href: "/thankyou" | decline → href: "/downsell"
+• Downsell accept CTAs → href: "/thankyou" | decline → href: "#"
+
+━━━ COPY RULES ━━━
+• H1: 5-10 words — punchy emotional claim, benefit-first
+• Paragraphs: max 2 sentences, specific and credible
+• CTA buttons: action verb + specific benefit ("Start Losing Fat Today")
+• TestimonialCard quotes: include specific measurable results
+• FeatureItem descriptions: lead with outcomes, not features
+• NEVER use emojis, NEVER use generic filler like "Lorem ipsum"
+• Tone must match the offer audience precisely
+
+━━━ OUTPUT FORMAT ━━━
+Return ONLY valid JSON wrapped in <json></json>.
+Every item needs a unique 6-char alphanumeric id. Output all 4 pages.
+
+<json>
 {
   "pages": [
     {
       "path": "/",
       "name": "Lead Capture",
       "items": [
-        // Array of component JSON objects for the lead page
+        {
+          "id": "nav001",
+          "type": "PageSection",
+          "props": {
+            "theme": "default",
+            "layout": "center",
+            "padding": "sm",
+            "blocks": [
+              { "type": "NavBar", "logo": "BrandName", "ctaText": "Get Started", "ctaHref": "/upsell" }
+            ]
+          }
+        }
       ]
     },
-    {
-      "path": "/upsell",
-      "name": "Upsell",
-      "items": [
-        // FeatureHeader, UpsellHero, FeatureTestimonials, FeatureFooter
-      ]
-    },
-    {
-      "path": "/downsell",
-      "name": "Downsell",
-      "items": [
-        // FeatureHeader, DownsellHero, FeatureFooter
-      ]
-    },
-    {
-      "path": "/thankyou",
-      "name": "Thank You",
-      "items": [
-        // FeatureHeader, ThankYouHero, FeatureFooter
-      ]
-    }
+    { "path": "/upsell",   "name": "Upsell",    "items": [] },
+    { "path": "/downsell", "name": "Downsell",  "items": [] },
+    { "path": "/thankyou", "name": "Thank You", "items": [] }
   ]
 }
-
-- Every item in "items" MUST have an "id" field (generate a random 6-character string).
-- Do NOT use "children" or nest components. The Macro-Components handle their own internal layout.
-- For CTAs on the Lead Capture page, ensure the "href" prop links to "/upsell". For Upsell CTA, link to "/thankyou", and for Decline link to "/downsell".
-- Remember to wrap your deep strategic reasoning in <thinking> tags, and your JSON payload in <json> tags.`;
+</json>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Build the content prompt from offer context
+// Content prompt — offer-specific context
 // ─────────────────────────────────────────────────────────────────────────────
 function buildContentPrompt(offerContext: any, copyContext: string | null): string {
-  const hasOffer = offerContext && (offerContext.niche || offerContext.productType || offerContext.audience);
-
-  let offerSection = '';
+  let offerSection: string;
 
   if (copyContext) {
-    offerSection = `OFFER INTELLIGENCE COPY:
-We have already run an AI intelligence engine for this offer. The following is the highly-optimized sales copy generated specifically for this funnel.
-YOU MUST USE THIS EXACT COPY FOR THE RELEVANT PAGES. DO NOT MAKE UP NEW HEADLINES OR TEXT IF THEY ARE PROVIDED HERE.
+    offerSection = `OFFER INTELLIGENCE & PRE-WRITTEN COPY (use directly in block props):
 
-=== START PRE-WRITTEN COPY ===
+=== COPY ===
 ${copyContext}
-=== END PRE-WRITTEN COPY ===`;
-  } else if (hasOffer) {
+=== END COPY ===`;
+  } else if (offerContext && Object.values(offerContext).some(Boolean)) {
     offerSection = `OFFER DETAILS:
-- Product/Service: ${offerContext.productType ?? 'Not specified'}
-- Niche: ${offerContext.niche ?? 'Not specified'}
-- Target Audience: ${offerContext.audience ?? 'Not specified'}
-- Core Benefit: ${offerContext.benefit ?? 'Not specified'}
-- Pain Point: ${offerContext.painPoint ?? 'Not specified'}
-- Price Point: ${offerContext.price ?? 'Not specified'}
-- Tone: ${offerContext.tone ?? 'Not specified'}
-${offerContext.headlines ? `- Headlines to use: ${offerContext.headlines}` : ''}
-${offerContext.cta ? `- CTA text: ${offerContext.cta}` : ''}`;
+• Product/Service: ${offerContext.productType ?? 'Not specified'}
+• Niche: ${offerContext.niche ?? 'Not specified'}
+• Target Audience: ${offerContext.audience ?? 'Not specified'}
+• Core Benefit: ${offerContext.benefit ?? 'Not specified'}
+• Pain Point: ${offerContext.painPoint ?? 'Not specified'}
+• Price Point: ${offerContext.price ?? 'Not specified'}
+• Tone: ${offerContext.tone ?? 'Not specified'}
+${offerContext.headlines ? `• Headlines: ${offerContext.headlines}` : ''}
+${offerContext.cta ? `• CTA: ${offerContext.cta}` : ''}`;
   } else {
-    offerSection = `OFFER DETAILS: Build a stunning demo page for "OfferIQ" — an AI-powered offer & funnel builder for online businesses.
-Core benefit: Turn any offer into a high-converting funnel page in minutes.
-Target audience: Coaches, course creators, and e-commerce entrepreneurs.`;
+    offerSection = `OFFER: "OfferIQ" — AI funnel builder that generates high-converting funnels in minutes.
+Audience: Coaches, course creators, and e-commerce entrepreneurs tired of slow, expensive funnel agencies.`;
   }
 
   return `${offerSection}
 
-Build a COMPLETE, high-converting MULTI-PAGE sales funnel (Lead Capture + Thank You pages).
-REMEMBER: First item on EACH page = FeatureHeader, Last item = FeatureFooter.
-Fill the FeatureHeader "links" prop with anchor hrefs matching the sectionIds you assign.
-Your job is pure Strategy and Copywriting — make it feel like a $10,000 copywriter wrote this.
+TASK: Generate a complete 4-page sales funnel (Lead Capture, Upsell, Downsell, Thank You).
 
-DYNAMIC BLUEPRINTING:
-Do NOT use the same generic sequence every time! Evaluate the offer above and design custom, organic page structures for both pages.
-Make the Lead Capture page highly persuasive. Make the Thank You page confirming and provide the next steps.
-Select the optimal component variants from the MACRO-COMPONENT REGISTRY that best fit your conversion strategy.
-To combat layout fatigue, you MUST use different variants. Don't just use FeatureCard 10 times.
+Process:
+1. ANALYSE — who is the buyer, what is their #1 fear, what result do they want most?
+2. COMPOSE — design the section sequence per page, vary themes for visual rhythm
+3. WRITE — elite copy: specific, punchy, emotionally resonant, no filler
 
-Use persuasive, benefit-driven language. Be bold. Be specific.
-Headlines MUST be extremely short and punchy (3 to 8 words maximum). Never write a long sentence as a headline!
-Generate your response now. Think deeply step by step inside <thinking>, then dump the <json>.`;
+Output the <json> block now.`;
 }
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Route handler
 // ─────────────────────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
   if (!process.env.ANTHROPIC_API_KEY) {
-    return Response.json({ error: 'Missing ANTHROPIC_API_KEY in .env.local' }, { status: 500 });
+    return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
   }
 
   let offerContext: any = {};
   let funnelId: string | undefined;
+
   try {
     const body = await req.json().catch(() => ({}));
     offerContext = body.offerContext ?? {};
-    funnelId = body.funnelId;
+    funnelId     = body.funnelId;
   } catch {
-    // empty body is fine
+    return Response.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
   let copyContext: string | null = null;
   if (funnelId) {
     try {
       const supabase = createAdminClient();
-      const { data } = await supabase.from('builder_pages').select('blocks').eq('id', funnelId).single();
-      if (data?.blocks?.copy) {
+      const { data, error } = await supabase
+        .from('builder_pages')
+        .select('blocks')
+        .eq('id', funnelId)
+        .single();
+      if (!error && data?.blocks?.copy) {
         copyContext = JSON.stringify(data.blocks.copy, null, 2);
       }
     } catch (e) {
-      console.error('Failed to load intelligence copy context', e);
+      console.error('[generate] Failed to fetch copy context:', e);
     }
   }
 
-  const systemPrompt = buildSystemPrompt();
+  const systemPrompt  = buildSystemPrompt();
   const contentPrompt = buildContentPrompt(offerContext, copyContext);
 
-  try {
-    const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-20250514';
+  console.log('[generate] model:', MODEL, '| maxTokens:', MAX_OUTPUT_TOKENS, '| funnelId:', funnelId ?? 'none');
 
-    // We stream the raw text back to the client so it can visualize the <thinking> block
+  const encoder = new TextEncoder();
+
+  try {
     const result = streamText({
-      model: anthropic(model),
-      system: systemPrompt,
-      prompt: contentPrompt,
+      model:           anthropic(MODEL),
+      system:          systemPrompt,
+      prompt:          contentPrompt,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
     });
 
-    return result.toTextStreamResponse();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const send = (type: string, data: string) =>
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type, data })}\n\n`));
+
+        let fullText = '';
+
+        try {
+          for await (const part of result.fullStream) {
+            if (part.type === 'text-delta') {
+              fullText += part.text;
+            } else if (part.type === 'reasoning-delta') {
+              send('thinking', part.text);
+            } else if (part.type === 'error') {
+              send('error', String(part.error));
+            } else if (part.type === 'finish') {
+              console.log('[generate] finish — usage:', JSON.stringify(part.totalUsage ?? {}));
+            }
+          }
+
+          console.log('[generate] complete — output length:', fullText.length, '| has <json>:', fullText.includes('<json>'));
+          send('complete', fullText);
+
+        } catch (err: any) {
+          console.error('[generate] stream error:', err);
+          send('error', err?.message ?? 'Stream failed');
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type':  'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection':    'keep-alive',
+      },
+    });
+
   } catch (err: any) {
-    console.error('Generate error:', err);
-    return Response.json({ error: err.message || 'Error generating page.' }, { status: 500 });
+    console.error('[generate] failed to init stream:', err);
+    return Response.json({ error: err?.message ?? 'Failed to start generation' }, { status: 500 });
   }
 }

@@ -224,7 +224,29 @@ function PublishContent() {
       toast.error('Please set a subdomain before going live.');
       return;
     }
-    
+
+    // If the subdomain has been typed but not yet saved to the DB, save it now
+    // so the success page resolves the correct URL.
+    if (subdomain !== savedSubdomainRef.current) {
+      try {
+        setSaving(true);
+        const res = await fetch('/api/domains', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pageId: id, subdomain }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to save subdomain');
+        savedSubdomainRef.current = subdomain;
+      } catch (err: any) {
+        toast.error(err.message || 'Could not save subdomain — deploy cancelled.');
+        setSaving(false);
+        return;
+      } finally {
+        setSaving(false);
+      }
+    }
+
     setDeploying(true);
     setDeployStage(0);
 

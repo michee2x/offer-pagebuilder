@@ -1,4 +1,5 @@
 import React from "react";
+import { PageSectionRenderer } from "../lib/block-renderer";
 import { PricingCards } from "../components/macro/Pricing";
 
 // HeyMessage Components
@@ -19,30 +20,6 @@ import { FeatureCTA } from "../components/macro/CTA";
 import { FeatureFooter } from "../components/macro/Footer";
 import { FeaturesGrid } from "../components/macro/Features/FeaturesGrid";
 import { FeatureSplit } from "../components/macro/Content/FeatureSplit";
-import { FeatureLogos } from "../components/macro/Logos";
-
-// Additional Hero variants
-import { HeroClarityBlog } from "../components/macro/Hero/HeroClarityBlog";
-import { HeroFeedbackApp } from "../components/macro/Hero/HeroFeedbackApp";
-import { HeroRemoteCollab } from "../components/macro/Hero/HeroRemoteCollab";
-import { HeroSectionOne } from "../components/macro/Hero/HeroSectionOne";
-import { HeroWithForm } from "../components/macro/Hero/HeroWithForm";
-
-// Additional Testimonial variants
-import { TestimonialsCards } from "../components/macro/Testimonials/TestimonialsCards";
-import { TestimonialsCarousel } from "../components/macro/Testimonials/TestimonialsCarousel";
-import { TestimonialsGrid } from "../components/macro/Testimonials/TestimonialsGrid";
-
-// Additional Features variants
-import { FeaturesCards } from "../components/macro/Features/FeaturesCards";
-import { FeaturesSection } from "../components/macro/Features/FeaturesSection";
-import { FeaturesShowcase } from "../components/macro/Features/FeaturesShowcase";
-
-// Additional Footer variants
-import { FooterCentered } from "../components/macro/Footer/FooterCentered";
-import { FooterDark } from "../components/macro/Footer/FooterDark";
-import { FooterGradient } from "../components/macro/Footer/FooterGradient";
-import { FooterLinks } from "../components/macro/Footer/FooterLinks";
 
 import { UpsellHero } from "../components/macro/Funnel/UpsellHero";
 import { DownsellHero } from "../components/macro/Funnel/DownsellHero";
@@ -66,6 +43,7 @@ import { CTAHero } from "../components/macro/CTA/CTAHero";
 import { CTASimple } from "../components/macro/CTA/CTASimple";
 import { CTAWithAvatars } from "../components/macro/CTA/CTAWithAvatars";
 import { CTAWithBackground } from "../components/macro/CTA/CTAWithBackground";
+
 
 // Pricing Components
 import { PricingComparison } from "../components/macro/Pricing/PricingComparison";
@@ -200,6 +178,7 @@ export const LUCIDE_ICON_NAMES = Object.keys(ICON_MAP);
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type ComponentType =
+  | "PageSection"
   | "Section"
   | "Flex"
   | "Grid"
@@ -232,7 +211,6 @@ export type ComponentType =
   | "FeatureCTA"
   | "FeaturesGrid"
   | "FeatureSplit"
-  | "FeatureLogos"
   | "FeatureFooter"
   | "UpsellHero"
   | "DownsellHero"
@@ -251,26 +229,7 @@ export type ComponentType =
   | "CTAWithBackground"
   | "PricingComparison"
   | "PricingFlexible"
-  | "PricingTiers"
-  // Additional Hero variants
-  | "HeroClarityBlog"
-  | "HeroFeedbackApp"
-  | "HeroRemoteCollab"
-  | "HeroSectionOne"
-  | "HeroWithForm"
-  // Additional Testimonial variants
-  | "TestimonialsCards"
-  | "TestimonialsCarousel"
-  | "TestimonialsGrid"
-  // Additional Features variants
-  | "FeaturesCards"
-  | "FeaturesSection"
-  | "FeaturesShowcase"
-  // Additional Footer variants
-  | "FooterCentered"
-  | "FooterDark"
-  | "FooterGradient"
-  | "FooterLinks";
+  | "PricingTiers";
 export type FieldDef = {
   type: "text" | "textarea" | "select" | "color" | "number" | "array" | "image";
   label: string;
@@ -295,6 +254,24 @@ const applyStyle = (style?: Record<string, string>): React.CSSProperties =>
 
 // ─────────────────────────────────────────────────────────────────────────────
 export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
+  // ── PageSection — micro-DSL composition root ─────────────────────────
+  PageSection: {
+    type: "PageSection",
+    label: "Page Section",
+    defaultProps: {
+      theme: "default",
+      layout: "center",
+      padding: "md",
+      blocks: [],
+    },
+    fields: {
+      theme:   { type: "select", label: "Theme",   options: ["default", "muted", "primary", "card", "dark"] },
+      layout:  { type: "select", label: "Layout",  options: ["center", "left", "split"] },
+      padding: { type: "select", label: "Padding", options: ["none", "sm", "md", "lg", "xl"] },
+    },
+    render: (props: any) => <PageSectionRenderer {...props} />,
+  },
+
   // ── Section ────────────────────────────────────────────────────────────
   Section: {
     type: "Section",
@@ -877,7 +854,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
             ))}
           </div>
           {/* Quote */}
-          <p className="leading-relaxed text-sm opacity-90 italic">&ldquo;{quote}&rdquo;</p>
+          <p className="leading-relaxed text-sm opacity-90 italic">"{quote}"</p>
           {/* Author */}
           <div className="flex items-center gap-3 pt-2">
             <div
@@ -1348,6 +1325,8 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     render: (props: any) => <FeatureSplit {...props} />,
   },
 
+  
+
   FeatureTestimonials: {
     type: "FeatureTestimonials",
     label: "Feature Testimonials",
@@ -1469,9 +1448,8 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     type: "PricingComparison",
     label: "Pricing Comparison",
     semantic: {
-      purpose:
-        "A detailed pricing comparison section with highlights and feature checklists.",
-      example: { title: "OUR PRICING" },
+      purpose: "A detailed pricing comparison section with highlights and feature checklists.",
+      example: { title: "OUR PRICING" }
     },
     defaultProps: {
       title: "OUR PRICING",
@@ -1479,32 +1457,32 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       highlights: [
         { text: "Advanced AI features included" },
         { text: "Lightning fast load speed always" },
-        { text: "Clear honest usage with limits" },
+        { text: "Clear honest usage with limits" }
       ],
       plans: [
-        {
-          id: "1",
-          name: "Basic",
+        { 
+          id: "1", 
+          name: "Basic", 
           description: "Good for starting",
-          price: "$29",
-          period: "/mo",
-          buttonText: "Start Now",
+          price: "$29", 
+          period: "/mo", 
+          buttonText: "Start Now", 
           highlighted: "false",
-          features: [{ text: "Feature 1" }],
+          features: [{text: "Feature 1"}] 
         },
-        {
-          id: "2",
-          name: "Pro",
+        { 
+          id: "2", 
+          name: "Pro", 
           description: "Best for teams",
-          price: "$99",
-          period: "/mo",
-          buttonText: "Get Pro",
+          price: "$99", 
+          period: "/mo", 
+          buttonText: "Get Pro", 
           highlighted: "true",
-          features: [{ text: "Feature A" }],
-        },
+          features: [{text: "Feature A"}] 
+        }
       ],
       className: "",
-      elementStyles: {},
+      elementStyles: {}
     },
     fields: {
       title: { type: "text", label: "Title" },
@@ -1512,7 +1490,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       highlights: {
         type: "array",
         label: "Highlights",
-        arrayFields: { text: { type: "text", label: "Highlight Text" } },
+        arrayFields: { text: { type: "text", label: "Highlight Text" } }
       },
       plans: {
         type: "array",
@@ -1524,23 +1502,17 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           price: { type: "text", label: "Price" },
           period: { type: "text", label: "Period" },
           buttonText: { type: "text", label: "Button Text" },
-          highlighted: {
-            type: "select",
-            label: "Highlighted?",
-            options: ["true", "false"],
-          },
+          highlighted: { type: "select", label: "Highlighted?", options: ["true", "false"] },
           features: {
-            type: "array",
-            label: "Features",
-            arrayFields: {
-              text: { type: "text", label: "Feature Text" },
-            },
-          },
-        },
+            type: "array", label: "Features", arrayFields: {
+              text: { type: "text", label: "Feature Text" }
+            }
+          }
+        }
       },
-      className: { type: "text", label: "Tailwind Classes" },
+      className: { type: "text", label: "Tailwind Classes" }
     },
-    render: (props: any) => <PricingComparison {...props} />,
+    render: (props: any) => <PricingComparison {...props} />
   },
 
   PricingFlexible: {
@@ -1548,12 +1520,11 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     label: "Pricing Flexible",
     semantic: {
       purpose: "A flexible pricing section with annual/monthly toggle.",
-      example: { title: "Flexible Pricing Plans" },
+      example: { title: "Flexible Pricing Plans" }
     },
     defaultProps: {
       title: "Flexible Pricing Plans",
-      subtitle:
-        "Choose a plan that supports your business growth and digital goals.",
+      subtitle: "Choose a plan that supports your business growth and digital goals.",
       monthlyLabel: "Monthly",
       annualLabel: "Annually",
       buttonText: "Get Started",
@@ -1565,7 +1536,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           annualPrice: 19,
           description: "For small teams",
           mostPopular: false,
-          features: [{ text: "Feature 1" }],
+          features: [{ text: "Feature 1" }]
         },
         {
           id: "2",
@@ -1574,11 +1545,11 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           annualPrice: 79,
           description: "For growing teams",
           mostPopular: true,
-          features: [{ text: "Feature A" }],
-        },
+          features: [{ text: "Feature A" }]
+        }
       ],
       className: "",
-      elementStyles: {},
+      elementStyles: {}
     },
     fields: {
       title: { type: "text", label: "Title" },
@@ -1595,23 +1566,17 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           monthlyPrice: { type: "number", label: "Monthly Price" },
           annualPrice: { type: "number", label: "Annual Price" },
           description: { type: "textarea", label: "Description" },
-          mostPopular: {
-            type: "select",
-            label: "Most Popular?",
-            options: ["true", "false"],
-          },
+          mostPopular: { type: "select", label: "Most Popular?", options: ["true", "false"] },
           features: {
-            type: "array",
-            label: "Features",
-            arrayFields: {
-              text: { type: "text", label: "Feature Text" },
-            },
-          },
-        },
+            type: "array", label: "Features", arrayFields: {
+              text: { type: "text", label: "Feature Text" }
+            }
+          }
+        }
       },
-      className: { type: "text", label: "Tailwind Classes" },
+      className: { type: "text", label: "Tailwind Classes" }
     },
-    render: (props: any) => <PricingFlexible {...props} />,
+    render: (props: any) => <PricingFlexible {...props} />
   },
 
   PricingTiers: {
@@ -1619,7 +1584,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     label: "Pricing Tiers",
     semantic: {
       purpose: "Standard clean 3-tier pricing table.",
-      example: { title: "Pricing that scales with you" },
+      example: { title: "Pricing that scales with you" }
     },
     defaultProps: {
       title: "Pricing that scales with you",
@@ -1632,7 +1597,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           duration: "/mo",
           buttonText: "Start free trial",
           mostPopular: false,
-          features: [{ text: "Basic Features" }],
+          features: [{ text: "Basic Features" }]
         },
         {
           name: "Pro",
@@ -1641,11 +1606,11 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           duration: "/mo",
           buttonText: "Get Pro",
           mostPopular: true,
-          features: [{ text: "Advanced Features" }],
-        },
+          features: [{ text: "Advanced Features" }]
+        }
       ],
       className: "",
-      elementStyles: {},
+      elementStyles: {}
     },
     fields: {
       title: { type: "text", label: "Title" },
@@ -1659,23 +1624,17 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
           price: { type: "text", label: "Price" },
           duration: { type: "text", label: "Duration" },
           buttonText: { type: "text", label: "Button Text" },
-          mostPopular: {
-            type: "select",
-            label: "Most Popular?",
-            options: ["true", "false"],
-          },
+          mostPopular: { type: "select", label: "Most Popular?", options: ["true", "false"] },
           features: {
-            type: "array",
-            label: "Features",
-            arrayFields: {
-              text: { type: "text", label: "Feature Text" },
-            },
-          },
-        },
+            type: "array", label: "Features", arrayFields: {
+              text: { type: "text", label: "Feature Text" }
+            }
+          }
+        }
       },
-      className: { type: "text", label: "Tailwind Classes" },
+      className: { type: "text", label: "Tailwind Classes" }
     },
-    render: (props: any) => <PricingTiers {...props} />,
+    render: (props: any) => <PricingTiers {...props} />
   },
 
   FeatureCTA: {
@@ -1819,6 +1778,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
   },
 
   // ── BLOG COMPONENTS ───────────────────────────────────────────────────────
+  
 
   // ── COUNTDOWN COMPONENTS ───────────────────────────────────────────────────
   CountdownLaunch: {
@@ -2257,569 +2217,5 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       className: { type: "text", label: "Tailwind Classes" },
     },
     render: (props: any) => <CTAWithBackground {...props} />,
-  },
-
-  FeatureLogos: {
-    type: "FeatureLogos",
-    label: "Feature Logos",
-    semantic: {
-      purpose:
-        "A section displaying company logos to build trust and credibility.",
-      example: {
-        headline: "TRUSTED BY INNOVATIVE TEAMS WORLDWIDE",
-        logos: [
-          { name: "Stripe", domain: "stripe.com" },
-          { name: "Linear", domain: "linear.app" },
-        ],
-      },
-    },
-    defaultProps: {
-      headline: "TRUSTED BY INNOVATIVE TEAMS WORLDWIDE",
-      logos: [
-        { name: "Stripe", domain: "stripe.com" },
-        { name: "Linear", domain: "linear.app" },
-        { name: "Vercel", domain: "vercel.com" },
-        { name: "Notion", domain: "notion.so" },
-        { name: "GitHub", domain: "github.com" },
-      ],
-      sectionId: "",
-      className: "",
-      style: {},
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID (Anchor link)" },
-      headline: { type: "text", label: "Headline" },
-      logos: {
-        type: "array",
-        label: "Logos",
-        arrayFields: {
-          name: { type: "text", label: "Company Name" },
-          domain: { type: "text", label: "Domain" },
-        },
-      },
-      className: { type: "text", label: "Tailwind Classes" },
-    },
-    render: (props: any) => <FeatureLogos {...props} />,
-  },
-
-  // ── Additional Hero Variants ──────────────────────────────────────────────
-  HeroClarityBlog: {
-    type: "HeroClarityBlog",
-    label: "Hero — Clarity Blog (Split)",
-    semantic: {
-      purpose: "A personal blog / thought leadership hero with author photo, headline topic, primary CTA, and optional secondary video link. Use for content creators, coaches, consultants.",
-      example: {
-        heroName: "Sarah Chen",
-        heroTopic: "corporate exit strategy",
-        subheadline: "I share proven systems that helped 847 leaders leave corporate for $10K/month consulting.",
-        primaryCtaText: "Get the Free Blueprint",
-        primaryCtaHref: "/upsell",
-        secondaryLinkText: "Watch the story",
-        sectionId: "hero",
-      },
-    },
-    defaultProps: {
-      heroName: "Your Name",
-      heroTopic: "your niche",
-      subheadline: "Helping you achieve your goal through a proven system.",
-      primaryCtaText: "Get Started",
-      primaryCtaHref: "#",
-      sectionId: "",
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID (Anchor link)" },
-      heroName: { type: "text", label: "Author Name" },
-      heroTopic: { type: "text", label: "Topic / Niche" },
-      subheadline: { type: "textarea", label: "Sub-headline" },
-      primaryCtaText: { type: "text", label: "Primary CTA Text" },
-      primaryCtaHref: { type: "text", label: "Primary CTA Link" },
-      secondaryLinkText: { type: "text", label: "Secondary Link Text" },
-    },
-    render: (props: any) => <HeroClarityBlog {...props} />,
-  },
-
-  HeroFeedbackApp: {
-    type: "HeroFeedbackApp",
-    label: "Hero — App / SaaS (Centered)",
-    semantic: {
-      purpose: "A centered SaaS-style hero with headline, subheadline, email capture input, and social proof. Use for software tools, platforms, and digital products.",
-      example: {
-        headline: "Turn Any Offer Into a High-Converting Funnel",
-        subheadline: "OfferIQ builds your entire funnel — copy, design, and automation — in minutes.",
-        primaryCtaText: "Start Free Trial",
-        primaryCtaHref: "/upsell",
-        sectionId: "hero",
-      },
-    },
-    defaultProps: {
-      headline: "Your Headline Here",
-      subheadline: "Your sub-headline supporting copy.",
-      primaryCtaText: "Get Started Free",
-      primaryCtaHref: "#",
-      sectionId: "",
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      headline: { type: "textarea", label: "Headline" },
-      subheadline: { type: "textarea", label: "Sub-headline" },
-      primaryCtaText: { type: "text", label: "Primary CTA" },
-      primaryCtaHref: { type: "text", label: "CTA Link" },
-    },
-    render: (props: any) => <HeroFeedbackApp {...props} />,
-  },
-
-  HeroRemoteCollab: {
-    type: "HeroRemoteCollab",
-    label: "Hero — Remote / Collab (Split)",
-    semantic: {
-      purpose: "A split-layout hero with bold headline on the left and supporting image on the right. Best for communities, courses, and team-based offers.",
-      example: {
-        headline: "Work Less. Earn More. Live Free.",
-        subheadline: "Join 847 ex-corporate professionals who built $10K/month consulting businesses.",
-        primaryCtaText: "Get the Blueprint",
-        primaryCtaHref: "/upsell",
-        sectionId: "hero",
-      },
-    },
-    defaultProps: {
-      headline: "Headline",
-      subheadline: "Supporting subheadline copy.",
-      primaryCtaText: "Get Started",
-      primaryCtaHref: "#",
-      sectionId: "",
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      headline: { type: "textarea", label: "Headline" },
-      subheadline: { type: "textarea", label: "Sub-headline" },
-      primaryCtaText: { type: "text", label: "CTA Text" },
-      primaryCtaHref: { type: "text", label: "CTA Link" },
-    },
-    render: (props: any) => <HeroRemoteCollab {...props} />,
-  },
-
-  HeroSectionOne: {
-    type: "HeroSectionOne",
-    label: "Hero — Animated Words (Centered)",
-    semantic: {
-      purpose: "A premium animated-word hero where each word in the headline fades in sequentially with a blur effect. Features a large product screenshot below. Ideal for high-end SaaS or info-products.",
-      example: {
-        headline: "Launch Your Consulting Business in 90 Days",
-        subtitle: "The proven blueprint that 847 ex-corporate leaders used to build $10K/month businesses without guessing.",
-        primaryButtonText: "Get the Blueprint",
-        secondaryButtonText: "See How It Works",
-        sectionId: "hero",
-      },
-    },
-    defaultProps: {
-      headline: "Launch your website in hours, not days",
-      subtitle: "The proven system other people used to succeed.",
-      primaryButtonText: "Get Started",
-      secondaryButtonText: "Learn More",
-      sectionId: "",
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      headline: { type: "textarea", label: "Headline" },
-      subtitle: { type: "textarea", label: "Subtitle" },
-      primaryButtonText: { type: "text", label: "Primary Button" },
-      secondaryButtonText: { type: "text", label: "Secondary Button" },
-    },
-    render: (props: any) => <HeroSectionOne {...props} />,
-  },
-
-  HeroWithForm: {
-    type: "HeroWithForm",
-    label: "Hero — With Email Capture Form",
-    semantic: {
-      purpose: "A lead-generation hero with a prominent email opt-in form embedded directly in the hero section. Use for lead magnets, free blueprints, and email list builds. Ideal for high-conversion lead capture pages.",
-      example: {
-        headline: "Get Your Free Corporate Exit Blueprint",
-        subheadline: "The exact system 847 ex-corporate leaders used to build $10K/month in 90 days.",
-        emailPlaceholder: "Enter your work email",
-        emailCta: "Send Me the Blueprint",
-        sectionId: "hero",
-        stats: [
-          { number: "847", label: "Success\nStories" },
-          { number: "$10K+", label: "Avg Monthly\nRevenue" },
-        ],
-      },
-    },
-    defaultProps: {
-      headline: "Get Your Free Blueprint",
-      subheadline: "The proven system used by hundreds of people just like you.",
-      emailPlaceholder: "Enter your email address",
-      emailCta: "Get Free Access",
-      sectionId: "",
-      stats: [],
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      headline: { type: "textarea", label: "Headline" },
-      subheadline: { type: "textarea", label: "Sub-headline" },
-      emailPlaceholder: { type: "text", label: "Email Placeholder" },
-      emailCta: { type: "text", label: "Form CTA Text" },
-    },
-    render: (props: any) => <HeroWithForm {...props} />,
-  },
-
-  // ── Additional Testimonials Variants ────────────────────────────────────
-  TestimonialsCards: {
-    type: "TestimonialsCards",
-    label: "Testimonials — Cards Grid",
-    semantic: {
-      purpose: "A 3-column masonry-style testimonial grid with avatar, name, role, and verified badge. Use when you have many specific result-based testimonials to display.",
-      example: {
-        title: "Results That Speak for Themselves",
-        subtitle: "847 ex-corporate professionals have used this system.",
-        sectionId: "testimonials",
-        testimonials: [
-          { id: 1, name: "Sarah Chen", role: "Ex-VP → $12K/month Consultant", text: "I was skeptical at first, but the blueprint was incredibly specific. 84 days later I landed my first $7,500 client.", image: "https://i.pravatar.cc/150?u=sarah1" },
-          { id: 2, name: "Marcus D.", role: "Ex-Director → $15K/month", text: "The positioning strategy alone was worth 10x the price. I went from undercharging at $2K to confidently charging $8K.", image: "https://i.pravatar.cc/150?u=marcus2" },
-          { id: 3, name: "Jennifer W.", role: "Ex-Manager → $8K/month", text: "I was terrified to quit corporate. This gave me the certainty I needed. I replaced my income in 93 days.", image: "https://i.pravatar.cc/150?u=jennifer3" },
-        ],
-      },
-    },
-    defaultProps: {
-      title: "Don't just take our words",
-      subtitle: "Hear what our users have to say.",
-      sectionId: "",
-      testimonials: [
-        { id: 1, name: "Alex Johnson", role: "Happy Customer", text: "This product completely changed the way I work. Highly recommend!", image: "https://i.pravatar.cc/150?u=alex1" },
-        { id: 2, name: "Maria Garcia", role: "Business Owner", text: "Incredible results in just 30 days. Worth every penny.", image: "https://i.pravatar.cc/150?u=maria2" },
-        { id: 3, name: "James Lee", role: "Consultant", text: "The best investment I made this year. Transformed my business.", image: "https://i.pravatar.cc/150?u=james3" },
-      ],
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      title: { type: "text", label: "Section Title" },
-      subtitle: { type: "textarea", label: "Section Subtitle" },
-      testimonials: {
-        type: "array",
-        label: "Testimonials",
-        arrayFields: {
-          name: { type: "text", label: "Name" },
-          role: { type: "text", label: "Role / Result" },
-          text: { type: "textarea", label: "Testimonial Text" },
-          image: { type: "image", label: "Avatar URL" },
-        },
-      },
-    },
-    render: (props: any) => <TestimonialsCards {...props} />,
-  },
-
-  TestimonialsCarousel: {
-    type: "TestimonialsCarousel",
-    label: "Testimonials — Carousel",
-    semantic: {
-      purpose: "An auto-sliding carousel of testimonials. Effective for builds with many testimonials that would clutter a grid layout. Use when social proof is a primary conversion lever.",
-      example: {
-        title: "What Our Clients Say",
-        sectionId: "testimonials",
-        testimonials: [
-          { name: "Sarah Chen", role: "Ex-VP → $12K/month", content: "This system completely changed my trajectory. 84 days to first client.", avatar: "https://i.pravatar.cc/150?u=sarah1", rating: 5 },
-          { name: "Marcus D.", role: "Ex-Director", content: "The positioning alone was worth 10x the price.", avatar: "https://i.pravatar.cc/150?u=marcus2", rating: 5 },
-        ],
-      },
-    },
-    defaultProps: {
-      title: "What Our Clients Say",
-      sectionId: "",
-      testimonials: [
-        { name: "Alex Johnson", role: "Happy Customer", content: "This changed everything for me!", avatar: "https://i.pravatar.cc/150?u=alex1", rating: 5 },
-        { name: "Maria Garcia", role: "Business Owner", content: "Best investment I made this year.", avatar: "https://i.pravatar.cc/150?u=maria2", rating: 5 },
-      ],
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      title: { type: "text", label: "Title" },
-      testimonials: {
-        type: "array",
-        label: "Testimonials",
-        arrayFields: {
-          name: { type: "text", label: "Name" },
-          role: { type: "text", label: "Role" },
-          content: { type: "textarea", label: "Testimonial" },
-          avatar: { type: "image", label: "Avatar URL" },
-        },
-      },
-    },
-    render: (props: any) => <TestimonialsCarousel {...props} />,
-  },
-
-  TestimonialsGrid: {
-    type: "TestimonialsGrid",
-    label: "Testimonials — Masonry Grid",
-    semantic: {
-      purpose: "A Pinterest-style masonry grid of testimonials with varying card heights. Creates a rich social proof wall. Use for offers with lots of specific, detailed testimonials.",
-      example: {
-        sectionTitle: "Real Results from Real People",
-        sectionId: "testimonials",
-        testimonials: [
-          { id: 1, name: "Sarah C.", username: "@sarahconsults", body: "Left my VP role after 11 years. Used this blueprint to build $12K/month in 84 days. Worth every dollar.", img: "https://i.pravatar.cc/150?u=sarah1" },
-          { id: 2, name: "Marcus D.", username: "@marcusdirect", body: "This repositioning strategy is what separated me from 10,000 other 'coaches'. Now charging $8K/client.", img: "https://i.pravatar.cc/150?u=marcus2" },
-        ],
-      },
-    },
-    defaultProps: {
-      sectionTitle: "What People Are Saying",
-      sectionId: "",
-      testimonials: [
-        { id: 1, name: "Alex J.", username: "@alexj", body: "This product completely changed how I work.", img: "https://i.pravatar.cc/150?u=alex1" },
-        { id: 2, name: "Maria G.", username: "@mariag", body: "Incredible results. Highly recommend.", img: "https://i.pravatar.cc/150?u=maria2" },
-        { id: 3, name: "James L.", username: "@jamesl", body: "Best investment of the year.", img: "https://i.pravatar.cc/150?u=james3" },
-      ],
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      sectionTitle: { type: "text", label: "Section Title" },
-      testimonials: {
-        type: "array",
-        label: "Testimonials",
-        arrayFields: {
-          name: { type: "text", label: "Name" },
-          username: { type: "text", label: "Username / Handle" },
-          body: { type: "textarea", label: "Testimonial" },
-          img: { type: "image", label: "Avatar URL" },
-        },
-      },
-    },
-    render: (props: any) => <TestimonialsGrid {...props} />,
-  },
-
-  // ── Additional Features Variants ────────────────────────────────────────
-  FeaturesCards: {
-    type: "FeaturesCards",
-    label: "Features — Image Cards",
-    semantic: {
-      purpose: "A row of feature cards each with a visual image, bold title, and description. Use when features can be represented visually. Great for SaaS, courses, and bundles.",
-      example: {
-        title: "Everything You Need to Exit Corporate",
-        subtitle: "The complete system: positioning, pricing, client acquisition.",
-        sectionId: "features",
-        features: [
-          { image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400", title: "Positioning Strategy", description: "Own a category instead of competing in a saturated niche." },
-          { image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400", title: "Pricing Architecture", description: "Charge $7,500+ per client from day one with a proven pricing model." },
-          { image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400", title: "Client Acquisition", description: "A repeatable system to land clients without cold calling or ads." },
-        ],
-      },
-    },
-    defaultProps: {
-      title: "Powerful Features",
-      subtitle: "Everything you need to succeed.",
-      sectionId: "",
-      features: [
-        { image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400", title: "Feature One", description: "Description of feature one." },
-        { image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400", title: "Feature Two", description: "Description of feature two." },
-        { image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400", title: "Feature Three", description: "Description of feature three." },
-      ],
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      title: { type: "text", label: "Title" },
-      subtitle: { type: "textarea", label: "Subtitle" },
-      features: {
-        type: "array",
-        label: "Features",
-        arrayFields: {
-          title: { type: "text", label: "Feature Title" },
-          description: { type: "textarea", label: "Description" },
-          image: { type: "image", label: "Image URL" },
-        },
-      },
-    },
-    render: (props: any) => <FeaturesCards {...props} />,
-  },
-
-  FeaturesSection: {
-    type: "FeaturesSection",
-    label: "Features — Full Section (Icons)",
-    semantic: {
-      purpose: "A full-width features section with icon-backed feature tiles in a responsive grid. Use for comprehensive offer breakdowns with 4-8 features. Ideal for the main features showcase on a sales page.",
-      example: {
-        title: "The Complete Corporate Exit System",
-        subtitle: "Everything you need — from positioning strategy to landing your first $7,500 client.",
-        sectionId: "features",
-        features: [
-          { icon: "Target", title: "Niche Positioning", description: "Own a micro-category where you're the obvious choice — not one of many options." },
-          { icon: "DollarSign", title: "Premium Pricing", description: "Command $7,500–$10,000 per client with our proven value-based pricing model." },
-          { icon: "Users", title: "Client Acquisition", description: "A repeatable lead system that fills your calendar without LinkedIn DMs or cold calls." },
-          { icon: "Zap", title: "90-Day Roadmap", description: "Week-by-week implementation plan from corporate exit to $10K/month." },
-        ],
-      },
-    },
-    defaultProps: {
-      title: "Everything You Need",
-      subtitle: "A complete system for your transformation.",
-      sectionId: "",
-      features: [
-        { icon: "Zap", title: "Feature One", description: "Compelling description of the first feature." },
-        { icon: "Shield", title: "Feature Two", description: "Compelling description of the second feature." },
-        { icon: "TrendingUp", title: "Feature Three", description: "Compelling description of the third feature." },
-        { icon: "Star", title: "Feature Four", description: "Compelling description of the fourth feature." },
-      ],
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      title: { type: "text", label: "Title" },
-      subtitle: { type: "textarea", label: "Subtitle" },
-      features: {
-        type: "array",
-        label: "Features",
-        arrayFields: {
-          icon: { type: "text", label: "Icon Name (from approved list)" },
-          title: { type: "text", label: "Feature Title" },
-          description: { type: "textarea", label: "Description" },
-        },
-      },
-    },
-    render: (props: any) => <FeaturesSection {...props} />,
-  },
-
-  FeaturesShowcase: {
-    type: "FeaturesShowcase",
-    label: "Features — Showcase (Tab/Steps)",
-    semantic: {
-      purpose: "An interactive tabbed or stepped feature showcase where users click through key benefits. Use for complex offers where you want to walk the buyer through the transformation step-by-step.",
-      example: {
-        title: "How the 90-Day Blueprint Works",
-        sectionId: "features",
-        steps: [
-          { title: "Step 1: Position", description: "Define your micro-niche and own a category where you're the only obvious choice.", icon: "Target" },
-          { title: "Step 2: Price", description: "Set premium pricing from day one using our value-based pricing architecture.", icon: "DollarSign" },
-          { title: "Step 3: Acquire", description: "Fill your calendar with our proven 3-channel client acquisition system.", icon: "Users" },
-        ],
-      },
-    },
-    defaultProps: {
-      title: "How It Works",
-      sectionId: "",
-      steps: [
-        { title: "Step 1", description: "The first step in the process.", icon: "Zap" },
-        { title: "Step 2", description: "The second step in the process.", icon: "Target" },
-        { title: "Step 3", description: "The third step in the process.", icon: "TrendingUp" },
-      ],
-      elementStyles: {},
-    },
-    fields: {
-      sectionId: { type: "text", label: "Section ID" },
-      title: { type: "text", label: "Title" },
-      steps: {
-        type: "array",
-        label: "Steps / Features",
-        arrayFields: {
-          icon: { type: "text", label: "Icon Name" },
-          title: { type: "text", label: "Step Title" },
-          description: { type: "textarea", label: "Description" },
-        },
-      },
-    },
-    render: (props: any) => <FeaturesShowcase {...props} />,
-  },
-
-  // ── Additional Footer Variants ────────────────────────────────────────
-  FooterCentered: {
-    type: "FooterCentered",
-    label: "Footer — Centered Minimal",
-    semantic: {
-      purpose: "A minimal, centered footer with logo, tagline, and copyright line. Use for single-product funnels and landing pages where a clean, distraction-free close is preferred.",
-      example: {
-        description: "The proven system for ex-corporate professionals to build $10K/month consulting businesses.",
-        copyrightText: "© 2025. All rights reserved.",
-      },
-    },
-    defaultProps: {
-      description: "Empowering you with the tools to succeed.",
-      copyrightText: "© 2025. All rights reserved.",
-      elementStyles: {},
-    },
-    fields: {
-      description: { type: "textarea", label: "Description" },
-      copyrightText: { type: "text", label: "Copyright Text" },
-    },
-    render: (props: any) => <FooterCentered {...props} />,
-  },
-
-  FooterDark: {
-    type: "FooterDark",
-    label: "Footer — Dark Minimal",
-    semantic: {
-      purpose: "A dark-themed minimal footer with copyright and a simple nav link row. Use when the page design is dark-themed and you want consistency in the footer treatment.",
-      example: {
-        copyrightText: "© 2025 YourBrand. All rights reserved.",
-      },
-    },
-    defaultProps: {
-      copyrightText: "© 2025. All rights reserved.",
-      elementStyles: {},
-    },
-    fields: {
-      copyrightText: { type: "text", label: "Copyright Text" },
-    },
-    render: (props: any) => <FooterDark {...props} />,
-  },
-
-  FooterGradient: {
-    type: "FooterGradient",
-    label: "Footer — Gradient (CTA + Links)",
-    semantic: {
-      purpose: "A rich footer with a gradient background, final CTA headline, social links, and multi-column navigation. Use as a conversion-optimised footer that doubles as a closing CTA.",
-      example: {
-        ctaHeadline: "Ready to Exit Corporate?",
-        ctaSubtext: "Join 847 professionals who built $10K/month businesses.",
-        ctaButtonText: "Get the Blueprint",
-        ctaButtonHref: "/upsell",
-        copyrightText: "© 2025. All rights reserved.",
-      },
-    },
-    defaultProps: {
-      ctaHeadline: "Ready to Get Started?",
-      ctaSubtext: "Join thousands of people who have already transformed their lives.",
-      ctaButtonText: "Get Started Now",
-      ctaButtonHref: "#",
-      copyrightText: "© 2025. All rights reserved.",
-      elementStyles: {},
-    },
-    fields: {
-      ctaHeadline: { type: "text", label: "CTA Headline" },
-      ctaSubtext: { type: "textarea", label: "CTA Subtext" },
-      ctaButtonText: { type: "text", label: "CTA Button Text" },
-      ctaButtonHref: { type: "text", label: "CTA Button Link" },
-      copyrightText: { type: "text", label: "Copyright Text" },
-    },
-    render: (props: any) => <FooterGradient {...props} />,
-  },
-
-  FooterLinks: {
-    type: "FooterLinks",
-    label: "Footer — Links & Columns",
-    semantic: {
-      purpose: "A standard multi-column footer with logo, description, and organized link columns. Use for offers where you want structured navigation (legal, social, product links).",
-      example: {
-        description: "Helping ex-corporate professionals build $10K/month consulting businesses.",
-        copyrightText: "© 2025. All rights reserved.",
-      },
-    },
-    defaultProps: {
-      description: "Your trusted partner for transformation.",
-      copyrightText: "© 2025. All rights reserved.",
-      elementStyles: {},
-    },
-    fields: {
-      description: { type: "textarea", label: "Description" },
-      copyrightText: { type: "text", label: "Copyright Text" },
-    },
-    render: (props: any) => <FooterLinks {...props} />,
   },
 };
