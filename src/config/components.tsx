@@ -18,6 +18,7 @@ import { FeatureFAQ } from "../components/macro/FAQ";
 import { FeaturePricing } from "../components/macro/Pricing";
 import { FeatureCTA } from "../components/macro/CTA";
 import { FeatureFooter } from "../components/macro/Footer";
+import { FeatureLogos } from "../components/macro/Logos";
 import { FeaturesGrid } from "../components/macro/Features/FeaturesGrid";
 import { FeatureSplit } from "../components/macro/Content/FeatureSplit";
 
@@ -212,6 +213,7 @@ export type ComponentType =
   | "FeaturesGrid"
   | "FeatureSplit"
   | "FeatureFooter"
+  | "FeatureLogos"
   | "UpsellHero"
   | "DownsellHero"
   | "ThankYouHero"
@@ -854,7 +856,7 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
             ))}
           </div>
           {/* Quote */}
-          <p className="leading-relaxed text-sm opacity-90 italic">"{quote}"</p>
+          <p className="leading-relaxed text-sm opacity-90 italic">&ldquo;{quote}&rdquo;</p>
           {/* Author */}
           <div className="flex items-center gap-3 pt-2">
             <div
@@ -1677,6 +1679,25 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
       description: { type: "textarea", label: "Description" },
     },
     render: (props: any) => <FeatureFooter {...props} />,
+  },
+
+  FeatureLogos: {
+    type: "FeatureLogos",
+    label: "Logo Strip",
+    defaultProps: {
+      headline: "TRUSTED BY INNOVATIVE TEAMS WORLDWIDE",
+      logos: [
+        { name: "Stripe",  domain: "stripe.com"  },
+        { name: "Linear",  domain: "linear.app"  },
+        { name: "Vercel",  domain: "vercel.com"  },
+        { name: "Notion",  domain: "notion.so"   },
+        { name: "GitHub",  domain: "github.com"  },
+      ],
+    },
+    fields: {
+      headline: { type: "text",  label: "Headline" },
+    },
+    render: (props: any) => <FeatureLogos {...props} />,
   },
 
   UpsellHero: {

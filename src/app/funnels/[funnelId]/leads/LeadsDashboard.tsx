@@ -113,7 +113,7 @@ export function LeadsDashboard({ leads, funnelName }: Props) {
             </div>
             <div>
               <p className="text-white/70 font-semibold text-base">No leads yet</p>
-              <p className="text-white/30 text-sm mt-1">Leads will appear here once visitors submit your funnel's opt-in form.</p>
+              <p className="text-white/30 text-sm mt-1">Leads will appear here once visitors submit your funnel&apos;s opt-in form.</p>
             </div>
           </div>
         ) : (

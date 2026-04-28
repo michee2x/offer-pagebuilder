@@ -453,7 +453,7 @@ function renderBlock(block: Block, key: string | number): React.ReactNode {
               <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />
             ))}
           </div>
-          <p className="text-sm leading-relaxed italic opacity-90">"{block.quote}"</p>
+          <p className="text-sm leading-relaxed italic opacity-90">&ldquo;{block.quote}&rdquo;</p>
           <div className="flex items-center gap-3 mt-auto pt-2">
             <div className="w-9 h-9 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold shrink-0">
               {block.initials}

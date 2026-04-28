@@ -20,10 +20,7 @@ export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
 
   // Advance through stages on timers; reset when closed
   useEffect(() => {
-    if (!isOpen) {
-      setActiveStage(0);
-      return;
-    }
+    if (!isOpen) return;
 
     const timers: ReturnType<typeof setTimeout>[] = [];
     let elapsed = 0;
@@ -33,7 +30,10 @@ export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
       timers.push(setTimeout(() => setActiveStage(i + 1), elapsed));
     });
 
-    return () => timers.forEach(clearTimeout);
+    return () => {
+      timers.forEach(clearTimeout);
+      setActiveStage(0);
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
