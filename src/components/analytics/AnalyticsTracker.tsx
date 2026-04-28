@@ -16,6 +16,7 @@ export function AnalyticsTracker({ pageId, pagePath = "/" }: Props) {
     if (tracked.current || !ph) return;
     tracked.current = true;
     ph.capture("funnel_page_view", { funnel_id: pageId, page_path: pagePath });
+    console.log("[analytics] funnel_page_view fired", { funnel_id: pageId, page_path: pagePath });
   }, [pageId, pagePath, ph]);
 
   return null;
