@@ -3,7 +3,7 @@ import { streamText } from 'ai';
 import { LUCIDE_ICON_NAMES } from '@/config/components';
 import { createAdminClient } from '@/utils/supabase/admin';
 
-export const maxDuration = 600;
+export const maxDuration = 300;
 
 const MODEL          = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
 const MAX_OUTPUT_TOKENS = 32_000;

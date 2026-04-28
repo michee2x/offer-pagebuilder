@@ -80,7 +80,7 @@ export default async function LiveViewerPage({ params }: Props) {
 
     return (
         <>
-            <AnalyticsTracker pageId={id} />
+            <AnalyticsTracker pageId={id} pagePath="/" />
             <ViewerHydrator blocks={page.blocks} />
         </>
     )
