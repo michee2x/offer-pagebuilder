@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+
 import {
   Accordion,
   AccordionContent,
@@ -21,7 +22,7 @@ import {
 } from "lucide-react";
 import type { Block, PageSectionProps, LeadCapturePopupBlock } from "@/lib/blocks";
 
-// ─── Icon registry ────────────────────────────────────────────────────────────
+// ─── Icon Registry ────────────────────────────────────────────────────────────
 
 const ICON_MAP: Record<string, React.FC<LucideProps>> = {
   Zap, Shield, BarChart2, Star, Check, ArrowRight, Globe, Lock, Rocket, Heart,
