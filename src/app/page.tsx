@@ -57,7 +57,7 @@ export default async function DashboardPage(props: {
       >
         <Topbar breadcrumbs={[{ label: "Workspaces" }]}>
           <WorkspaceSwitcher
-            workspaces={allWorkspaces}
+            workspaces={allWorkspaces || []}
             activeId={activeWorkspaceId}
           />
         </Topbar>
