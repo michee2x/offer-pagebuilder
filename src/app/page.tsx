@@ -42,8 +42,9 @@ export default async function DashboardPage(props: {
   }
 
   const activeWorkspaceId =
-    workspace || (allWorkspaces.length > 0 ? allWorkspaces[0].id : null);
-  const activeWorkspace = allWorkspaces.find(
+    workspace ||
+    (allWorkspaces && allWorkspaces.length > 0 ? allWorkspaces[0].id : null);
+  const activeWorkspace = allWorkspaces?.find(
     (w: any) => w.id === activeWorkspaceId,
   );
 
