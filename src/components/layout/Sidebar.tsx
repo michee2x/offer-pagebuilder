@@ -17,6 +17,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+interface SidebarLink {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: number;
+}
+
 export function Sidebar() {
   const pathname = usePathname();
 
@@ -48,7 +55,7 @@ export function Sidebar() {
 
   const funnelId = getFunnelId();
 
-  const links = funnelId
+  const links: SidebarLink[] = funnelId
     ? [
         { label: "Back to Workspaces", href: "/", icon: LayoutDashboard },
         {
@@ -83,7 +90,9 @@ export function Sidebar() {
         { label: "Workspaces", href: "/workspaces", icon: Filter },
       ];
 
-  const accountLinks = [{ label: "Settings", href: "#", icon: Settings }];
+  const accountLinks: SidebarLink[] = [
+    { label: "Settings", href: "#", icon: Settings },
+  ];
 
   const accountActions = [
     {
