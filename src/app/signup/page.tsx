@@ -19,38 +19,40 @@ export default function SignupPage() {
     typeof window !== "undefined" &&
     window.location.hostname.includes("localhost");
   const recaptchaSiteKey = isLocalhost
-    ? process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY_LOCALHOST!
-    : process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!;
+    ? process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY_LOCALHOST
+    : process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
   const supabase = createClient();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!captchaToken) {
+    if (recaptchaSiteKey && !captchaToken) {
       alert("Please complete the captcha");
       return;
     }
     setIsLoading(true);
     try {
-      const verifyResponse = await fetch("/api/recaptcha", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token: captchaToken }),
-      });
+      if (recaptchaSiteKey) {
+        const verifyResponse = await fetch("/api/recaptcha", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: captchaToken }),
+        });
 
-      const verifyResult = await verifyResponse.json();
-      if (!verifyResponse.ok || !verifyResult.success) {
-        captchaRef.current?.reset();
-        setCaptchaToken(null);
-        const details = verifyResult.details
-          ? ` (${JSON.stringify(verifyResult.details)})`
-          : "";
-        throw new Error(
-          verifyResult.error
-            ? `${verifyResult.error}${details}`
-            : `Captcha verification failed${details}`,
-        );
+        const verifyResult = await verifyResponse.json();
+        if (!verifyResponse.ok || !verifyResult.success) {
+          captchaRef.current?.reset();
+          setCaptchaToken(null);
+          const details = verifyResult.details
+            ? ` (${JSON.stringify(verifyResult.details)})`
+            : "";
+          throw new Error(
+            verifyResult.error
+              ? `${verifyResult.error}${details}`
+              : `Captcha verification failed${details}`,
+          );
+        }
       }
 
       const { data, error } = await supabase.auth.signUp({
@@ -186,16 +188,18 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <ReCAPTCHA
-            ref={captchaRef}
-            sitekey={recaptchaSiteKey}
-            onChange={setCaptchaToken}
-          />
+          {recaptchaSiteKey && (
+            <ReCAPTCHA
+              ref={captchaRef}
+              sitekey={recaptchaSiteKey}
+              onChange={setCaptchaToken}
+            />
+          )}
 
           <button
             type="submit"
             className="btn-primary"
-            disabled={isLoading || !captchaToken}
+            disabled={isLoading || (recaptchaSiteKey && !captchaToken)}
           >
             {isLoading ? "Creating account..." : "Start 7-Day Free Trial →"}
           </button>
