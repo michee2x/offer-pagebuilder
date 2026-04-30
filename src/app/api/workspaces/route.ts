@@ -47,21 +47,25 @@ export async function POST(req: Request) {
 
   try {
     let name = '';
+    let domain = '';
     const contentType = req.headers.get('content-type') || '';
 
     if (contentType.includes('application/json')) {
       const body = await req.json();
       name = body.name;
+      domain = body.domain;
     } else if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
       const formData = await req.formData();
-      const value = formData.get('name');
-      name = typeof value === 'string' ? value : '';
+      const nameValue = formData.get('name');
+      const domainValue = formData.get('domain');
+      name = typeof nameValue === 'string' ? nameValue : '';
+      domain = typeof domainValue === 'string' ? domainValue : '';
     } else {
-      // Support fallback for plain text or other encodings
       const text = await req.text();
       try {
         const body = JSON.parse(text || '{}');
         name = body.name;
+        domain = body.domain;
       } catch {
         name = text;
       }
@@ -71,20 +75,40 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Workspace name is required' }, { status: 400 });
     }
 
-    const { data, error } = await supabaseAdmin
+    const cleanDomain = typeof domain === 'string' ? domain.trim().toLowerCase() : '';
+    if (!cleanDomain || !/^[a-z0-9-]{3,30}$/.test(cleanDomain)) {
+      return Response.json({ error: 'Workspace domain is required and must be valid' }, { status: 400 });
+    }
+
+    const { data: workspace, error: workspaceError } = await supabaseAdmin
       .from('workspaces')
       .insert({
         name: name.trim(),
+        domain: cleanDomain,
         user_id: session.user.id,
       })
       .select()
       .single();
 
-    if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+    if (workspaceError || !workspace) {
+      const message = workspaceError?.message || 'Failed to create workspace';
+      if (message.includes('workspaces_domain_key') || message.includes('duplicate key value')) {
+        return Response.json({ error: 'That workspace domain is already taken. Please choose another one.' }, { status: 400 });
+      }
+      return Response.json({ error: message }, { status: 500 });
     }
 
-    return Response.json({ workspace: data });
+    const { error: memberError } = await supabaseAdmin.from('workspace_members').insert({
+      workspace_id: workspace.id,
+      user_id: session.user.id,
+      role: 'owner',
+    });
+
+    if (memberError) {
+      return Response.json({ error: memberError.message }, { status: 500 });
+    }
+
+    return Response.json({ workspace });
   } catch (e: any) {
     return Response.json({ error: 'Invalid request' }, { status: 400 });
   }

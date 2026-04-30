@@ -1,11 +1,11 @@
-import { getSession } from '@/auth';
-import { createAdminClient } from '@/utils/supabase/admin';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
-import { Button } from '@/components/ui/button';
-import { Folder, Plus } from 'lucide-react';
+import { getSession } from "@/auth";
+import { createAdminClient } from "@/utils/supabase/admin";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
+import { Button } from "@/components/ui/button";
+import { Folder, Plus } from "lucide-react";
 
 interface WorkspacePageProps {
   params: Promise<{
@@ -17,12 +17,12 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   const { workspaceId } = await params;
   const session = await getSession();
   if (!session || !session.user?.id) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const supabase = createAdminClient();
   const { data: workspace, error } = await supabase
-    .from('workspaces')
+    .from("workspaces")
     .select(
       `
         id,
@@ -37,28 +37,31 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         )
       `,
     )
-    .eq('id', workspaceId)
-    .eq('user_id', session.user.id)
+    .eq("id", workspaceId)
+    .eq("user_id", session.user.id)
     .single();
 
   if (error || !workspace) {
-    redirect('/');
+    redirect("/");
   }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
+      <div
+        className="flex-1 flex flex-col min-w-0 overflow-hidden"
+        style={{ marginLeft: "56px" }}
+      >
         <Topbar
           breadcrumbs={[
-            { label: 'Workspaces', href: '/' },
+            { label: "Workspaces", href: "/" },
             { label: workspace.name },
           ]}
         >
           <Link href={`/onboard?workspace=${workspace.id}`}>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              Create Funnel
+              Launch campaign
             </Button>
           </Link>
         </Topbar>
@@ -73,15 +76,18 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
                       <Folder className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h1 className="text-3xl font-semibold text-foreground">{workspace.name}</h1>
+                      <h1 className="text-3xl font-semibold text-foreground">
+                        {workspace.name}
+                      </h1>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {workspace.builder_pages?.length || 0} funnels in this workspace
+                        {workspace.builder_pages?.length || 0} campaigns in this
+                        workspace
                       </p>
                     </div>
                   </div>
                 </div>
                 <Link href={`/onboard?workspace=${workspace.id}`}>
-                  <Button variant="outline">Create Funnel</Button>
+                  <Button variant="outline">Launch campaign</Button>
                 </Link>
               </div>
             </div>
@@ -89,21 +95,39 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             {workspace.builder_pages && workspace.builder_pages.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {workspace.builder_pages.map((funnel: any) => (
-                  <a href={`/funnels/${funnel.id}`} key={funnel.id} className="group block h-full">
+                  <a
+                    href={`/funnels/${funnel.id}`}
+                    key={funnel.id}
+                    className="group block h-full"
+                  >
                     <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg h-full flex flex-col relative">
                       <div className="aspect-[16/10] bg-muted/20 relative overflow-hidden border-b border-border">
                         {funnel.og_image_url ? (
-                          <img 
-                            src={funnel.og_image_url} 
-                            alt={funnel.name} 
-                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" 
+                          <img
+                            src={funnel.og_image_url}
+                            alt={funnel.name}
+                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground opacity-30">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                              <line x1="3" y1="9" x2="21" y2="9"/>
-                              <line x1="9" y1="21" x2="9" y2="9"/>
+                            <svg
+                              width="40"
+                              height="40"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            >
+                              <rect
+                                x="3"
+                                y="3"
+                                width="18"
+                                height="18"
+                                rx="2"
+                                ry="2"
+                              />
+                              <line x1="3" y1="9" x2="21" y2="9" />
+                              <line x1="9" y1="21" x2="9" y2="9" />
                             </svg>
                           </div>
                         )}
@@ -113,7 +137,8 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
                           {funnel.name}
                         </h3>
                         <span className="text-xs text-muted-foreground mt-1">
-                          Updated {new Date(funnel.updated_at).toLocaleDateString()}
+                          Updated{" "}
+                          {new Date(funnel.updated_at).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -123,10 +148,10 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             ) : (
               <div className="rounded-3xl border border-border bg-card p-8 text-center">
                 <p className="text-sm text-muted-foreground">
-                  No funnels have been created in this workspace yet.
+                  No campaigns have been created in this workspace yet.
                 </p>
                 <Link href={`/onboard?workspace=${workspace.id}`}>
-                  <Button className="mt-4">Create first funnel</Button>
+                  <Button className="mt-4">Launch first campaign</Button>
                 </Link>
               </div>
             )}

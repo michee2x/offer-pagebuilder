@@ -40,11 +40,11 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
           </Button>
         </div>
         <p className="text-sm text-muted-foreground">
-          {workspace.builder_pages?.length || 0} funnels
+          {workspace.builder_pages?.length || 0} campaigns
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Funnels in this workspace */}
+        {/* Campaigns in this workspace */}
         <div className="space-y-3">
           {workspace.builder_pages && workspace.builder_pages.length > 0 ? (
             workspace.builder_pages.slice(0, 3).map((funnel) => (
@@ -84,16 +84,16 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
           ) : (
             <div className="text-center py-6 text-muted-foreground">
               <Layout className="w-8 h-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No funnels yet</p>
+              <p className="text-sm">No campaigns yet</p>
             </div>
           )}
         </div>
 
-        {/* Create funnel button */}
+        {/* Create campaign button */}
         <Link href={`/onboard?workspace=${workspace.id}`}>
           <Button variant="outline" size="sm" className="w-full">
             <Plus className="w-4 h-4 mr-2" />
-            Create Funnel
+            Start campaign
           </Button>
         </Link>
       </CardContent>
