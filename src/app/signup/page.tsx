@@ -25,13 +25,13 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (recaptchaSiteKey && !captchaToken) {
+    if (!!recaptchaSiteKey && !captchaToken) {
       alert("Please complete the captcha");
       return;
     }
     setIsLoading(true);
     try {
-      if (recaptchaSiteKey) {
+      if (!!recaptchaSiteKey) {
         const verifyResponse = await fetch("/api/recaptcha", {
           method: "POST",
           headers: {
@@ -199,7 +199,7 @@ export default function SignupPage() {
           <button
             type="submit"
             className="btn-primary"
-            disabled={isLoading || (recaptchaSiteKey && !captchaToken)}
+            disabled={isLoading || (!!recaptchaSiteKey && !captchaToken)}
           >
             {isLoading ? "Creating account..." : "Start 7-Day Free Trial →"}
           </button>
