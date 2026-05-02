@@ -24,9 +24,9 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
 
   // Ensure user exists in users table
   const { data: existingUser } = await supabase
-    .from('users')
-    .select('id')
-    .eq('id', session.user.id)
+    .from("users")
+    .select("id")
+    .eq("id", session.user.id)
     .maybeSingle();
 
   let userId = session.user.id;
@@ -34,14 +34,14 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   if (!existingUser) {
     // User doesn't exist in users table, create them
     const { data: newUser } = await supabase
-      .from('users')
+      .from("users")
       .insert({
         id: session.user.id,
-        email: session.user.email || '',
-        name: session.user.name || '',
-        password: '', // Empty password for Supabase Auth users
+        email: session.user.email || "",
+        name: session.user.name || "",
+        password: "", // Empty password for Supabase Auth users
       })
-      .select('id')
+      .select("id")
       .single();
 
     if (newUser) {

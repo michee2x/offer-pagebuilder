@@ -43,31 +43,30 @@ export async function GET() {
   let userId = session.user.id;
 
   if (!existingUser && !userCheckError) {
-    // User doesn't exist in users table, create them
-    const { data: newUser, error: createUserError } = await supabaseAdmin
-      .from('users')
-      .insert({
-        id: session.user.id,
-        email: session.user.email || '',
-        name: session.user.name || '',
-        password: '', // Empty password for Supabase Auth users
-      })
-      .select('id')
-      .single();
+      // Get authenticated user data from Supabase Auth
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.getUser(session.user.id);
 
-    if (createUserError) {
-      console.error('Failed to create user record:', createUserError);
-      // Continue with the auth user ID even if user creation fails
-    } else {
-      userId = newUser.id;
-    }
-  }
+      if (authError) {
+        console.error('Failed to get auth user:', authError);
+        return Response.json({ error: 'Failed to authenticate user' }, { status: 401 });
+      }
 
-  // First try to get workspaces where user is owner
-  const { data: ownedWorkspaces, error: ownedError } = await supabaseAdmin
-    .from('workspaces')
-    .select(`
-      id,
+      // User doesn't exist in users table, create them
+      const { data: newUser, error: createUserError } = await supabaseAdmin
+        .from('users')
+        .insert({
+          id: session.user.id,
+          email: authUser.user?.email || session.user.email || '',
+          name: authUser.user?.user_metadata?.name || session.user.name || '',
+        })
+        .select('id')
+        .single();
+
+      if (createUserError) {
+        console.error('Failed to create user record:', createUserError);
+        // For Supabase Auth users, we can't create a user record without password
+        // Let's try to continue without creating the user record
+        console.log('Continuing without user record creation for Supabase Auth user');
       name,
       domain,
       created_at,
