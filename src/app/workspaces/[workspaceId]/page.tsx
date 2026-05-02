@@ -21,6 +21,34 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   }
 
   const supabase = createAdminClient();
+
+  // Ensure user exists in users table
+  const { data: existingUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('id', session.user.id)
+    .maybeSingle();
+
+  let userId = session.user.id;
+
+  if (!existingUser) {
+    // User doesn't exist in users table, create them
+    const { data: newUser } = await supabase
+      .from('users')
+      .insert({
+        id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.name || '',
+        password: '', // Empty password for Supabase Auth users
+      })
+      .select('id')
+      .single();
+
+    if (newUser) {
+      userId = newUser.id;
+    }
+  }
+
   let workspace = null;
   let error = null;
 
@@ -40,8 +68,8 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         )
       `,
     )
+    .eq("user_id", userId)
     .eq("id", workspaceId)
-    .eq("owner_id", session.user.id)
     .maybeSingle();
 
   workspace = ownerWorkspace;
@@ -67,7 +95,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
         `,
       )
       .eq("workspace_id", workspaceId)
-      .eq("user_id", session.user.id)
+      .eq("user_id", userId)
       .maybeSingle();
 
     workspace = memberWorkspace?.workspaces?.[0] || null;

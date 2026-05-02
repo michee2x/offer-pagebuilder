@@ -33,6 +33,36 @@ export async function GET() {
 
   console.log('GET /api/workspaces for user:', session.user.id);
 
+  // Ensure user exists in users table
+  const { data: existingUser, error: userCheckError } = await supabaseAdmin
+    .from('users')
+    .select('id')
+    .eq('id', session.user.id)
+    .maybeSingle();
+
+  let userId = session.user.id;
+
+  if (!existingUser && !userCheckError) {
+    // User doesn't exist in users table, create them
+    const { data: newUser, error: createUserError } = await supabaseAdmin
+      .from('users')
+      .insert({
+        id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.name || '',
+        password: '', // Empty password for Supabase Auth users
+      })
+      .select('id')
+      .single();
+
+    if (createUserError) {
+      console.error('Failed to create user record:', createUserError);
+      // Continue with the auth user ID even if user creation fails
+    } else {
+      userId = newUser.id;
+    }
+  }
+
   // First try to get workspaces where user is owner
   const { data: ownedWorkspaces, error: ownedError } = await supabaseAdmin
     .from('workspaces')
@@ -49,7 +79,7 @@ export async function GET() {
         blocks
       )
     `)
-    .eq('owner_id', session.user.id)
+    .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
   console.log('Owned workspaces query result:', {
@@ -82,7 +112,7 @@ export async function GET() {
         )
       )
     `)
-    .eq('user_id', session.user.id);
+    .eq('user_id', userId);
 
   console.log('Member workspaces query result:', {
     count: memberWorkspacesData?.length || 0,
@@ -168,21 +198,48 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Workspace domain is required and must be valid' }, { status: 400 });
     }
 
-    const workspacePayload = {
-      name: name.trim(),
-      domain: cleanDomain,
-      owner_id: session.user.id,
-      user_id: session.user.id,
-    };
+    // Ensure user exists in users table
+    const { data: existingUser, error: userCheckError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('id', session.user.id)
+      .maybeSingle();
 
-    let workspace = null;
-    let workspaceError = null;
+    let userId = session.user.id;
+
+    if (!existingUser && !userCheckError) {
+      // User doesn't exist in users table, create them
+      const { data: newUser, error: createUserError } = await supabaseAdmin
+        .from('users')
+        .insert({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.name || '',
+          password: '', // Empty password for Supabase Auth users
+        })
+        .select('id')
+        .single();
+
+      if (createUserError) {
+        console.error('Failed to create user record:', createUserError);
+        return Response.json({ error: 'Failed to create user record' }, { status: 500 });
+      }
+
+      userId = newUser.id;
+    }
 
     const insertWorkspace = async (payload: Record<string, any>) => {
       return supabaseAdmin.from('workspaces').insert(payload).select().single();
     };
 
-    let insertResult = await insertWorkspace(workspacePayload);
+    let workspace = null;
+    let workspaceError = null;
+
+    let insertResult = await insertWorkspace({
+      name: name.trim(),
+      domain: cleanDomain,
+      user_id: userId,
+    });
     workspace = insertResult.data;
     workspaceError = insertResult.error;
 
@@ -192,15 +249,7 @@ export async function POST(req: Request) {
         insertResult = await insertWorkspace({
           name: name.trim(),
           domain: cleanDomain,
-          owner_id: session.user.id,
-        });
-        workspace = insertResult.data;
-        workspaceError = insertResult.error;
-      } else if (message.includes('column "owner_id"')) {
-        insertResult = await insertWorkspace({
-          name: name.trim(),
-          domain: cleanDomain,
-          user_id: session.user.id,
+          owner_id: userId,
         });
         workspace = insertResult.data;
         workspaceError = insertResult.error;
@@ -217,7 +266,7 @@ export async function POST(req: Request) {
 
     const { error: memberError } = await supabaseAdmin.from('workspace_members').insert({
       workspace_id: workspace.id,
-      user_id: session.user.id,
+      user_id: userId,
       role: 'owner',
     });
 
