@@ -43,31 +43,23 @@ export async function GET() {
   let userId = session.user.id;
 
   if (!existingUser && !userCheckError) {
-      // Get authenticated user data from Supabase Auth
-      const { data: authUser, error: authError } = await supabaseAdmin.auth.getUser(session.user.id);
+    // Use session.user directly — no need for an extra Auth API call
+    const { data: newUser, error: createUserError } = await supabaseAdmin
+      .from('users')
+      .insert({
+        id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.user_metadata?.name || '',
+      })
+      .select('id')
+      .single();
 
-      if (authError) {
-        console.error('Failed to get auth user:', authError);
-        return Response.json({ error: 'Failed to authenticate user' }, { status: 401 });
-      }
-
-      // User doesn't exist in users table, create them
-      const { data: newUser, error: createUserError } = await supabaseAdmin
-        .from('users')
-        .insert({
-          id: session.user.id,
-          email: authUser.user?.email || session.user.email || '',
-          name: authUser.user?.user_metadata?.name || '',
-        })
-        .select('id')
-        .single();
-
-      if (createUserError) {
-        console.error('Failed to create user record:', createUserError);
-        console.log('Continuing without user record creation for Supabase Auth user');
-      } else if (newUser) {
-        userId = newUser.id;
-      }
+    if (createUserError) {
+      console.error('Failed to create user record:', createUserError);
+      console.log('Continuing without user record creation for Supabase Auth user');
+    } else if (newUser) {
+      userId = newUser.id;
+    }
   }
 
   // Then get owned workspaces
@@ -215,22 +207,14 @@ export async function POST(req: Request) {
     let userId = session.user.id;
 
     if (!existingUser && !userCheckError) {
-      // Get authenticated user data from Supabase Auth
-      const { data: authUser, error: authError } = await supabaseAdmin.auth.getUser(session.user.id);
-
-      if (authError) {
-        console.error('Failed to get auth user:', authError);
-        return Response.json({ error: 'Failed to authenticate user' }, { status: 401 });
-      }
-
-      // User doesn't exist in users table, create them
+      // Use session.user directly — no need for an extra Auth API call
       const { data: newUser, error: createUserError } = await supabaseAdmin
         .from('users')
         .insert({
           id: session.user.id,
-          email: authUser.user?.email || session.user.email || '',
-          name: authUser.user?.user_metadata?.name || '',
-          password: '', // Empty password for Supabase Auth users
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || '',
+          password: '',
         })
         .select('id')
         .single();
