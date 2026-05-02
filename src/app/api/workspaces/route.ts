@@ -168,15 +168,44 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Workspace domain is required and must be valid' }, { status: 400 });
     }
 
-    const { data: workspace, error: workspaceError } = await supabaseAdmin
-      .from('workspaces')
-      .insert({
-        name: name.trim(),
-        domain: cleanDomain,
-        owner_id: session.user.id,
-      })
-      .select()
-      .single();
+    const workspacePayload = {
+      name: name.trim(),
+      domain: cleanDomain,
+      owner_id: session.user.id,
+      user_id: session.user.id,
+    };
+
+    let workspace = null;
+    let workspaceError = null;
+
+    const insertWorkspace = async (payload: Record<string, any>) => {
+      return supabaseAdmin.from('workspaces').insert(payload).select().single();
+    };
+
+    let insertResult = await insertWorkspace(workspacePayload);
+    workspace = insertResult.data;
+    workspaceError = insertResult.error;
+
+    if (workspaceError) {
+      const message = workspaceError.message || '';
+      if (message.includes('column "user_id"')) {
+        insertResult = await insertWorkspace({
+          name: name.trim(),
+          domain: cleanDomain,
+          owner_id: session.user.id,
+        });
+        workspace = insertResult.data;
+        workspaceError = insertResult.error;
+      } else if (message.includes('column "owner_id"')) {
+        insertResult = await insertWorkspace({
+          name: name.trim(),
+          domain: cleanDomain,
+          user_id: session.user.id,
+        });
+        workspace = insertResult.data;
+        workspaceError = insertResult.error;
+      }
+    }
 
     if (workspaceError || !workspace) {
       const message = workspaceError?.message || 'Failed to create workspace';
