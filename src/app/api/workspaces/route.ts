@@ -17,7 +17,7 @@ type WorkspaceWithPages = {
 
 type WorkspaceMemberRecord = {
   workspace_id: any;
-  workspaces: WorkspaceWithPages | null;
+  workspaces: WorkspaceWithPages[] | null;
 };
 
 const supabaseAdmin = createClient(
@@ -97,7 +97,7 @@ export async function GET() {
 
   // Combine and deduplicate workspaces
   const memberWorkspaces = memberWorkspacesData
-    ?.map((item: WorkspaceMemberRecord) => item.workspaces)
+    ?.map((item: WorkspaceMemberRecord) => item.workspaces?.[0])
     .filter((workspace): workspace is WorkspaceWithPages => Boolean(workspace)) || [];
 
   console.log('Processed member workspaces:', {
