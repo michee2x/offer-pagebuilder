@@ -21,7 +21,10 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   }
 
   const supabase = createAdminClient();
-  const { data: workspace, error } = await supabase
+  let workspace = null;
+  let error = null;
+
+  const { data: ownerWorkspace, error: ownerError } = await supabase
     .from("workspaces")
     .select(
       `
@@ -38,8 +41,38 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       `,
     )
     .eq("id", workspaceId)
-    .eq("user_id", session.user.id)
-    .single();
+    .eq("owner_id", session.user.id)
+    .maybeSingle();
+
+  workspace = ownerWorkspace;
+  error = ownerError;
+
+  if (!workspace) {
+    const { data: memberWorkspace, error: memberError } = await supabase
+      .from("workspace_members")
+      .select(
+        `
+          workspaces (
+            id,
+            name,
+            updated_at,
+            builder_pages (
+              id,
+              name,
+              updated_at,
+              og_image_url,
+              blocks
+            )
+          )
+        `,
+      )
+      .eq("workspace_id", workspaceId)
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    workspace = memberWorkspace?.workspaces || null;
+    error = error || memberError;
+  }
 
   if (error || !workspace) {
     redirect("/");

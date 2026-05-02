@@ -848,3 +848,71 @@ input:focus {
   color: var(--text-auth);
   font-weight: 500;
 }
+
+/* New auth form styles inspired by Aceternity */
+.shadow-input {
+  box-shadow: 0px 0px 0px 1px rgba(255, 255, 255, 0.06), 0px 1px 0px 0px rgba(255, 255, 255, 0.08) inset, 0px -1px 0px 0px rgba(255, 255, 255, 0.08) inset;
+}
+
+.dark .shadow-input {
+  box-shadow: 0px 0px 0px 1px rgba(255, 255, 255, 0.06), 0px 1px 0px 0px rgba(255, 255, 255, 0.08) inset, 0px -1px 0px 0px rgba(255, 255, 255, 0.08) inset;
+}
+
+.auth-form-input:focus {
+  border-color: hsl(var(--brand-yellow));
+  box-shadow: 0 0 0 2px hsla(var(--brand-yellow), 0.2);
+}
+
+.auth-form-button {
+  position: relative;
+  height: 40px;
+  width: 100%;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #000 0%, #374151 100%);
+  font-weight: 500;
+  color: white;
+  box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.4) inset, 0px -1px 0px 0px rgba(255, 255, 255, 0.4) inset;
+}
+
+.dark .auth-form-button {
+  background: linear-gradient(135deg, #27272a 0%, #3f3f46 100%);
+  box-shadow: 0px 1px 0px 0px rgba(39, 39, 42, 1) inset, 0px -1px 0px 0px rgba(39, 39, 42, 1) inset;
+}
+
+.auth-form-button:hover {
+  background: linear-gradient(135deg, hsl(var(--brand-yellow)) 0%, hsl(38, 92%, 45%) 100%);
+}
+
+.bottom-gradient {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(to right, transparent, hsl(var(--brand-yellow)), transparent);
+  opacity: 0;
+  transition: opacity 500ms;
+}
+
+.auth-form-button:hover .bottom-gradient {
+  opacity: 1;
+}
+
+.bottom-gradient-blur {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -1px;
+  height: 1px;
+  width: 80%;
+  margin: 0 auto;
+  background: linear-gradient(to right, transparent, hsl(38, 92%, 45%), transparent);
+  opacity: 0;
+  filter: blur(1px);
+  transition: opacity 500ms;
+}
+
+.auth-form-button:hover .bottom-gradient-blur {
+  opacity: 1;
+}

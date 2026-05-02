@@ -2,8 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 import {
   LayoutDashboard,
   Filter,
@@ -26,6 +26,8 @@ interface SidebarLink {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
 
   const getFunnelId = () => {
     if (pathname === "/builder" || pathname?.startsWith("/builder/")) {
@@ -97,7 +99,13 @@ export function Sidebar() {
   const accountActions = [
     {
       label: "Sign out",
-      onClick: () => signOut({ callbackUrl: "/login" }),
+      onClick: async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.error("Error signing out:", error.message);
+        }
+        router.push("/login");
+      },
       icon: LogOut,
     },
   ];

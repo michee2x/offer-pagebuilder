@@ -1,42 +1,101 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-type Step = "basics" | "domain" | "team" | "review";
+type Step = "name" | "domain" | "team" | "review";
 
-interface WorkspaceData {
-  name: string;
-  domain: string;
-  invites: { email: string; role: string }[];
+interface Invite {
+  email: string;
+  role: string;
 }
 
+const stepConfig: Record<Step, { title: string }> = {
+  name: { title: "Let's set up your workspace" },
+  domain: { title: "Choose your domain" },
+  team: { title: "Invite your team" },
+  review: { title: "Review your workspace" },
+};
+
+const stepOrder: Step[] = ["name", "domain", "team", "review"];
+
 export default function OnboardPage() {
-  const [currentStep, setCurrentStep] = useState<Step>("basics");
-  const [workspaceData, setWorkspaceData] = useState<WorkspaceData>({
+  const [currentStep, setCurrentStep] = useState<Step>("name");
+  const [workspaceData, setWorkspaceData] = useState({
     name: "",
     domain: "",
-    invites: [{ email: "", role: "Member" }],
+    invites: [{ email: "", role: "Member" }] as Invite[],
   });
+  const [typedHeadline, setTypedHeadline] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const prevStepRef = useRef<Step>("name");
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    // Check if user is authenticated
     const checkAuth = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
       if (!user) {
         router.push("/login");
       }
     };
-    checkAuth();
-  }, [supabase, router]);
 
-  const updateWorkspaceData = (updates: Partial<WorkspaceData>) => {
+    checkAuth();
+  }, [router, supabase]);
+
+  useEffect(() => {
+    const text = stepConfig[currentStep].title;
+    const isMovingBackward =
+      stepOrder.indexOf(currentStep) < stepOrder.indexOf(prevStepRef.current);
+
+    if (isMovingBackward) {
+      // No animation when going back - show instantly
+      setTypedHeadline(text);
+    } else {
+      // Type effect only when moving forward
+      let index = 0;
+      setTypedHeadline("");
+
+      const tick = new Audio(
+        "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-61905/zapsplat_office_keyboard_single_key_press_001_63365.mp3",
+      );
+      tick.volume = 0.04;
+
+      const typeEffect = () => {
+        if (index < text.length) {
+          setTypedHeadline(text.slice(0, index + 1));
+          tick.currentTime = 0;
+          tick.play().catch(() => {});
+
+          const speed = text[index] === " " ? 60 : 20 + Math.random() * 40;
+          index += 1;
+          window.setTimeout(typeEffect, speed);
+        }
+      };
+
+      const timer = window.setTimeout(typeEffect, 500);
+      return () => window.clearTimeout(timer);
+    }
+
+    prevStepRef.current = currentStep;
+  }, [currentStep]);
+
+  const updateWorkspaceData = (updates: Partial<typeof workspaceData>) => {
     setWorkspaceData((prev) => ({ ...prev, ...updates }));
   };
 
@@ -47,11 +106,7 @@ export default function OnboardPage() {
     }));
   };
 
-  const updateInvite = (
-    index: number,
-    field: "email" | "role",
-    value: string,
-  ) => {
+  const updateInvite = (index: number, field: keyof Invite, value: string) => {
     setWorkspaceData((prev) => ({
       ...prev,
       invites: prev.invites.map((invite, i) =>
@@ -68,16 +123,13 @@ export default function OnboardPage() {
   };
 
   const nextStep = () => {
-    if (currentStep === "basics") {
+    if (currentStep === "name") {
       if (!workspaceData.name.trim()) {
         alert("Please name your workspace to continue.");
         return;
       }
       setCurrentStep("domain");
-      return;
-    }
-
-    if (currentStep === "domain") {
+    } else if (currentStep === "domain") {
       const domain = workspaceData.domain.trim().toLowerCase();
       const validDomain = /^[a-z0-9-]{3,30}$/.test(domain);
       if (!validDomain) {
@@ -86,19 +138,14 @@ export default function OnboardPage() {
         );
         return;
       }
-      setWorkspaceData((prev) => ({ ...prev, domain }));
       setCurrentStep("team");
-      return;
-    }
-
-    if (currentStep === "team") {
+    } else if (currentStep === "team") {
       setCurrentStep("review");
-      return;
     }
   };
 
   const prevStep = () => {
-    if (currentStep === "domain") setCurrentStep("basics");
+    if (currentStep === "domain") setCurrentStep("name");
     else if (currentStep === "team") setCurrentStep("domain");
     else if (currentStep === "review") setCurrentStep("team");
   };
@@ -127,7 +174,7 @@ export default function OnboardPage() {
         throw new Error(result.error || "Failed to create workspace");
       }
 
-      router.push("/workspaces");
+      router.push(`/workspaces/${result.workspace.id}`);
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -135,224 +182,220 @@ export default function OnboardPage() {
     }
   };
 
-  const steps = [
-    {
-      id: "basics",
-      title: "Workspace Basics",
-      desc: "Set up your workspace name and details",
-    },
-    {
-      id: "domain",
-      title: "Custom Domain",
-      desc: "Choose your workspace domain",
-    },
-    {
-      id: "team",
-      title: "Invite Team",
-      desc: "Add team members to your workspace",
-    },
-    {
-      id: "review",
-      title: "Review & Create",
-      desc: "Review your workspace settings",
-    },
-  ];
-
   return (
-    <div className="wizard-layout">
-      <div className="wizard-sidebar">
-        <div className="wizard-sidebar-glow"></div>
-        <div className="wizard-logo">
-          Offer<span>IQ</span>
-        </div>
-        <div className="wizard-steps">
-          {steps.map((step, index) => (
-            <div
-              key={step.id}
-              className={`wizard-step-item ${currentStep === step.id ? "active" : ""} ${steps.findIndex((s) => s.id === currentStep) > index ? "done" : ""}`}
+    <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-[640px] relative">
+        <div className="absolute -top-16 left-10">
+          <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-black shadow-lg">
+            <svg
+              className="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <div className="wizard-step-circle">{index + 1}</div>
-              <div className="wizard-step-text">
-                <h4>{step.title}</h4>
-                <p>{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="wizard-sidebar-footer">
-          <p>
-            <strong>Pro tip:</strong> You can change these settings later in
-            your workspace settings.
-          </p>
-        </div>
-      </div>
-
-      <div className="wizard-main">
-        <div className="wizard-content">
-          {currentStep === "basics" && (
-            <div className="wizard-step-header">
-              <div className="wizard-step-tag">STEP 1 OF 4</div>
-              <h2>Let&apos;s set up your workspace</h2>
-              <p>
-                This will be the home for all your projects and team
-                collaboration.
-              </p>
-            </div>
-          )}
-
-          {currentStep === "domain" && (
-            <div className="wizard-step-header">
-              <div className="wizard-step-tag">STEP 2 OF 4</div>
-              <h2>Choose your domain</h2>
-              <p>This will be your workspace&apos;s unique URL and branding.</p>
-            </div>
-          )}
-
-          {currentStep === "team" && (
-            <div className="wizard-step-header">
-              <div className="wizard-step-tag">STEP 3 OF 4</div>
-              <h2>Invite your team</h2>
-              <p>
-                Collaborate with your team by inviting them to your workspace.
-              </p>
-            </div>
-          )}
-
-          {currentStep === "review" && (
-            <div className="wizard-step-header">
-              <div className="wizard-step-tag">STEP 4 OF 4</div>
-              <h2>Review your workspace</h2>
-              <p>
-                Double-check everything looks good before creating your
-                workspace.
-              </p>
-            </div>
-          )}
-
-          {currentStep === "basics" && (
-            <div className="field-group">
-              <label>Workspace Name</label>
-              <input
-                type="text"
-                placeholder="My Awesome Workspace"
-                value={workspaceData.name}
-                onChange={(e) => updateWorkspaceData({ name: e.target.value })}
-              />
-            </div>
-          )}
-
-          {currentStep === "domain" && (
-            <div className="field-group">
-              <label>Workspace Domain</label>
-              <div className="domain-input-wrap">
-                <div className="domain-prefix">https://</div>
-                <input
-                  type="text"
-                  placeholder="myworkspace"
-                  value={workspaceData.domain}
-                  onChange={(e) =>
-                    updateWorkspaceData({ domain: e.target.value })
-                  }
-                />
-                <div className="domain-suffix">.offeriq.com</div>
-              </div>
-            </div>
-          )}
-
-          {currentStep === "team" && (
-            <div>
-              {workspaceData.invites.map((invite, index) => (
-                <div key={index} className="invite-row">
-                  <input
-                    type="email"
-                    placeholder="colleague@company.com"
-                    value={invite.email}
-                    onChange={(e) =>
-                      updateInvite(index, "email", e.target.value)
-                    }
-                  />
-                  <select
-                    value={invite.role}
-                    onChange={(e) =>
-                      updateInvite(index, "role", e.target.value)
-                    }
-                  >
-                    <option>Member</option>
-                    <option>Admin</option>
-                  </select>
-                  {workspaceData.invites.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeInvite(index)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "var(--muted-auth)",
-                        cursor: "pointer",
-                        padding: "8px",
-                      }}
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                type="button"
-                className="btn-add-more"
-                onClick={addInvite}
-              >
-                + Add another team member
-              </button>
-              <p className="skip-link" onClick={nextStep}>
-                Skip for now
-              </p>
-            </div>
-          )}
-
-          {currentStep === "review" && (
-            <div className="review-card">
-              <div className="review-card-header">WORKSPACE DETAILS</div>
-              <div className="review-row">
-                <span>Name</span>
-                <span>{workspaceData.name}</span>
-              </div>
-              <div className="review-row">
-                <span>Domain</span>
-                <span>https://{workspaceData.domain}.offeriq.com</span>
-              </div>
-              <div className="review-row">
-                <span>Team Members</span>
-                <span>
-                  {workspaceData.invites.filter((i) => i.email).length + 1}{" "}
-                  invited
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="wizard-nav">
-            {currentStep !== "basics" && (
-              <button className="step-back-btn" onClick={prevStep}>
-                ← Back
-              </button>
-            )}
-            {currentStep !== "review" ? (
-              <button className="step-next-btn" onClick={nextStep}>
-                Continue →
-              </button>
-            ) : (
-              <button
-                className="step-next-btn"
-                onClick={createWorkspace}
-                disabled={isCreating}
-              >
-                {isCreating ? "Creating..." : "Create Workspace →"}
-              </button>
-            )}
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
           </div>
         </div>
+
+        <div className="content-shell w-full px-10">
+          <motion.div
+            className="headline-container min-h-8 mb-16"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            key={`headline-${currentStep}`}
+          >
+            <h1 className="text-3xl font-semibold tracking-[-0.04em] leading-[1.1] inline-block">
+              {typedHeadline}
+            </h1>
+          </motion.div>
+
+          <AnimatePresence mode="wait">
+            <motion.form
+              key={currentStep}
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (currentStep === "review") {
+                  createWorkspace();
+                } else {
+                  nextStep();
+                }
+              }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ delay: 0.5, duration: 0.3 }}
+            >
+              {currentStep === "name" && (
+                <div className="flex items-center gap-3">
+                  <Input
+                    autoFocus
+                    value={workspaceData.name}
+                    onChange={(event) =>
+                      updateWorkspaceData({ name: event.target.value })
+                    }
+                    type="text"
+                    placeholder="Workspace name"
+                    className="flex-1 bg-[#111111] border-white/10 text-white placeholder:text-slate-500 rounded-[16px] h-14 px-6 py-4 outline-0! ring-0! text-[16px]"
+                  />
+                </div>
+              )}
+
+              {currentStep === "domain" && (
+                <div className="rounded-[16px] bg-[#111111] border border-white/10 p-4 flex items-center gap-3">
+                  <span className="text-slate-400">https://</span>
+                  <Input
+                    className="w-full bg-transparent border-none text-lg text-white placeholder:text-slate-500 h-10"
+                    type="text"
+                    placeholder="myworkspace"
+                    value={workspaceData.domain}
+                    onChange={(event) =>
+                      updateWorkspaceData({ domain: event.target.value })
+                    }
+                  />
+                  <span className="text-slate-400">.offeriq.com</span>
+                </div>
+              )}
+
+              {currentStep === "team" && (
+                <div className="space-y-4">
+                  {workspaceData.invites.map((invite, index) => (
+                    <div
+                      key={index}
+                      className="grid gap-3 rounded-[16px] bg-[#111111] p-4"
+                    >
+                      <Input
+                        type="email"
+                        placeholder="colleague@company.com"
+                        value={invite.email}
+                        onChange={(event) =>
+                          updateInvite(index, "email", event.target.value)
+                        }
+                        className="h-14 rounded-[16px] border border-white/10 bg-[#111111] px-6 py-4 text-white text-base placeholder:text-slate-500"
+                      />
+                      <div className="flex items-center gap-3">
+                        <Select
+                          value={invite.role}
+                          onValueChange={(value) =>
+                            updateInvite(index, "role", value)
+                          }
+                        >
+                          <SelectTrigger className="flex-1 min-h-12 rounded-[16px] border border-white/10 bg-[#111111] text-white">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="min-h-10">
+                            <SelectItem value="Member">Member</SelectItem>
+                            <SelectItem value="Admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {workspaceData.invites.length > 1 && (
+                          <Button
+                            type="button"
+                            onClick={() => removeInvite(index)}
+                            variant="outline"
+                            className="rounded-full border-white/10 text-slate-400 hover:border-orange-400 hover:text-orange-400"
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    onClick={addInvite}
+                    variant="ghost"
+                    className="rounded-[18px] mt-4 bg-white/5 text-white hover:bg-white/10"
+                  >
+                    + Add another team member
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    variant="link"
+                    className="text-slate-400 underline underline-offset-4"
+                  >
+                    Skip for now
+                  </Button>
+                </div>
+              )}
+
+              {currentStep === "review" && (
+                <div className="space-y-4 rounded-[16px] bg-[#111111] p-6">
+                  <span>Workspace details</span>
+                  <div className="grid mt-4 gap-4 text-sm text-slate-300">
+                    <div className="flex justify-between rounded-2xl bg-white/5 p-4">
+                      <span>Name</span>
+                      <span>{workspaceData.name}</span>
+                    </div>
+                    <div className="flex justify-between rounded-2xl bg-white/5 p-4">
+                      <span>Domain</span>
+                      <span>https://{workspaceData.domain}.offeriq.com</span>
+                    </div>
+                    <div className="flex justify-between rounded-2xl bg-white/5 p-4">
+                      <span>Team members</span>
+                      <span>
+                        {
+                          workspaceData.invites.filter((invite) =>
+                            invite.email.trim(),
+                          ).length
+                        }{" "}
+                        invited
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <Button
+                  type="button"
+                  onClick={prevStep}
+                  disabled={currentStep === "name"}
+                  variant="outline"
+                  className="rounded-[20px] border-white/10 bg-white/5 px-7 py-4 text-sm font-semibold text-slate-200 hover:bg-white/10 disabled:opacity-40"
+                >
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    (currentStep === "name" && !workspaceData.name.trim()) ||
+                    (currentStep === "domain" && !workspaceData.domain.trim())
+                  }
+                  className="rounded-[20px] bg-[#FF9E2C] px-8 py-4 text-sm font-semibold text-black hover:bg-orange-300 disabled:opacity-50"
+                >
+                  {currentStep === "review"
+                    ? isCreating
+                      ? "Creating..."
+                      : "Create Workspace"
+                    : "Continue"}
+                </Button>
+              </div>
+            </motion.form>
+          </AnimatePresence>
+        </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes blink {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0;
+          }
+        }
+        .animate-blink {
+          animation: blink 1s infinite;
+        }
+      `}</style>
     </div>
   );
 }

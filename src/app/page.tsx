@@ -1,41 +1,43 @@
-import { getSession } from "@/auth";
-import { createAdminClient } from "@/utils/supabase/admin";
+import Link from "next/link";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Folder } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
+import { Button } from "@/components/ui/button";
 
 export default async function DashboardPage(props: {
   searchParams: Promise<{ workspace?: string }>;
 }) {
-  const session = await getSession();
-  if (!session || !session.user?.id) {
+  const { workspace } = await props.searchParams;
+
+  const requestHeaders = await headers();
+  const cookieHeader = requestHeaders.get("cookie") || undefined;
+  const host = requestHeaders.get("host");
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+    ? process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
+    : host?.includes("localhost")
+      ? `http://${host}`
+      : host
+        ? `https://${host}`
+        : "http://localhost:3000";
+
+  const response = await fetch(new URL("/api/workspaces", baseUrl), {
+    method: "GET",
+    cache: "no-store",
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+  });
+
+  if (response.status === 401) {
     redirect("/login");
   }
 
-  const { workspace } = await props.searchParams;
-
-  const supabase = createAdminClient();
-  const { data: allWorkspaces = [], error } = await supabase
-    .from("workspaces")
-    .select(
-      `
-      id,
-      name,
-      domain,
-      created_at,
-      builder_pages (
-        id,
-        name,
-        updated_at,
-        og_image_url,
-        blocks
-      )
-    `,
-    )
-    .eq("user_id", session.user.id)
-    .order("created_at", { ascending: false });
+  const result = await response.json();
+  const allWorkspaces = response.ok ? result.workspaces || [] : [];
+  const error = response.ok
+    ? null
+    : result.error || new Error("Failed to load workspaces");
 
   if (error) {
     console.error("Dashboard workspace query error:", error);
@@ -57,12 +59,19 @@ export default async function DashboardPage(props: {
       >
         <Topbar breadcrumbs={[{ label: "Workspaces" }]}>
           <WorkspaceSwitcher
-            workspaces={allWorkspaces || []}
+            workspaces={allWorkspaces}
             activeId={activeWorkspaceId}
           />
         </Topbar>
 
         <main className="flex-1 overflow-y-auto p-8">
+          {" "}
+          {error ? (
+            <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive mb-6">
+              Failed to load workspaces.{" "}
+              {error.message || "Please refresh the page."}
+            </div>
+          ) : null}{" "}
           <div className="max-w-[1600px] mx-auto flex flex-col space-y-12">
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -93,6 +102,9 @@ export default async function DashboardPage(props: {
                 <p className="text-sm text-muted-foreground mt-1 mb-6">
                   Create your first workspace to start managing campaigns.
                 </p>
+                <Link href="/onboard" className="mt-4">
+                  <Button size="lg">Create workspace</Button>
+                </Link>
               </div>
             ) : (
               <div className="space-y-12">

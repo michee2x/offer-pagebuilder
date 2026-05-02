@@ -13,11 +13,14 @@ export async function GET() {
   }
 
   console.log('GET /api/workspaces for user:', session.user.id);
-  const { data: workspaces, error } = await supabaseAdmin
+
+  // First try to get workspaces where user is owner
+  const { data: ownedWorkspaces, error: ownedError } = await supabaseAdmin
     .from('workspaces')
     .select(`
       id,
       name,
+      domain,
       created_at,
       builder_pages (
         id,
@@ -27,16 +30,82 @@ export async function GET() {
         blocks
       )
     `)
-    .eq('user_id', session.user.id)
+    .eq('owner_id', session.user.id)
     .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('GET /api/workspaces error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+  console.log('Owned workspaces query result:', {
+    count: ownedWorkspaces?.length || 0,
+    error: ownedError,
+    data: ownedWorkspaces
+  });
+
+  if (ownedError) {
+    console.error('GET /api/workspaces owned workspaces error:', ownedError);
+    return Response.json({ error: ownedError.message }, { status: 500 });
   }
 
-  console.log('GET /api/workspaces result count:', workspaces?.length ?? 0);
-  return Response.json({ workspaces });
+  // Then get workspaces where user is a member
+  const { data: memberWorkspacesData, error: memberError } = await supabaseAdmin
+    .from('workspace_members')
+    .select(`
+      workspace_id,
+      workspaces (
+        id,
+        name,
+        domain,
+        created_at,
+        builder_pages (
+          id,
+          name,
+          updated_at,
+          og_image_url,
+          blocks
+        )
+      )
+    `)
+    .eq('user_id', session.user.id);
+
+  console.log('Member workspaces query result:', {
+    count: memberWorkspacesData?.length || 0,
+    error: memberError,
+    data: memberWorkspacesData
+  });
+
+  if (memberError) {
+    console.error('GET /api/workspaces member workspaces error:', memberError);
+    return Response.json({ error: memberError.message }, { status: 500 });
+  }
+
+  // Combine and deduplicate workspaces
+  const memberWorkspaces = memberWorkspacesData
+    ?.map(item => item.workspaces)
+    .filter(Boolean) || [];
+
+  console.log('Processed member workspaces:', {
+    count: memberWorkspaces.length,
+    data: memberWorkspaces
+  });
+
+  const allWorkspaces = [...(ownedWorkspaces || []), ...memberWorkspaces];
+
+  console.log('Combined workspaces before deduplication:', {
+    count: allWorkspaces.length,
+    data: allWorkspaces
+  });
+
+  // Remove duplicates based on id
+  const uniqueWorkspaces = allWorkspaces.filter(
+    (workspace, index, self) =>
+      index === self.findIndex(w => w.id === workspace.id)
+  );
+
+  console.log('Final unique workspaces:', {
+    count: uniqueWorkspaces.length,
+    data: uniqueWorkspaces
+  });
+
+  console.log('GET /api/workspaces result count:', uniqueWorkspaces.length);
+  return Response.json({ workspaces: uniqueWorkspaces });
 }
 
 export async function POST(req: Request) {
@@ -85,7 +154,7 @@ export async function POST(req: Request) {
       .insert({
         name: name.trim(),
         domain: cleanDomain,
-        user_id: session.user.id,
+        owner_id: session.user.id,
       })
       .select()
       .single();
