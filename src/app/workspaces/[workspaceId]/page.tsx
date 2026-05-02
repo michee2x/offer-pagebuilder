@@ -159,7 +159,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             {workspace.builder_pages && workspace.builder_pages.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {workspace.builder_pages.map((funnel: any) => (
-                  
+                  <a 
                     href={`/funnels/${funnel.id}`}
                     key={funnel.id}
                     className="group block h-full"
