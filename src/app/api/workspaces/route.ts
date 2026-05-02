@@ -33,6 +33,7 @@ export async function GET() {
 
   console.log('GET /api/workspaces for user:', session.user.id);
 
+  // Ensure user exists in users table
   const { data: existingUser, error: userCheckError } = await supabaseAdmin
     .from('users')
     .select('id')
@@ -42,31 +43,34 @@ export async function GET() {
   let userId = session.user.id;
 
   if (!existingUser && !userCheckError) {
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.getUser(session.user.id);
+      // Get authenticated user data from Supabase Auth
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.getUser(session.user.id);
 
-    if (authError) {
-      console.error('Failed to get auth user:', authError);
-      return Response.json({ error: 'Failed to authenticate user' }, { status: 401 });
-    }
+      if (authError) {
+        console.error('Failed to get auth user:', authError);
+        return Response.json({ error: 'Failed to authenticate user' }, { status: 401 });
+      }
 
-    const { data: newUser, error: createUserError } = await supabaseAdmin
-      .from('users')
-      .insert({
-        id: session.user.id,
-        email: authUser.user?.email || session.user.email || '',
-        name: authUser.user?.user_metadata?.name || session.user.name || '',
-      })
-      .select('id')
-      .single();
+      // User doesn't exist in users table, create them
+      const { data: newUser, error: createUserError } = await supabaseAdmin
+        .from('users')
+        .insert({
+          id: session.user.id,
+          email: authUser.user?.email || session.user.email || '',
+          name: authUser.user?.user_metadata?.name || '',
+        })
+        .select('id')
+        .single();
 
-    if (createUserError) {
-      console.error('Failed to create user record:', createUserError);
-      console.log('Continuing without user record creation for Supabase Auth user');
-    } else if (newUser) {
-      userId = newUser.id;
-    }
+      if (createUserError) {
+        console.error('Failed to create user record:', createUserError);
+        console.log('Continuing without user record creation for Supabase Auth user');
+      } else if (newUser) {
+        userId = newUser.id;
+      }
   }
 
+  // Then get owned workspaces
   const { data: ownedWorkspaces, error: ownedError } = await supabaseAdmin
     .from('workspaces')
     .select(`
@@ -96,6 +100,7 @@ export async function GET() {
     return Response.json({ error: ownedError.message }, { status: 500 });
   }
 
+  // Then get workspaces where user is a member
   const { data: memberWorkspacesData, error: memberError } = await supabaseAdmin
     .from('workspace_members')
     .select(`
@@ -127,6 +132,7 @@ export async function GET() {
     return Response.json({ error: memberError.message }, { status: 500 });
   }
 
+  // Combine and deduplicate workspaces
   const memberWorkspaces = memberWorkspacesData
     ?.map((item: WorkspaceMemberRecord) => item.workspaces?.[0])
     .filter((workspace): workspace is WorkspaceWithPages => Boolean(workspace)) || [];
@@ -143,6 +149,7 @@ export async function GET() {
     data: allWorkspaces
   });
 
+  // Remove duplicates based on id
   const uniqueWorkspaces = allWorkspaces.filter(
     (workspace, index, self) =>
       index === self.findIndex(w => w.id === workspace.id)
@@ -198,6 +205,7 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Workspace domain is required and must be valid' }, { status: 400 });
     }
 
+    // Ensure user exists in users table
     const { data: existingUser, error: userCheckError } = await supabaseAdmin
       .from('users')
       .select('id')
@@ -207,13 +215,14 @@ export async function POST(req: Request) {
     let userId = session.user.id;
 
     if (!existingUser && !userCheckError) {
+      // User doesn't exist in users table, create them
       const { data: newUser, error: createUserError } = await supabaseAdmin
         .from('users')
         .insert({
           id: session.user.id,
           email: session.user.email || '',
           name: session.user.name || '',
-          password: '',
+          password: '', // Empty password for Supabase Auth users
         })
         .select('id')
         .single();
