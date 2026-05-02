@@ -32,13 +32,16 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
   let userId = session.user.id;
 
   if (!existingUser) {
+    // Get authenticated user data from Supabase Auth
+    const { data: authUser } = await supabase.auth.getUser(session.user.id);
+
     // User doesn't exist in users table, create them
     const { data: newUser } = await supabase
       .from("users")
       .insert({
         id: session.user.id,
-        email: session.user.email || "",
-        name: session.user.name || "",
+        email: authUser.user?.email || session.user.email || "",
+        name: authUser.user?.user_metadata?.name || "",
         password: "", // Empty password for Supabase Auth users
       })
       .select("id")
@@ -156,7 +159,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             {workspace.builder_pages && workspace.builder_pages.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {workspace.builder_pages.map((funnel: any) => (
-                  <a
+                  
                     href={`/funnels/${funnel.id}`}
                     key={funnel.id}
                     className="group block h-full"
