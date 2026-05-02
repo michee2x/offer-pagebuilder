@@ -8,6 +8,7 @@ export const runtime = "edge";
 
 export default function VerifyEmailPage() {
   const [email, setEmail] = useState("");
+  const [isVerifying, setIsVerifying] = useState(true);
   const [isResending, setIsResending] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -25,6 +26,7 @@ export default function VerifyEmailPage() {
       if (user) {
         setEmail(user.email || "");
       }
+      setIsVerifying(false);
     };
     getUser();
 
@@ -33,6 +35,7 @@ export default function VerifyEmailPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
+        setIsVerifying(true);
         router.push("/onboard");
       }
     });
@@ -78,6 +81,15 @@ export default function VerifyEmailPage() {
                 "Please request a new verification email using the button below."}
             </p>
           </>
+        ) : isVerifying ? (
+          <>
+            <p style={{ marginBottom: 16 }}>
+              Verifying your account. This should only take a moment...
+            </p>
+            <div className="verify-email-box">
+              {email || "Checking session..."}
+            </div>
+          </>
         ) : (
           <>
             <p>
@@ -91,10 +103,14 @@ export default function VerifyEmailPage() {
           type="button"
           className="btn-primary"
           onClick={handleResend}
-          disabled={isResending}
+          disabled={isResending || isVerifying}
           style={{ marginTop: 18 }}
         >
-          {isResending ? "Sending..." : "Resend verification email"}
+          {isVerifying
+            ? "Verifying..."
+            : isResending
+              ? "Sending..."
+              : "Resend verification email"}
         </button>
 
         {hasError && (

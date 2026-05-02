@@ -1,6 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 import { getSession } from '@/auth';
 
+type WorkspaceWithPages = {
+  id: any;
+  name: any;
+  domain: any;
+  created_at: any;
+  builder_pages: {
+    id: any;
+    name: any;
+    updated_at: any;
+    og_image_url: any;
+    blocks: any;
+  }[];
+};
+
+type WorkspaceMemberRecord = {
+  workspace_id: any;
+  workspaces: WorkspaceWithPages | null;
+};
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -78,8 +97,8 @@ export async function GET() {
 
   // Combine and deduplicate workspaces
   const memberWorkspaces = memberWorkspacesData
-    ?.map(item => item.workspaces)
-    .filter(Boolean) || [];
+    ?.map((item: WorkspaceMemberRecord) => item.workspaces)
+    .filter((workspace): workspace is WorkspaceWithPages => Boolean(workspace)) || [];
 
   console.log('Processed member workspaces:', {
     count: memberWorkspaces.length,
