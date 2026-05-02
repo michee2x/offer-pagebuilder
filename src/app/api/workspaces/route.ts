@@ -215,13 +215,21 @@ export async function POST(req: Request) {
     let userId = session.user.id;
 
     if (!existingUser && !userCheckError) {
+      // Get authenticated user data from Supabase Auth
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.getUser(session.user.id);
+
+      if (authError) {
+        console.error('Failed to get auth user:', authError);
+        return Response.json({ error: 'Failed to authenticate user' }, { status: 401 });
+      }
+
       // User doesn't exist in users table, create them
       const { data: newUser, error: createUserError } = await supabaseAdmin
         .from('users')
         .insert({
           id: session.user.id,
-          email: session.user.email || '',
-          name: session.user.name || '',
+          email: authUser.user?.email || session.user.email || '',
+          name: authUser.user?.user_metadata?.name || '',
           password: '', // Empty password for Supabase Auth users
         })
         .select('id')
