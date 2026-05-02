@@ -13,7 +13,6 @@ interface WorkspacePageProps {
   }>;
 }
 
-
 export default async function WorkspacePage({ params }: WorkspacePageProps) {
   const { workspaceId } = await params;
   const session = await getSession();
