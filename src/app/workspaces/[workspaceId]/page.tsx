@@ -70,7 +70,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
       .eq("user_id", session.user.id)
       .maybeSingle();
 
-    workspace = memberWorkspace?.workspaces || null;
+    workspace = memberWorkspace?.workspaces?.[0] || null;
     error = error || memberError;
   }
 
