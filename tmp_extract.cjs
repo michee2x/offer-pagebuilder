@@ -15,7 +15,7 @@ try {
     const colorCounts = {};
     colors.forEach(c => { colorCounts[c] = (colorCounts[c] || 0) + 1; });
     console.log("\nMost common colors:");
-    Object.entries(colorCounts).sort((a,b) => b[1]-a[1]).slice(0, 40).forEach(([c, count]) => console.log(`${c}: ${count}`));
+    Object.entries(colorCounts).sort((a,b) => b[1]-a[1]).slice(0, 40).forEach(([c, count]) =>                                                                                                                                                                                                                                     console.log(`${c}: ${count}`));
 
     const fonts = content.match(/font-family:\s*[^;"]+/g) || [];
     const fontCounts = {};

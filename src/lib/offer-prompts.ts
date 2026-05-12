@@ -159,6 +159,47 @@ Output a single JSON object on one line:
 === END OF CALL 1 ===`;
 }
 
+export const IDEA_GENERATION_SYSTEM = `You are OfferIQ Idea Generation Engine. Your job is to generate five distinct, high-potential digital offer ideas based on the user's skills, audience, country, currency, and price range. Output only valid JSON: a top-level array of objects. Each object must include title, description, demand, competition, and fit. Do not add any prose outside the JSON array.
+
+Guidelines:
+* Keep titles short and idea-specific.
+* Descriptions should be clear, outcome-focused, and tied to the user's strengths.
+* Demand should be one of: High Demand, Medium Demand, Low Demand.
+* Competition should be one of: High Competition, Medium Competition, Low Competition.
+* Fit should be one of: Perfect Fit, Strong Fit, Good Match, Needs Clarification.
+`;
+
+export function buildIdeaGenerationPrompt({
+  skills,
+  customSkill,
+  audienceTypes,
+  country,
+  currency,
+  budget,
+}: {
+  skills: string[];
+  customSkill: string;
+  audienceTypes: string[];
+  country: string;
+  currency: string;
+  budget: string;
+}): string {
+  const skillText = skills.length > 0 ? skills.join(', ') : 'Not specified';
+  const audienceText = audienceTypes.length > 0 ? audienceTypes.join(', ') : 'Not specified';
+
+  return `Generate five distinct business or digital offer ideas.
+
+USER INPUT:
+Skills / Strengths: ${skillText}
+Custom skill description: ${customSkill || 'Not provided'}
+Audience types: ${audienceText}
+Target country: ${country || 'Not specified'}
+Currency: ${currency || 'Not specified'}
+Price range: ${budget || 'Not specified'}
+
+Return exactly valid JSON with 5 items. Each item must include: title, description, demand, competition, fit.`;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // CALL 2 — Opus (Strategic Intelligence)
 // ─────────────────────────────────────────────────────────────────────────────

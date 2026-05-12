@@ -122,7 +122,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             { label: workspace.name },
           ]}
         >
-          <Link href={`/onboard?workspace=${workspace.id}`}>
+          <Link href={`/analyze?workspace=${workspace.id}`}>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
               Launch campaign
@@ -150,7 +150,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
                     </div>
                   </div>
                 </div>
-                <Link href={`/onboard?workspace=${workspace.id}`}>
+                <Link href={`/analyze?workspace=${workspace.id}`}>
                   <Button variant="outline">Launch campaign</Button>
                 </Link>
               </div>
@@ -159,7 +159,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             {workspace.builder_pages && workspace.builder_pages.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {workspace.builder_pages.map((funnel: any) => (
-                  <a 
+                  <a
                     href={`/funnels/${funnel.id}`}
                     key={funnel.id}
                     className="group block h-full"
@@ -214,7 +214,7 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
                 <p className="text-sm text-muted-foreground">
                   No campaigns have been created in this workspace yet.
                 </p>
-                <Link href={`/onboard?workspace=${workspace.id}`}>
+                <Link href={`/analyze?workspace=${workspace.id}`}>
                   <Button className="mt-4">Launch first campaign</Button>
                 </Link>
               </div>

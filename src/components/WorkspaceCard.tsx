@@ -90,7 +90,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
         </div>
 
         {/* Create campaign button */}
-        <Link href={`/onboard?workspace=${workspace.id}`}>
+        <Link href={`/analyze?workspace=${workspace.id}`}>
           <Button variant="outline" size="sm" className="w-full">
             <Plus className="w-4 h-4 mr-2" />
             Start campaign

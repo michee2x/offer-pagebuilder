@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,9 +42,17 @@ export default function OnboardPage() {
   const [isCreating, setIsCreating] = useState(false);
   const prevStepRef = useRef<Step>("name");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   useEffect(() => {
+    const workspaceId = searchParams.get("workspace");
+    if (workspaceId) {
+      // If workspace param exists, redirect to offer analysis form
+      router.replace(`/analyze?workspace=${workspaceId}`);
+      return;
+    }
+
     const checkAuth = async () => {
       const {
         data: { user },
@@ -56,7 +64,7 @@ export default function OnboardPage() {
     };
 
     checkAuth();
-  }, [router, supabase]);
+  }, [router, supabase, searchParams]);
 
   useEffect(() => {
     const text = stepConfig[currentStep].title;
