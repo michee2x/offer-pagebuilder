@@ -3,7 +3,8 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, ImageIcon, Loader2, Check, Link2, RefreshCw } from 'lucide-react';
+import { X, Upload, ImageIcon, Check, Link2, RefreshCw } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -135,8 +136,8 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-4 pb-3.5 border-b border-white/[0.07]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/[0.12] flex items-center justify-center ring-1 ring-sky-500/20">
-                    <ImageIcon className="w-3.5 h-3.5 text-sky-400" />
+                  <div className="w-7 h-7 rounded-lg bg-brand-yellow/[0.12] flex items-center justify-center ring-1 ring-brand-yellow/20">
+                    <ImageIcon className="w-3.5 h-3.5 text-brand-yellow" />
                   </div>
                   <span className="text-[13px] font-semibold text-white/90 tracking-tight">Replace Image</span>
                 </div>
@@ -157,7 +158,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                     className={cn(
                       'flex items-center gap-1.5 px-3 py-3 text-[12px] font-semibold border-b-2 -mb-px transition-all',
                       tab === t.id
-                        ? 'border-sky-500 text-sky-400'
+                        ? 'border-brand-yellow text-brand-yellow'
                         : 'border-transparent text-white/35 hover:text-white/65'
                     )}
                   >
@@ -178,24 +179,24 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                       onClick={() => !isUploading && fileInputRef.current?.click()}
                       className={cn(
                         'flex flex-col items-center justify-center gap-3.5 h-48 rounded-xl border-2 border-dashed transition-all select-none',
-                        isDragging  ? 'border-sky-500/70 bg-sky-500/[0.06] cursor-copy' :
+                        isDragging  ? 'border-brand-yellow/70 bg-brand-yellow/[0.06] cursor-copy' :
                         isUploading ? 'border-white/10 bg-white/[0.02] cursor-wait' :
                                       'border-white/[0.12] bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04] cursor-pointer'
                       )}
                     >
                       {isUploading ? (
                         <>
-                          <div className="w-11 h-11 rounded-full bg-sky-500/[0.12] flex items-center justify-center">
-                            <Loader2 className="w-5 h-5 text-sky-400 animate-spin" />
+                          <div className="w-11 h-11 rounded-full bg-brand-yellow/[0.12] flex items-center justify-center">
+                            <Spinner size="sm" />
                           </div>
                           <p className="text-[13px] text-white/60 font-medium">Uploading…</p>
                         </>
                       ) : isDragging ? (
                         <>
-                          <div className="w-11 h-11 rounded-full bg-sky-500/20 flex items-center justify-center">
-                            <Upload className="w-5 h-5 text-sky-400" />
+                          <div className="w-11 h-11 rounded-full bg-brand-yellow/20 flex items-center justify-center">
+                            <Upload className="w-5 h-5 text-brand-yellow" />
                           </div>
-                          <p className="text-[13px] text-sky-300 font-semibold">Drop to upload</p>
+                          <p className="text-[13px] text-brand-yellow font-semibold">Drop to upload</p>
                         </>
                       ) : (
                         <>
@@ -203,7 +204,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                             <Upload className="w-5 h-5 text-white/40" />
                           </div>
                           <div className="text-center">
-                            <p className="text-[13px] text-white/70 font-medium">Drop an image here, or <span className="text-sky-400 underline underline-offset-2">browse files</span></p>
+                            <p className="text-[13px] text-white/70 font-medium">Drop an image here, or <span className="text-brand-yellow underline underline-offset-2">browse files</span></p>
                             <p className="text-[11px] text-white/30 mt-1">PNG, JPG, GIF, WebP, SVG · max 10 MB</p>
                           </div>
                         </>
@@ -239,7 +240,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
 
                     {isLoadingRecent ? (
                       <div className="h-52 flex items-center justify-center">
-                        <Loader2 className="w-6 h-6 animate-spin text-white/25" />
+                        <Spinner size="md" color="muted" />
                       </div>
                     ) : recentFiles.length === 0 ? (
                       <div className="h-52 flex flex-col items-center justify-center gap-3">
@@ -249,7 +250,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                         <p className="text-[12px] text-white/35">No images uploaded yet</p>
                         <button
                           onClick={() => setTab('upload')}
-                          className="text-[11px] text-sky-400 hover:text-sky-300 underline underline-offset-2"
+                          className="text-[11px] text-brand-yellow hover:text-brand-yellow/80 underline underline-offset-2"
                         >Upload your first image →</button>
                       </div>
                     ) : (
@@ -262,7 +263,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                               className={cn(
                                 'relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-[1.03]',
                                 selectedRecent === file.url
-                                  ? 'border-sky-500 shadow-[0_0_0_2px_rgba(14,165,233,0.25)]'
+                                  ? 'border-brand-yellow shadow-[0_0_0_2px_rgba(245,166,35,0.25)]'
                                   : 'border-transparent hover:border-white/20'
                               )}
                             >
@@ -272,8 +273,8 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                                 className="w-full h-full object-cover bg-white/5"
                               />
                               {selectedRecent === file.url && (
-                                <div className="absolute inset-0 bg-sky-500/20 flex items-center justify-center">
-                                  <div className="w-5 h-5 rounded-full bg-sky-500 flex items-center justify-center shadow-lg">
+                                <div className="absolute inset-0 bg-brand-yellow/20 flex items-center justify-center">
+                                  <div className="w-5 h-5 rounded-full bg-brand-yellow flex items-center justify-center shadow-lg">
                                     <Check className="w-3 h-3 text-white" />
                                   </div>
                                 </div>
@@ -284,7 +285,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                         {selectedRecent && (
                           <button
                             onClick={() => onSelect(selectedRecent)}
-                            className="mt-4 w-full h-9 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white text-[13px] font-semibold rounded-lg transition-colors"
+                            className="mt-4 w-full h-9 bg-brand-yellow hover:bg-brand-yellow/90 active:scale-[0.98] text-black text-[13px] font-semibold rounded-lg transition-all"
                           >
                             Use Selected Image
                           </button>
@@ -306,7 +307,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                         onChange={(e) => setLinkUrl(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') handleLinkConfirm(); }}
                         placeholder="https://example.com/image.jpg"
-                        className="pl-8 bg-white/[0.04] border-white/[0.10] text-white placeholder:text-white/20 focus:border-sky-500/60"
+                        className="pl-8 bg-white/[0.04] border-white/[0.10] text-white placeholder:text-white/20 focus:border-brand-yellow/60"
                       />
                     </div>
                     {/* Live preview */}
@@ -325,7 +326,7 @@ export function ImagePickerModal({ open, onClose, onSelect }: ImagePickerModalPr
                     <button
                       onClick={handleLinkConfirm}
                       disabled={!linkUrl.trim()}
-                      className="w-full h-9 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 disabled:opacity-35 disabled:cursor-not-allowed text-white text-[13px] font-semibold rounded-lg transition-colors"
+                      className="w-full h-9 bg-brand-yellow hover:bg-brand-yellow/90 active:scale-[0.98] disabled:opacity-35 disabled:cursor-not-allowed text-black text-[13px] font-semibold rounded-lg transition-all"
                     >
                       Use This Image
                     </button>

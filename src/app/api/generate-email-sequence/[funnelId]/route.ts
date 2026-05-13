@@ -1,7 +1,7 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
-import type { EmailCopy, OfferFormData } from '@/lib/offer-types';
+import type { OfferFormData } from '@/lib/offer-types';
 
 export const maxDuration = 120;
 

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Loader2, ExternalLink, Globe, ArrowLeft, CheckCircle2, Zap, Share2, Copy, Check } from 'lucide-react';
+import { ExternalLink, Globe, ArrowLeft, CheckCircle2, Zap, Share2, Copy, Check } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
@@ -48,7 +49,7 @@ function DeploymentSuccessContent() {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="w-7 h-7 animate-spin text-primary" />
+        <Spinner size="md" />
       </div>
     );
   }
@@ -258,7 +259,7 @@ export default function DeploymentSuccessPage() {
   return (
     <Suspense fallback={
       <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="w-7 h-7 animate-spin text-primary" />
+        <Spinner size="md" />
       </div>
     }>
       <DeploymentSuccessContent />

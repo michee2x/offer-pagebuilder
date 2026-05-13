@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, CheckCircle } from "lucide-react";
 
-export default function IntelligenceReportPage() {
+export default function SalesIntelligencePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -55,8 +55,8 @@ export default function IntelligenceReportPage() {
             <CheckCircle className="h-4 w-4" />
             Analysis Complete
           </div>
-          <h1 className="text-4xl font-bold mb-4">
-            Your Offer Intelligence Report
+          <h1 className="text-4xl font-bold mb-4 tracking-tighter">
+            Your Sales Intelligence
           </h1>
           <p className="text-slate-400 text-lg">
             Here&apos;s what we discovered about your offer&apos;s potential

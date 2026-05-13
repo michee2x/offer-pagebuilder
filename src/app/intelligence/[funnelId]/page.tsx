@@ -11,12 +11,13 @@ import { cn } from "@/lib/utils";
 import { ScoreRadarChart } from "@/components/intelligence/charts/ScoreRadarChart";
 import { PricingBarChart } from "@/components/intelligence/charts/PricingBarChart";
 import { PlatformPieChart } from "@/components/intelligence/charts/PlatformPieChart";
-import { DesignPreviewCard } from "@/components/intelligence/charts/DesignPreviewCard";
 import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
+import { FunnelHealthChart } from "@/components/intelligence/charts/FunnelHealthChart";
+import { motion, AnimatePresence } from "framer-motion";
+import { DesignPreviewCard } from "@/components/intelligence/charts/DesignPreviewCard";
 import {
   Zap,
   ArrowRight,
-  Loader2,
   TrendingUp,
   Target,
   DollarSign,
@@ -40,8 +41,9 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Check
+  Check,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import type {
   Call2Output,
   OfferFormData,
@@ -82,25 +84,64 @@ function GenerationOverlay({
   const progressPercent = Math.min(100, Math.round((step / GEN_STEPS.length) * 100));
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center">
-      <div className="w-full max-w-sm mx-auto px-6 text-center flex flex-col items-center">
-        <div className="relative w-24 h-24 mb-8">
-           <svg className="animate-spin w-full h-full text-muted border-border" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"></circle>
-              <path className="opacity-75 text-foreground" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-           </svg>
-           <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
-             {progressPercent}%
+    <div className="fixed inset-0 z-50 bg-[#050505]/95 backdrop-blur-2xl flex flex-col items-center justify-center overflow-hidden">
+      {/* Decorative scanning line */}
+      <motion.div 
+        initial={{ top: "-10%" }}
+        animate={{ top: "110%" }}
+        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-brand-yellow/30 to-transparent z-0 opacity-30"
+      />
+      
+      <div className="w-full max-w-md mx-auto px-10 text-center flex flex-col items-center relative z-10">
+        <div className="relative w-32 h-32 mb-10">
+           {/* Outer rotating ring */}
+           <motion.div 
+             animate={{ rotate: 360 }}
+             transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+             className="absolute inset-0 rounded-full border border-brand-yellow/10 border-t-brand-yellow/50"
+           />
+           {/* Inner rotating ring */}
+           <motion.div 
+             animate={{ rotate: -360 }}
+             transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+             className="absolute inset-4 rounded-full border border-brand-yellow/20 border-b-brand-yellow"
+           />
+           
+           <div className="absolute inset-0 flex items-center justify-center">
+             <div className="flex flex-col items-center">
+               <span className="text-3xl font-bold tracking-tighter text-white">{progressPercent}%</span>
+               <span className="text-[10px] uppercase font-black tracking-widest text-brand-yellow/80">Sync</span>
+             </div>
            </div>
         </div>
         
-        <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
-          Synthesizing Intelligence
-        </h2>
-        <div className="h-6 overflow-hidden">
-           <p className="text-sm font-medium text-muted-foreground animate-pulse">
-             {step >= GEN_STEPS.length ? "Finalizing rendering..." : currentStepText}
-           </p>
+        <div className="space-y-4">
+          <h2 className="text-3xl font-bold text-white tracking-tighter">
+            Architecting <span className="text-brand-yellow">Sales Intelligence</span>
+          </h2>
+          <div className="h-6 overflow-hidden">
+             <AnimatePresence mode="wait">
+               <motion.p 
+                 key={currentStepText}
+                 initial={{ opacity: 0, y: 10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 exit={{ opacity: 0, y: -10 }}
+                 className="text-sm font-medium text-muted-foreground italic"
+               >
+                 {step >= GEN_STEPS.length ? "Finalizing rendering..." : currentStepText}
+               </motion.p>
+             </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Progress micro-bar */}
+        <div className="w-full h-1 bg-white/5 rounded-full mt-12 overflow-hidden border border-white/5">
+           <motion.div 
+             initial={{ width: 0 }}
+             animate={{ width: `${progressPercent}%` }}
+             className="h-full bg-gradient-to-r from-brand-yellow/40 to-brand-yellow"
+           />
         </div>
       </div>
     </div>
@@ -116,13 +157,13 @@ interface ReportSectionConfig {
   icon: React.ReactNode;
   color: string;
   badge?: string;
-  chartType?: "radar" | "bar" | "pie" | "design";
+  chartType?: "radar" | "bar" | "pie" | "design" | "gauge";
 }
 
 const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
   OFFER_SCORE: {
     id: "OFFER_SCORE",
-    label: "Offer Score",
+    label: "Intelligence Score",
     subheader: "A comprehensive metric evaluating market viability, audience clarity, and conversion readiness.",
     icon: <BarChart3 className="w-4 h-4" />,
     color: "text-foreground",
@@ -185,6 +226,14 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     icon: <Palette className="w-4 h-4" />,
     color: "text-foreground",
     chartType: "design"
+  },
+  FUNNEL_HEALTH_SCORE: {
+    id: "FUNNEL_HEALTH_SCORE",
+    label: "Funnel Health",
+    subheader: "Diagnostic assessment of architectural integrity, leakage points, and scaling readiness.",
+    icon: <Shield className="w-4 h-4" />,
+    color: "text-foreground",
+    chartType: "gauge"
   },
   PLATFORM_PRIORITY_MATRIX: {
     id: "PLATFORM_PRIORITY_MATRIX",
@@ -698,17 +747,18 @@ export default function IntelligencePage({
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: "56px" }}>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
         {/* Topbar */}
         <Topbar
           breadcrumbs={[
             { label: "Funnels", href: `/funnels/${funnelId}` },
             { label: funnelName || funnelId, href: `/funnels/${funnelId}` },
-            { label: "Intelligence Reports" },
+            { label: "Sales Intelligence" },
           ]}
           steps={WIZARD_STEPS}
         >
-          {phase !== "idle" && phase !== "done" && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+          {phase !== "idle" && phase !== "done" && <Spinner size="sm" />}
           
           <Button variant="outline" size="sm" onClick={handlePrintPdf} className="gap-2 print:hidden">
             <Download className="w-3.5 h-3.5" />
@@ -729,7 +779,7 @@ export default function IntelligencePage({
         {/* Hidden PDF Stacking Container for window.print() */}
         <div className="hidden print:block absolute inset-0 bg-white text-black p-8 z-50 overflow-visible h-auto max-w-none">
           <div className="mb-8 border-b pb-4">
-            <h1 className="text-3xl font-bold">{funnelName || "Intelligence Report"}</h1>
+            <h1 className="text-3xl font-bold">{funnelName || "Sales Intelligence"}</h1>
             <p className="text-gray-500 mt-2">Comprehensive Funnel Architecture & Strategic Blueprint</p>
           </div>
           {availableSections.map(sectionId => {
@@ -780,7 +830,7 @@ export default function IntelligencePage({
                       className={cn(
                         "w-full flex items-center justify-between px-3 py-2 rounded-md transition-all text-left group",
                         isActive 
-                          ? "bg-brand-yellow/10 text-brand-yellow font-medium" 
+                          ? "bg-brand-yellow/10 text-brand-yellow font-semibold shadow-[inset_0_0_0_1px_rgba(245,166,35,0.1)]" 
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
@@ -833,11 +883,16 @@ export default function IntelligencePage({
                          <h1 className="text-3xl font-bold tracking-tight text-foreground">
                            {activeConfig.label}
                          </h1>
-                         {activeConfig.badge && (
-                           <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 translate-y-[-2px]">
-                             {activeConfig.badge} Engine
-                           </span>
-                         )}
+                          {activeConfig.badge && (
+                            <span className={cn(
+                              "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border translate-y-[-2px]",
+                              activeConfig.badge === "Opus" 
+                                ? "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20" 
+                                : "bg-brand-yellow/10 text-brand-yellow/80 border-brand-yellow/20"
+                            )}>
+                              {activeConfig.badge} Engine
+                            </span>
+                          )}
                          <p className="text-sm font-medium text-muted-foreground ml-2">
                            — {activeConfig.subheader}
                          </p>
@@ -858,9 +913,12 @@ export default function IntelligencePage({
                    {activeConfig.chartType === "pie" && activeSectionId === "PLATFORM_PRIORITY_MATRIX" && (
                      <PlatformPieChart content={activeContent} />
                    )}
-                   {activeConfig.chartType === "design" && activeSectionId === "DESIGN_INTELLIGENCE_RECOMMENDATION" && (
-                     <DesignPreviewCard content={activeContent} />
-                   )}
+                    {activeConfig.chartType === "design" && activeSectionId === "DESIGN_INTELLIGENCE_RECOMMENDATION" && (
+                      <DesignPreviewCard content={activeContent} />
+                    )}
+                    {activeConfig.chartType === "gauge" && activeSectionId === "FUNNEL_HEALTH_SCORE" && (
+                      <FunnelHealthChart content={activeContent} />
+                    )}
 
                    {/* Editable Markdown Body */}
                    <div className="min-h-[250px] mb-12">

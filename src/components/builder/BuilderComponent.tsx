@@ -166,11 +166,11 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
         <div
           className={`w-full transition-all relative ${
             !isPreviewMode
-              ? "border-2 border-transparent hover:border-blue-400/60"
+              ? "border-2 border-transparent hover:border-brand-yellow/40"
               : ""
-          } ${isSelected && !selectedField ? "!border-blue-500 rounded z-10" : ""} ${
+          } ${isSelected && !selectedField ? "!border-brand-yellow rounded z-10" : ""} ${
             isSelected && selectedField
-              ? "!border-blue-300 border-dashed rounded z-10"
+              ? "!border-brand-yellow border-dashed rounded z-10"
               : ""
           }`}
         >
@@ -191,7 +191,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
                       e.stopPropagation();
                       moveComponent(id, currentIndex - 1);
                     }}
-                    className="w-[28px] h-[28px] rounded-md bg-slate-900/95 backdrop-blur-md border border-white/10 flex items-center justify-center text-slate-400 hover:bg-blue-500/15 hover:text-blue-400 hover:border-blue-500/30 transition-all"
+                    className="w-[28px] h-[28px] rounded-md bg-slate-900/95 backdrop-blur-md border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-yellow/15 hover:text-brand-yellow hover:border-brand-yellow/30 transition-all"
                     title="Move Up"
                   >
                     <ArrowUp className="w-3.5 h-3.5" />
@@ -203,7 +203,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
                       e.stopPropagation();
                       moveComponent(id, currentIndex + 1);
                     }}
-                    className="w-[28px] h-[28px] rounded-md bg-slate-900/95 backdrop-blur-md border border-white/10 flex items-center justify-center text-slate-400 hover:bg-blue-500/15 hover:text-blue-400 hover:border-blue-500/30 transition-all"
+                    className="w-[28px] h-[28px] rounded-md bg-slate-900/95 backdrop-blur-md border border-white/10 flex items-center justify-center text-slate-400 hover:bg-brand-yellow/15 hover:text-brand-yellow hover:border-brand-yellow/30 transition-all"
                     title="Move Down"
                   >
                     <ArrowDown className="w-3.5 h-3.5" />
@@ -247,7 +247,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
                   e.stopPropagation();
                   setSelected(id);
                 }}
-                className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-blue-600 border border-violet-400/40 rounded-full px-3.5 py-1 text-[11px] font-bold text-white flex items-center gap-1.5 z-30 whitespace-nowrap shadow-[0_4px_18px_rgba(139,92,246,0.4)] pointer-events-auto hover:scale-105 transition-transform backdrop-blur-sm"
+                className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 bg-brand-yellow border border-brand-yellow/40 rounded-full px-3.5 py-1 text-[11px] font-black text-black flex items-center gap-1.5 z-30 whitespace-nowrap shadow-[0_4px_18px_rgba(245,166,35,0.4)] pointer-events-auto hover:scale-105 transition-transform backdrop-blur-sm"
               >
                 <Bot className="w-3.5 h-3.5" /> ✨ Edit with AI
               </button>
@@ -301,7 +301,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
                       setPickerOpen(true);
                     }}
                   >
-                    <ImageIcon className="w-3.5 h-3.5 text-sky-400" />
+                    <ImageIcon className="w-3.5 h-3.5 text-brand-yellow" />
                     Replace Image
                   </button>
                 </div>
@@ -313,7 +313,7 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
           {isSelected && selectedField && !isPreviewMode && (
             <style>{`
               [data-field="${selectedField}"] {
-                outline: 2px solid #3b82f6 !important;
+                outline: 2px solid #f5a623 !important;
                 outline-offset: 4px;
                 border-radius: 4px;
                 position: relative;

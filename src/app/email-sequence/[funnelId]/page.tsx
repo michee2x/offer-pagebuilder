@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import {
-  Mail, Zap, Loader2, Copy, Check, RefreshCw, ChevronDown, ChevronUp,
+  Mail, Zap, Copy, Check, RefreshCw, ChevronDown, ChevronUp,
   Clock, Eye, MousePointer, DollarSign, AlertTriangle, Sparkles, ArrowRight,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import type { EmailCopy } from '@/lib/offer-types';
@@ -192,7 +193,7 @@ function EmptyState({ onGenerate, generating }: { onGenerate: () => void; genera
         disabled={generating}
         className="gap-2 font-semibold"
       >
-        {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+        {generating ? <Spinner size="sm" color="white" /> : <Sparkles className="w-4 h-4" />}
         Generate Email Sequence
       </Button>
     </div>
@@ -271,7 +272,7 @@ export default function EmailSequencePage({
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <Spinner size="md" color="muted" />
       </div>
     );
   }
@@ -282,7 +283,8 @@ export default function EmailSequencePage({
     <div className="flex h-screen overflow-hidden bg-background">
       <GenerationOverlay visible={isLoading} streamText={completion} />
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
         <Topbar
           breadcrumbs={[
             { label: 'Funnels', href: `/funnels/${funnelId}` },

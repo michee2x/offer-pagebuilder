@@ -7,9 +7,7 @@ import { ThemeSwitcher } from "@/components/builder/ThemeSwitcher";
 import { SectionLibraryModal } from "@/components/builder/SectionLibraryModal";
 import { AiStreamBoard } from "@/components/builder/AiStreamBoard";
 import { useBuilderStore } from "@/store/builderStore";
-import { Button } from "@/components/ui/button";
 import {
-  Loader2,
   Wand2,
   Monitor,
   Tablet,
@@ -24,16 +22,14 @@ import {
   Save,
   Edit2,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { LeftPanel } from "@/components/builder/LeftPanel";
-import { cn } from "@/lib/utils";
 
 export default function BuilderPage() {
   const {
-    addComponent,
-    moveComponent,
     setFullState,
     components,
     rootList,
@@ -50,7 +46,6 @@ export default function BuilderPage() {
     setHasUnsavedChanges,
     pages,
     activePagePath,
-    switchPage,
     funnelName,
     setFunnelName,
     undo,
@@ -60,10 +55,8 @@ export default function BuilderPage() {
   } = useBuilderStore();
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [streamText, setStreamText] = React.useState("");
-  const [isSaving, setIsSaving] = React.useState(false);
-  const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
-  const [copied, setCopied] = React.useState(false);
   const [initialLoading, setInitialLoading] = React.useState(true);
+  const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
   const [hasIntelligence, setHasIntelligence] = React.useState(false);
 
   React.useEffect(() => {
@@ -172,7 +165,7 @@ export default function BuilderPage() {
         setInitialLoading(false);
       }
     }
-  }, [setPageId, setFullState, setFunnelName]);
+  }, [setPageId, setFullState, setFunnelName, setTheme, setInitialLoading]);
 
   // No more DND sensors or event handlers needed
 
@@ -451,7 +444,7 @@ export default function BuilderPage() {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <Spinner size="lg" />
           <p className="text-sm text-muted-foreground animate-pulse">
             Loading workspace...
           </p>
@@ -465,11 +458,8 @@ export default function BuilderPage() {
       {/* Sidebar is fixed-positioned — renders itself, just mount it */}
       <Sidebar />
 
-      {/* Main content offset by sidebar icon strip width (w-14 = 56px) */}
-      <div
-        className="flex-1 flex flex-col min-w-0 overflow-hidden"
-        style={{ marginLeft: "56px" }}
-      >
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Navigation Bar */}
         <Topbar
           breadcrumbs={[
@@ -581,7 +571,7 @@ export default function BuilderPage() {
               className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Spinner size="sm" />
               ) : (
                 <Wand2 className="w-4 h-4" />
               )}
@@ -605,7 +595,7 @@ export default function BuilderPage() {
               className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed relative"
             >
               {isSaving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Spinner size="sm" />
               ) : hasUnsavedChanges ? (
                 <Save className="w-4 h-4 text-primary" />
               ) : (
@@ -637,9 +627,8 @@ export default function BuilderPage() {
           {/* LeftPanel is absolutely positioned — overlays the canvas */}
           {!isPreviewMode && <LeftPanel />}
           {/* Canvas fills full width — left padding reserves space for the icon strip */}
-          <div
-            className={cn("flex-1 overflow-hidden", !isPreviewMode && "pl-14")}
-          >
+          <div className="flex-1 overflow-hidden">
+
             <Canvas />
           </div>
           {!isPreviewMode && <RightPanel />}

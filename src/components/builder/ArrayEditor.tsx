@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Plus, Trash2, GripVertical, Upload, Loader2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, Trash2, GripVertical, Upload } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 
 interface ArrayEditorProps {
@@ -136,7 +137,7 @@ export function ArrayEditor({ label, items, arrayFields, onChange }: ArrayEditor
             }`}
           >
             {isUploading ? (
-              <><Loader2 className="w-3 h-3 animate-spin" /> Uploading…</>
+              <><Spinner size="sm" /> Uploading…</>
             ) : (
               <><Upload className="w-3 h-3" /> {value ? 'Change' : 'Upload'}</>
             )}

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, Loader2, Wand2 } from 'lucide-react';
+import { Check, Wand2 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 
 interface AiStreamBoardProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
                   isPending && 'border-border',
                 ].filter(Boolean).join(' ')}>
                   {isDone   && <Check className="w-3 h-3" />}
-                  {isActive && <Loader2 className="w-3 h-3 text-primary animate-spin" />}
+                  {isActive && <Spinner size="sm" />}
                 </div>
 
                 {/* Label */}

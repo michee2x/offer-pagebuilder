@@ -22,9 +22,26 @@ interface TopbarProps {
   children?: React.ReactNode;
 }
 
+import { useUIStore } from '@/store/uiStore';
+
 export function Topbar({ breadcrumbs, steps, actions, children }: TopbarProps) {
+  const toggleSidebar = useUIStore((state) => state.toggleSidebar);
+
   return (
-    <header className="h-14 bg-background border-b border-border flex items-center px-6 gap-4 shrink-0 z-10 w-full relative">
+    <header className="h-14 bg-background border-b border-border flex items-center px-4 gap-4 shrink-0 z-50 w-full relative">
+      {/* Menu Toggle */}
+      <button 
+        onClick={toggleSidebar}
+        className="flex flex-col gap-1 px-2 py-3 cursor-pointer group" 
+        aria-label="Toggle Menu"
+      >
+        <span className="w-5 h-0.5 bg-muted-foreground group-hover:bg-foreground transition-colors rounded-full" />
+        <span className="w-5 h-0.5 bg-muted-foreground group-hover:bg-foreground transition-colors rounded-full" />
+        <span className="w-3 h-0.5 bg-muted-foreground group-hover:bg-foreground transition-colors rounded-full" />
+      </button>
+
+      <div className="w-px h-6 bg-border mx-1" />
+
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground whitespace-nowrap overflow-hidden min-w-0 shrink">
         {breadcrumbs.map((bc, i) => (

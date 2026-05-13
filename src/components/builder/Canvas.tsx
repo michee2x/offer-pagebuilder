@@ -148,8 +148,8 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
                   className="h-8 flex items-center justify-center relative opacity-0 hover:opacity-100 peer-hover:opacity-100 transition-opacity z-[90] cursor-pointer"
                   onClick={() => dispatchSectionModal(0)}
                 >
-                  <div className="absolute left-0 right-0 top-1/2 h-px bg-blue-500/35"></div>
-                  <button className="relative z-10 bg-blue-500 rounded-full px-3.5 py-1 text-[11px] font-bold text-white flex items-center gap-1.5 transition-all hover:bg-blue-600 hover:shadow-[0_4px_12px_rgba(59,130,246,0.4)]">
+                  <div className="absolute left-0 right-0 top-1/2 h-px bg-brand-yellow/35"></div>
+                  <button className="relative z-10 bg-brand-yellow rounded-full px-3.5 py-1 text-[11px] font-bold text-black flex items-center gap-1.5 transition-all hover:bg-brand-yellow/90 hover:shadow-[0_4px_12px_rgba(245,166,35,0.4)]">
                     <Plus className="w-3.5 h-3.5" /> Insert Section
                   </button>
                 </div>
@@ -162,8 +162,8 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
                       className="h-8 flex items-center justify-center relative opacity-0 hover:opacity-100 peer-hover:opacity-100 transition-opacity z-[90] cursor-pointer"
                       onClick={() => dispatchSectionModal(idx + 1)}
                     >
-                      <div className="absolute left-0 right-0 top-1/2 h-px bg-blue-500/35"></div>
-                      <button className="relative z-10 bg-blue-500 rounded-full px-3.5 py-1 text-[11px] font-bold text-white flex items-center gap-1.5 transition-all hover:bg-blue-600 hover:shadow-[0_4px_12px_rgba(59,130,246,0.4)]">
+                      <div className="absolute left-0 right-0 top-1/2 h-px bg-brand-yellow/35"></div>
+                      <button className="relative z-10 bg-brand-yellow rounded-full px-3.5 py-1 text-[11px] font-bold text-black flex items-center gap-1.5 transition-all hover:bg-brand-yellow/90 hover:shadow-[0_4px_12px_rgba(245,166,35,0.4)]">
                         <Plus className="w-3.5 h-3.5" /> Insert Section
                       </button>
                     </div>

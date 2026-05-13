@@ -36,7 +36,8 @@ export default async function LeadsPage({ params }: Props) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
         <Topbar
           breadcrumbs={[
             { label: 'Workspaces', href: '/' },

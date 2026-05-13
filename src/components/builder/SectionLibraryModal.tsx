@@ -58,10 +58,10 @@ const SectionCard = memo(function SectionCard({
   return (
     <div
       onClick={onInsert}
-      className="group relative border border-border/50 bg-background rounded-xl p-3 cursor-pointer hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 transition-all overflow-hidden flex flex-col"
+      className="group relative border border-border/50 bg-background rounded-xl p-3 cursor-pointer hover:border-brand-yellow/50 hover:shadow-xl hover:shadow-brand-yellow/5 transition-all overflow-hidden flex flex-col"
     >
       {/* Skeleton preview */}
-      <div className="aspect-[16/9] w-full bg-background rounded-lg mb-3 flex flex-col relative overflow-hidden border border-border/30 group-hover:border-blue-500/20 transition-colors">
+      <div className="aspect-[16/9] w-full bg-background rounded-lg mb-3 flex flex-col relative overflow-hidden border border-border/30 group-hover:border-brand-yellow/20 transition-colors">
         <div className="absolute inset-0 overflow-hidden">
           {skeleton ?? (
             // Generic fallback if no skeleton defined
@@ -74,15 +74,15 @@ const SectionCard = memo(function SectionCard({
         </div>
 
         {/* Hover-insert CTA overlay */}
-        <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200">
-          <div className="bg-blue-500 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 shadow-lg transform translate-y-3 group-hover:translate-y-0 transition-transform duration-200">
+        <div className="absolute inset-0 bg-brand-yellow/0 group-hover:bg-brand-yellow/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200">
+          <div className="bg-brand-yellow text-black px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 shadow-lg transform translate-y-3 group-hover:translate-y-0 transition-transform duration-200">
             <PlusCircle className="w-4 h-4" /> Insert
           </div>
         </div>
       </div>
 
       <div>
-        <h3 className="font-semibold text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+        <h3 className="font-semibold text-sm group-hover:text-brand-yellow transition-colors">
           {conf.label}
         </h3>
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
@@ -188,7 +188,7 @@ export function SectionLibraryModal() {
         {/* Sidebar */}
         <div className="w-52 border-r border-border/50 bg-muted/20 p-4 shrink-0 flex flex-col gap-1.5 overflow-y-auto">
           <h2 className="font-semibold px-2 mb-4 text-sm flex items-center gap-2 text-foreground">
-            <LayoutTemplate className="w-4 h-4 text-blue-500" /> Block Library
+            <LayoutTemplate className="w-4 h-4 text-brand-yellow" /> Block Library
           </h2>
           {Object.keys(CATEGORIES).map((label) => (
             <button
@@ -198,7 +198,7 @@ export function SectionLibraryModal() {
               className={`text-left px-3 py-2 text-sm rounded-md font-medium transition-colors ${
                 CATEGORIES[label as keyof typeof CATEGORIES] ===
                 selectedCategory
-                  ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                  ? "bg-brand-yellow/10 text-brand-yellow"
                   : "hover:bg-muted/50 text-muted-foreground"
               }`}
             >

@@ -278,3 +278,100 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid request' }, { status: 400 });
   }
 }
+
+export async function DELETE(req: Request) {
+  const session = await getSession();
+  if (!session || !session.user?.id) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    return Response.json({ error: 'Workspace ID is required' }, { status: 400 });
+  }
+
+  try {
+    const { data: workspace, error: fetchError } = await supabaseAdmin
+      .from('workspaces')
+      .select('id, user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !workspace) {
+      return Response.json({ error: 'Workspace not found' }, { status: 404 });
+    }
+
+    if (workspace.user_id !== session.user.id) {
+      const { data: legacyWorkspace } = await supabaseAdmin
+        .from('workspaces')
+        .select('owner_id')
+        .eq('id', id)
+        .single();
+      
+      if (legacyWorkspace?.owner_id !== session.user.id) {
+        return Response.json({ error: 'Forbidden: You must be the owner to delete this workspace' }, { status: 403 });
+      }
+    }
+
+    const { error: deleteError } = await supabaseAdmin
+      .from('workspaces')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      return Response.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    return Response.json({ success: true });
+  } catch (e: any) {
+    return Response.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: Request) {
+  const session = await getSession();
+  if (!session || !session.user?.id) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const { id, name, domain } = body;
+
+    if (!id) {
+      return Response.json({ error: 'Workspace ID is required' }, { status: 400 });
+    }
+
+    // Verify ownership
+    const { data: workspace, error: fetchError } = await supabaseAdmin
+      .from('workspaces')
+      .select('id, user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !workspace) {
+      return Response.json({ error: 'Workspace not found' }, { status: 404 });
+    }
+
+    if (workspace.user_id !== session.user.id) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { data: updated, error } = await supabaseAdmin
+      .from('workspaces')
+      .update({ name, domain: domain.toLowerCase() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json({ workspace: updated });
+  } catch (e: any) {
+    return Response.json({ error: 'Invalid request' }, { status: 400 });
+  }
+}

@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
 type Step = "name" | "domain" | "team" | "review";
 
@@ -45,14 +46,9 @@ export default function OnboardPage() {
   const searchParams = useSearchParams();
   const supabase = createClient();
 
-  useEffect(() => {
-    const workspaceId = searchParams.get("workspace");
-    if (workspaceId) {
-      // If workspace param exists, redirect to offer analysis form
-      router.replace(`/analyze?workspace=${workspaceId}`);
-      return;
-    }
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
     const checkAuth = async () => {
       const {
         data: { user },
@@ -60,11 +56,22 @@ export default function OnboardPage() {
 
       if (!user) {
         router.push("/login");
+        return;
       }
+
+      const workspaceId = searchParams.get("workspace");
+      if (workspaceId) {
+        // If workspace param exists, redirect to offer analysis form
+        router.replace(`/analyze?workspace=${workspaceId}`);
+        return;
+      }
+
+      setIsLoading(false);
     };
 
     checkAuth();
   }, [router, supabase, searchParams]);
+
 
   useEffect(() => {
     const text = stepConfig[currentStep].title;
@@ -190,8 +197,28 @@ export default function OnboardPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0e0e0e] text-white flex flex-col items-center justify-center p-4">
+        <div className="relative">
+          <div className="absolute inset-0 blur-3xl bg-brand-yellow/10 rounded-full animate-pulse"></div>
+          <div className="relative bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-12 flex flex-col items-center gap-6 shadow-2xl">
+            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center text-white border border-white/10 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-brand-yellow/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <Spinner size="md" />
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <h2 className="text-xl font-semibold tracking-tight text-white">Preparing your workspace</h2>
+              <p className="text-slate-400 text-sm">Getting everything ready for you...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-[640px] relative">
         <div className="absolute -top-16 left-10">
           <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-black shadow-lg">
@@ -248,13 +275,12 @@ export default function OnboardPage() {
                     }
                     type="text"
                     placeholder="Workspace name"
-                    className="flex-1 bg-[#111111] border-white/10 text-white placeholder:text-slate-500 rounded-[16px] h-14 px-6 py-4 outline-0! ring-0! text-[16px]"
                   />
                 </div>
               )}
 
               {currentStep === "domain" && (
-                <div className="rounded-[16px] bg-[#111111] border border-white/10 p-4 flex items-center gap-3">
+                <div className="rounded-[16px] bg-[#0a0a0a] border border-white/10 p-4 flex items-center gap-3">
                   <span className="text-slate-400">https://</span>
                   <Input
                     className="w-full bg-transparent border-none text-lg text-white placeholder:text-slate-500 h-10"
@@ -274,7 +300,7 @@ export default function OnboardPage() {
                   {workspaceData.invites.map((invite, index) => (
                     <div
                       key={index}
-                      className="grid gap-3 rounded-[16px] bg-[#111111] p-4"
+                      className="grid gap-3 rounded-[16px] bg-[#0a0a0a] p-4"
                     >
                       <Input
                         type="email"
@@ -283,7 +309,6 @@ export default function OnboardPage() {
                         onChange={(event) =>
                           updateInvite(index, "email", event.target.value)
                         }
-                        className="h-14 rounded-[16px] border border-white/10 bg-[#111111] px-6 py-4 text-white text-base placeholder:text-slate-500"
                       />
                       <div className="flex items-center gap-3">
                         <Select
@@ -292,7 +317,7 @@ export default function OnboardPage() {
                             updateInvite(index, "role", value)
                           }
                         >
-                          <SelectTrigger className="flex-1 min-h-12 rounded-[16px] border border-white/10 bg-[#111111] text-white">
+                          <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="min-h-10">
@@ -333,7 +358,7 @@ export default function OnboardPage() {
               )}
 
               {currentStep === "review" && (
-                <div className="space-y-4 rounded-[16px] bg-[#111111] p-6">
+                <div className="space-y-4 rounded-[16px] bg-[#0a0a0a] p-6">
                   <span>Workspace details</span>
                   <div className="grid mt-4 gap-4 text-sm text-slate-300">
                     <div className="flex justify-between rounded-2xl bg-white/5 p-4">

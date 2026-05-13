@@ -52,7 +52,7 @@ function MetricCard({
   change?: number;
 }) {
   return (
-    <div className="bg-[#1B1D2C] border border-white/5 rounded-2xl p-5 flex flex-col gap-3">
+    <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between text-white/50">
         <p className="text-xs font-semibold">{label}</p>
         <Icon className={`w-4 h-4 ${iconColor}`} />
@@ -79,9 +79,9 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
   const maxCountry = Math.max(...data.countries.map(c => c.count), 1);
 
   const deviceData = [
-    { name: "Desktop", count: data.desktopViews, fill: "#3b82f6" },
-    { name: "Mobile",  count: data.mobileViews,  fill: "#8b5cf6" },
-    { name: "Tablet",  count: data.tabletViews,  fill: "#10b981" },
+    { name: "Desktop", count: data.desktopViews, fill: "#f5a623" },
+    { name: "Mobile",  count: data.mobileViews,  fill: "#d1d5db" },
+    { name: "Tablet",  count: data.tabletViews,  fill: "#374151" },
   ].filter(d => d.count > 0);
 
   // Funnel drop-off — relative to first step
@@ -96,14 +96,14 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
           label="7-Day Page Views"
           value={data.pageViews.toLocaleString()}
           icon={Eye}
-          iconColor="text-sky-400"
+          iconColor="text-brand-yellow"
           change={data.pageViewsChange}
         />
         <MetricCard
           label="Unique Visitors"
           value={data.uniqueVisitors.toLocaleString()}
           icon={Users}
-          iconColor="text-violet-400"
+          iconColor="text-white/60"
           change={data.uniqueVisitorsChange}
         />
         <MetricCard
@@ -126,7 +126,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
         {/* World map */}
-        <div className="xl:col-span-2 bg-[#1B1D2C] border border-white/5 rounded-2xl p-6 relative flex flex-col overflow-hidden">
+        <div className="xl:col-span-2 bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 relative flex flex-col overflow-hidden">
           <div className="flex items-center justify-between mb-4 z-10">
             <div>
               <p className="text-sm font-semibold text-white/90">Global Traffic Distribution</p>
@@ -144,18 +144,18 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                       const found = data.countries.find(c => c.country === name);
                       const intensity = found ? found.count / maxCountry : 0;
                       const fill = intensity > 0
-                        ? `rgba(59, 130, 246, ${Math.max(0.25, intensity)})`
-                        : "#2A2D43";
+                        ? `rgba(245, 166, 35, ${Math.max(0.25, intensity)})`
+                        : "#1a1a1a";
                       return (
                         <Geography
                           key={geo.rsmKey}
                           geography={geo}
                           fill={fill}
-                          stroke="#1B1D2C"
+                          stroke="#0a0a0a"
                           strokeWidth={0.5}
                           style={{
                             default: { outline: "none" },
-                            hover:   { fill: "#60a5fa", outline: "none" },
+                            hover:   { fill: "#f5a623", outline: "none" },
                             pressed: { outline: "none" },
                           }}
                         />
@@ -165,7 +165,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                 </Geographies>
               </ZoomableGroup>
             </ComposableMap>
-            <div className="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_60px_rgba(27,29,44,1)]" />
+            <div className="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_60px_rgba(10,10,10,1)]" />
           </div>
           <div className="absolute bottom-6 right-6 text-right z-10">
             <p className="text-3xl font-black text-white">{data.pageViews.toLocaleString()}</p>
@@ -176,7 +176,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
         {/* Charts column */}
         <div className="flex flex-col gap-4">
           {/* Traffic quality donut */}
-          <div className="bg-[#1B1D2C] border border-white/5 rounded-2xl p-4 flex flex-col h-50">
+          <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-4 flex flex-col h-50">
             <p className="text-xs font-semibold text-white/80 mb-2">Traffic Quality</p>
             <div className="flex-1 relative">
               {hasViews ? (
@@ -185,7 +185,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                     <Pie data={data.tiers} innerRadius={30} outerRadius={50} paddingAngle={5} dataKey="value" stroke="none">
                       {data.tiers.map((t, i) => <Cell key={i} fill={t.color} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: "#1B1D2C", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} />
+                    <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
@@ -213,7 +213,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                   <BarChart data={deviceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <XAxis dataKey="name" tick={{ fontSize: 9, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 9, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
-                    <Tooltip cursor={{ fill: "rgba(255,255,255,0.05)" }} contentStyle={{ backgroundColor: "#1B1D2C", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} />
+                    <Tooltip cursor={{ fill: "rgba(255,255,255,0.05)" }} contentStyle={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} />
                     <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={40}>
                       {deviceData.map((d, i) => <Cell key={i} fill={d.fill} />)}
                     </Bar>
@@ -231,7 +231,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Traffic blast */}
-        <div className="bg-[#1B1D2C] border border-white/5 rounded-2xl p-5">
+        <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5">
           <p className="text-sm font-semibold text-white mb-4">Traffic Blast</p>
           <div className="space-y-1">
             <div className="grid grid-cols-3 text-[10px] font-bold text-white/30 uppercase mb-2">
@@ -255,7 +255,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
         </div>
 
         {/* Funnel step drop-off */}
-        <div className="bg-[#1B1D2C] border border-white/5 rounded-2xl p-5">
+        <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5">
           <p className="text-sm font-semibold text-white mb-4">Funnel Drop-off</p>
           {data.pageBreakdown.length > 0 ? (
             <div className="flex flex-col gap-3">
@@ -269,7 +269,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                     </div>
                     <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-linear-to-r from-violet-500 to-blue-500 transition-all duration-700"
+                        className="h-full rounded-full bg-linear-to-r from-brand-yellow/60 to-brand-yellow transition-all duration-700"
                         style={{ width: `${dropPct}%` }}
                       />
                     </div>
@@ -307,12 +307,12 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
         </div>
 
         {/* Recent leads */}
-        <div className="bg-[#1B1D2C] border border-white/5 rounded-2xl p-5 flex flex-col">
+        <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm font-semibold text-white">Recent Leads</p>
             <Link
               href={`/funnels/${funnelId}/leads`}
-              className="text-[10px] font-semibold text-violet-400 hover:text-violet-300 transition-colors"
+              className="text-[10px] font-semibold text-brand-yellow hover:text-brand-yellow/80 transition-colors"
             >
               View all →
             </Link>
@@ -321,7 +321,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
             <div className="flex flex-col gap-1 flex-1">
               {data.recentLeads.map((lead, i) => (
                 <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
-                  <div className="w-7 h-7 rounded-full bg-violet-500/20 text-violet-400 flex items-center justify-center text-[10px] font-black shrink-0 uppercase">
+                  <div className="w-7 h-7 rounded-full bg-brand-yellow/10 text-brand-yellow flex items-center justify-center text-[10px] font-black shrink-0 uppercase">
                     {lead.name.slice(0, 2)}
                   </div>
                   <div className="flex-1 min-w-0">

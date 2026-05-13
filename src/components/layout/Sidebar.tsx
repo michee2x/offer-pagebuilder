@@ -14,8 +14,12 @@ import {
   Zap,
   FileText,
   LogOut,
+  Brain,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUIStore } from "@/store/uiStore";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarLink {
   label: string;
@@ -28,16 +32,9 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const { isSidebarOpen, setSidebarOpen } = useUIStore();
 
   const getFunnelId = () => {
-    if (pathname === "/builder" || pathname?.startsWith("/builder/")) {
-      // In a client component we could use searchParams, but let's just
-      // rely on it if we can extract it. Since we don't have useSearchParams
-      // here to keep it simple, we might not show funnel sidebar on '/builder?id='
-      // without converting it or using window.location.
-      // We will add logic for paths we know.
-      return null;
-    }
     const parts = pathname?.split("/") || [];
     if (parts.length >= 3) {
       if (
@@ -73,7 +70,7 @@ export function Sidebar() {
         {
           label: "Sales Copy",
           href: `/copy/${funnelId}`,
-          icon: FileText || Filter,
+          icon: FileText,
         },
         {
           label: "Email Sequence",
@@ -85,7 +82,7 @@ export function Sidebar() {
           href: `/traffic/${funnelId}`,
           icon: LineChart,
         },
-        { label: "Sales Report", href: `/intelligence/${funnelId}`, icon: Zap },
+        { label: "Sales Intelligence", href: `/intelligence/${funnelId}`, icon: Brain },
       ]
     : [
         { label: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -93,7 +90,7 @@ export function Sidebar() {
       ];
 
   const accountLinks: SidebarLink[] = [
-    { label: "Settings", href: "#", icon: Settings },
+    { label: "Settings", href: "/settings", icon: Settings },
   ];
 
   const accountActions = [
@@ -117,152 +114,138 @@ export function Sidebar() {
   };
 
   return (
-    /* Fixed overlay sidebar — icon strip always shows (w-14), 
-       expands to w-56 on hover and floats OVER the canvas */
-    <aside className="fixed left-0 top-0 h-full z-50 flex flex-col overflow-hidden group transition-[width] duration-200 ease-out w-14 hover:w-56 bg-background border-r border-border hover:shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-[14px] h-14 shrink-0 overflow-hidden text-foreground hover:bg-muted cursor-pointer">
-        <div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-          <Zap className="w-3.5 h-3.5" />
-        </div>
-        <span className="font-bold text-base tracking-tight whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-          Offer<span className="text-primary">IQ</span>
-        </span>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden flex flex-col gap-0.5">
-        <div className="h-5 px-[18px] mb-1 flex items-center">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap">
-            {funnelId ? "Funnel Menu" : "Workspace"}
-          </span>
-        </div>
-
-        {links.map((item, i) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={i}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-[14px] h-9 overflow-hidden whitespace-nowrap transition-colors",
-                active
-                  ? "text-foreground bg-muted"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              <item.icon
-                className={cn("w-4 h-4 shrink-0", active && "text-primary")}
-              />
-              <div className="flex-1 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-150 min-w-0">
-                <span className="text-sm font-medium truncate">
-                  {item.label}
-                </span>
-                {item.badge && (
-                  <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
-                    {item.badge}
-                  </span>
-                )}
-              </div>
-            </Link>
-          );
-        })}
-
-        <div className="h-5 px-[18px] mt-4 mb-1 flex items-center">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap">
-            Account
-          </span>
-        </div>
-
-        {accountLinks.map((item, i) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={i}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-[14px] h-9 overflow-hidden whitespace-nowrap transition-colors",
-                active
-                  ? "text-foreground bg-muted"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              <item.icon className="w-4 h-4 shrink-0" />
-              <span className="text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap">
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
-
-        {accountActions.map((action, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={action.onClick}
-            className={cn(
-              "flex items-center gap-3 px-[14px] h-9 w-full text-left overflow-hidden whitespace-nowrap transition-colors text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            <action.icon className="w-4 h-4 shrink-0" />
-            <span className="text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap">
-              {action.label}
-            </span>
-          </button>
-        ))}
-      </nav>
-
-      {/* Pro card — fades in when sidebar is open, fixed width so it never reflows */}
-      <div className="px-2 pb-1 overflow-hidden shrink-0">
-        <div
-          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 relative rounded-xl overflow-hidden"
-          style={{ width: 196, height: 110 }}
-        >
-          {/* Unsplash background image — vivid aurora/neon gradient */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80&fit=crop&crop=center"
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover"
+    <AnimatePresence>
+      {isSidebarOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
           />
-          {/* Subtle dark overlay for text readability only */}
-          <div className="absolute inset-0 bg-black/35" />
-          {/* Content */}
-          <div className="relative z-10 p-3 h-full flex flex-col justify-between">
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-widest text-white/80 mb-0.5">
-                OfferIQ Pro
-              </p>
-              <p className="text-white font-bold text-[12px] leading-tight drop-shadow-sm">
-                Unlock split testing &amp;
-                <br />
-                custom domains
-              </p>
-            </div>
-            <button className="self-start text-[9px] font-bold bg-white/25 hover:bg-white/40 text-white px-2.5 py-0.5 rounded-full transition-colors border border-white/30 whitespace-nowrap">
-              Try Pro →
-            </button>
-          </div>
-        </div>
-      </div>
 
-      {/* Footer */}
-      <div className="p-2 border-t border-border shrink-0">
-        <div className="flex items-center gap-3 px-[10px] py-1.5 rounded-md cursor-pointer overflow-hidden hover:bg-muted transition-colors">
-          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">
-            SC
-          </div>
-          <div className="flex flex-col min-w-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-            <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-              Sarah Chen
-            </span>
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              Pro Plan
-            </span>
-          </div>
-        </div>
-      </div>
-    </aside>
+          {/* Sidebar */}
+          <motion.aside
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed left-0 top-0 h-full w-[280px] bg-[#0c0c0c] border-r border-white/5 z-[70] flex flex-col shadow-2xl"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 h-14 border-b border-white/5 bg-[#0c0c0c]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-brand-yellow flex items-center justify-center text-black">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <span className="font-bold text-lg tracking-tight text-white">
+                  Offer<span className="text-brand-yellow">IQ</span>
+                </span>
+              </div>
+              <button 
+                onClick={() => setSidebarOpen(false)}
+                className="p-1 rounded-full hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <nav className="flex-1 py-6 overflow-y-auto px-4 space-y-1">
+              <div className="px-3 mb-2 flex items-center">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                  {funnelId ? "Funnel Menu" : "Workspace"}
+                </span>
+              </div>
+
+              {links.map((item, i) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={i}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-3 h-11 rounded-xl transition-all group",
+                      active
+                        ? "bg-brand-yellow/10 text-brand-yellow"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <item.icon className={cn("w-5 h-5 shrink-0", active ? "text-brand-yellow" : "text-slate-500 group-hover:text-white")} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                    {item.badge && (
+                      <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-yellow text-black">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+
+              <div className="pt-6 px-3 mb-2 flex items-center border-t border-white/5 mt-6">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                  Account
+                </span>
+              </div>
+
+              {accountLinks.map((item, i) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={i}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-3 h-11 rounded-xl transition-all text-slate-400 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <item.icon className="w-5 h-5 shrink-0 text-slate-500" />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </Link>
+                );
+              })}
+
+              {accountActions.map((action, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => {
+                    action.onClick();
+                    setSidebarOpen(false);
+                  }}
+                  className="flex items-center gap-3 px-3 h-11 w-full text-left rounded-xl transition-all text-slate-400 hover:bg-white/5 hover:text-white"
+                >
+                  <action.icon className="w-5 h-5 shrink-0 text-slate-500" />
+                  <span className="text-sm font-medium">{action.label}</span>
+                </button>
+              ))}
+            </nav>
+
+            {/* Footer / Pro Card */}
+            <div className="p-4 mt-auto">
+              <div className="relative rounded-2xl overflow-hidden aspect-[16/10] group">
+                <img
+                  src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80&fit=crop"
+                  alt="Pro background"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+                <div className="relative z-10 p-4 h-full flex flex-col justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-yellow mb-1">OfferIQ Pro</p>
+                    <h4 className="text-white font-bold text-sm leading-tight">Unlock AI Strategy & Custom Domains</h4>
+                  </div>
+                  <button className="bg-white/20 hover:bg-white/30 text-white text-[10px] font-bold py-1.5 px-3 rounded-full border border-white/30 transition-colors self-start">
+                    Upgrade Now →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import {
   Globe,
   ExternalLink,
-  Loader2,
   Copy,
   CheckCircle2,
   Check,
@@ -18,6 +17,7 @@ import {
   Camera,
   Info,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 
@@ -135,13 +135,6 @@ function PublishContent() {
   }, [hasUnsavedLocalChanges]);
 
   /** Use this instead of direct navigation when there may be unsaved changes */
-  const guardedNavigate = (href: string) => {
-    if (hasUnsavedLocalChanges) {
-      setPendingNav(href);
-    } else {
-      window.location.href = href;
-    }
-  };
 
   // ─── Domain handlers ─────────────────────────────────────────────────
   const handleSaveDomain = async (type: 'subdomain' | 'custom') => {
@@ -313,8 +306,11 @@ function PublishContent() {
   // ─── Loading splash ───────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background gap-4">
+        <Spinner size="lg" />
+        <p className="text-sm font-medium text-muted-foreground animate-pulse">
+          Loading publishing engine...
+        </p>
       </div>
     );
   }
@@ -366,7 +362,7 @@ function PublishContent() {
                   {i < deployStage ? (
                     <Check className="w-3 h-3 text-white" />
                   ) : i === deployStage ? (
-                    <Loader2 className="w-3 h-3 text-primary animate-spin" />
+                    <Spinner size="sm" />
                   ) : null}
                 </div>
                 <span
@@ -397,10 +393,8 @@ function PublishContent() {
     <div className="flex h-screen overflow-hidden bg-background font-sans text-foreground">
       <Sidebar />
 
-      <div
-        className="flex-1 flex flex-col min-w-0 overflow-hidden relative"
-        style={{ marginLeft: '56px' }}
-      >
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+
         <Topbar
           breadcrumbs={[
             { label: 'Workspace' },
@@ -548,7 +542,7 @@ function PublishContent() {
                       disabled={saving}
                       className="mt-2"
                     >
-                      {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      {saving && <Spinner size="sm" className="mr-2" />}
                       Save Subdomain
                     </Button>
                   </div>
@@ -578,7 +572,7 @@ function PublishContent() {
                         className="h-11 px-5 rounded-none border-l border-border font-semibold shrink-0"
                       >
                         {saving ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Spinner size="sm" />
                         ) : (
                           'Verify Domain'
                         )}
@@ -707,7 +701,7 @@ function PublishContent() {
                   title={!hasSubdomain ? 'Set a subdomain to deploy' : 'Deploy Funnel'}
                 >
                   {deploying ? (
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <Rocket className="w-5 h-5 mr-2" />
                   )}
@@ -832,7 +826,7 @@ function PublishContent() {
               <div className="pt-6 border-t border-border">
                 <Button className="w-full gap-2" onClick={handleSaveSeo} disabled={savingSeo}>
                   {savingSeo ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Spinner size="sm" />
                   ) : (
                     <CheckCircle2 className="w-4 h-4" />
                   )}
@@ -875,7 +869,7 @@ function PublishContent() {
                 }}
                 disabled={saving || savingSeo}
               >
-                {(saving || savingSeo) ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                {(saving || savingSeo) ? <Spinner size="sm" color="white" /> : <CheckCircle2 className="w-4 h-4" />}
                 {(saving || savingSeo) ? 'Saving...' : 'Save & Continue'}
               </Button>
               <button
@@ -908,7 +902,7 @@ export default function PublishPage() {
   return (
     <Suspense fallback={
       <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Spinner size="lg" />
       </div>
     }>
       <PublishContent />

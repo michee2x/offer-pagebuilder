@@ -27,7 +27,7 @@ export function ViewerHydrator({ blocks }: { blocks: any }) {
 
       queueMicrotask(() => setMounted(true));
     }
-  }, [blocks, setFullState, setIsPreviewMode]);
+  }, [blocks, setFullState, setIsPreviewMode, setTheme]);
 
   if (!mounted) {
       return null; // Avoid hydration mismatch

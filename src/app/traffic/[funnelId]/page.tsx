@@ -4,9 +4,10 @@ import React, { use, useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import {
-  Zap, Loader2, Copy, RefreshCw, TrendingUp, DollarSign, Target, Sparkles,
+  Zap, Copy, RefreshCw, TrendingUp, DollarSign, Target, Sparkles,
   AlertTriangle, Check, ChevronRight,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { FunnelSidebar } from '@/components/layout/FunnelSidebar';
@@ -106,7 +107,7 @@ function EmptyState({ onGenerate, generating }: { onGenerate: () => void; genera
         Generate a full paid traffic strategy calibrated to your offer — platform priority matrix, budget model, projected ROAS, and ready-to-deploy ad copy.
       </p>
       <Button size="lg" onClick={onGenerate} disabled={generating} className="gap-2 font-semibold">
-        {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+        {generating ? <Spinner size="sm" color="white" /> : <Sparkles className="w-4 h-4" />}
         Generate Traffic Intelligence
       </Button>
     </div>
@@ -284,19 +285,20 @@ export default function TrafficIntelligencePage({
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+    if (loading) {
+      return (
+        <div className="flex h-screen items-center justify-center bg-background">
+          <Spinner size="md" color="muted" />
+        </div>
+      );
+    }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <GenerationOverlay visible={generating} step={genStep} />
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden" style={{ marginLeft: '56px' }}>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
         <Topbar
           breadcrumbs={[
             { label: 'Funnels', href: `/funnels/${funnelId}` },

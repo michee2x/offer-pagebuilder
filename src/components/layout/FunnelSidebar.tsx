@@ -37,7 +37,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
 
   const navItems: FunnelNavItem[] = [
     { label: "Overview",             href: `/funnels/${funnelId}`,                      icon: BarChart2  },
-    { label: "Sales Report",         href: `/funnels/${funnelId}/report`,               icon: Brain      },
+    { label: "Sales Intelligence",   href: `/funnels/${funnelId}/report`,               icon: Brain      },
     { label: "Sales Copy",           href: `/funnels/${funnelId}/copy`,                 icon: FileText   },
     { label: "Email Sequence",       href: `/funnels/${funnelId}/email`,                icon: Mail       },
     { label: "Leads",                href: `/funnels/${funnelId}/leads`,                icon: Users      },
