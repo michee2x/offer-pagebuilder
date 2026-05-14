@@ -8,6 +8,7 @@ import { ChevronLeft } from "lucide-react";
 import {
   OfferFormData,
   TrafficChannel,
+  CurrencyCode,
 } from "@/lib/offer-types";
 
 // Modular Components
@@ -80,7 +81,7 @@ export default function AnalyzePage() {
   const [customSkill, setCustomSkill] = useState("");
   const [audienceTypes, setAudienceTypes] = useState<string[]>([]);
   const [bCountry, setBCountry] = useState("");
-  const [bCurrency, setBCurrency] = useState("");
+  const [bCurrency, setBCurrency] = useState<CurrencyCode>("USD");
   const [budget, setBudget] = useState("");
   const [generatedIdeas, setGeneratedIdeas] = useState<GeneratedIdea[]>([]);
   const [pickedIdea, setPickedIdea] = useState(-1);
@@ -334,9 +335,15 @@ export default function AnalyzePage() {
 
   return (
     <div className="min-h-screen bg-[#0e0e0e] flex flex-col items-center p-6 md:p-12 overflow-hidden relative">
-      {/* Subtle Background Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1200px] h-[500px] pointer-events-none opacity-[0.03] z-0 bg-gradient-to-b from-brand-yellow to-transparent blur-[120px]" />
+      {/* Background Image */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
+        style={{ backgroundImage: "url('/gradients/form-gradient.jpg')" }}
+      />
       
+      {/* Overlay for better readability */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#0e0e0e]/20 via-transparent to-[#0e0e0e]/80 pointer-events-none" />
+
       <div className="w-full max-w-4xl relative z-10">
         {currentStep !== "path" && currentStep !== "loading" && (
           <button

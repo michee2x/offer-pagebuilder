@@ -71,7 +71,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
             display: "flex",
             flexDirection: "column",
           }}
-          className="bg-card border-r border-border"
+          className="bg-[#0a0a0a]/60 backdrop-blur-3xl border-r border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]"
         >
           {/* Back / funnel name */}
           <div className="px-2 py-3 border-b border-border flex-shrink-0">
@@ -182,8 +182,8 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
   // ─── Full (non-collapsible) sidebar — funnel overview page ─────────────────
 
   return (
-    <div className="w-[220px] flex-shrink-0 border-r border-border bg-card flex flex-col h-full overflow-hidden">
-      <div className="px-4 py-4 border-b border-border">
+    <div className="w-[220px] flex-shrink-0 border-r border-white/10 bg-[#0a0a0a]/60 backdrop-blur-3xl shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] flex flex-col h-full overflow-hidden">
+      <div className="px-4 py-4 border-b border-white/10">
         <Link
           href="/"
           className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors mb-3 text-xs font-semibold"
@@ -238,7 +238,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
         })}
       </nav>
 
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-white/10">
         <Link
           href={`/builder?id=${funnelId}`}
           className="w-full h-9 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold text-xs rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"

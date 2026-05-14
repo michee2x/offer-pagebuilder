@@ -28,7 +28,7 @@ export function Topbar({ breadcrumbs, steps, actions, children }: TopbarProps) {
   const toggleSidebar = useUIStore((state) => state.toggleSidebar);
 
   return (
-    <header className="h-14 bg-background border-b border-border flex items-center px-4 gap-4 shrink-0 z-50 w-full relative">
+    <header className="h-14 bg-[#0a0a0a]/50 backdrop-blur-2xl border-b border-white/10 flex items-center px-4 gap-4 shrink-0 z-50 w-full relative">
       {/* Menu Toggle */}
       <button 
         onClick={toggleSidebar}

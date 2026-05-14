@@ -132,10 +132,10 @@ export function Sidebar() {
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed left-0 top-0 h-full w-[280px] bg-[#0c0c0c] border-r border-white/5 z-[70] flex flex-col shadow-2xl"
+            className="fixed left-0 top-0 h-full w-[280px] bg-[#0a0a0a]/70 backdrop-blur-3xl border-r border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] z-[70] flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 h-14 border-b border-white/5 bg-[#0c0c0c]">
+            <div className="flex items-center justify-between px-6 h-14 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-brand-yellow flex items-center justify-center text-black">
                   <Zap className="w-5 h-5" />

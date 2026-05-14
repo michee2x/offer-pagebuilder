@@ -15,6 +15,9 @@ import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 import { FunnelHealthChart } from "@/components/intelligence/charts/FunnelHealthChart";
 import { motion, AnimatePresence } from "framer-motion";
 import { DesignPreviewCard } from "@/components/intelligence/charts/DesignPreviewCard";
+import { DynamicChart } from "@/components/intelligence/DynamicChart";
+import { InsightCard } from "@/components/intelligence/InsightCard";
+import { ReferenceLink } from "@/components/intelligence/ReferenceLink";
 import {
   Zap,
   ArrowRight,
@@ -249,7 +252,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Differentiating context framing how your market perceives this offer vs alternatives.",
     icon: <TargetIcon className="w-4 h-4" />,
     color: "text-foreground",
-    badge: "Opus"
   },
   TARGET_PERSONA_INTELLIGENCE: {
     id: "TARGET_PERSONA_INTELLIGENCE",
@@ -257,7 +259,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Deep psychological profile and contextual awareness of your ideal customer.",
     icon: <UsersIcon className="w-4 h-4" />,
     color: "text-foreground",
-    badge: "Opus"
   },
   CONVERSION_HOOK_LIBRARY: {
     id: "CONVERSION_HOOK_LIBRARY",
@@ -265,7 +266,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Validated, high-impact statements geared to arrest attention instantly.",
     icon: <MessageIcon className="w-4 h-4" />,
     color: "text-foreground",
-    badge: "Opus"
   },
   MESSAGING_ANGLE_MATRIX: {
     id: "MESSAGING_ANGLE_MATRIX",
@@ -273,7 +273,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Combinatorial framework addressing unique desires and specific internal objections.",
     icon: <MessageSquare className="w-4 h-4" />,
     color: "text-foreground",
-    badge: "Opus"
   },
   PRODUCT_CORE_VALUE_PERCEPTION: {
     id: "PRODUCT_CORE_VALUE_PERCEPTION",
@@ -281,7 +280,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Core transformational mechanics transitioning the prospect from state A to state B.",
     icon: <Lightbulb className="w-4 h-4" />,
     color: "text-brand-yellow",
-    badge: "Opus"
   },
   REAL_WORLD_USE_CASE_SCENARIOS: {
     id: "REAL_WORLD_USE_CASE_SCENARIOS",
@@ -289,7 +287,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Relatable operational implementations proving the offer's impact in context.",
     icon: <BookOpen className="w-4 h-4" />,
     color: "text-foreground",
-    badge: "Opus"
   },
   MONETIZATION_STRATEGY_NARRATIVE: {
     id: "MONETIZATION_STRATEGY_NARRATIVE",
@@ -297,7 +294,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Synthesized executive directive binding acquisition, monetization, and scale.",
     icon: <Cog className="w-4 h-4" />,
     color: "text-foreground",
-    badge: "Opus"
   },
 };
 
@@ -352,6 +348,81 @@ function EditableNarrativeText({
   const [isEditing, setIsEditing] = useState(false);
 
   if (!text) return <StreamingPlaceholder />;
+
+  // Replace XML tags with special tokens to split the text, or just parse line by line if they are inline.
+  // Since streaming might break tags, we use a custom renderer.
+  const parseRichContent = (rawText: string) => {
+    const blocks: React.ReactNode[] = [];
+    let currentText = rawText;
+
+    const chartRegex = /<Chart\s+type="([^"]+)"\s+data='([^']+)'(?:\s+title="([^"]*)")?(?:\s+summary="([^"]*)")?\s*\/>/i;
+    const insightRegex = /<Insight\s+value="([^"]*)"(?:\s+title="([^"]*)")?>([\s\S]*?)<\/Insight>/i;
+    const referenceRegex = /<Reference\s+url="([^"]+)"\s+domain="([^"]+)">([\s\S]*?)<\/Reference>/i;
+
+    let matchCount = 0;
+    while (currentText.length > 0 && matchCount < 100) {
+      matchCount++;
+      const cMatch = currentText.match(chartRegex);
+      const iMatch = currentText.match(insightRegex);
+      const rMatch = currentText.match(referenceRegex);
+
+      const matches = [
+        { match: cMatch, type: 'chart' },
+        { match: iMatch, type: 'insight' },
+        { match: rMatch, type: 'reference' }
+      ].filter(m => m.match !== null);
+
+      if (matches.length === 0) {
+        blocks.push(<TextRenderer key={`text-${matchCount}`} text={currentText} />);
+        break;
+      }
+
+      // Find the earliest match
+      matches.sort((a, b) => a.match!.index! - b.match!.index!);
+      const earliest = matches[0];
+      const matchIndex = earliest.match!.index!;
+      
+      if (matchIndex > 0) {
+        blocks.push(<TextRenderer key={`text-before-${matchCount}`} text={currentText.substring(0, matchIndex)} />);
+      }
+
+      const fullMatch = earliest.match![0];
+      if (earliest.type === 'chart') {
+        blocks.push(
+          <DynamicChart 
+            key={`chart-${matchCount}`} 
+            type={earliest.match![1] as any} 
+            data={earliest.match![2]} 
+            title={earliest.match![3]} 
+            summary={earliest.match![4]} 
+          />
+        );
+      } else if (earliest.type === 'insight') {
+        blocks.push(
+          <InsightCard 
+            key={`insight-${matchCount}`} 
+            value={earliest.match![1]} 
+            title={earliest.match![2] || "Key Insight"}
+          >
+            {earliest.match![3]}
+          </InsightCard>
+        );
+      } else if (earliest.type === 'reference') {
+        blocks.push(
+          <ReferenceLink 
+            key={`ref-${matchCount}`} 
+            url={earliest.match![1]} 
+            domain={earliest.match![2]} 
+            title={earliest.match![3]} 
+          />
+        );
+      }
+
+      currentText = currentText.substring(matchIndex + fullMatch.length);
+    }
+    
+    return blocks;
+  };
 
   // Clean up any JSON codeblocks from view if they are just data payloads
   const viewText = text.replace(/```json[\s\S]*?```/g, '').trim();
@@ -420,84 +491,111 @@ function EditableNarrativeText({
 
   return (
     <div 
-      className="text-foreground text-[15px] leading-relaxed max-w-none p-4 -mx-4 rounded-xl transition-colors hover:bg-muted/30 cursor-text group relative space-y-4"
-      onClick={() => setIsEditing(true)}
+      className="text-foreground text-[15px] leading-relaxed max-w-none p-4 -mx-4 rounded-xl transition-colors hover:bg-muted/10 group relative space-y-4"
     >
-      <div className="absolute top-2 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-background border px-2 py-1 rounded text-xs text-muted-foreground shadow-sm z-10">
-        Click anywhere to edit
+      <div 
+        className="absolute top-2 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-background border px-3 py-1.5 rounded-lg text-xs text-muted-foreground shadow-sm z-10 cursor-pointer hover:bg-muted hover:text-foreground flex items-center gap-2"
+        onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+      >
+        <Copy className="w-3.5 h-3.5" />
+        Edit Section
       </div>
       
       {isHtml ? (
          <div dangerouslySetInnerHTML={{ __html: text }} />
       ) : (
-         viewText.split("\n").map((line, i) => {
+         <div className="space-y-4">
+           {parseRichContent(viewText)}
+         </div>
+      )}
+    </div>
+  );
+}
+
+function TextRenderer({ text }: { text: string }) {
+  if (!text.trim()) return null;
+  
+  return (
+    <>
+      {text.split("\n").map((line, i) => {
            if (!line.trim() || line.trim() === '---' || line.trim() === '##' || line.trim() === '***') return <div key={i} className="h-4" />;
            
-           // Parse checkboxes
-           const isChecklist = line.trim().match(/^(-\s+\[\s?\])|(^\d+\.\s+)/);
-           if (isChecklist) {
-             const cleanText = line.replace(/^(-\s+\[\s?\])|(^\d+\.\s+)/, "").trim();
-             return <InteractiveCheckbox key={i} label={cleanText} />;
+           // Clean up markdown checkboxes if they exist so it just looks like a bullet
+           let processedLine = line;
+           if (processedLine.trim().match(/^-\s+\[\s?\]/)) {
+             processedLine = processedLine.replace(/^-\s+\[\s?\]/, "-");
            }
            
            // Smart Badges for INTENSITY or STAGE keys
-           const isIntensity = /INTENSITY:\s*(CRITICAL|HIGH|MEDIUM|LOW)/i.test(line);
+           const isIntensity = /INTENSITY:\s*(CRITICAL|HIGH|MEDIUM|LOW)/i.test(processedLine);
            if (isIntensity) {
-             const intensity = line.match(/INTENSITY:\s*(\w+)/i)?.[1].toUpperCase();
-             const cleanText = line.replace(/INTENSITY:\s*\w+/i, "").trim();
+             const intensity = processedLine.match(/INTENSITY:\s*(\w+)/i)?.[1].toUpperCase();
+             const cleanText = processedLine.replace(/INTENSITY:\s*\w+/i, "").trim();
              return (
-               <div key={i} className="text-sm leading-relaxed mb-3 flex items-start gap-2">
+               <div key={i} className="text-[15px] leading-relaxed mb-3 flex items-start gap-2">
                   <span
                      className={cn(
                        "text-[10px] font-bold px-1.5 py-0.5 rounded-sm border shrink-0 mt-0.5 uppercase tracking-wide",
                        intensity === "CRITICAL" && "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/30",
-                       intensity === "HIGH" && "bg-foreground/10 text-foreground border-foreground/20",
-                       intensity === "MEDIUM" && "bg-muted text-muted-foreground border-border",
-                       intensity === "LOW" && "bg-muted text-muted-foreground border-border",
+                       intensity === "HIGH" && "bg-white/10 text-white border-white/20",
+                       intensity === "MEDIUM" && "bg-white/5 text-white/60 border-white/10",
+                       intensity === "LOW" && "bg-white/5 text-white/60 border-white/10",
                      )}
                    >
                      {intensity}
                    </span>
-                   <span className="text-foreground">{cleanText}</span>
+                   <span className="text-white/80 font-normal">{cleanText}</span>
                </div>
              )
            }
 
-           const isKey = /^[A-Z_\s]+:/.test(line.trim()) || /^STAGE:|^BONUS|^HOOK|^ANGLE/.test(line.trim());
-
            // Handle simple bold markup **bold** and headers
            const renderLine = () => {
-             let textLine = line.trim();
+             let textLine = processedLine.trim();
              let headerClass = "";
-             if (textLine.startsWith('###')) { textLine = textLine.replace(/^###\s*/, ''); headerClass = "text-lg font-bold text-foreground mt-4 mb-2"; }
-             else if (textLine.startsWith('##')) { textLine = textLine.replace(/^##\s*/, ''); headerClass = "text-xl font-bold text-foreground mt-6 mb-2"; }
-             else if (textLine.startsWith('#')) { textLine = textLine.replace(/^#\s*/, ''); headerClass = "text-2xl font-bold text-foreground mt-6 mb-3"; }
+             if (textLine.startsWith('###')) { textLine = textLine.replace(/^###\s*/, ''); headerClass = "text-lg font-bold text-white mt-4 mb-2"; }
+             else if (textLine.startsWith('##')) { textLine = textLine.replace(/^##\s*/, ''); headerClass = "text-xl font-bold text-white mt-6 mb-2"; }
+             else if (textLine.startsWith('#')) { textLine = textLine.replace(/^#\s*/, ''); headerClass = "text-2xl font-bold text-white mt-6 mb-3"; }
              
+             let prefixNode = null;
+             
+             if (!headerClass) {
+               // Extract keys like "VISUAL THEME:" or "HOOK 1 —" to bold just the prefix
+               const keyRegex = /^([A-Z0-9_\s]+:|STAGE:|BONUS.*?:|HOOK.*?—|ANGLE.*?:)(.*)/;
+               const match = textLine.match(keyRegex);
+               if (match) {
+                 prefixNode = <strong className="text-white font-semibold mr-1.5">{match[1]}</strong>;
+                 textLine = match[2];
+               }
+             }
+
              const fragments = textLine.split(/(\*\*.*?\*\*)/g).map((part, j) => {
                if (part.startsWith('**') && part.endsWith('**')) {
-                 return <strong key={j} className="text-foreground">{part.slice(2, -2)}</strong>;
+                 return <strong key={j} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
                }
                return <React.Fragment key={j}>{part}</React.Fragment>;
              });
 
              if (headerClass) return <div className={headerClass}>{fragments}</div>;
-             return fragments;
+             
+             return (
+               <div className={prefixNode ? "mt-4" : ""}>
+                 {prefixNode}
+                 <span className="text-white/80 font-normal">{fragments}</span>
+               </div>
+             );
            };
 
            return (
              <div
                key={i}
-               className={cn(
-                 "text-sm leading-relaxed mb-2 last:mb-0",
-                 isKey ? "text-foreground font-semibold mt-4 first:mt-0" : "text-muted-foreground"
-               )}
+               className="text-[15px] leading-relaxed mb-3 last:mb-0"
              >
                {renderLine()}
              </div>
            );
-         })
-      )}
-    </div>
+         })}
+    </>
   );
 }
 
@@ -850,24 +948,24 @@ export default function IntelligencePage({
           </div>
 
           {/* Central Main Document */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar relative bg-background">
-             
+          <div className="flex-1 overflow-y-auto custom-scrollbar relative bg-transparent">
+
              {!call1 || availableSections.length === 0 ? (
-               <div className="flex items-center justify-center h-full p-8">
-                 <Card className="max-w-md w-full border-border">
+               <div className="flex items-center justify-center h-full p-8 relative z-10">
+                 <Card className="max-w-md w-full border-white/10 bg-[#0a0a0a]/60 backdrop-blur-xl">
                     <CardContent className="p-8 text-center space-y-4">
                       {phase === "error" ? (
                         <>
                           <Zap className="w-8 h-8 mx-auto text-destructive mb-2" />
                           <h2 className="text-xl font-semibold text-destructive">Analysis Failed</h2>
-                          <p className="text-sm text-muted-foreground">{errorMsg || "An error occurred while generating intelligence."}</p>
+                          <p className="text-sm text-white/60">{errorMsg || "An error occurred while generating intelligence."}</p>
                           <Button size="lg" onClick={runAnalysis} className="w-full mt-4">Retry Analysis</Button>
                         </>
                       ) : (
                         <>
-                          <Zap className="w-8 h-8 mx-auto text-muted-foreground mb-2 animate-pulse" />
-                          <h2 className="text-xl font-semibold">Starting AI Analysis</h2>
-                          <p className="text-sm text-muted-foreground">Automatically synthesizing your intelligence profile...</p>
+                          <Zap className="w-8 h-8 mx-auto text-brand-yellow/50 mb-2 animate-pulse" />
+                          <h2 className="text-xl font-semibold text-white">Starting AI Analysis</h2>
+                          <p className="text-sm text-white/60">Automatically synthesizing your intelligence profile...</p>
                           <Button id="auto-run-btn" size="lg" onClick={runAnalysis} className="w-full mt-4 hidden">Generate Report (Hidden Trigger)</Button>
                         </>
                       )}
@@ -875,33 +973,35 @@ export default function IntelligencePage({
                  </Card>
                </div>
              ) : (
-                <div className="max-w-4xl mx-auto px-6 lg:px-12 py-10 pb-32 relative">
+                <div className="max-w-4xl mx-auto px-6 lg:px-12 py-10 pb-32 relative z-10">
                    
-                   {/* Section Header */}
-                   <div className="mb-8 flex items-baseline justify-between gap-4">
-                      <div className="flex items-baseline gap-3 flex-wrap">
-                         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                           {activeConfig.label}
-                         </h1>
-                          {activeConfig.badge && (
-                            <span className={cn(
-                              "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border translate-y-[-2px]",
-                              activeConfig.badge === "Opus" 
-                                ? "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20" 
-                                : "bg-brand-yellow/10 text-brand-yellow/80 border-brand-yellow/20"
-                            )}>
-                              {activeConfig.badge} Engine
-                            </span>
-                          )}
-                         <p className="text-sm font-medium text-muted-foreground ml-2">
-                           — {activeConfig.subheader}
-                         </p>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(activeContent)} className="text-muted-foreground hover:text-foreground gap-2 shrink-0">
-                        <Copy className="w-4 h-4" />
-                        <span className="hidden lg:inline">Copy Text</span>
-                      </Button>
-                   </div>
+                   {/* Premium Glassmorphic Container for the Content */}
+                   <div className="relative rounded-[2.5rem] bg-blue-600/[0.02] backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
+                     <div className="absolute top-0 right-0 w-96 h-96 bg-brand-yellow/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+                     <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+
+                     {/* Section Header */}
+                     <div className="mb-10 flex items-baseline justify-between gap-4 border-b border-white/10 pb-6">
+                        <div className="flex items-baseline gap-3 flex-wrap">
+                           <h1 className="text-3xl font-bold tracking-tight text-white">
+                             {activeConfig.label}
+                           </h1>
+                            {activeConfig.badge && (
+                              <span className={cn(
+                                "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border translate-y-[-2px] bg-brand-yellow/10 text-brand-yellow/80 border-brand-yellow/20"
+                              )}>
+                                {activeConfig.badge}
+                              </span>
+                            )}
+                           <p className="text-sm font-medium text-white/50 ml-2">
+                             — {activeConfig.subheader}
+                           </p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(activeContent)} className="text-white/50 hover:text-white hover:bg-white/5 gap-2 shrink-0">
+                          <Copy className="w-4 h-4" />
+                          <span className="hidden lg:inline">Copy Text</span>
+                        </Button>
+                     </div>
 
                    {/* Dynamic Chart Integration */}
                    {activeConfig.chartType === "radar" && activeSectionId === "OFFER_SCORE" && (
@@ -921,7 +1021,7 @@ export default function IntelligencePage({
                     )}
 
                    {/* Editable Markdown Body */}
-                   <div className="min-h-[250px] mb-12">
+                   <div className="min-h-[250px] mb-12 relative z-10">
                       <EditableNarrativeText 
                         text={activeContent} 
                         onChange={(newText) => updateSectionContent(activeSectionId, newText)} 
@@ -929,16 +1029,16 @@ export default function IntelligencePage({
                    </div>
 
                    {/* Shadcn-style Footer Navigation */}
-                   <div className="flex items-center justify-between border-t border-border pt-8 mt-12 mb-6">
+                   <div className="flex items-center justify-between border-t border-white/10 pt-8 mt-12 mb-6">
                       {prevSectionId ? (
                         <Button 
                           variant="outline" 
-                          className="h-12 px-6 gap-3 group"
+                          className="h-12 px-6 gap-3 group border-white/10 bg-white/5 hover:bg-white/10 text-white"
                           onClick={() => setActiveSectionId(prevSectionId)}
                         >
-                          <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                          <ChevronLeft className="w-4 h-4 text-white/50 group-hover:text-white transition-colors" />
                           <div className="flex flex-col items-start">
-                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Previous</span>
+                            <span className="text-[10px] text-white/50 uppercase font-bold tracking-wider">Previous</span>
                             <span className="truncate max-w-[120px] sm:max-w-xs">{SECTION_CONFIG[prevSectionId]?.label}</span>
                           </div>
                         </Button>
@@ -949,21 +1049,22 @@ export default function IntelligencePage({
                       {nextSectionId ? (
                         <Button 
                           variant="outline" 
-                          className="h-12 px-6 gap-3 group bg-primary/5 hover:bg-primary/10"
+                          className="h-12 px-6 gap-3 group bg-brand-yellow/10 hover:bg-brand-yellow/20 border-brand-yellow/20 text-brand-yellow"
                           onClick={() => setActiveSectionId(nextSectionId)}
                         >
                           <div className="flex flex-col items-end">
-                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Next Section</span>
+                            <span className="text-[10px] uppercase font-bold tracking-wider opacity-70">Next Section</span>
                             <span className="truncate max-w-[120px] sm:max-w-xs">{SECTION_CONFIG[nextSectionId]?.label}</span>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                          <ChevronRight className="w-4 h-4 opacity-70 group-hover:opacity-100 transition-colors" />
                         </Button>
                       ) : (
-                         <Button onClick={() => router.push(`/copy/${funnelId}`)} className="h-12 px-6">
+                         <Button onClick={() => router.push(`/copy/${funnelId}`)} className="h-12 px-6 bg-brand-yellow text-black hover:bg-brand-yellow/90">
                            Finish & Build Pages
                          </Button>
                       )}
                    </div>
+                   </div> {/* End Glassmorphic Container */}
                 </div>
              )}
           </div>

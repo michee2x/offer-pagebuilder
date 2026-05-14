@@ -34,9 +34,17 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-background text-foreground overflow-x-hidden text-sm">
+      <body className="min-h-screen bg-[#050505] text-foreground overflow-x-hidden text-sm relative">
+        {/* Global Mesh Gradient Background */}
+        <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden bg-[#050505]">
+          <div className="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vh] rounded-full bg-[#f5a623]/15 blur-[150px]" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[60vw] h-[60vh] rounded-full bg-[#ff6b35]/15 blur-[150px]" />
+        </div>
+        
         <PostHogProvider>
-          {children}
+          <div className="relative z-0 min-h-screen flex flex-col">
+            {children}
+          </div>
           <Toaster theme="dark" position="bottom-right" />
         </PostHogProvider>
       </body>

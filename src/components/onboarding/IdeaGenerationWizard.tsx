@@ -84,8 +84,17 @@ export function IdeaGenerationWizard({
   errors,
 }: IdeaGenerationWizardProps) {
   return (
-    <div className="max-w-[640px] mx-auto w-full">
-      <AnimatePresence mode="wait">
+    <div className="max-w-[720px] mx-auto w-full relative z-10">
+      <div className="relative group/container">
+        {/* Premium Background Container */}
+        <div className="absolute inset-0 bg-blue-600/[0.03] backdrop-blur-2xl rounded-[2.5rem] border border-blue-500/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] -z-10 transition-all duration-500 group-hover/container:border-blue-500/20 group-hover/container:bg-blue-600/[0.05]" />
+        
+        {/* Subtle Blue Glow */}
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/10 blur-[100px] pointer-events-none -z-10" />
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none -z-10" />
+
+        <div className="px-8 py-12 md:px-12">
+          <AnimatePresence mode="wait">
         {currentStep === "B1" && (
           <motion.div
             key="B1"
@@ -306,7 +315,9 @@ export function IdeaGenerationWizard({
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 }

@@ -68,16 +68,34 @@ export function DesignPreviewCard({ content }: { content: string }) {
            </Button>
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center mt-2">
            {colors.map((color, idx) => {
              const labels = ["Primary", "Secondary", "Accent"];
              return (
-               <div key={idx} className="flex-1 group cursor-pointer" onClick={() => handleCopyColor(color)}>
+               <div key={idx} className="flex-1 group relative">
+                 {/* Invisible Color Picker Overlay */}
+                 <input 
+                   type="color" 
+                   value={color}
+                   onChange={(e) => {
+                     const newColors = [...colors];
+                     newColors[idx] = e.target.value.toUpperCase();
+                     setColors(newColors);
+                   }}
+                   className="absolute inset-x-0 top-0 w-full h-16 opacity-0 cursor-pointer z-10"
+                   title="Click to change color"
+                 />
+                 
                  <div
-                   className="h-16 w-full rounded-lg shadow-sm border border-black/5 transition-transform group-hover:scale-105"
+                   className="h-16 w-full rounded-lg shadow-sm border border-white/10 transition-transform group-hover:scale-105"
                    style={{ backgroundColor: color }}
                  />
-                 <div className="mt-2 text-center">
+                 
+                 <div 
+                   className="mt-2 text-center cursor-pointer hover:bg-white/5 rounded py-1 transition-colors" 
+                   onClick={() => handleCopyColor(color)}
+                   title="Click to copy hex"
+                 >
                     <span className="block text-[10px] uppercase font-bold text-muted-foreground">{labels[idx]}</span>
                     <span className="block text-xs font-mono mt-0.5 text-foreground group-hover:text-primary">{color}</span>
                  </div>

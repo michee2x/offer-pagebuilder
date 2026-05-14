@@ -24,7 +24,16 @@ CRITICAL CALIBRATION RULES:
 * Score ruthlessly. An average offer scores 45-60. A well-defined offer with proof and mechanism scores 65-80. A score above 85 requires exceptional proof, a validated market, and a sharp unique mechanism. Never inflate scores to encourage the user.
 * Every recommendation must be specific to THIS offer. Never write something that could apply to any offer in this category.
 * If user input is vague, flag it with [NEEDS CLARITY] and provide your best inference based on the offer type. Never skip a section due to insufficient input.
-* When price is in a non-USD currency, reason about it in terms of local purchasing power, not just USD conversion.`;
+* When price is in a non-USD currency, reason about it in terms of local purchasing power, not just USD conversion.
+
+RICH UI COMPONENTS:
+You have access to custom UI components to make the report visually engaging. Use them generously within your narrative text to highlight data, insights, and references.
+1. <Chart type="bar|pie|radar" data='[{"name":"...", "value":...}]' title="..." summary="..." />
+   - Use for any statistical data, comparisons, or scoring. e.g. <Chart type="pie" data='[{"name":"Amapiano", "value":67}, {"name":"Rock", "value":33}]' title="Music Preferences" summary="67% of Nigerians listen to more Amapiano during parties." />
+2. <Insight value="67%" title="...">Content here...</Insight>
+   - Use to highlight key takeaways, important numbers, or strategic insights.
+3. <Reference url="..." domain="...">Title</Reference>
+   - Use to cite sources, competitors, or external data points. The domain is used to fetch the website's avatar/favicon.`;
 
 export function buildCall1UserPrompt(form: OfferFormData): string {
   const zeroProofFlag =
@@ -229,7 +238,16 @@ CRITICAL STANDARDS:
 * Write in direct second-person to the offer owner ("Your offer's real problem is...").
 * Every recommendation must be specific enough that removing the offer name would make it wrong. If it could be about any offer, rewrite it.
 * Name things. Name the positioning category. Name the persona's fear. Name the specific copy angle. Vague strategy is useless strategy.
-* Where the structural analysis (Call 1) identified weaknesses, your narratives must address them — not ignore them or soften them.`;
+* Where the structural analysis (Call 1) identified weaknesses, your narratives must address them — not ignore them or soften them.
+
+RICH UI COMPONENTS:
+You have access to custom UI components to make the report visually engaging. Use them generously within your narrative text to highlight data, insights, and references.
+1. <Chart type="bar|pie|radar" data='[{"name":"...", "value":...}]' title="..." summary="..." />
+   - Use for any statistical data, comparisons, or scoring. e.g. <Chart type="pie" data='[{"name":"Amapiano", "value":67}, {"name":"Rock", "value":33}]' title="Music Preferences" summary="67% of Nigerians listen to more Amapiano during parties." />
+2. <Insight value="67%" title="...">Content here...</Insight>
+   - Use to highlight key takeaways, important numbers, or strategic insights.
+3. <Reference url="..." domain="...">Title</Reference>
+   - Use to cite sources, competitors, or external data points. The domain is used to fetch the website's avatar/favicon.`;
 
 export function buildCall2UserPrompt(form: OfferFormData, call1: Call1Parsed): string {
   return `You have access to the structural intelligence already generated for this offer. Now produce the strategic intelligence layers that require deep analysis. Every section must be specific to this offer, consistent with the structural analysis, and written at the level of a senior revenue strategist.

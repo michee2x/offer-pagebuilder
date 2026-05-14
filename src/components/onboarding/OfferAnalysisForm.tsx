@@ -62,18 +62,26 @@ export function OfferAnalysisForm({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen bg-[#0e0e0e] px-6 py-10 md:px-12"
+      className="w-full max-w-[720px] mx-auto"
     >
-      <div className="max-w-[640px] mx-auto">
+      <div className="relative group/container">
+        {/* Premium Background Container */}
+        <div className="absolute inset-0 bg-blue-600/[0.03] backdrop-blur-2xl rounded-[2.5rem] border border-blue-500/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] -z-10 transition-all duration-500 group-hover/container:border-blue-500/20 group-hover/container:bg-blue-600/[0.05]" />
+        
+        {/* Subtle Blue Glow */}
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/10 blur-[100px] pointer-events-none -z-10" />
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none -z-10" />
+
+        <div className="px-8 py-12 md:px-12">
 
         {/* ── Page header ── */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex items-start justify-between mb-10">
           <div>
-            <h1 className="text-[26px] font-bold text-white tracking-tight">
-              Tell us about your offer
+            <h1 className="text-[28px] font-bold text-white tracking-tight leading-tight">
+              Tell us about <span className="text-blue-400">your offer</span>
             </h1>
-            <p className="text-[13px] text-[#555] mt-1">
-              Provide the core details of your product or service.
+            <p className="text-[14px] text-[#777] mt-2 max-w-sm">
+              Provide the core details of your product or service to begin the analysis.
             </p>
           </div>
           <button
@@ -280,7 +288,7 @@ export function OfferAnalysisForm({
               {isSubmitting ? "Processing..." : "Continue to Analysis"}
             </button>
           </div>
-
+          </div>
         </div>
       </div>
     </motion.div>

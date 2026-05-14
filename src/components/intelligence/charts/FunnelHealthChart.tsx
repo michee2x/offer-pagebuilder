@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Zap, Activity } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 interface FunnelHealthData {
   score: number;

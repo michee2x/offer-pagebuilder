@@ -53,6 +53,7 @@ export default function BuilderPage() {
     past,
     future,
   } = useBuilderStore();
+  const [isSaving, setIsSaving] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [streamText, setStreamText] = React.useState("");
   const [initialLoading, setInitialLoading] = React.useState(true);
