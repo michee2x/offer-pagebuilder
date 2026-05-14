@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
+import { CurrencyCode } from "@/lib/offer-types";
 
 const skillsOptions = [
   "Social Media", "Writing & Content", "Graphic Design", "Teaching / Coaching",
@@ -40,8 +41,8 @@ interface IdeaGenerationWizardProps {
   toggleAudience: (aud: string) => void;
   bCountry: string;
   setBCountry: (country: string) => void;
-  bCurrency: string;
-  setBCurrency: (currency: string) => void;
+  bCurrency: CurrencyCode;
+  setBCurrency: (currency: CurrencyCode) => void;
   budget: string;
   setBudget: (budget: string) => void;
   generatedIdeas: GeneratedIdea[];
@@ -204,7 +205,7 @@ export function IdeaGenerationWizard({
                   <select
                     className={selectCls}
                     value={bCurrency}
-                    onChange={(e) => setBCurrency(e.target.value)}
+                    onChange={(e) => setBCurrency(e.target.value as CurrencyCode)}
                   >
                     <option value="" disabled className="bg-[#1a1a1a]">Select currency</option>
                     {["USD", "GBP", "EUR", "NGN", "GHS", "KES", "ZAR"].map((curr) => (
