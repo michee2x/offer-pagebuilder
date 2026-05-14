@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -48,7 +48,7 @@ const DEMO_FORM_DATA: OfferFormData = {
     "Getting consistent leads, building credibility in the market, managing time while scaling",
 };
 
-export default function AnalyzePage() {
+function AnalyzeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -411,5 +411,19 @@ export default function AnalyzePage() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+export default function AnalyzePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center bg-[#0e0e0e]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+        </div>
+      </div>
+    }>
+      <AnalyzeContent />
+    </Suspense>
   );
 }

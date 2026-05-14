@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { SettingsSidebar, SettingsTab } from "@/components/settings/SettingsSidebar";
@@ -11,7 +11,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
-export default function SettingsPage() {
+function SettingsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const workspaceId = searchParams.get("workspace");
@@ -90,5 +90,17 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen bg-[#0e0e0e] items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    }>
+      <SettingsContent />
+    </Suspense>
   );
 }

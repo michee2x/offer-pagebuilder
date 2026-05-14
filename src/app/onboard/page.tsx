@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -32,7 +32,7 @@ const stepConfig: Record<Step, { title: string }> = {
 
 const stepOrder: Step[] = ["name", "domain", "team", "review"];
 
-export default function OnboardPage() {
+function OnboardContent() {
   const [currentStep, setCurrentStep] = useState<Step>("name");
   const [workspaceData, setWorkspaceData] = useState({
     name: "",
@@ -430,5 +430,17 @@ export default function OnboardPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function OnboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0e0e0e] text-white flex flex-col items-center justify-center p-4">
+        <Spinner size="lg" />
+      </div>
+    }>
+      <OnboardContent />
+    </Suspense>
   );
 }
