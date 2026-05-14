@@ -54,40 +54,10 @@ export function Sidebar() {
 
   const funnelId = getFunnelId();
 
-  const links: SidebarLink[] = funnelId
-    ? [
-        { label: "Back to Workspaces", href: "/", icon: LayoutDashboard },
-        {
-          label: "Funnel Overview",
-          href: `/funnels/${funnelId}`,
-          icon: PieChart,
-        },
-        {
-          label: "Page Builder",
-          href: `/builder?id=${funnelId}`,
-          icon: Filter,
-        },
-        {
-          label: "Sales Copy",
-          href: `/copy/${funnelId}`,
-          icon: FileText,
-        },
-        {
-          label: "Email Sequence",
-          href: `/email-sequence/${funnelId}`,
-          icon: Mail,
-        },
-        {
-          label: "Traffic Intelligence",
-          href: `/traffic/${funnelId}`,
-          icon: LineChart,
-        },
-        { label: "Sales Intelligence", href: `/intelligence/${funnelId}`, icon: Brain },
-      ]
-    : [
-        { label: "Dashboard", href: "/", icon: LayoutDashboard },
-        { label: "Workspaces", href: "/workspaces", icon: Filter },
-      ];
+  const links: SidebarLink[] = [
+    { label: "Dashboard", href: "/", icon: LayoutDashboard },
+    { label: "Workspaces", href: "/workspaces", icon: Filter },
+  ];
 
   const accountLinks: SidebarLink[] = [
     { label: "Settings", href: "/settings", icon: Settings },
@@ -123,7 +93,7 @@ export function Sidebar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/80 z-[60]"
           />
 
           {/* Sidebar */}
@@ -132,7 +102,7 @@ export function Sidebar() {
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed left-0 top-0 h-full w-[280px] bg-[#0a0a0a]/70 backdrop-blur-3xl border-r border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] z-[70] flex flex-col"
+            className="fixed left-0 top-0 h-full w-[280px] bg-[#0a0a0a] border-r border-white/10 shadow-2xl z-[70] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-14 border-b border-white/10">
@@ -156,7 +126,7 @@ export function Sidebar() {
             <nav className="flex-1 py-6 overflow-y-auto px-4 space-y-1">
               <div className="px-3 mb-2 flex items-center">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-                  {funnelId ? "Funnel Menu" : "Workspace"}
+                  Workspace
                 </span>
               </div>
 
