@@ -96,7 +96,7 @@ export async function POST(req: Request) {
 }
 
 function extractJsonArray(raw: string): string {
-  const match = raw.match(/\[.*\]/s);
+  const match = raw.match(/\[[\s\S]*\]/);
   if (!match) {
     throw new Error('Unable to parse JSON array from AI output');
   }
