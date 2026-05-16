@@ -261,6 +261,7 @@ html {
   margin-bottom: 16px;
 }
 
+/* 
 label {
   display: block;
   font-size: 12px;
@@ -291,6 +292,7 @@ input::placeholder {
 input:focus {
   border-color: rgba(245,166,35,0.5);
 }
+*/
 
 .input-wrapper {
   position: relative;

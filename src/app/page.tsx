@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
+import { CampaignCard } from "@/components/CampaignCard";
 
 export default async function DashboardPage(props: {
   searchParams: Promise<{ workspace?: string }>;
@@ -51,128 +52,135 @@ export default async function DashboardPage(props: {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Topbar breadcrumbs={[{ label: "Workspaces" }]}>
+    <div className="min-h-screen bg-[#030712] flex flex-col items-center overflow-hidden relative">
+      {/* Gallereee Background Elements (Exact Framer Styles) */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Radial - Pink */}
+        <div
+          className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
+            transform: 'rotate(-30deg)'
+          }}
+        />
+        {/* Radial - Blue */}
+        <div
+          className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
+            transform: 'rotate(30deg)'
+          }}
+        />
+        {/* Radial - Purple */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+          }}
+        />
+        {/* Bottom Gradient Overlay */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
+          style={{
+            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+          }}
+        />
+        {/* Noise Overlay */}
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
+          style={{
+            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '128px auto'
+          }}
+        />
+      </div>
 
+      <Sidebar />
+      <div className="flex-1 w-full flex flex-col min-w-0 overflow-hidden relative z-10">
+        <Topbar breadcrumbs={[{ label: "Workspaces" }]}>
           <WorkspaceSwitcher
             workspaces={allWorkspaces}
             activeId={activeWorkspaceId}
           />
         </Topbar>
 
-        <main className="flex-1 overflow-y-auto p-8">
-          {" "}
-          {error ? (
-            <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive mb-6">
-              Failed to load workspaces.{" "}
-              {error.message || "Please refresh the page."}
+        <main className="flex-1 overflow-y-auto pt-24 pb-12 px-6 md:px-12">
+          {/* Gallereee Hero Section */}
+          <div className="max-w-[1200px] mx-auto text-center mb-24">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/10 mb-8">
+              <span className="bg-blue-500 text-[10px] font-bold px-1.5 py-0.5 rounded text-white uppercase tracking-wider">New</span>
+              <span className="text-[13px] text-white/70">Campaign Intelligence module</span>
             </div>
-          ) : null}{" "}
-          <div className="max-w-[1600px] mx-auto flex flex-col space-y-12">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-heading font-bold tracking-tight">
-                  Your Growth Suite
-                </h1>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  Manage campaigns, email sequences, traffic intelligence, sales
-                  copy, and growth reporting from one central workspace.
-                </p>
-              </div>
+
+            <h1 className="text-[56px] md:text-[72px] font-bold text-white tracking-tight mb-6 leading-[1.1]">
+              The directory & <br />curation template
+            </h1>
+
+            <p className="text-[18px] md:text-[20px] text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+              Build your own curation website with this Framer template.
+              Manage your campaigns and intelligence reports from one central dashboard.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {activeWorkspace ? (
                 <a
                   href={"/onboard?workspace=" + activeWorkspace.id}
-                  className="inline-flex items-center justify-center rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground shadow-sm transition hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="h-14 px-8 rounded-full bg-white text-black font-bold flex items-center justify-center gap-2 transition-all hover:bg-white/90 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
                 >
-                  Launch new campaign
+                  Launch campaign <span className="text-xl">↗</span>
                 </a>
-              ) : null}
+              ) : (
+                <Link href="/onboard">
+                  <Button className="h-14 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90">Create workspace</Button>
+                </Link>
+              )}
+              <button className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all">
+                Submit website
+              </button>
             </div>
+          </div>
+
+          <div className="max-w-[1200px] mx-auto">
+            {error && (
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400 mb-12">
+                Failed to load workspaces. {error.message || "Please refresh the page."}
+              </div>
+            )}
 
             {!activeWorkspace ? (
-              <div className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl p-16 text-center bg-card shadow-sm">
-                <Folder className="w-10 h-10 text-muted-foreground mb-4 opacity-50" />
-                <h3 className="text-base font-semibold text-foreground">
-                  No workspaces yet
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1 mb-6">
-                  Create your first workspace to start managing campaigns.
-                </p>
-                <Link href="/onboard" className="mt-4">
-                  <Button size="lg">Create workspace</Button>
+              <div className="flex flex-col items-center justify-center border border-white/10 rounded-2xl p-16 text-center bg-white/[0.02] backdrop-blur-sm">
+                <Folder className="w-10 h-10 text-white/20 mb-4" />
+                <h3 className="text-xl font-bold text-white">No workspaces yet</h3>
+                <p className="text-white/50 mt-1 mb-8">Create your first workspace to start managing campaigns.</p>
+                <Link href="/onboard">
+                  <Button size="lg" className="h-12 px-8 rounded-full">Create workspace</Button>
                 </Link>
               </div>
             ) : (
               <div className="space-y-12">
-                <div className="flex items-center border-b border-border pb-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <Folder className="w-5 h-5 text-primary" />
-                    Campaigns
-                  </h2>
+                <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                  <h2 className="text-3xl font-bold text-white tracking-tight">Latest</h2>
                 </div>
 
                 {activeWorkspace.builder_pages &&
-                activeWorkspace.builder_pages.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  activeWorkspace.builder_pages.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
                     {activeWorkspace.builder_pages.map((funnel: any) => (
-                      <a
-                        href={"/funnels/" + funnel.id}
-                        key={funnel.id}
-                        className="group block h-full"
-                      >
-                        <div className="rounded-xl border border-border bg-card overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg h-full flex flex-col relative">
-                          <div className="aspect-[16/10] bg-muted/20 relative overflow-hidden border-b border-border">
-                            {funnel.og_image_url ? (
-                              <img
-                                src={funnel.og_image_url}
-                                alt={funnel.name}
-                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground opacity-30">
-                                <svg
-                                  width="40"
-                                  height="40"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                >
-                                  <rect
-                                    x="3"
-                                    y="3"
-                                    width="18"
-                                    height="18"
-                                    rx="2"
-                                    ry="2"
-                                  />
-                                  <line x1="3" y1="9" x2="21" y2="9" />
-                                  <line x1="9" y1="21" x2="9" y2="9" />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-4 flex flex-col border-t border-border/50 bg-background/50">
-                            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                              {funnel.name}
-                            </h3>
-                            <span className="text-xs text-muted-foreground mt-1">
-                              Updated{" "}
-                              {new Date(funnel.updated_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                      </a>
+                      <CampaignCard key={funnel.id} funnel={funnel} />
                     ))}
                   </div>
                 ) : (
-                  <div className="text-sm text-muted-foreground bg-muted/10 p-10 rounded-xl border border-dashed border-border text-center">
-                    <p>No campaigns in this workspace yet.</p>
+                  <div className="flex flex-col items-center justify-center py-20 bg-white/[0.02] rounded-3xl border border-white/5 border-dashed">
+                    <img
+                      src="https://images.unsplash.com/photo-1614332287897-cdc485fa562d?q=80&w=2070&auto=format&fit=crop"
+                      className="w-48 h-48 object-cover rounded-2xl opacity-20 mb-6 grayscale"
+                      alt="No campaigns"
+                    />
+                    <p className="text-white/40 text-[15px]">No campaigns in this workspace yet.</p>
                     <a
                       href={"/onboard?workspace=" + activeWorkspace.id}
-                      className="text-primary hover:underline mt-2 inline-block"
+                      className="text-white font-semibold mt-4 hover:underline transition-all"
                     >
                       Launch your first campaign
                     </a>

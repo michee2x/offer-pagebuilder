@@ -12,12 +12,14 @@ import {
 } from "@/lib/offer-types";
 
 // Modular Components
-import { CampaignPathSelection } from "@/components/onboarding/CampaignPathSelection";
+import { CampaignPathSelection, CampaignPathType } from "@/components/onboarding/CampaignPathSelection";
 import { OfferAnalysisForm } from "@/components/onboarding/OfferAnalysisForm";
 import { IdeaGenerationWizard } from "@/components/onboarding/IdeaGenerationWizard";
 import { OnboardingLoading } from "@/components/onboarding/OnboardingLoading";
+import { PdfUploadForm } from "@/components/onboarding/PdfUploadForm";
+import { WebsiteUrlForm } from "@/components/onboarding/WebsiteUrlForm";
 
-type CurrentStep = "path" | "form" | "B1" | "B2" | "B3" | "loading";
+type CurrentStep = "path" | "form" | "B1" | "B2" | "B3" | "pdf_upload" | "website_url" | "loading";
 
 interface GeneratedIdea {
   title: string;
@@ -55,7 +57,7 @@ function AnalyzeContent() {
   const workspaceId = searchParams.get("workspace");
 
   const [currentStep, setCurrentStep] = useState<CurrentStep>("path");
-  const [hasIdea, setHasIdea] = useState<boolean | null>(null);
+  const [campaignPath, setCampaignPath] = useState<CampaignPathType>(null);
   const [formData, setFormData] = useState<OfferFormData>({
     field_1_name: "",
     field_1_format: "course",
@@ -160,7 +162,7 @@ function AnalyzeContent() {
   const handleSubmit = async () => {
     let submitData: OfferFormData;
 
-    if (hasIdea) {
+    if (campaignPath === "idea") {
       // Path A: Use the unified form data
       if (!validateForm()) return;
       submitData = {
@@ -200,7 +202,7 @@ function AnalyzeContent() {
         body: JSON.stringify({
           formData: submitData,
           workspaceId,
-          hasIdea,
+          hasIdea: campaignPath === "idea",
         }),
       });
 
@@ -217,15 +219,69 @@ function AnalyzeContent() {
     } catch (error) {
       console.error("Error submitting form:", error);
       setErrors({ submit: "Failed to submit. Please try again." });
-      setCurrentStep(hasIdea ? "form" : "B3");
+      setCurrentStep(campaignPath === "idea" ? "form" : "B3");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handlePathSelect = (idea: boolean) => {
-    setHasIdea(idea);
-    setCurrentStep(idea ? "form" : "B1");
+  const handleSummarySubmit = async (summaryText: string) => {
+    if (!workspaceId) return;
+
+    setIsSubmitting(true);
+    setCurrentStep("loading");
+
+    const submitData: OfferFormData = {
+      field_1_name: "Custom Strategy",
+      field_1_format: "course", // Default
+      field_2_outcome: summaryText,
+      field_3_persona: "See summary",
+      field_4_price: "0",
+      field_4_currency: "USD",
+      field_4_upsell: "",
+      field_5_proof: "",
+      field_6_mechanism: "",
+      field_7_channels: [],
+      field_7_detail: "",
+      field_8_challenge: "",
+    };
+
+    try {
+      const response = await fetch("/api/offer-intelligence/call1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formData: submitData,
+          workspaceId,
+          hasIdea: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit form");
+      }
+
+      const funnelId = response.headers.get("X-Funnel-Id");
+      if (funnelId) {
+        router.push(`/intelligence/${funnelId}`);
+      } else {
+        throw new Error("No funnel ID returned");
+      }
+    } catch (error) {
+      console.error("Error submitting summary:", error);
+      setErrors({ submit: "Failed to submit. Please try again." });
+      setCurrentStep(campaignPath === "pdf" ? "pdf_upload" : "website_url");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePathSelect = (path: CampaignPathType) => {
+    setCampaignPath(path);
+    if (path === "idea") setCurrentStep("form");
+    else if (path === "scratch") setCurrentStep("B1");
+    else if (path === "pdf") setCurrentStep("pdf_upload");
+    else if (path === "website") setCurrentStep("website_url");
     setErrors({});
   };
 
@@ -285,11 +341,14 @@ function AnalyzeContent() {
 
   const goNext = () => {
     if (currentStep === "path") {
-      if (hasIdea === null) {
+      if (campaignPath === null) {
         setErrors({ path: "Please select an option" });
         return;
       }
-      setCurrentStep(hasIdea ? "form" : "B1");
+      if (campaignPath === "idea") setCurrentStep("form");
+      else if (campaignPath === "scratch") setCurrentStep("B1");
+      else if (campaignPath === "pdf") setCurrentStep("pdf_upload");
+      else if (campaignPath === "website") setCurrentStep("website_url");
     } else if (currentStep === "B1") {
       if (skills.length === 0 && !customSkill.trim()) {
         setErrors({
@@ -322,9 +381,9 @@ function AnalyzeContent() {
   };
 
   const handleBack = () => {
-    if (currentStep === "form" || currentStep === "B1") {
+    if (currentStep === "form" || currentStep === "B1" || currentStep === "pdf_upload" || currentStep === "website_url") {
       setCurrentStep("path");
-      setHasIdea(null);
+      setCampaignPath(null);
       setErrors({});
     } else if (currentStep === "B2") {
       setCurrentStep("B1");
@@ -334,15 +393,49 @@ function AnalyzeContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] flex flex-col items-center p-6 md:p-12 overflow-hidden relative">
-      {/* Background Image */}
-      <div 
-        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
-        style={{ backgroundImage: "url('/gradients/form-gradient.jpg')" }}
-      />
-      
-      {/* Overlay for better readability */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#0e0e0e]/20 via-transparent to-[#0e0e0e]/80 pointer-events-none" />
+    <div className="min-h-screen bg-[#030712] flex flex-col items-center p-6 md:p-12 overflow-hidden relative">
+      {/* Gallereee Background Elements (Exact Framer Styles) */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Radial - Pink */}
+        <div 
+          className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40" 
+          style={{ 
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
+            transform: 'rotate(-30deg)'
+          }} 
+        />
+        {/* Radial - Blue */}
+        <div 
+          className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40" 
+          style={{ 
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
+            transform: 'rotate(30deg)'
+          }} 
+        />
+        {/* Radial - Purple */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]" 
+          style={{ 
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+          }} 
+        />
+        {/* Bottom Gradient Overlay */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
+          style={{
+            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+          }}
+        />
+        {/* Noise Overlay */}
+        <div 
+          className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
+          style={{ 
+            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '128px auto'
+          }}
+        />
+      </div>
 
       <div className="w-full max-w-4xl relative z-10">
         {currentStep !== "path" && currentStep !== "loading" && (
@@ -361,7 +454,7 @@ function AnalyzeContent() {
           {currentStep === "path" && (
             <CampaignPathSelection
               key="path"
-              selectedPath={hasIdea}
+              selectedPath={campaignPath}
               onSelect={handlePathSelect}
             />
           )}
@@ -377,6 +470,22 @@ function AnalyzeContent() {
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
               onFillDemo={fillDemoData}
+            />
+          )}
+
+          {currentStep === "pdf_upload" && (
+            <PdfUploadForm
+              key="pdf_upload"
+              onBack={handleBack}
+              onSubmit={handleSummarySubmit}
+            />
+          )}
+
+          {currentStep === "website_url" && (
+            <WebsiteUrlForm
+              key="website_url"
+              onBack={handleBack}
+              onSubmit={handleSummarySubmit}
             />
           )}
 

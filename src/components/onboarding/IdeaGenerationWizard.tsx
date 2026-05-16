@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
 import { CurrencyCode } from "@/lib/offer-types";
 
 const skillsOptions = [
@@ -53,15 +54,11 @@ interface IdeaGenerationWizardProps {
   errors: Record<string, string>;
 }
 
-/* ── Shared class strings ── */
-const inputCls =
-  "w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 h-12 text-sm text-white placeholder:text-[#444] focus:outline-none focus:border-white/25 transition-colors";
-
 const selectCls =
-  "w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-4 h-12 text-sm text-white focus:outline-none focus:border-white/25 transition-colors appearance-none cursor-pointer";
+  "w-full bg-white/[0.12] border border-white/10 rounded-lg px-4 h-12 text-base text-white focus:outline-none focus:border-white transition-all appearance-none cursor-pointer placeholder:text-white/40";
 
 const labelCls =
-  "block text-[10px] font-bold uppercase tracking-[0.12em] text-[#555] mb-2";
+  "block text-base font-medium text-white mb-2";
 
 export function IdeaGenerationWizard({
   currentStep,
@@ -87,12 +84,8 @@ export function IdeaGenerationWizard({
   return (
     <div className="max-w-[720px] mx-auto w-full relative z-10">
       <div className="relative group/container">
-        {/* Premium Background Container */}
-        <div className="absolute inset-0 bg-blue-600/[0.03] backdrop-blur-2xl rounded-[2.5rem] border border-blue-500/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] -z-10 transition-all duration-500 group-hover/container:border-blue-500/20 group-hover/container:bg-blue-600/[0.05]" />
-        
-        {/* Subtle Blue Glow */}
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/10 blur-[100px] pointer-events-none -z-10" />
-        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none -z-10" />
+        {/* Gallereee Background Container */}
+        <div className="absolute inset-0 bg-white/[0.08] backdrop-blur-[5px] rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] -z-10 transition-all duration-500" />
 
         <div className="px-8 py-12 md:px-12">
           <AnimatePresence mode="wait">
@@ -106,7 +99,7 @@ export function IdeaGenerationWizard({
           >
             <div>
               <h2 className="text-[26px] font-bold text-white tracking-tight">What are you good at?</h2>
-              <p className="text-[13px] text-[#555] mt-1">Select the skills or areas you have experience in.</p>
+              <p className="text-[13px] text-white/50 mt-1">Select the skills or areas you have experience in.</p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -114,12 +107,12 @@ export function IdeaGenerationWizard({
                 <button
                   key={skill}
                   onClick={() => toggleSkill(skill)}
-                  className={cn(
-                    "p-4 rounded-xl border text-[13px] font-medium transition-all text-center",
-                    skills.includes(skill)
-                      ? "bg-brand-yellow/10 border-brand-yellow text-brand-yellow"
-                      : "bg-[#1a1a1a] border-white/10 text-[#777] hover:border-white/20 hover:text-white"
-                  )}
+                    className={cn(
+                      "p-4 rounded-xl border text-[13px] font-medium transition-all text-center",
+                      skills.includes(skill)
+                        ? "bg-white text-black border-white"
+                        : "bg-white/5 border-white/10 text-white/50 hover:border-white/20 hover:text-white"
+                    )}
                 >
                   {skill}
                 </button>
@@ -128,8 +121,7 @@ export function IdeaGenerationWizard({
 
             <div className="space-y-2">
               <label className={labelCls}>Or describe your unique strength</label>
-              <input
-                className={inputCls}
+              <Input
                 value={customSkill}
                 onChange={(e) => setCustomSkill(e.target.value)}
                 placeholder="e.g., I'm a pro at helping people lose weight with keto"
@@ -141,7 +133,7 @@ export function IdeaGenerationWizard({
             <div className="pt-4">
               <button
                 onClick={onNext}
-                className="w-full h-14 rounded-xl bg-brand-yellow text-black font-bold text-[15px] tracking-wide hover:bg-brand-yellow/90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(245,166,35,0.2)]"
+                className="w-full h-14 rounded-full bg-white text-black font-bold text-[15px] tracking-wide hover:bg-zinc-200 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
               >
                 Continue <ChevronRight className="h-5 w-5" />
               </button>
@@ -159,7 +151,7 @@ export function IdeaGenerationWizard({
           >
             <div>
               <h2 className="text-[26px] font-bold text-white tracking-tight">Who should this serve?</h2>
-              <p className="text-[13px] text-[#555] mt-1">Define your target audience and market.</p>
+              <p className="text-[13px] text-white/50 mt-1">Define your target audience and market.</p>
             </div>
 
             <div className="space-y-4">
@@ -172,8 +164,8 @@ export function IdeaGenerationWizard({
                     className={cn(
                       "p-3 rounded-xl border text-[12px] font-medium transition-all text-center",
                       audienceTypes.includes(aud)
-                        ? "bg-brand-yellow/10 border-brand-yellow text-brand-yellow"
-                        : "bg-[#1a1a1a] border-white/10 text-[#777] hover:border-white/20 hover:text-white"
+                        ? "bg-white text-black border-white"
+                        : "bg-white/5 border-white/10 text-white/50 hover:border-white/20 hover:text-white"
                     )}
                   >
                     {aud}
@@ -240,7 +232,7 @@ export function IdeaGenerationWizard({
             <div className="pt-4">
               <button
                 onClick={onNext}
-                className="w-full h-14 rounded-xl bg-brand-yellow text-black font-bold text-[15px] tracking-wide hover:bg-brand-yellow/90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(245,166,35,0.2)]"
+                className="w-full h-14 rounded-full bg-white text-black font-bold text-[15px] tracking-wide hover:bg-zinc-200 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
               >
                 Generate Ideas <Sparkles className="h-5 w-5" />
               </button>
@@ -258,7 +250,7 @@ export function IdeaGenerationWizard({
           >
             <div>
               <h2 className="text-[26px] font-bold text-white tracking-tight">Choose your best idea</h2>
-              <p className="text-[13px] text-[#555] mt-1">We&apos;ve architected a few offers based on your skills.</p>
+              <p className="text-[13px] text-white/50 mt-1">We&apos;ve architected a few offers based on your skills.</p>
             </div>
 
             {isGenerating ? (
@@ -275,24 +267,24 @@ export function IdeaGenerationWizard({
                     className={cn(
                       "w-full p-6 rounded-2xl border text-left transition-all relative group",
                       pickedIdea === idx
-                        ? "bg-brand-yellow/[0.03] border-brand-yellow"
-                        : "bg-[#1a1a1a] border-white/10 hover:border-white/20"
+                        ? "bg-white text-black border-white"
+                        : "bg-white/5 border-white/10 hover:border-white/20"
                     )}
                   >
                     <div className="flex justify-between items-start mb-3">
                       <h4 className="text-[17px] font-bold text-white group-hover:text-brand-yellow transition-colors">{idea.title}</h4>
                       {pickedIdea === idx && <div className="w-5 h-5 rounded-full bg-brand-yellow flex items-center justify-center"><Check className="h-3 w-3 text-black" /></div>}
                     </div>
-                    <p className="text-[13px] text-[#777] leading-relaxed mb-5">{idea.description}</p>
+                    <p className="text-[13px] text-white/50 leading-relaxed mb-5">{idea.description}</p>
                     <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <span className="block text-[10px] font-bold uppercase tracking-wider text-[#444] mb-1.5">Market Demand</span>
+                        <span className="block text-[10px] font-bold uppercase tracking-wider text-white/30 mb-1.5">Market Demand</span>
                         <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                            <div className="h-full bg-brand-yellow/40 rounded-full" style={{ width: idea.demand === 'High' ? '90%' : idea.demand === 'Medium' ? '60%' : '30%' }} />
                         </div>
                       </div>
                       <div>
-                        <span className="block text-[10px] font-bold uppercase tracking-wider text-[#444] mb-1.5">Your Fit</span>
+                        <span className="block text-[10px] font-bold uppercase tracking-wider text-white/30 mb-1.5">Your Fit</span>
                         <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                            <div className="h-full bg-green-500/40 rounded-full" style={{ width: idea.fit === 'High' ? '90%' : idea.fit === 'Medium' ? '60%' : '30%' }} />
                         </div>
@@ -309,7 +301,7 @@ export function IdeaGenerationWizard({
               <button
                 onClick={onNext}
                 disabled={pickedIdea === -1 || isGenerating}
-                className="w-full h-14 rounded-xl bg-brand-yellow text-black font-bold text-[15px] tracking-wide hover:bg-brand-yellow/90 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_10px_30px_rgba(245,166,35,0.2)]"
+                className="w-full h-14 rounded-full bg-white text-black font-bold text-[15px] tracking-wide hover:bg-zinc-200 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
               >
                 Confirm and Start Analysis
               </button>

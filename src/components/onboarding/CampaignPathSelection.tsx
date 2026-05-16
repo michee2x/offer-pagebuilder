@@ -2,108 +2,159 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { FileText, Lightbulb, Sparkles, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
-
 import Image from "next/image";
+import { Highlighter } from "@/components/ui/highlighter"
+
+export type CampaignPathType = "idea" | "scratch" | "pdf" | "website" | null;
 
 interface CampaignPathSelectionProps {
-  onSelect: (hasIdea: boolean) => void;
-  selectedPath: boolean | null;
+  onSelect: (path: CampaignPathType) => void;
+  selectedPath: CampaignPathType;
 }
+
+const paths = [
+  {
+    id: "idea" as CampaignPathType,
+    icon: Lightbulb,
+    title: "I have an idea",
+    image: "https://framerusercontent.com/images/ocTUXzjdGN7azeFQ4br4ScyHbYA.jpg?scale-down-to=1024&width=1440&height=1080",
+    iconColor: "#f5a623",
+  },
+  {
+    id: "scratch" as CampaignPathType,
+    icon: Sparkles,
+    title: "I need an idea",
+    image: "https://framerusercontent.com/images/JHKo9Ag0unotBN7sVIks5pWsQg.webp?width=1600&height=1200",
+    iconColor: "#818cf8",
+  },
+  {
+    id: "pdf" as CampaignPathType,
+    icon: FileText,
+    title: "Upload a PDF",
+    image: "https://framerusercontent.com/images/Gs177VTHhuZMszsLfkXbl7X30Cg.jpg?scale-down-to=1024&width=1440&height=1080",
+    iconColor: "#4ade80",
+  },
+  {
+    id: "website" as CampaignPathType,
+    icon: Globe,
+    title: "From a Website",
+    image: "https://framerusercontent.com/images/5RoHhzBwXKlzmqGgZlmjqnERe5s.jpeg?scale-down-to=1024&width=1600&height=1200",
+    iconColor: "#38bdf8",
+  },
+];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
 
 export function CampaignPathSelection({
   onSelect,
   selectedPath,
 }: CampaignPathSelectionProps) {
-  const paths = [
-    {
-      id: "yes",
-      hasIdea: true,
-      title: "I have an idea",
-      description: "Validate your existing offer and build a high-converting strategy from it.",
-      time: "5 MINS",
-      image: "/ofiq-imgs/idea-yes.png",
-    },
-    {
-      id: "no",
-      hasIdea: false,
-      title: "I need an idea",
-      description: "Generate a market-vetted business idea first, then architect your strategy.",
-      time: "2 MINS",
-      image: "/ofiq-imgs/idea-no.png",
-    },
-  ];
-
   return (
     <div className="max-w-[840px] mx-auto w-full relative z-10">
-      <div className="relative group/container">
-        <div className="px-8 py-8 md:px-12">
-          <div className="mb-14 text-center">
-            <h1 className="text-[36px] font-bold text-white tracking-tight mb-4 leading-tight">
-              Start your <span className="text-[#f5a623]">Sales Intelligence</span> Flow
-            </h1>
-            <p className="text-[12.5px] text-white/80 font-light max-w-lg mx-auto leading-relaxed">
-              Choose your path to begin. Complete these strategic steps to architect your high-converting offer.
-            </p>
-          </div>
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-14 text-center"
+      >
+        <h1 className="text-[56px] font-semibold text-white tracking-tight mb-3 leading-tight">
+          Start The{" "}
+          <br /> <Highlighter action="underline" color="#f5a623">
+          Sales Intelligence
+        </Highlighter> Flow
+        </h1>
+        <p className="text-[18px] text-white/60 font-light max-w-xl mx-auto leading-relaxed">
+          All paths lead to a complete sales
+          intelligence report.
+        </p>
+      </motion.div>
 
-          <div className="grid grid-cols-1 max-w-sm sm:max-w-full sm:grid-cols-2 gap-8">
-            {paths.map((path) => (
-              <motion.div
-                key={path.id}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => onSelect(path.hasIdea)}
+      {/* Galeree-style Grid */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-14"
+      >
+        {paths.map((path) => {
+          const isSelected = selectedPath === path.id;
+          const Icon = path.icon;
+
+          return (
+            <motion.div
+              key={path.id}
+              variants={cardVariants}
+              onClick={() => onSelect(path.id)}
+              className="flex flex-col cursor-pointer group"
+            >
+              {/* Thumbnail Container (Gradient Border) */}
+              <div
                 className={cn(
-                  "relative flex flex-col p-0 overflow-hidden rounded-[2.5rem] border-4 transition-all duration-500 cursor-pointer group shadow-2xl bg-[#1F1F1E]/30",
-                  selectedPath === path.hasIdea
-                    ? "border-brand-yellow shadow-[0_30px_60px_rgba(245,166,35,0.25)]"
-                    : "border-transparent"
+                  "relative p-[1px] w-full aspect-[5/4] rounded-2xl bg-gradient-to-br transition-all duration-500",
+                  isSelected
+                    ? "from-[#f5a623] to-[#ff6b35] shadow-[0_0_40px_rgba(245,166,35,0.1)] scale-[1.02]"
+                    : "from-white/10 via-white/5 to-transparent group-hover:from-white/20"
                 )}
               >
-                {/* Premium Background Container */}
-                <div className="absolute inset-0 bg-blue-600/[0.03] backdrop-blur-2xl rounded-[2.5rem] border border-blue-500/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] -z-10 transition-all duration-500 group-hover/container:border-blue-500/20 group-hover/container:bg-blue-600/[0.05]" />
-                {/* Subtle Blue Glow */}
-                <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/10 blur-[100px] pointer-events-none -z-10" />
-                <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none -z-10" />
-
-                {/* Image Section */}
-                <div className="relative h-54 w-full overflow-hidden bg-transparent">
-                  <Image
-                    src={path.image}
-                    alt={path.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  {/* <div className="absolute inset-0 opacity-60" /> */}
-
-
-                  {/* {selectedPath === path.hasIdea && (
-                    <div className="absolute top-6 right-6 h-8 w-8 rounded-full bg-brand-yellow flex items-center justify-center text-black shadow-lg">
-                      <Check className="h-4 w-4" strokeWidth={3} />
-                    </div>
-                  )} */}
+                {/* Content Container */}
+                <div className="bg-[#030712]/40 backdrop-blur-2xl relative flex items-center justify-center w-full h-full p-2 rounded-[inherit] overflow-hidden">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={path.image}
+                      alt={path.title}
+                      fill
+                      className="object-cover rounded-lg transition-transform duration-700 group-hover:scale-[1.05]"
+                    />
+                  </div>
                 </div>
 
-                {/* Content Section */}
-                <div className="p-8 pt-6">
-                  <h3 className="text-[22px] font-bold text-white mb-3 tracking-tight group-hover:text-brand-yellow transition-colors duration-300">
-                    {path.title}
-                  </h3>
-                  <p className="text-[14px] text-white/80 leading-relaxed font-medium">
-                    {path.description}
-                  </p>
+                {/* Floating Blur Wrapper (Logo/Icon) */}
+                <div
+                  className={cn(
+                    "absolute -bottom-[20px] right-[16px] z-20 p-[10px] rounded-[12px] flex items-center justify-center transition-all duration-500 group-hover:-translate-y-1 shadow-2xl",
+                    isSelected
+                      ? "bg-white border-white"
+                      : "bg-[#030712]/80 backdrop-blur-xl border border-white/10"
+                  )}
+                >
+                  <div className={cn(
+                    "flex p-1.5 rounded-md items-center justify-center transition-colors",
+                    isSelected ? "bg-gradient-to-b from-[#f5a623] to-[#ff6b35]" : "bg-white/5"
+                  )}>
+                    <Icon
+                      className={cn("w-4 h-4", isSelected ? "text-white" : "text-white/40")}
+                    />
+                  </div>
                 </div>
+              </div>
 
-                {selectedPath === path.hasIdea && (
-                  <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-brand-yellow" />
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
+              {/* Card Title (Below Thumbnail) */}
+              <div className="mt-4 px-1 flex items-center justify-between">
+                <h3 className={cn(
+                  "text-[15px] font-medium tracking-wide transition-colors",
+                  isSelected ? "text-[#f5a623]" : "text-white group-hover:text-white/80"
+                )}>
+                  {path.title}
+                </h3>
+              </div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
     </div>
   );
 }

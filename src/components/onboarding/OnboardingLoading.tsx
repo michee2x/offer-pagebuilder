@@ -34,7 +34,7 @@ export function OnboardingLoading() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-[15px] text-[#555] leading-relaxed"
+          className="text-[15px] text-white/50 leading-relaxed"
         >
           Our AI is deep-diving into market data, competitor analysis, and psychographic mapping to build your high-converting strategy.
         </motion.p>
