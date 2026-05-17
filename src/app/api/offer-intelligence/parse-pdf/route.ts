@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 
 export const maxDuration = 60;
 
@@ -17,8 +17,9 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Parse the PDF
-    const data = await pdfParse(buffer);
+    // Parse the PDF using new pdf-parse class API
+    const parser = new PDFParse({ data: buffer });
+    const data = await parser.getText();
     const text = data.text;
 
     if (!text || text.trim().length === 0) {
