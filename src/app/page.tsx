@@ -114,11 +114,11 @@ export default async function DashboardPage(props: {
             </div>
 
             <h1 className="text-[56px] md:text-[72px] font-bold text-white tracking-tight mb-6 leading-[1.1]">
-              The directory & <br />curation template
+              The directory & <br />campaigns system
             </h1>
 
             <p className="text-[18px] md:text-[20px] text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-              Build your own curation website with this Framer template.
+              Build your own curation campaign system with offeriq.
               Manage your campaigns and intelligence reports from one central dashboard.
             </p>
 
