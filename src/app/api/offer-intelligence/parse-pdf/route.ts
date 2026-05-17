@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 Keep it concise and formatted cleanly so the user can review it.`;
 
     const { text: summary } = await generateText({
-      model: anthropic('claude-3-5-sonnet-20240620'), // Using 3.5 Sonnet for fast, high-quality extraction
+      model: anthropic('claude-opus-4-7'), // Using 3.5 Sonnet for fast, high-quality extraction
       system: systemPrompt,
       prompt: `Extract the offer strategy from this document text. If something is missing, just omit it.\n\nDOCUMENT TEXT:\n${text.substring(0, 50000)}`, // Limiting length just in case
     });
