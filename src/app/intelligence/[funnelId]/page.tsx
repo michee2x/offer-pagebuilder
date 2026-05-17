@@ -295,6 +295,14 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     icon: <Cog className="w-4 h-4" />,
     color: "text-foreground",
   },
+  TRAFFIC_INTELLIGENCE: {
+    id: "TRAFFIC_INTELLIGENCE",
+    label: "Traffic Acquisition",
+    subheader: "Omnichannel ad copy matrix, search ads, UGC scripts, and launch checklists.",
+    icon: <TrendingUp className="w-4 h-4" />,
+    color: "text-brand-yellow",
+    badge: "Call 3",
+  },
 };
 
 // Map Call2 outputs into standard keys matching config
@@ -623,6 +631,7 @@ export default function IntelligencePage({
   const router = useRouter();
 
   const [phase, setPhase] = useState<StreamPhase>("idle");
+  const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [funnelName, setFunnelName] = useState("");
   const [formData, setFormData] = useState<OfferFormData | null>(null);
@@ -772,6 +781,7 @@ export default function IntelligencePage({
   useEffect(() => {
     async function init() {
       try {
+        setLoading(true);
         const res = await fetch(`/api/offer-data/${funnelId}`);
         if (!res.ok) throw new Error("Funnel not found");
         const { funnel } = await res.json();
@@ -800,6 +810,8 @@ export default function IntelligencePage({
       } catch (e: any) {
         setErrorMsg(e.message || "Something went wrong");
         setPhase("error");
+      } finally {
+        setLoading(false);
       }
     }
     init();
@@ -807,21 +819,40 @@ export default function IntelligencePage({
 
   // Derive consolidated list of available sections
   const availableSections = React.useMemo(() => {
-    const list: string[] = [];
-    if (call1) {
-      list.push(...Object.keys(call1).filter(k => SECTION_CONFIG[k]));
-    }
-    if (call2) {
-      list.push(...Object.values(CALL2_SECTION_MAP));
-    }
-    return list;
-  }, [call1, call2]);
+    return [
+      "OFFER_SCORE",
+      "SCORE_SUMMARY",
+      "REVENUE_MODEL_ARCHITECTURE",
+      "PAIN_POINT_MAPPING",
+      "FUNNEL_STRUCTURE_BLUEPRINT",
+      "PRICING_STRATEGY",
+      "UPSELL_DOWNSELL_PATHS",
+      "STRATEGIC_BONUS_RECOMMENDATIONS",
+      "DESIGN_INTELLIGENCE_RECOMMENDATION",
+      "FUNNEL_HEALTH_SCORE",
+      "PLATFORM_PRIORITY_MATRIX",
+      "OFFER_POSITIONING_ANALYSIS",
+      "TARGET_PERSONA_INTELLIGENCE",
+      "CONVERSION_HOOK_LIBRARY",
+      "MESSAGING_ANGLE_MATRIX",
+      "PRODUCT_CORE_VALUE_PERCEPTION",
+      "REAL_WORLD_USE_CASE_SCENARIOS",
+      "MONETIZATION_STRATEGY_NARRATIVE",
+      "TRAFFIC_INTELLIGENCE"
+    ];
+  }, []);
 
   useEffect(() => {
     if (availableSections.length > 0 && (!activeSectionId || !availableSections.includes(activeSectionId))) {
       setActiveSectionId(availableSections[0]);
     }
   }, [availableSections, activeSectionId]);
+
+  useEffect(() => {
+    if (activeSectionId === "TRAFFIC_INTELLIGENCE") {
+      router.push(`/funnels/${funnelId}/traffic`);
+    }
+  }, [activeSectionId, funnelId, router]);
 
   const activeIndex = availableSections.indexOf(activeSectionId);
   const prevSectionId = activeIndex > 0 ? availableSections[activeIndex - 1] : null;
@@ -841,6 +872,36 @@ export default function IntelligencePage({
   const activeConfig = SECTION_CONFIG[activeSectionId] || SECTION_CONFIG["OFFER_SCORE"];
 
   // ── Layout ────────────────────────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="flex h-screen overflow-hidden bg-background">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <Topbar
+            breadcrumbs={[
+              { label: "Funnels", href: `/funnels/${funnelId}` },
+              { label: funnelName || "Loading...", href: `/funnels/${funnelId}` },
+              { label: "Sales Intelligence" },
+            ]}
+            steps={WIZARD_STEPS}
+          />
+          <div className="flex-1 flex items-center justify-center p-8 relative">
+            <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none opacity-20">
+              <div className="w-[500px] h-[500px] rounded-full border border-brand-yellow/10 animate-[spin_120s_linear_infinite]" />
+              <div className="absolute w-[350px] h-[350px] rounded-full border border-blue-500/10 animate-[spin_60s_linear_infinite_reverse]" />
+            </div>
+            <div className="text-center space-y-4 relative z-10">
+              <Spinner className="w-10 h-10 mx-auto text-brand-yellow" />
+              <p className="text-sm text-white/40 tracking-widest uppercase font-semibold">
+                Initializing Intelligence Suite...
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -880,7 +941,7 @@ export default function IntelligencePage({
             <h1 className="text-3xl font-bold">{funnelName || "Sales Intelligence"}</h1>
             <p className="text-gray-500 mt-2">Comprehensive Funnel Architecture & Strategic Blueprint</p>
           </div>
-          {availableSections.map(sectionId => {
+           {availableSections.map(sectionId => {
             const config = SECTION_CONFIG[sectionId] || { label: sectionId, subheader: "" };
             let content = "";
             if (call1 && sectionId in call1) content = call1[sectionId];
@@ -888,6 +949,7 @@ export default function IntelligencePage({
               const orig = Object.keys(CALL2_SECTION_MAP).find(k => CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === sectionId);
               if (orig) content = call2[orig as keyof Call2Output];
             }
+            if (!content) return null;
             return (
               <div key={sectionId} className="page-break-after-always mb-12">
                 <h2 className="text-xl font-bold mb-1 pb-1 border-b text-gray-800 flex items-center justify-between">
