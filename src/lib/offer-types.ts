@@ -133,6 +133,21 @@ export interface Call2Output {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Call 3 — Opus Traffic Output
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface Call3Output {
+  platform_priority_narrative: string;
+  omnichannel_ad_copy_matrix: string;
+  google_ads_copy_matrix: string;
+  vsl_ugc_video_script_intelligence: string;
+  media_buying_strategy_report: string;
+  traffic_funnel_alignment: string;
+  competitive_acquisition_intelligence: string;
+  launch_sequence_recommendation: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Copy Output
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -170,8 +185,10 @@ export interface OfferIntelligence {
   raw_input: OfferFormData;
   call1?: Call1Output;
   call2?: Call2Output;
+  call3?: Call3Output;
   call1_complete?: boolean;
   call2_complete?: boolean;
+  call3_complete?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

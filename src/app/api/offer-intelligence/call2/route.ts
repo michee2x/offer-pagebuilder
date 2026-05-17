@@ -22,28 +22,42 @@ export async function POST(req: Request) {
   let call1Raw: Record<string, string>;
   let call1: Call1Parsed;
 
+  const parseJsonSafe = (val: any, fallback: any) => {
+    if (!val) return fallback;
+    if (typeof val === 'object') return val;
+    try {
+      if (typeof val === 'string') {
+        return JSON.parse(val);
+      }
+      return val;
+    } catch {
+      return fallback;
+    }
+  };
+
   try {
     const body = await req.json();
     funnelId = body.funnelId;
     formData = body.formData;
     call1Raw = body.call1;
     
-    // Parse the call1 data
+    // Parse the call1 data safely with both case formats
     call1 = {
-      offer_score: JSON.parse(call1Raw.offer_score),
-      score_summary: call1Raw.score_summary,
-      funnel_structure_blueprint: call1Raw.funnel_structure_blueprint,
-      revenue_model_architecture: call1Raw.revenue_model_architecture,
-      pain_point_mapping: call1Raw.pain_point_mapping,
-      platform_priority_matrix: JSON.parse(call1Raw.platform_priority_matrix),
-      funnel_health_score: JSON.parse(call1Raw.funnel_health_score),
-      pricing_strategy: call1Raw.pricing_strategy,
-      upsell_downsell_paths: call1Raw.upsell_downsell_paths,
-      strategic_bonus_recommendations: call1Raw.strategic_bonus_recommendations,
-      design_intelligence_recommendation: call1Raw.design_intelligence_recommendation,
+      offer_score: parseJsonSafe(call1Raw.OFFER_SCORE || call1Raw.offer_score, { overall: 0 }),
+      score_summary: call1Raw.SCORE_SUMMARY || call1Raw.score_summary || '',
+      funnel_structure_blueprint: call1Raw.FUNNEL_STRUCTURE_BLUEPRINT || call1Raw.funnel_structure_blueprint || '',
+      revenue_model_architecture: call1Raw.REVENUE_MODEL_ARCHITECTURE || call1Raw.revenue_model_architecture || '',
+      pain_point_mapping: call1Raw.PAIN_POINT_MAPPING || call1Raw.pain_point_mapping || '',
+      platform_priority_matrix: parseJsonSafe(call1Raw.PLATFORM_PRIORITY_MATRIX || call1Raw.platform_priority_matrix, { primary: {} }),
+      funnel_health_score: parseJsonSafe(call1Raw.FUNNEL_HEALTH_SCORE || call1Raw.funnel_health_score, { score: 0 }),
+      pricing_strategy: call1Raw.PRICING_STRATEGY || call1Raw.pricing_strategy || '',
+      upsell_downsell_paths: call1Raw.UPSELL_DOWNSELL_PATHS || call1Raw.upsell_downsell_paths || '',
+      strategic_bonus_recommendations: call1Raw.STRATEGIC_BONUS_RECOMMENDATIONS || call1Raw.strategic_bonus_recommendations || '',
+      design_intelligence_recommendation: call1Raw.DESIGN_INTELLIGENCE_RECOMMENDATION || call1Raw.design_intelligence_recommendation || '',
     };
-  } catch {
-    return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  } catch (err: any) {
+    console.error('[call2] Request parsing error:', err);
+    return Response.json({ error: 'Invalid request body or parsed data structure: ' + err.message }, { status: 400 });
   }
 
   if (!funnelId || !formData || !call1Raw) {

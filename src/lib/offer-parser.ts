@@ -3,7 +3,7 @@
 // Extracts named sections from the structured text format
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { CopyOutput, PageCopy, EmailCopy, Call2Output } from './offer-types';
+import type { CopyOutput, PageCopy, EmailCopy, Call2Output, Call3Output } from './offer-types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Generic section extractor
@@ -16,7 +16,10 @@ const ALL_SECTIONS = [
   'FUNNEL_HEALTH_SCORE', 'PLATFORM_PRIORITY_MATRIX',
   'OFFER_POSITIONING_ANALYSIS', 'TARGET_PERSONA_INTELLIGENCE', 'CONVERSION_HOOK_LIBRARY',
   'MESSAGING_ANGLE_MATRIX', 'PRODUCT_CORE_VALUE_PERCEPTION', 'REAL_WORLD_USE_CASE_SCENARIOS',
-  'MONETIZATION_STRATEGY_NARRATIVE'
+  'MONETIZATION_STRATEGY_NARRATIVE',
+  'PLATFORM_PRIORITY_NARRATIVE', 'OMNICHANNEL_AD_COPY_MATRIX', 'GOOGLE_ADS_COPY_MATRIX',
+  'VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE', 'MEDIA_BUYING_STRATEGY_REPORT', 'TRAFFIC_FUNNEL_ALIGNMENT',
+  'COMPETITIVE_ACQUISITION_INTELLIGENCE', 'LAUNCH_SEQUENCE_RECOMMENDATION'
 ];
 
 export function extractSection(text: string, sectionName: string): string {
@@ -87,6 +90,23 @@ export function parseCall2Output(rawText: string): Call2Output {
     product_core_value_perception: extractSection(rawText, 'PRODUCT_CORE_VALUE_PERCEPTION'),
     real_world_use_case_scenarios: extractSection(rawText, 'REAL_WORLD_USE_CASE_SCENARIOS'),
     monetization_strategy_narrative: extractSection(rawText, 'MONETIZATION_STRATEGY_NARRATIVE'),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Call 3 parser
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function parseCall3Output(rawText: string): Call3Output {
+  return {
+    platform_priority_narrative: extractSection(rawText, 'PLATFORM_PRIORITY_NARRATIVE'),
+    omnichannel_ad_copy_matrix: extractSection(rawText, 'OMNICHANNEL_AD_COPY_MATRIX'),
+    google_ads_copy_matrix: extractSection(rawText, 'GOOGLE_ADS_COPY_MATRIX'),
+    vsl_ugc_video_script_intelligence: extractSection(rawText, 'VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE'),
+    media_buying_strategy_report: extractSection(rawText, 'MEDIA_BUYING_STRATEGY_REPORT'),
+    traffic_funnel_alignment: extractSection(rawText, 'TRAFFIC_FUNNEL_ALIGNMENT'),
+    competitive_acquisition_intelligence: extractSection(rawText, 'COMPETITIVE_ACQUISITION_INTELLIGENCE'),
+    launch_sequence_recommendation: extractSection(rawText, 'LAUNCH_SEQUENCE_RECOMMENDATION'),
   };
 }
 
