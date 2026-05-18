@@ -170,6 +170,64 @@ export default function BuilderPage() {
 
   // No more DND sensors or event handlers needed
 
+  const autoSaveGeneratedPages = async (newPagesList: Record<string, any>, initialPage: any) => {
+    try {
+      setIsSaving(true);
+      toast.loading("Saving draft to database...");
+
+      const payload: any = {
+        name: funnelName,
+        components: initialPage.components || {},
+        rootList: initialPage.rootList || [],
+        canvasStyle,
+        theme,
+        pages: newPagesList,
+      };
+      if (pageId) payload.pageId = pageId;
+
+      const res = await fetch("/api/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to auto-save");
+      }
+
+      toast.dismiss();
+
+      if (data.custom_domain || data.subdomain) {
+        const isLocal =
+          window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1";
+        const proto = isLocal ? "http://" : "https://";
+        const base = isLocal ? window.location.host : "ofiq.app";
+
+        if (data.custom_domain) {
+          setPublishedUrl(`https://${data.custom_domain}`);
+        } else {
+          setPublishedUrl(`${proto}${data.subdomain}.${base}`);
+        }
+      }
+      setHasUnsavedChanges(false);
+
+      if (!pageId && data.pageId) {
+        setPageId(data.pageId);
+      }
+
+      toast.success("Funnel saved and synced to database successfully!");
+    } catch (e: any) {
+      toast.dismiss();
+      console.error("[client] Auto-save error:", e);
+      toast.error("Pages rendered, but auto-save failed: " + e.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleGeneratePage = async () => {
     try {
       setIsGenerating(true);
@@ -281,86 +339,39 @@ export default function BuilderPage() {
         }
       }
 
-      // Generation finished, parse the <json> block out
-      const jsonMatch = accumulatedText.match(/<json>([\s\S]*?)<\/json>/);
-      const rawJson = jsonMatch
-        ? jsonMatch[1].trim()
-        : accumulatedText
-            .replace(/```(?:json)?\n?/g, "")
-            .replace(/```\n?/g, "")
-            .trim();
+      // Generation finished, parse the XML <page> blocks out
+      const newPages: Record<string, any> = {};
+      const pageRegex = /<page\s+path=["']([^"']+)["']\s+name=["']([^"']+)["']\s*>([\s\S]*?)<\/page>/g;
+      let match;
+      let pageCount = 0;
 
-      console.log("[client] Raw JSON extracted length:", rawJson.length);
-      console.log("[client] Raw JSON preview:", rawJson.substring(0, 500));
-      console.log("[client] Raw JSON tail:", rawJson.slice(-200));
+      while ((match = pageRegex.exec(accumulatedText)) !== null) {
+        const path = match[1];
+        const name = match[2];
+        const code = match[3].trim();
 
-      let parsedData;
-      try {
-        parsedData = JSON.parse(rawJson);
-      } catch (parseError: any) {
-        const positionMatch = parseError.message.match(/position (\d+)/);
-        const position = positionMatch ? Number(positionMatch[1]) : null;
-        if (position !== null && !Number.isNaN(position)) {
-          const start = Math.max(0, position - 50);
-          const end = Math.min(rawJson.length, position + 50);
-          console.error(
-            "[client] JSON parse error context:",
-            rawJson.slice(start, end),
-          );
-        }
-        console.error(
-          "[client] JSON parse error:",
-          parseError,
-          "Raw JSON length:",
-          rawJson.length,
-        );
-        throw new Error("Failed to parse generated JSON");
+        newPages[path] = {
+          name,
+          path,
+          components: {},
+          rootList: [],
+          code,
+        };
+        pageCount++;
       }
 
-      const { pages: generatedPages } = parsedData;
-      console.log("[client] Parsed generatedPages:", generatedPages);
-
-      const newPages: Record<string, any> = {};
-
-      generatedPages.forEach((aiPage: any) => {
-        const newComponents: Record<string, any> = {};
-
-        const flattenItems = (itemList: any[], parentId: string): string[] => {
-          const ids: string[] = [];
-          if (!Array.isArray(itemList)) return ids;
-
-          itemList.forEach((item) => {
-            const compId = String(item.id);
-            ids.push(compId);
-
-            let childrenIds: string[] = [];
-            if (item.children && Array.isArray(item.children)) {
-              childrenIds = flattenItems(item.children, compId);
-            }
-
-            newComponents[compId] = {
-              id: compId,
-              type: item.type,
-              props: item.props || {},
-              parentId,
-              childrenIds,
-            };
-          });
-          return ids;
-        };
-
-        const newRootList = flattenItems(aiPage.items, "root");
-
-        newPages[aiPage.path] = {
-          name: aiPage.name,
-          path: aiPage.path,
-          components: newComponents,
-          rootList: newRootList,
-        };
-      });
+      if (pageCount === 0) {
+        console.error("[client] No <page> blocks matched. Raw output:", accumulatedText.substring(0, 1000));
+        throw new Error("Failed to find any valid generated pages in the stream.");
+      }
 
       const initialPage = newPages["/"] || Object.values(newPages)[0];
-      console.log("[client] Processed newPages:", newPages);
+      console.log("[client] Processed newPages from XML stream:", newPages);
+      
+      // 1. Auto-save the new pages to database FIRST so refreshes or HMR doesn't clear them!
+      await autoSaveGeneratedPages(newPages, initialPage);
+
+      // 2. Set local Zustand state to hot-render the pages inside the visual canvas!
       console.log("[client] Setting initialPage:", initialPage);
       setFullState(
         initialPage.components,
@@ -368,9 +379,6 @@ export default function BuilderPage() {
         newPages,
         initialPage.path,
       );
-      setHasUnsavedChanges(true); // Generation clears state, mark explicit unsaved
-      // Theme is NOT changed by generation — user keeps their chosen theme
-      toast.success("Generated page successfully!");
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -457,12 +465,13 @@ export default function BuilderPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar is fixed-positioned — renders itself, just mount it */}
-      <Sidebar />
+      {!isPreviewMode && <Sidebar />}
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Navigation Bar */}
-        <Topbar
+        {!isPreviewMode && (
+          <Topbar
           breadcrumbs={[
             { label: "Workspace" },
             { label: "Funnels", href: "/" },
@@ -622,13 +631,14 @@ export default function BuilderPage() {
             </button>
           </div>
         </Topbar>
+        )}
 
         {/* Main Extensible Editor Area */}
         <div className="flex flex-1 overflow-hidden relative">
           {/* LeftPanel is absolutely positioned — overlays the canvas */}
           {!isPreviewMode && <LeftPanel />}
           {/* Canvas fills full width — left padding reserves space for the icon strip */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden h-full w-full">
 
             <Canvas />
           </div>

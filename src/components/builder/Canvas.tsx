@@ -3,6 +3,7 @@
 import React from 'react';
 import { useBuilderStore } from '@/store/builderStore';
 import { BuilderComponent } from './BuilderComponent';
+import { DynamicRunner } from './DynamicRunner';
 import { Button } from '@/components/ui/button';
 import { X, Plus } from 'lucide-react';
 import { ShadcnTheme } from '@/lib/themes';
@@ -76,6 +77,8 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
     isPreviewMode,
     setIsPreviewMode,
     theme,
+    pages,
+    activePagePath,
   } = useBuilderStore();
   
   const isCanvasSelected = selectedId === CANVAS_ID;
@@ -119,6 +122,10 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
   const isIframeMode = !isDesktop;
 
   // The actual scrollable content block that gets injected into the normal tree OR the iframe portal
+  // Check if we have dynamic react code for this page
+  const activePage = pages[activePagePath];
+  const activeCode = activePage?.code;
+
   const canvasContent = (
       <div
         id="canvas-root"
@@ -128,11 +135,13 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
         onClick={handleCanvasClick}
       >
         <div
-          className={`h-full w-full ${
+          className={`h-auto min-h-full w-full ${
             isPreviewMode ? 'min-h-screen p-0' : 'min-h-[800px]'
           } flex flex-col transition-all`}
         >
-          {rootList.length === 0 ? (
+          {activeCode ? (
+            <DynamicRunner code={activeCode} />
+          ) : rootList.length === 0 ? (
             <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg border-muted p-12 text-center my-8 mx-8">
               <div>
                 <h3 className="text-lg font-medium mb-4">Canvas is empty</h3>
@@ -198,7 +207,7 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
 
   return (
     <div
-      className={`flex-1 overflow-y-auto ${previewOuterClasses} transition-all`}
+      className={`flex-1 h-full w-full overflow-y-auto ${previewOuterClasses} transition-all`}
       onClick={() => setSelected(null)}
     >
       <style dangerouslySetInnerHTML={{ __html: themeHtmlString.replace(/<style>|<\/style>|<link.*?>/g, '') }} />

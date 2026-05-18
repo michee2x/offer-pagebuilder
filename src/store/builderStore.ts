@@ -25,6 +25,7 @@ export interface PageData {
   path: string;
   components: Record<string, ComponentInstance>;
   rootList: string[];
+  code?: string;
 }
 
 export interface BuilderState {
@@ -50,6 +51,7 @@ export interface BuilderState {
   addComponent: (type: ComponentType, parentId?: string, index?: number) => void;
   moveComponent: (id: string, newIndex: number) => void;
   updateProps: (id: string, newProps: Partial<Record<string, any>>) => void;
+  updateCode: (code: string) => void;
   updateCanvasStyle: (newStyle: Record<string, string>) => void;
   setSelected: (id: string | null, fieldKey?: string | null) => void;
   removeComponent: (id: string) => void;
@@ -232,6 +234,18 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   updateCanvasStyle: (newStyle) => set((state) => ({
     ...captureHistory(state),
     canvasStyle: { ...state.canvasStyle, ...newStyle },
+    hasUnsavedChanges: true
+  })),
+
+  updateCode: (code) => set((state) => ({
+    ...captureHistory(state),
+    pages: {
+      ...state.pages,
+      [state.activePagePath]: {
+        ...state.pages[state.activePagePath],
+        code
+      }
+    },
     hasUnsavedChanges: true
   })),
 

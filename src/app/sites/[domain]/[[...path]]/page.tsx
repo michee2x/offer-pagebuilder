@@ -94,11 +94,13 @@ export default async function LiveViewerPage({ params }: Props) {
         if (!targetPage) {
             return notFound();
         }
-        // Pass only the specific target page's format into ViewerHydrator.
+        // Pass only the specific target page's format and full pages dictionary into ViewerHydrator.
         hydratedBlocks = {
             ...page.blocks,
-            components: targetPage.components,
-            rootList: targetPage.rootList
+            components: targetPage.components || {},
+            rootList: targetPage.rootList || [],
+            pages: page.blocks.pages,
+            activePagePath: requestedPath
         };
     } else if (requestedPath !== '/') {
         // Legacy single-page funnel shouldn't match subpaths

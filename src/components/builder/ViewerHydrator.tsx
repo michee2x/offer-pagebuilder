@@ -9,9 +9,14 @@ export function ViewerHydrator({ blocks }: { blocks: any }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (blocks && blocks.components && blocks.rootList) {
+    if (blocks && (blocks.components || blocks.pages)) {
       // 1. Hydrate the global Zustand store with the database JSON
-      setFullState(blocks.components, blocks.rootList);
+      setFullState(
+        blocks.components || {}, 
+        blocks.rootList || [], 
+        blocks.pages, 
+        blocks.activePagePath || '/'
+      );
       
       // 2. Lock the builder into Preview Mode permanently for the Viewer
       setIsPreviewMode(true);
