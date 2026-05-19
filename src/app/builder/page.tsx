@@ -191,7 +191,13 @@ export default function BuilderPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        throw new Error(`Server error (${res.status}): Payload might be too large, or server crashed. ${text.substring(0, 50)}...`);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to auto-save");
@@ -216,6 +222,7 @@ export default function BuilderPage() {
 
       if (!pageId && data.pageId) {
         setPageId(data.pageId);
+        window.history.replaceState(null, "", "?id=" + data.pageId);
       }
 
       toast.success("Funnel saved and synced to database successfully!");
@@ -248,8 +255,14 @@ export default function BuilderPage() {
       });
 
       if (!res.ok || !res.body) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to generate");
+        const errText = await res.text();
+        let errMsg = "Failed to generate";
+        try {
+          errMsg = JSON.parse(errText).error || errMsg;
+        } catch (e) {
+          errMsg = `Server error (${res.status}): ${errText.substring(0, 50)}...`;
+        }
+        throw new Error(errMsg);
       }
 
       setStreamText(""); // Reset visual stream board
@@ -368,6 +381,13 @@ export default function BuilderPage() {
       const initialPage = newPages["/"] || Object.values(newPages)[0];
       console.log("[client] Processed newPages from XML stream:", newPages);
       
+      // 0. Instant Backup to localStorage before any network/render issues
+      try {
+        localStorage.setItem("ofiq_generation_backup", JSON.stringify({ newPages, timestamp: Date.now() }));
+      } catch (backupErr) {
+        console.warn("Failed to backup to localStorage", backupErr);
+      }
+
       // 1. Auto-save the new pages to database FIRST so refreshes or HMR doesn't clear them!
       await autoSaveGeneratedPages(newPages, initialPage);
 
@@ -411,7 +431,13 @@ export default function BuilderPage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        throw new Error(`Server error (${res.status}): Payload might be too large, or server crashed. ${text.substring(0, 50)}...`);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to save");
@@ -438,6 +464,7 @@ export default function BuilderPage() {
 
       if (!pageId && data.pageId) {
         setPageId(data.pageId);
+        window.history.replaceState(null, "", "?id=" + data.pageId);
       }
 
       toast.success("Saved successfully!");

@@ -65,6 +65,12 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
       const requireMock = (modName: string) => {
         if (modName === "react") return React;
         if (modName === "lucide-react") return LucideIcons;
+        if (modName === "react-router-dom") {
+          return {
+            useNavigate: () => (path: string) => console.log("Mock navigate to:", path),
+            Link: ({ to, children, ...props }: any) => React.createElement("a", { href: to, ...props }, children)
+          };
+        }
         return {};
       };
 

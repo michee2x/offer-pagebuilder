@@ -1,71 +1,76 @@
 import { anthropic } from '@ai-sdk/anthropic';
-import { streamText } from 'ai';
+import { streamText, generateText } from 'ai';
 import { LUCIDE_ICON_NAMES } from '@/config/components';
 import { createAdminClient } from '@/utils/supabase/admin';
+import fs from 'fs';
+import path from 'path';
 
 export const maxDuration = 300;
 
-const MODEL          = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
+const MODEL          = 'claude-sonnet-4-6';
 const MAX_OUTPUT_TOKENS = 32_000;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// System prompt — teaches the micro-component DSL; no macro definitions
+// System prompt — teaches the visual assembly rules
 // ─────────────────────────────────────────────────────────────────────────────
-function buildSystemPrompt(): string {
+function buildSystemPrompt(category: string, screenshotFileName: string | null): string {
   const icons = LUCIDE_ICON_NAMES.join(', ');
 
-  return `You are a world-class conversion architect and elite frontend designer building premium, high-converting React landing pages and sales funnels.
-Your code must look extremely premium, mimicking state-of-the-art SaaS sites (like Vercel, Linear, Stripe, and Apple).
+  return `You are a world-class conversion architect, visual designer, and elite React assembler.
+You build premium, high-converting React landing pages and sales funnels.
 
-━━━ DESIGN SYSTEM & VISUAL RULES ━━━
-1. Theme & Colors:
-   - Use high-fidelity dark-mode layouts (or modern high-contrast light-mode depending on product tone).
-   - Prefer elegant gradients (e.g. "bg-gradient-to-br from-zinc-950 via-zinc-900 to-black"), glossy glassmorphism surfaces ("backdrop-blur-md bg-white/5 border border-white/10"), and extremely subtle glow accents ("shadow-[0_0_50px_-12px_rgba(245,166,35,0.15)]").
-   - Never use solid ugly primary red/blue/green. Use harmonious, tailored HSL/Tailwind tokens: e.g., "text-amber-400", "bg-zinc-900", "border-zinc-800", "hover:bg-zinc-800/80".
-2. Typography:
-   - Make headers punchy and gorgeous. Use thin labels, glowing badges, and gradient text ("bg-gradient-to-r from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent").
-   - Use a clear hierarchy: large display headers (text-4xl md:text-6xl font-extrabold tracking-tight), readable text (text-zinc-400 font-normal leading-relaxed).
-3. Grid & Spacing:
-   - Use rich, spacious layouts (py-16 md:py-24). Never crowd elements.
-   - Design beautiful responsive grids: "grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8" for cards, reviews, or pricing.
-   - Use cards with rich padding, subtle inner borders (border-white/5), and hover scale transitions ("transition-all duration-300 hover:scale-[1.02] hover:border-white/10").
-4. Interactivity (State Hooks):
-   - You are generating full, interactive React components!
-   - Natively support React hooks (e.g. "import React, { useState } from 'react'").
-   - You can use local state for lead capture forms, pricing calculators, interactive tabs, faq accordion toggles, or timer countdown tick states.
-5. Standard Icons:
-   - Import and use standard Lucide icons from "lucide-react": e.g. "import { ArrowRight, Shield, Star, Check, Sparkles } from 'lucide-react'".
-   - Only use approved icons: ${icons}
+Your primary instruction is to act as an advanced assembly agent using the provided screenshot as your core visual blueprint.
+${screenshotFileName ? `1. DEEP VISUAL ANALYSIS: Study the attached screenshot reference ("${screenshotFileName}"). Deeply analyze its exact layout, spacing, section structure, visual hierarchy, font combinations, and image placements.
+2. LAYOUT REPRODUCTION WITH CREATIVE FREEDOM: Use the screenshot as your foundational blueprint, reproducing its structural layout. Allow yourself about 40% creative freedom to generalize or integrate modern design patterns, BUT strictly maintain the core structural anatomy (e.g. 50/50 splits, bento grids, masonry layouts).` : '1. Build a stunning, conversion-optimized landing page structure matching elite visual design standards.'}
+3. STRICT COPY ADHERENCE (NO JIBBERISH): Use ONLY the provided copy object for all text content. Do NOT invent new copy, do NOT add generic filler text, do NOT use Lorem Ipsum, and do NOT generate unnecessary sections that don't have copy.
+4. COMPREHENSIVE DESIGN SYSTEM EXTRACTION: You MUST extract a cohesive "Design System" from the reference image and apply it to ALL pages you generate (Upsell, Downsell, Thank You). This includes matching header vs body text contrast (e.g., pure white headers vs slate-400 body), border radius, card opacities, and hover states.
+
+━━━ TYPOGRAPHY & FONTS (CRITICAL) ━━━
+- Do NOT just use default fonts everywhere. You must build a deliberate typography system.
+- Extract the exact typography relationships from the reference: Is the header a massive, thick, tracking-tighter sans-serif? Is the body text a highly readable, muted sans? Is there a serif font used for elegant accents?
+- Explicitly use Tailwind typography utilities to enforce this: e.g., \`font-serif\`, \`font-sans\`, \`tracking-tighter\`, \`leading-relaxed\`, \`font-black\`, \`font-light\`.
+- Enforce contrast: e.g., \`text-white\` for headers and \`text-white/70\` or \`text-muted-foreground\` for body copy.
+
+━━━ IMAGE & MEDIA PLACEHOLDERS (CRITICAL) ━━━
+- VALUE IMAGES HIGHLY. If the reference shows a massive dashboard graphic, abstract art, or a photo taking up 50% of the screen, you MUST create a large visual placeholder \`div\` (e.g., \`bg-muted/30 aspect-video\`, or \`img\` tag) that takes up the EXACT same amount of screen real estate.
+- NEVER replace large visual graphics with tiny icons or empty space. Match the aspect ratios and styling (rounded corners, drop shadows) of the images in the reference.
+- If a section in the reference has photographic cards (like blog posts or team members), use a prominent image placeholder at the top of those cards.
+
+━━━ GRADIENTS & COLOR TEMPO ━━━
+- DO NOT SPAM GRADIENTS. Only use gradients where explicitly shown in the reference image.
+- If you use a gradient on text, ENSURE READABILITY. Do not use gradients that make the text fade into the background and become unreadable.
+- Replicate the "color tempo" of the reference: the exact use of opacities, gradients, glowing effects, shading, and contrast. Apply this tempo using the provided theme colors (e.g., \`bg-primary/10\`, glowing blurs).
+- If the reference uses high contrast (e.g., stark white cards on a dark background), hardcode that contrast polarity (\`bg-white text-black\`) so the theme doesn't ruin intentional design choices.
+
+━━━ NAVIGATION RULES ━━━
+- The Navigation Bar (Navbar) must be FIXED to the top of the screen (\`fixed top-0 w-full z-50\`). Add a backdrop blur for elegance.
+- The Navbar links must ONLY reference the actual sections present on the page.
+- Implement smooth scrolling anchor links (e.g., \`href="#features"\`, \`id="features"\`) so that clicking a nav item smoothly scrolls the user to that exact section.
+
+━━━ EMOJI RULES ━━━
+- STRICT LIMIT: Use a MAXIMUM of 2 emojis across the ENTIRE page. Absolutely NO emoji spamming.
+
+━━━ ICONS ━━━
+- Import and use standard Lucide icons from "lucide-react": e.g. "import { ArrowRight, Shield, Star, Check, Sparkles } from 'lucide-react'".
+- Only use approved icons: ${icons}
 
 ━━━ FUNNEL STRUCTURAL PAGES ━━━
 You must output exactly 4 pages in the funnel:
 1. Lead Capture Page (path: "/")
-   - A highly engaging hero section with a floating badge (e.g., "🔥 Exclusive Access").
-   - A major benefit-driven main headline, a 2-sentence value subheadline, and high-trust bullets.
-   - A conversion-optimized inline lead form with dynamic inputs (Email & Phone) and a prominent premium CTA button ("Claim Your Free Blueprint").
-   - Trust and social proof logos (e.g. "As seen on TechCrunch, Bloomberg...").
-   - Beautiful Grid of 3 core features or outcomes.
-   - Option checklist, simple FAQ list, and elegant footer.
+   - Form-led structure, features grid, trust testimonials, and FAQ.
 2. Upsell Offer Page (path: "/upsell")
-   - Header bar with warning banner ("⚠️ Warning: Do not close this page. Your order is not yet complete...").
-   - A compelling one-time upsell discount (e.g. "Upgrade your order to the Premium Accelerator for 70% OFF").
-   - Grid or split layout: left showing a mock screen or product summary card, right showing the features.
-   - Standard pricing tier card showing the regular price crossed out next to the special upsell price.
-   - A large, highly visible "Yes, Add to My Order" accept button and a small muted link at the bottom for "No thanks, I will skip this and risk losing this deal".
+   - High-urgency discount upgrade offer, value comparisons, and explicit skip/accept CTAs.
 3. Downsell Offer Page (path: "/downsell")
-   - A conversational, empathetic downsell offer ("We understand. How about we split the payment?").
-   - A lower entry price point, or an interest-free payment plan (e.g. "3 easy monthly payments of $49").
-   - Clear value summary cards, testimonial, and CTA accept/decline links.
+   - Empathic payment plans or split alternatives, testimonials, and skip/accept CTAs.
 4. Thank You Page (path: "/thankyou")
-   - Order complete success banner with a celebratory check icon.
-   - A beautiful receipt/order summary card detailing what they unlocked.
-   - A clear "Next Steps" checklist (e.g., Step 1: Check Inbox, Step 2: Join Community, Step 3: Complete Profile).
-   - A prominent primary CTA button ("Join Our Discord Community" or "Go to Dashboard").
+   - Success status banner, purchase breakdown summary card, and next-step checklist.
 
 ━━━ CTA LINKING RULES ━━━
 - Lead Capture form action or button MUST link/redirect to: "/upsell"
 - Upsell Accept CTA -> "/thankyou" | Decline link -> "/downsell"
 - Downsell Accept CTA -> "/thankyou" | Decline link -> "/thankyou"
+- CRITICAL: DO NOT use \`react-router-dom\` (e.g., \`useNavigate\`, \`Link\`) or \`next/navigation\`! The environment does NOT support them.
+- For ALL navigation, use standard HTML \`<a href="...">\` tags.
 
 ━━━ OUTPUT FORMAT RULES ━━━
 - Output each page wrapped inside a dedicated \`<page path="..." name="...">\` XML-style tag.
@@ -73,62 +78,146 @@ You must output exactly 4 pages in the funnel:
 - Do NOT wrap code inside Markdown code blocks (no \`\`\`tsx).
 - Do NOT output any conversational text or comments outside of the page tags.
 - Stream each page immediately.
-
-Example:
-<page path="/" name="Lead Capture">
-import React, { useState } from 'react';
-import { ArrowRight, Shield, Sparkles } from 'lucide-react';
-
-export default function LeadCapture() {
-  const [email, setEmail] = useState('');
-  return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Premium Content */}
-    </div>
-  );
-}
-</page>
 `;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Content prompt — offer-specific context
 // ─────────────────────────────────────────────────────────────────────────────
-function buildContentPrompt(offerContext: any, copyContext: string | null): string {
-  let offerSection: string;
-
-  if (copyContext) {
-    offerSection = `OFFER INTELLIGENCE & PRE-WRITTEN COPY (use directly in block props):
-
-=== COPY ===
-${copyContext}
-=== END COPY ===`;
-  } else if (offerContext && Object.values(offerContext).some(Boolean)) {
-    offerSection = `OFFER DETAILS:
-• Product/Service: ${offerContext.productType ?? 'Not specified'}
+function buildContentPrompt(
+  offerContext: any,
+  copyContext: string | null,
+  category: string
+): string {
+  let offerSection = '';
+  if (offerContext) {
+    offerSection = `PRODUCT DETAILS:
+• Name: ${offerContext.productType ?? 'Not specified'}
+• Category: ${category.toUpperCase()}
 • Niche: ${offerContext.niche ?? 'Not specified'}
 • Target Audience: ${offerContext.audience ?? 'Not specified'}
-• Core Benefit: ${offerContext.benefit ?? 'Not specified'}
-• Pain Point: ${offerContext.painPoint ?? 'Not specified'}
-• Price Point: ${offerContext.price ?? 'Not specified'}
 • Tone: ${offerContext.tone ?? 'Not specified'}
-${offerContext.headlines ? `• Headlines: ${offerContext.headlines}` : ''}
-${offerContext.cta ? `• CTA: ${offerContext.cta}` : ''}`;
-  } else {
-    offerSection = `OFFER: "OfferIQ" — AI funnel builder that generates high-converting funnels in minutes.
-Audience: Coaches, course creators, and e-commerce entrepreneurs tired of slow, expensive funnel agencies.`;
+`;
   }
 
-  return `${offerSection}
+  let copySection = 'No pre-written copy provided.';
+  if (copyContext) {
+    copySection = `COPY OBJECT:
+Use the exact text chunks defined below for each page sections:
+${copyContext}
+`;
+  }
 
-TASK: Generate a complete 4-page sales funnel (Lead Capture, Upsell, Downsell, Thank You).
+  return `
+=== GENERATION INPUT ===
+${offerSection}
+${copySection}
+=== END GENERATION INPUT ===
 
-Process:
-1. ANALYSE — who is the buyer, what is their #1 fear, what result do they want most?
-2. COMPOSE — design each page with next-level visual design (grids, glowing accents, premium buttons)
-3. WRITE — elite copy: specific, punchy, emotionally resonant, no filler
+TASK: Generate a complete 4-page sales funnel (Lead Capture "/", Upsell "/upsell", Downsell "/downsell", Thank You "/thankyou").
+Structure each page's layout hierarchy by analyzing the visual arrangement, card spacing, headings, and visual density of the reference screenshot image. Apply the typography, color tempo, and image structures observed. Remember to use exactly the text from the COPY OBJECT and strictly limit emojis to 2 maximum across the page.
 
-Begin streaming the <page> blocks now.`;
+Begin streaming the <page> blocks now.
+`.trim();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI Category Classification Helper
+// ─────────────────────────────────────────────────────────────────────────────
+async function classifyCategory(offerContext: any): Promise<string> {
+  const contextStr = `
+Niche: ${offerContext.niche ?? 'Not specified'}
+Audience: ${offerContext.audience ?? 'Not specified'}
+Tone: ${offerContext.tone ?? 'Not specified'}
+Product Type: ${offerContext.productType ?? 'Not specified'}
+  `.trim();
+
+  try {
+    const response = await generateText({
+      model: anthropic(MODEL),
+      system: `You are an expert design classifier. Analyze the provided product/offer context and classify it into exactly one of these 6 landing page categories:
+- business
+- creative
+- health
+- saas
+- community
+- style
+
+Reply with ONLY the category name in lowercase. Do not include any other words, punctuation, markdown formatting, or explanations.`,
+      prompt: `Classify this product context:\n\n${contextStr}`,
+      maxOutputTokens: 10,
+    });
+
+    const category = response.text.trim().toLowerCase();
+    const validCategories = ['business', 'creative', 'health', 'saas', 'community', 'style'];
+    
+    if (validCategories.includes(category)) {
+      return category;
+    }
+    
+    // Substring fallback checks
+    for (const valid of validCategories) {
+      if (category.includes(valid)) {
+        return valid;
+      }
+    }
+    
+    console.warn(`[classify] Invalid category returned: "${category}", falling back to "business"`);
+    return 'business';
+  } catch (err) {
+    console.error('[classify] Error classifying category:', err);
+    return 'business';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Screenshot Selection Helper
+// ─────────────────────────────────────────────────────────────────────────────
+interface ScreenshotSelection {
+  data: Buffer | null;
+  mimeType: string | null;
+  fileName: string | null;
+}
+
+function selectRandomScreenshot(category: string): ScreenshotSelection {
+  const categoryPath = path.join(process.cwd(), 'public', 'screenshots', category);
+  
+  try {
+    if (!fs.existsSync(categoryPath)) {
+      console.warn(`[screenshot] Directory does not exist: ${categoryPath}`);
+      return { data: null, mimeType: null, fileName: null };
+    }
+    
+    const files = fs.readdirSync(categoryPath);
+    const imageExtensions = ['.png', '.jpg', '.jpeg', '.webp'];
+    const imageFiles = files.filter(file => 
+      imageExtensions.includes(path.extname(file).toLowerCase())
+    );
+    
+    if (imageFiles.length === 0) {
+      console.warn(`[screenshot] No image files found in: ${categoryPath}`);
+      return { data: null, mimeType: null, fileName: null };
+    }
+    
+    // Pick random file
+    const randomFile = imageFiles[Math.floor(Math.random() * imageFiles.length)];
+    const filePath = path.join(categoryPath, randomFile);
+    const data = fs.readFileSync(filePath);
+    
+    const ext = path.extname(randomFile).toLowerCase();
+    let mimeType = 'image/png';
+    if (ext === '.jpg' || ext === '.jpeg') {
+      mimeType = 'image/jpeg';
+    } else if (ext === '.webp') {
+      mimeType = 'image/webp';
+    }
+    
+    console.log(`[screenshot] Successfully loaded reference screenshot: ${randomFile} from ${category}`);
+    return { data, mimeType, fileName: randomFile };
+  } catch (err) {
+    console.error('[screenshot] Error reading reference screenshot:', err);
+    return { data: null, mimeType: null, fileName: null };
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -150,6 +239,15 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
+  // 1. Run AI Category Classification
+  const startTime = Date.now();
+  const category = await classifyCategory(offerContext);
+  console.log(`[generate] Category classified as "${category}" in ${Date.now() - startTime}ms`);
+
+  // 2. Select a Random Reference Screenshot
+  const screenshot = selectRandomScreenshot(category);
+
+  // 3. Fetch Copy Context from DB if funnelId is provided
   let copyContext: string | null = null;
   if (funnelId) {
     try {
@@ -167,18 +265,42 @@ export async function POST(req: Request) {
     }
   }
 
-  const systemPrompt  = buildSystemPrompt();
-  const contentPrompt = buildContentPrompt(offerContext, copyContext);
+  const systemPrompt  = buildSystemPrompt(category, screenshot.fileName);
+  const contentPrompt = buildContentPrompt(offerContext, copyContext, category);
 
   console.log('[generate] model:', MODEL, '| maxTokens:', MAX_OUTPUT_TOKENS, '| funnelId:', funnelId ?? 'none');
 
   const encoder = new TextEncoder();
 
   try {
+    // 4. Construct user message content: text instructions + image attachment (if loaded)
+    const userMessageContent: any[] = [
+      {
+        type: 'text',
+        text: contentPrompt,
+      }
+    ];
+
+    if (screenshot.data) {
+      userMessageContent.push({
+        type: 'image',
+        image: screenshot.data,
+        mimeType: screenshot.mimeType,
+      });
+      console.log(`[generate] Appending screenshot file "${screenshot.fileName}" (size: ${screenshot.data.length} bytes) to Anthropic messages stream.`);
+    } else {
+      console.log(`[generate] No screenshot reference available. Running text-only page builder fallback.`);
+    }
+
     const result = streamText({
       model:           anthropic(MODEL),
       system:          systemPrompt,
-      prompt:          contentPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: userMessageContent,
+        }
+      ],
       maxOutputTokens: MAX_OUTPUT_TOKENS,
     });
 
@@ -202,7 +324,7 @@ export async function POST(req: Request) {
             }
           }
 
-          console.log('[generate] complete — output length:', fullText.length, '| has <json>:', fullText.includes('<json>'));
+          console.log('[generate] complete — output length:', fullText.length);
           send('complete', fullText);
 
         } catch (err: any) {
