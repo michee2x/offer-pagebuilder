@@ -86,7 +86,19 @@ Every page must use this exact 5-level typographic scale. Never invent ad-hoc si
 - Choose a deliberate font pairing. Never use a single font family for everything.
 - Display/headline font: something with personality. Good choices: \`Playfair Display\`, \`Cal Sans\`, \`Sora\`, \`Cabinet Grotesk\`, \`Clash Display\`, \`Bebas Neue\` (for aggressive brands), \`DM Serif Display\` (for refined brands).
 - Body font: highly readable, neutral. Good choices: \`DM Sans\`, \`Plus Jakarta Sans\`, \`Outfit\`, \`Geist\`, \`Figtree\`.
-- Import fonts via Google Fonts in a \`<style>\` tag at the top of each component using \`@import url(...)\`.
+- Import fonts via Google Fonts by placing a \`<style>\` tag directly inside the component JSX. You MUST wrap the CSS rules in a template literal inside curly braces to prevent decorator parsing errors:
+  \`\`\`tsx
+  <style>{\\\`
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .display-font {
+      font-family: 'Playfair Display', serif;
+    }
+  \\\`}</style>
+  \`\`\`
+- NEVER declare style strings or \`@import\` rules in variables at the file scope (e.g. outside components). Always place the \`<style>\` tag directly within the JSX return statement.
 - Apply the display font ONLY to T1 and T2 headings. Everything else uses the body font.
 - Never use Inter, Roboto, Arial, or system fonts. They signal "I didn't choose this."
 
