@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import * as LucideIcons from "lucide-react";
+import * as FramerMotion from "framer-motion";
+import { useBuilderStore } from "@/store/builderStore";
 
 interface DynamicRunnerProps {
   code: string;
@@ -65,10 +67,41 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
       const requireMock = (modName: string) => {
         if (modName === "react") return React;
         if (modName === "lucide-react") return LucideIcons;
+        if (modName === "framer-motion") return FramerMotion;
+        if (modName === "motion") return FramerMotion;
         if (modName === "react-router-dom") {
           return {
-            useNavigate: () => (path: string) => console.log("Mock navigate to:", path),
-            Link: ({ to, children, ...props }: any) => React.createElement("a", { href: to, ...props }, children)
+            useNavigate: () => (path: string) => {
+              if (
+                window.location.pathname.startsWith("/p/") ||
+                window.location.pathname.startsWith("/builder")
+              ) {
+                useBuilderStore.getState().switchPage(path);
+              } else {
+                window.location.pathname = path;
+              }
+            },
+            Link: ({ to, children, ...props }: any) => {
+              return React.createElement(
+                "a",
+                {
+                  href: to,
+                  onClick: (e: any) => {
+                    e.preventDefault();
+                    if (
+                      window.location.pathname.startsWith("/p/") ||
+                      window.location.pathname.startsWith("/builder")
+                    ) {
+                      useBuilderStore.getState().switchPage(to);
+                    } else {
+                      window.location.pathname = to;
+                    }
+                  },
+                  ...props
+                },
+                children
+              );
+            }
           };
         }
         return {};
