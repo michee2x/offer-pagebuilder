@@ -354,7 +354,7 @@ export default function BuilderPage() {
 
       // Generation finished, parse the XML <page> blocks out
       const newPages: Record<string, any> = {};
-      const pageRegex = /<page\s+([^>]+)>([\s\S]*?)<\/page>/g;
+      const pageRegex = /<page\s+([^>]+)>([\s\S]*?)(?:<\/page>|$)/g;
       let match;
       let pageCount = 0;
 
@@ -369,6 +369,10 @@ export default function BuilderPage() {
         
         // Strip markdown code block wrappers if the AI included them inside the page tags
         code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
+        // Remove rogue jsx literal string wrappers if hallucinated
+        if (code.startsWith("{`")) {
+          code = code.replace(/^{`\n?/, '').replace(/\n?`}$/, '').trim();
+        }
 
         newPages[path] = {
           name,

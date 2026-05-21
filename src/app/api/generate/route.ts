@@ -9,7 +9,7 @@ import sharp from 'sharp';
 export const maxDuration = 300;
 
 const MODEL = 'claude-sonnet-4-6';
-const MAX_OUTPUT_TOKENS = 8_000;
+const MAX_OUTPUT_TOKENS = 9_000;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // System prompt — teaches the visual assembly rules
@@ -1262,9 +1262,11 @@ All routing via react-router-dom only.
 **16.1** Wrap each page in:
 \`\`\`
 <page path="[PATH]" name="[NAME]">
-[React JSX code here]
+import React from "react";
+// ... raw component code here ...
 </page>
 \`\`\`
+IMPORTANT: Write the raw file content directly inside the tags. Do NOT wrap the code in \`{\` or any string literals.
 
 **16.2** Allowed imports only: \`react\`, \`framer-motion\`, \`lucide-react\`,
 \`react-router-dom\`. All pages fully self-contained.
