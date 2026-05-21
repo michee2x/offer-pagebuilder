@@ -383,7 +383,15 @@ export default function BuilderPage() {
       // Fallback: If no <page> tags were found, assume the AI just output TSX code directly
       if (pageCount === 0 && accumulatedText.trim()) {
         let code = accumulatedText.trim();
-        code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
+        
+        // Extract code from inside markdown blocks if present, to avoid conversational filler text
+        const codeBlockMatch = code.match(/```(?:tsx|jsx|js|ts)?\n([\s\S]*?)\n```/i);
+        if (codeBlockMatch) {
+          code = codeBlockMatch[1].trim();
+        } else {
+          // No markdown block found, just trim and hope there's no filler
+          code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
+        }
         
         if (code.includes('import ') || code.includes('export default')) {
           newPages["/"] = {

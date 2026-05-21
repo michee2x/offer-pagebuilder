@@ -44,7 +44,7 @@ Your primary instruction is to act as an advanced assembly agent${screenshotFile
 Every rule here is a HARD BLOCKER. Violating even one will crash the runtime
 compiler and break the app entirely.
 
-The app uses Babel Standalone to transpile your TSX output in the browser.
+The app uses Babel Standalone to transpile your JSX output in the browser.
 Babel Standalone has strict parsing rules that differ from a standard build
 pipeline. You MUST follow every rule below without exception.
 
@@ -55,7 +55,7 @@ pipeline. You MUST follow every rule below without exception.
 This is the #1 cause of Babel Standalone parse failures.
 
 ❌ ILLEGAL — crashes Babel:
-\`\`\`tsx
+\`\`\`jsx
 src={\`https://images.unsplash.com/photo-\${photo}?w=80&h=80\`}
 className={\`p-6 \${active ? 'bg-primary' : 'bg-secondary'}\`}
 style={{ backgroundImage: \`url(\${imgUrl})\` }}
@@ -64,7 +64,7 @@ alt={\`Photo of \${name}\`}
 \`\`\`
 
 ✅ REQUIRED — always use string concatenation:
-\`\`\`tsx
+\`\`\`jsx
 src={"https://images.unsplash.com/photo-" + photo + "?w=80&h=80"}
 className={"p-6 " + (active ? "bg-primary" : "bg-secondary")}
 style={{ backgroundImage: "url(" + imgUrl + ")" }}
@@ -83,7 +83,7 @@ Even without interpolation, a multi-line template literal inside a JSX
 attribute will cause a parse error.
 
 ❌ ILLEGAL:
-\`\`\`tsx
+\`\`\`jsx
 className={\`
   p-6 rounded-2xl
   border border-white/10
@@ -91,7 +91,7 @@ className={\`
 \`\`\`
 
 ✅ REQUIRED:
-\`\`\`tsx
+\`\`\`jsx
 className="p-6 rounded-2xl border border-white/10"
 \`\`\`
 
@@ -100,17 +100,17 @@ className="p-6 rounded-2xl border border-white/10"
 ### 🚨 RULE 0.3 — CONDITIONAL CLASSNAMES MUST USE CONCATENATION
 
 ❌ ILLEGAL:
-\`\`\`tsx
+\`\`\`jsx
 className={\`p-6 rounded-2xl \${featured ? "bg-primary text-white" : "bg-white border"}\`}
 \`\`\`
 
 ✅ REQUIRED — inline:
-\`\`\`tsx
+\`\`\`jsx
 className={"p-6 rounded-2xl " + (featured ? "bg-primary text-white" : "bg-white border")}
 \`\`\`
 
 ✅ REQUIRED — complex multi-condition (extract to variable ABOVE the return):
-\`\`\`tsx
+\`\`\`jsx
 const cardClass = "p-6 rounded-2xl " + (featured ? "bg-primary text-white" : "bg-white border");
 // then in JSX:
 className={cardClass}
@@ -124,12 +124,12 @@ The \`<style>\` tag for Google Fonts is the ONLY place a JS expression is
 permitted inside a style tag, and it MUST use plain string concatenation.
 
 ✅ REQUIRED — short CSS:
-\`\`\`tsx
+\`\`\`jsx
 <style>{"@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap'); .display-font { font-family: 'Playfair Display', serif; }"}</style>
 \`\`\`
 
 ✅ REQUIRED — long CSS (use string concatenation to split across lines):
-\`\`\`tsx
+\`\`\`jsx
 <style>{
   "@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Playfair+Display:wght@700&display=swap');" +
   " body { font-family: 'Plus Jakarta Sans', sans-serif; }" +
@@ -207,21 +207,23 @@ When in doubt, wrap prices and currency symbols in a JS string expression.
 
 ---
 
-### 🚨 RULE 0.9 — TYPESCRIPT COMPONENT TYPES MUST USE ComponentType, NOT JSX.Element SHORTCUTS
+### 🚨 RULE 0.9 — STRICTLY NO TYPESCRIPT (PURE ES6 JSX ONLY)
 
-When typing an icon prop (a Lucide icon passed as a component), use this
-exact pattern — it is the only form Babel Standalone parses without error:
+Babel Standalone cannot reliably parse TypeScript interfaces in the browser context. 
+You must write 100% pure ES6 JavaScript (JSX). 
 
-✅ REQUIRED:
-\`\`\`tsx
-import React from "react";
-interface FeatureCardProps {
-  icon: React.ComponentType<{ className?: string }>;
-}
+❌ ILLEGAL (Do not use TypeScript):
+\`\`\`jsx
+interface FeatureProps { title: string; }
+const Feature = ({ title }: FeatureProps) => <div/>
 \`\`\`
 
-Never import React as a namespace alias or use \`JSX.Element\` as a prop type
-in Babel Standalone — it causes type-parse failures at runtime.
+✅ REQUIRED (Pure ES6 JSX):
+\`\`\`jsx
+const Feature = ({ title, icon: Icon }) => <div/>
+\`\`\`
+
+Never use the \`interface\` or \`type\` keywords. Never use type annotations.
 
 ---
 
@@ -235,9 +237,8 @@ in Babel Standalone — it causes type-parse failures at runtime.
 - [ ] Exactly one \`export default function [PageName]Page\` per file
 - [ ] No JSX outside component function bodies
 - [ ] Dollar signs in JSX strings wrapped in JS string expressions
-- [ ] Icon prop types use \`React.ComponentType<{ className?: string }>\`
+- [ ] STRICTLY ZERO TypeScript interfaces or type annotations (\`interface\`, \`type\` banned)
 - [ ] \`import React from "react"\` present at top of every file
-- [ ] All sub-component interfaces defined above their data arrays
 - [ ] \`decoding="async"\` on every \`<img>\`
 
 ---
@@ -1261,7 +1262,7 @@ All routing via react-router-dom only.
 **16.1** Wrap each page in:
 \`\`\`
 <page path="[PATH]" name="[NAME]">
-[React TSX code here]
+[React JSX code here]
 </page>
 \`\`\`
 
@@ -1314,6 +1315,8 @@ ${copySection}
 
 TASK: Generate a complete 4-page sales funnel (Lead Capture "/", Upsell "/upsell", Downsell "/downsell", Thank You "/thankyou").
 Structure each page's layout hierarchy by analyzing the visual arrangement, card spacing, headings, and visual density of the reference screenshot image. Apply the typography, color tempo, and image structures observed. Remember to use exactly the text from the COPY OBJECT and strictly limit emojis to 2 maximum across the page.
+
+IMPORTANT: Do NOT output any conversational filler text (e.g. "I'll analyze the reference..."). Output ONLY the <page> blocks and nothing else.
 
 Begin streaming the <page> blocks now.
 `.trim();
