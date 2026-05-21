@@ -354,14 +354,21 @@ export default function BuilderPage() {
 
       // Generation finished, parse the XML <page> blocks out
       const newPages: Record<string, any> = {};
-      const pageRegex = /<page\s+path=["']([^"']+)["']\s+name=["']([^"']+)["']\s*>([\s\S]*?)<\/page>/g;
+      const pageRegex = /<page\s+([^>]+)>([\s\S]*?)<\/page>/g;
       let match;
       let pageCount = 0;
 
       while ((match = pageRegex.exec(accumulatedText)) !== null) {
-        const path = match[1];
-        const name = match[2];
-        const code = match[3].trim();
+        const attrs = match[1];
+        const pathMatch = attrs.match(/path=["']([^"']+)["']/i);
+        const nameMatch = attrs.match(/name=["']([^"']+)["']/i);
+        
+        const path = pathMatch ? pathMatch[1] : `/${pageCount}`;
+        const name = nameMatch ? nameMatch[1] : `Page ${pageCount + 1}`;
+        let code = match[2].trim();
+        
+        // Strip markdown code block wrappers if the AI included them inside the page tags
+        code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
 
         newPages[path] = {
           name,
@@ -371,6 +378,24 @@ export default function BuilderPage() {
           code,
         };
         pageCount++;
+      }
+
+      // Fallback: If no <page> tags were found, assume the AI just output TSX code directly
+      if (pageCount === 0 && accumulatedText.trim()) {
+        let code = accumulatedText.trim();
+        code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
+        
+        if (code.includes('import ') || code.includes('export default')) {
+          newPages["/"] = {
+            name: "Lead Capture",
+            path: "/",
+            components: {},
+            rootList: [],
+            code,
+          };
+          pageCount = 1;
+          console.warn("[client] Fallback: parsed entire response as single page code");
+        }
       }
 
       if (pageCount === 0) {
