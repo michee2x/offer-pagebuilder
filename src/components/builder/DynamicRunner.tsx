@@ -16,7 +16,21 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
 
   // 1. Load Babel Standalone from CDN asynchronously
   useEffect(() => {
+    const registerTsxPreset = (Babel: any) => {
+      if (Babel && !Babel.availablePresets["typescript-tsx"]) {
+        Babel.registerPreset("typescript-tsx", {
+          presets: [
+            [
+              Babel.availablePresets["typescript"],
+              { isTSX: true, allExtensions: true }
+            ]
+          ]
+        });
+      }
+    };
+
     if ((window as any).Babel) {
+      registerTsxPreset((window as any).Babel);
       setBabelLoaded(true);
       return;
     }
@@ -25,7 +39,9 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
     script.src = "https://unpkg.com/@babel/standalone@7.24.0/babel.min.js";
     script.async = true;
     script.onload = () => {
-      if ((window as any).Babel) {
+      const Babel = (window as any).Babel;
+      if (Babel) {
+        registerTsxPreset(Babel);
         setBabelLoaded(true);
       } else {
         setErr("Babel loaded but window.Babel is undefined.");
@@ -59,7 +75,7 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
 
       // Transpile TSX to ES5 JavaScript
       const transpiled = (window as any).Babel.transform(cleanedCode, {
-        presets: ["env", "react", "typescript"],
+        presets: ["env", "react", "typescript-tsx"],
         filename: "generated-funnel.tsx",
       }).code;
 
