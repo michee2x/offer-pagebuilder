@@ -47,8 +47,18 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
     try {
       setErr(null);
 
-      // Ensure the TSX code exports a default or named function component
+      // Ensure the JSX code exports a default or named function component
       let cleanedCode = code;
+
+      // Strip any leftover XML <page ...> wrapper tags that may have been
+      // accidentally stored in the DB alongside the code
+      cleanedCode = cleanedCode.replace(/^<page\b[^>]*>\n?/i, '').replace(/\n?<\/page>$/i, '').trim();
+
+      // Strip rogue JSX string literal wrappers e.g. {` ... `}
+      if (cleanedCode.startsWith("{`")) {
+        cleanedCode = cleanedCode.replace(/^{`\n?/, '').replace(/\n?`}$/, '').trim();
+      }
+
       if (!cleanedCode.includes("export default") && !cleanedCode.includes("module.exports")) {
         // Fallback: Find the last function declaration name and append export default
         const funcMatches = [...cleanedCode.matchAll(/function\s+(\w+)\s*\(/g)];

@@ -9,7 +9,7 @@ import sharp from 'sharp';
 export const maxDuration = 300;
 
 const MODEL = 'claude-sonnet-4-6';
-const MAX_OUTPUT_TOKENS = 9_000;
+const MAX_OUTPUT_TOKENS = 16_000;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // System prompt — teaches the visual assembly rules
@@ -26,7 +26,7 @@ const MAX_OUTPUT_TOKENS = 9_000;
 export function buildSystemPrompt(
   category: string,
   screenshotFileName: string | null
-): string {
+) {
   const icons = LUCIDE_ICON_NAMES.join(", ");
 
   return `# LANDING PAGE AGENT — MASTER PROMPT
@@ -139,7 +139,7 @@ permitted inside a style tag, and it MUST use plain string concatenation.
 \`\`\`
 
 ❌ NEVER use a backtick template literal inside the style tag:
-\`\`\`tsx
+\`\`\`jsx
 <style>{\`@import url(...)\`}</style>  // ❌ ILLEGAL — crashes Babel
 \`\`\`
 
@@ -154,7 +154,7 @@ Babel Standalone enforces React JSX attribute naming. HTML attribute names
 cause silent failures or hard errors.
 
 ❌ ILLEGAL HTML attributes in JSX:
-\`\`\`tsx
+\`\`\`jsx
 fetchpriority="high"
 class="..."
 for="inputId"
@@ -162,7 +162,7 @@ tabindex="0"
 \`\`\`
 
 ✅ REQUIRED React JSX equivalents:
-\`\`\`tsx
+\`\`\`jsx
 fetchPriority="high"
 className="..."
 htmlFor="inputId"
@@ -193,13 +193,13 @@ When a dollar sign appears in a plain JSX string (e.g. a price), write it as
 a literal character inside a JS string expression to avoid any ambiguity:
 
 ✅ REQUIRED:
-\`\`\`tsx
+\`\`\`jsx
 <span>{"$49"}</span>
 <span>{"$" + price}</span>
 \`\`\`
 
 ❌ AVOID (works in some parsers but inconsistent in Babel Standalone):
-\`\`\`tsx
+\`\`\`jsx
 <span>$49</span>   // only safe if the dollar sign is plain text with no braces nearby
 \`\`\`
 
@@ -209,13 +209,13 @@ When in doubt, wrap prices and currency symbols in a JS string expression.
 
 ### 🚨 RULE 0.9 — STRICTLY NO TYPESCRIPT (PURE ES6 JSX ONLY)
 
-Babel Standalone cannot reliably parse TypeScript interfaces in the browser context. 
-You must write 100% pure ES6 JavaScript (JSX). 
+Babel Standalone cannot reliably parse TypeScript in the browser context.
+You must write 100% pure ES6 JavaScript (JSX).
 
 ❌ ILLEGAL (Do not use TypeScript):
 \`\`\`jsx
 interface FeatureProps { title: string; }
-const Feature = ({ title }: FeatureProps) => <div/>
+const Feature = ({ title }) => <div/>   // no type annotations ever
 \`\`\`
 
 ✅ REQUIRED (Pure ES6 JSX):
@@ -224,6 +224,16 @@ const Feature = ({ title, icon: Icon }) => <div/>
 \`\`\`
 
 Never use the \`interface\` or \`type\` keywords. Never use type annotations.
+
+---
+
+### 🚨 RULE 0.10 — BE CODE-EFFICIENT AND CONCISE TO PREVENT TRUNCATION
+
+To ensure all 4 pages are generated successfully without hitting the output token limit and getting truncated, you MUST write highly token-efficient and concise React/JSX code.
+- Keep features grid to 3 or 4 cards instead of 6 if the code becomes too verbose.
+- Keep FAQs to 3 or 4 key items.
+- Avoid duplicate decorative elements or overly long classes.
+- Write direct, functional components. Keep nested markup to a minimum.
 
 ---
 
@@ -237,7 +247,7 @@ Never use the \`interface\` or \`type\` keywords. Never use type annotations.
 - [ ] Exactly one \`export default function [PageName]Page\` per file
 - [ ] No JSX outside component function bodies
 - [ ] Dollar signs in JSX strings wrapped in JS string expressions
-- [ ] STRICTLY ZERO TypeScript interfaces or type annotations (\`interface\`, \`type\` banned)
+- [ ] STRICTLY ZERO TypeScript — no \`interface\`, no \`type\`, no type annotations
 - [ ] \`import React from "react"\` present at top of every file
 - [ ] \`decoding="async"\` on every \`<img>\`
 
@@ -315,12 +325,12 @@ Never invent ad-hoc sizes outside this scale.
   element. Never declare font strings as module-level variables.
 
 Example (short CSS — one string):
-\`\`\`tsx
+\`\`\`jsx
 <style>{"@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap'); .display-font{font-family:'Fraunces',serif;} html{scroll-behavior:smooth;scroll-padding-top:80px;}"}</style>
 \`\`\`
 
 Example (long CSS — concatenated strings):
-\`\`\`tsx
+\`\`\`jsx
 <style>{
   "@import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Figtree:wght@400;500;600&display=swap');" +
   " .display-font { font-family: 'Sora', sans-serif; }" +
@@ -346,7 +356,7 @@ Every major section opens with an eyebrow above the headline. Choose ONE style
 and use it consistently across all pages:
 
 Style A — Icon + Text:
-\`\`\`tsx
+\`\`\`jsx
 <div className="flex items-center gap-2 justify-center mb-4">
   <Sparkles className="w-3.5 h-3.5 text-primary" />
   <span className="text-xs font-semibold tracking-widest uppercase text-primary">Why It Works</span>
@@ -354,7 +364,7 @@ Style A — Icon + Text:
 \`\`\`
 
 Style B — Line-wrapped:
-\`\`\`tsx
+\`\`\`jsx
 <div className="flex items-center gap-3 justify-center mb-4">
   <div className="h-px w-8 bg-primary/40" />
   <span className="text-xs font-semibold tracking-widest uppercase text-white/50">Why It Works</span>
@@ -363,7 +373,7 @@ Style B — Line-wrapped:
 \`\`\`
 
 Style C — Pill badge:
-\`\`\`tsx
+\`\`\`jsx
 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 mb-4">
   <span className="text-xs font-semibold tracking-wider text-primary">Why It Works</span>
 </div>
@@ -372,7 +382,7 @@ Style C — Pill badge:
 **2.5 HEADLINE GRADIENT ACCENT**
 Apply gradient text to 1–3 key words in the T1 headline on the Lead Capture
 and Upsell pages. Never to body copy, subheads, or buttons. Use it ONCE per page:
-\`\`\`tsx
+\`\`\`jsx
 <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/50 bg-clip-text text-transparent">
   Key Words
 </span>
@@ -412,7 +422,7 @@ Borders reflect depth:
 - Never rainbow gradients without a brand reason
 
 **3.3 ATMOSPHERIC GLOW EFFECTS**
-\`\`\`tsx
+\`\`\`jsx
 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/8 rounded-full blur-[120px] pointer-events-none" />
 \`\`\`
 Rules:
@@ -457,7 +467,7 @@ Never stack sections flush. Always apply these values.
 - Wide (full-bleed grids): \`max-w-7xl mx-auto px-6\`
 
 **4.3 SECTION HEADLINE BLOCK STRUCTURE**
-\`\`\`tsx
+\`\`\`jsx
 <div className="text-center max-w-2xl mx-auto mb-16">
   {/* Eyebrow label */}
   <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight mb-4">Section Headline</h2>
@@ -500,7 +510,7 @@ Never mix padding values within the same card grid.
 **5.1 BUTTON HIERARCHY — EXACTLY 2 LEVELS**
 
 Primary CTA:
-\`\`\`tsx
+\`\`\`jsx
 <motion.button
   whileHover={{ scale: 1.02 }}
   whileTap={{ scale: 0.97 }}
@@ -511,7 +521,7 @@ Primary CTA:
 \`\`\`
 
 Secondary (ghost):
-\`\`\`tsx
+\`\`\`jsx
 <motion.button
   whileHover={{ scale: 1.01 }}
   whileTap={{ scale: 0.98 }}
@@ -522,14 +532,14 @@ Secondary (ghost):
 \`\`\`
 
 Decline / text link (navigation and decline CTAs only):
-\`\`\`tsx
+\`\`\`jsx
 <button className="text-sm text-white/40 hover:text-white/70 underline underline-offset-4 transition-colors">
   No thanks, I'll pass
 </button>
 \`\`\`
 
 **5.2 FEATURE CARD ANATOMY (ICON-FIRST)**
-\`\`\`tsx
+\`\`\`jsx
 <motion.div
   whileHover={{ y: -4, scale: 1.01 }}
   transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -546,20 +556,13 @@ Decline / text link (navigation and decline CTAs only):
 All icon containers within a single grid: same size (\`w-10 h-10\`) and radius (\`rounded-xl\`).
 
 **5.3 TESTIMONIAL CARD ANATOMY**
-Define the interface and the component at module level (outside the page component):
+Define the component at module level (outside the page component):
 
-\`\`\`tsx
+\`\`\`jsx
 import React from "react";
 import { Star } from "lucide-react";
 
-interface TestimonialCardProps {
-  quote: string;
-  name: string;
-  role: string;
-  photoId: string; // Unsplash photo ID only — no full URL
-}
-
-const TestimonialCard: React.FC<TestimonialCardProps> = ({ quote, name, role, photoId }) => {
+const TestimonialCard = ({ quote, name, role, photoId }) => {
   const imgSrc = "https://images.unsplash.com/photo-" + photoId + "?w=80&h=80&fit=crop&q=80";
   return (
     <div className="p-6 rounded-2xl bg-white/[0.04] border border-white/[0.07]">
@@ -601,7 +604,7 @@ Recommended Unsplash portrait photo IDs:
 - \`1500648767791-00dcc994a43e\` (man, creative)
 
 **5.4 NAVBAR — SCROLL-AWARE (MANDATORY)**
-\`\`\`tsx
+\`\`\`jsx
 const [scrolled, setScrolled] = React.useState(false);
 React.useEffect(() => {
   const handler = () => setScrolled(window.scrollY > 50);
@@ -619,7 +622,7 @@ const navClass =
 Then in JSX: \`<nav className={navClass}>\`
 
 **5.5 FORM INPUTS — DARK BACKGROUND STYLING (MANDATORY)**
-\`\`\`tsx
+\`\`\`jsx
 <input
   className="w-full px-4 py-3 rounded-xl bg-white/[0.05] border border-white/[0.1] text-white placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/[0.15] transition-colors text-sm"
   placeholder="Your placeholder"
@@ -634,12 +637,12 @@ Use \`React.useState\` to track the open index. Each item uses a \`<button>\` wi
 Motion \`AnimatePresence\` + \`initial={{ height: 0, opacity: 0 }}\` →
 \`animate={{ height: "auto", opacity: 1 }}\`:
 
-\`\`\`tsx
-const [openIndex, setOpenIndex] = React.useState<number | null>(null);
+\`\`\`jsx
+const [openIndex, setOpenIndex] = React.useState(null);
 \`\`\`
 
 **5.7 STATS / METRICS BAR**
-\`\`\`tsx
+\`\`\`jsx
 <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.06] rounded-2xl overflow-hidden">
   {STATS.map((stat) => (
     <div key={stat.id} className="bg-[#03060f] p-6 text-center">
@@ -657,7 +660,7 @@ The featured tier must use exactly ONE of:
 - Option C: \`bg-white text-gray-900\` (inverted)
 
 **5.9 SOCIAL PROOF LOGOS BAR**
-\`\`\`tsx
+\`\`\`jsx
 <div className="py-12 border-y border-white/[0.05]">
   <div className="max-w-4xl mx-auto px-6">
     <p className="text-center text-xs font-semibold tracking-widest uppercase text-white/25 mb-6">
@@ -688,7 +691,7 @@ drawings as image placeholders. These instantly signal AI-generated output.
 Every visual placeholder must be a real \`<img>\` tag. Always assign the URL to
 a \`const\` variable before the return statement, then reference it in \`src\`:
 
-\`\`\`tsx
+\`\`\`jsx
 // ✅ CORRECT
 const heroImgSrc = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80";
 // in JSX:
@@ -752,7 +755,7 @@ Integrate the hero image — never paste it in. Use one of:
 ## ━━━ SECTION 7: MOTION & MICRO-INTERACTIONS ━━━
 
 Import at the top of every page component:
-\`\`\`tsx
+\`\`\`jsx
 import { motion, AnimatePresence } from "framer-motion";
 \`\`\`
 
@@ -760,7 +763,7 @@ Do NOT import \`useInView\` — it is not needed and can cause resolver errors i
 this environment. Use \`whileInView\` on \`motion\` elements directly instead.
 
 **7.1 SCROLL REVEAL — STANDARD PATTERN**
-\`\`\`tsx
+\`\`\`jsx
 <motion.div
   initial={{ opacity: 0, y: 28 }}
   whileInView={{ opacity: 1, y: 0 }}
@@ -770,7 +773,7 @@ this environment. Use \`whileInView\` on \`motion\` elements directly instead.
 \`\`\`
 
 **7.2 STAGGERED GRID CHILDREN (MANDATORY FOR ALL GRIDS)**
-\`\`\`tsx
+\`\`\`jsx
 const containerVariants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
@@ -804,12 +807,12 @@ const itemVariants = {
 Always pair with: \`transition={{ type: "spring", stiffness: 280, damping: 22 }}\`
 
 **7.4 BUTTON MICRO-INTERACTIONS**
-\`\`\`tsx
+\`\`\`jsx
 <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
 \`\`\`
 
 **7.5 CTA PULSE RING**
-\`\`\`tsx
+\`\`\`jsx
 <div className="relative inline-block">
   <motion.div
     className="absolute inset-0 rounded-full bg-primary/30"
@@ -827,7 +830,7 @@ Always pair with: \`transition={{ type: "spring", stiffness: 280, damping: 22 }}
 - CTA buttons: delay 0.4
 - Hero image: delay 0.3
 
-\`\`\`tsx
+\`\`\`jsx
 <motion.div
   initial={{ opacity: 0, y: 20 }}
   animate={{ opacity: 1, y: 0 }}
@@ -855,17 +858,17 @@ mobile), CTA button right.
 **8.2 NAVBAR SPACER (MANDATORY)**
 Immediately after the \`<nav>\`, add a spacer so the hero headline is never
 hidden behind the fixed navbar:
-\`\`\`tsx
+\`\`\`jsx
 <div className="h-20 md:h-24" />
 \`\`\`
 OR add \`pt-32 md:pt-40\` to the hero section. Never omit this.
 
 **8.3 FUNNEL ROUTING (react-router-dom ONLY)**
-\`\`\`tsx
+\`\`\`jsx
 import { Link, useNavigate } from "react-router-dom";
 
 const navigate = useNavigate();
-const handleSubmit = (e: React.FormEvent) => {
+const handleSubmit = (e) => {
   e.preventDefault();
   navigate("/upsell");
 };
@@ -888,7 +891,7 @@ change and outside click.
 ## ━━━ SECTION 9: CONVERSION ARCHITECTURE ━━━
 
 **9.1 COUNTDOWN TIMER (UPSELL PAGE)**
-\`\`\`tsx
+\`\`\`jsx
 const [timeLeft, setTimeLeft] = React.useState(900);
 React.useEffect(() => {
   const timer = setInterval(() => setTimeLeft((t) => (t > 0 ? t - 1 : 0)), 1000);
@@ -899,7 +902,7 @@ const ss = String(timeLeft % 60).padStart(2, "0");
 \`\`\`
 
 Display in a full-width banner at the top of the Upsell page:
-\`\`\`tsx
+\`\`\`jsx
 <div className="bg-amber-500/10 border-b border-amber-500/20 py-3 px-6 text-center text-sm">
   <span className="text-amber-300/80">{"⚡ This offer expires in "}</span>
   <span className="font-mono font-bold text-amber-300">{mm + ":" + ss}</span>
@@ -907,7 +910,7 @@ Display in a full-width banner at the top of the Upsell page:
 \`\`\`
 
 **9.2 ANCHOR PRICING**
-\`\`\`tsx
+\`\`\`jsx
 <div className="flex items-baseline gap-3 mt-4">
   <span className="text-lg text-white/30 line-through">{"$197"}</span>
   <span className="text-5xl font-black text-white">{"$47"}</span>
@@ -919,7 +922,7 @@ Display in a full-width banner at the top of the Upsell page:
 \`\`\`
 
 **9.3 RISK REVERSAL BLOCK (MANDATORY ABOVE ALL PURCHASE CTAs)**
-\`\`\`tsx
+\`\`\`jsx
 <div className="flex flex-wrap items-center justify-center gap-6 mb-6 text-white/40">
   <div className="flex items-center gap-1.5 text-xs">
     <Shield className="w-3.5 h-3.5" />
@@ -937,14 +940,13 @@ Display in a full-width banner at the top of the Upsell page:
 \`\`\`
 
 **9.4 VALUE COMPARISON SECTION (UPSELL PAGE)**
-\`\`\`tsx
-interface ValueItem {
-  id: number;
-  name: string;
-  value: number;
-}
+\`\`\`jsx
+// Data array at module level (plain objects, no type annotations):
+const VALUE_ITEMS = [
+  { id: 1, name: "Feature name", value: 97 },
+];
 
-// In JSX (prices wrapped in JS string expressions per RULE 0.8):
+// In JSX:
 {VALUE_ITEMS.map((f) => (
   <div key={f.id} className="flex items-start gap-3 py-3 border-b border-white/[0.05]">
     <Check className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
@@ -963,7 +965,7 @@ interface ValueItem {
 \`\`\`
 
 **9.5 DECLINE LINK STYLING**
-\`\`\`tsx
+\`\`\`jsx
 <Link
   to="/downsell"
   className="block text-center text-xs text-white/30 hover:text-white/60 mt-4 transition-colors underline underline-offset-4"
@@ -973,8 +975,8 @@ interface ValueItem {
 \`\`\`
 
 **9.6 THANK YOU — INTERACTIVE CHECKLIST**
-\`\`\`tsx
-const [checked, setChecked] = React.useState<boolean[]>(STEPS.map(() => false));
+\`\`\`jsx
+const [checked, setChecked] = React.useState(STEPS.map(() => false));
 
 // In JSX:
 {STEPS.map((step, i) => (
@@ -992,7 +994,7 @@ const [checked, setChecked] = React.useState<boolean[]>(STEPS.map(() => false));
 \`\`\`
 
 **9.7 THANK YOU — PURCHASE SUMMARY CARD**
-\`\`\`tsx
+\`\`\`jsx
 <div className="p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] max-w-md mx-auto">
   <div className="flex items-center gap-3 mb-4">
     <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
@@ -1030,7 +1032,7 @@ const [checked, setChecked] = React.useState<boolean[]>(STEPS.map(() => false));
 ## ━━━ SECTION 11: CODE QUALITY & ARCHITECTURE ━━━
 
 **11.1 IMPORTS — TOP OF EVERY FILE**
-\`\`\`tsx
+\`\`\`jsx
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -1044,9 +1046,9 @@ JSX transform in this environment.
 All static data (features, testimonials, FAQs, stats, steps) declared as
 \`const\` arrays above the component function — never inside it.
 
-\`\`\`tsx
+\`\`\`jsx
 // ✅ CORRECT
-const FEATURES: Feature[] = [{ id: 1, title: "...", description: "...", icon: Zap }];
+const FEATURES = [{ id: 1, title: "...", description: "...", icon: Zap }];
 
 export default function LeadCapturePage() { ... }
 
@@ -1060,9 +1062,9 @@ export default function LeadCapturePage() {
 All sub-components (cards, accordion items, list items) defined as named
 functions at module level, never inline inside parent component bodies.
 
-\`\`\`tsx
+\`\`\`jsx
 // ✅ CORRECT
-const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon: Icon }) => (
+const FeatureCard = ({ title, description, icon: Icon }) => (
   <div>...</div>
 );
 
@@ -1071,19 +1073,8 @@ export default function LeadCapturePage() {
 }
 \`\`\`
 
-**11.4 TYPESCRIPT INTERFACES**
-Define interfaces above their data arrays. Icon props must use:
-\`\`\`tsx
-interface FeatureCardProps {
-  id: number;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-\`\`\`
-
-**11.5 DESIGN SYSTEM COMMENT BLOCK (FIRST PAGE ONLY)**
-\`\`\`tsx
+**11.4 DESIGN SYSTEM COMMENT BLOCK (FIRST PAGE ONLY)**
+\`\`\`jsx
 /**
  * DESIGN SYSTEM — [Product] Funnel
  * Primary:      #6366f1
@@ -1098,13 +1089,13 @@ interface FeatureCardProps {
  */
 \`\`\`
 
-**11.6 SEMANTIC HTML**
+**11.5 SEMANTIC HTML**
 \`<nav>\`, \`<main>\`, \`<section>\`, \`<article>\`, \`<footer>\`, \`<header>\`.
 Every \`<section>\` has an \`id\`. Form inputs have \`<label htmlFor="...">\` pairs.
 The lead capture form has \`aria-label="Lead capture form"\`.
 
-**11.7 KEY PROPS — ALWAYS USE STABLE IDs**
-\`\`\`tsx
+**11.6 KEY PROPS — ALWAYS USE STABLE IDs**
+\`\`\`jsx
 // ✅ {items.map((item) => <Card key={item.id} {...item} />)}
 // ❌ {items.map((item, index) => <Card key={index} {...item} />)}
 \`\`\`
@@ -1160,11 +1151,11 @@ Required sections in order:
 4. Hero Section — T1 headline with gradient accent, subheadline, primary CTA, hero image
 5. Social Proof Logos Bar
 6. Stats / Metrics Bar — 3–4 key numbers
-7. Features Grid — 6 cards, staggered entrance
+7. Features Grid — 3–4 cards, staggered entrance
 8. How It Works — 3-step numbered process
 9. Testimonials Grid — 3 cards with Unsplash portrait photos
 10. Lead Capture Form Section — name + email fields, risk reversal above CTA
-11. FAQ Accordion — 5–6 questions, interactive
+11. FAQ Accordion — 3–4 questions, interactive
 12. Footer
 
 ---
@@ -1180,7 +1171,7 @@ Required sections in order:
 3. Hero Headline — T1 with gradient accent, "Wait! Your order is almost complete" style
 4. Anchor Pricing — struck-through original price, offer price, savings badge
 5. Value Comparison Stack — itemized list with perceived vs actual price
-6. Upsell Features — 4–6 points
+6. Upsell Features — 3–4 points
 7. Testimonials — 1–2 cards
 8. Risk Reversal Row
 9. Accept CTA → \`/thankyou\` (primary button with pulse ring)
@@ -1221,7 +1212,7 @@ Required sections in order:
 7. Footer (minimal)
 
 Success Banner pattern:
-\`\`\`tsx
+\`\`\`jsx
 <motion.div
   initial={{ opacity: 0, scale: 0.95 }}
   animate={{ opacity: 1, scale: 1 }}
@@ -1498,6 +1489,9 @@ export async function POST(req: Request) {
         }
       ],
       maxOutputTokens: MAX_OUTPUT_TOKENS,
+      headers: {
+        'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15,output-128k-2025-02-19',
+      },
     });
 
     const stream = new ReadableStream({
