@@ -153,7 +153,7 @@ export function PdfUploadForm({ onBack, onSubmit }: PdfUploadFormProps) {
           </div>
           
           <p className="text-white/70 text-sm mb-4">
-            We've generated a summary of your offer based on the document. Please review and edit the details below before generating your sales intelligence.
+            We&apos;ve generated a summary of your offer based on the document. Please review and edit the details below before generating your sales intelligence.
           </p>
 
           <textarea

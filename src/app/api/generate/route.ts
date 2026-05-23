@@ -2,6 +2,8 @@ import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { LUCIDE_ICON_NAMES } from '@/config/components';
 import { createAdminClient } from '@/utils/supabase/admin';
+import { getSession } from '@/auth';
+import { waitUntil } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
@@ -1102,18 +1104,19 @@ The lead capture form has \`aria-label="Lead capture form"\`.
 
 ---
 
-## ━━━ SECTION 12: COPY ADHERENCE ━━━
+## ━━━ SECTION 12: COPY ADHERENCE & MARKDOWN LAYOUT MAPPING ━━━
 
-**12.1** Use ONLY provided copy. Never invent copy, add filler, or use Lorem Ipsum.
+**12.1** You will be provided with a \`COPY OBJECT\` containing a rich Markdown document for each of the funnel pages. You MUST strictly use the exact copy provided inside this markdown document. You are NOT allowed to invent any copy, write generic placeholder text, add filler, or use Lorem Ipsum. Every headline, paragraph, feature list item, testimonial body, and image placement must be extracted from the markdown verbatim.
 
-**12.2** Copy placement: \`title\` → T2 headline, \`subtitle\` → T4 subhead,
-\`body\` → T4 copy, \`cta\` → button label, \`label\` → T5 eyebrow.
+**12.2** Map the Markdown structures directly to React UI elements:
+- Headings (\`# Heading 1\`, \`## Heading 2\`, \`### Heading 3\`) must map to section headers, sub-headings, or card titles.
+- Lists (\`- Item\` or \`* Item\`) must map to beautiful visual layout components, such as grid feature cards, itemized checklists, or value stacks.
+- Blockquotes (\`> Testimonial\`) must map to beautifully styled testimonial quote cards, including the reviewer's name, avatar placeholder/description, and rating if specified.
+- Image placeholders (\`![alt text](url)\`) must be compiled into beautiful, styled, responsive \`<img>\` tags or visual asset cards with rounded corners, matching the exact Unsplash URL provided.
 
-**12.3** Maximum 2 emojis across the entire page. Only in hero eyebrow or
-announcement banner. Never in body copy, card titles, or buttons.
+**12.3** Zero AI Copy Generation: Do NOT invent or add any sales arguments, details, or features that are not in the markdown copy. The provided markdown copy is already fully expanded. Your sole job is to format and compile it into a high-converting visual layout.
 
-**12.4** Never fabricate testimonial names, companies, or statistics not
-provided in the copy object.
+**12.4** Maximum 2 emojis across the entire page. Only in hero eyebrow or announcement banner. Never in body copy, card titles, or buttons.
 
 ---
 
@@ -1294,8 +1297,8 @@ function buildContentPrompt(
 
   let copySection = 'No pre-written copy provided.';
   if (copyContext) {
-    copySection = `COPY OBJECT:
-Use the exact text chunks defined below for each page sections:
+    copySection = `COPY OBJECT (RICH MARKDOWN BY PAGE):
+We have generated rich sales copy in Markdown format for each page of the funnel. You must parse this Markdown structure and map it directly to visually beautiful Tailwind sections and components without inventing any text:
 ${copyContext}
 `;
   }
@@ -1358,7 +1361,6 @@ function selectRandomScreenshot(): ScreenshotSelection {
       return { data: null, mimeType: null, fileName: null };
     }
 
-    // Pick random file
     const randomFilePath = imageFiles[Math.floor(Math.random() * imageFiles.length)];
     const randomFile = path.basename(randomFilePath);
     const data = fs.readFileSync(randomFilePath);
@@ -1414,6 +1416,13 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
   }
 
+  // 1. Session Authentication
+  const session = await getSession();
+  if (!session || !session.user?.id) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const userId = session.user.id;
+
   let offerContext: any = {};
   let funnelId: string | undefined;
 
@@ -1425,47 +1434,83 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  // 1. Deducing category from context
+  if (!funnelId) {
+    return Response.json({ error: 'Missing funnelId parameter' }, { status: 400 });
+  }
+
+  // Narrow the type to string after the guard above
+  const resolvedFunnelId: string = funnelId;
+
+  // 2. Validate Ownership & Fetch existing blocks
+  const supabase = createAdminClient();
+  let existingBlocks: any = {};
+  try {
+    const { data: pageRecord, error: pageError } = await supabase
+      .from('builder_pages')
+      .select('blocks, user_id')
+      .eq('id', resolvedFunnelId)
+      .single();
+
+    if (pageError || !pageRecord) {
+      return Response.json({ error: 'Page not found' }, { status: 404 });
+    }
+
+    if (pageRecord.user_id !== userId) {
+      return Response.json({ error: 'Unauthorized page access' }, { status: 403 });
+    }
+
+    existingBlocks = pageRecord.blocks || {};
+  } catch (e: any) {
+    return Response.json({ error: 'Database error: ' + e.message }, { status: 500 });
+  }
+
+  // 3. Mark generation as "generating" in the DB
+  try {
+    const updatedBlocks = {
+      ...existingBlocks,
+      generation: {
+        status: 'generating',
+        updatedAt: new Date().toISOString(),
+      },
+    };
+
+    await supabase
+      .from('builder_pages')
+      .update({ blocks: updatedBlocks, updated_at: new Date().toISOString() })
+      .eq('id', resolvedFunnelId);
+  } catch (e: any) {
+    return Response.json({ error: 'Failed to update generation status in DB: ' + e.message }, { status: 500 });
+  }
+
+  // 4. Deduce category from context
   const category = offerContext.category ?? 'business';
 
-  // 2. Select a Random Reference Screenshot
+  // 5. Select a Random Reference Screenshot
   const screenshot = selectRandomScreenshot();
   if (screenshot.data) {
     screenshot.data = await resizeImageIfNeeded(screenshot.data);
   }
 
-  // 3. Fetch Copy Context from DB if funnelId is provided
+  // 6. Fetch Copy Context from existingBlocks
   let copyContext: string | null = null;
-  if (funnelId) {
-    try {
-      const supabase = createAdminClient();
-      const { data, error } = await supabase
-        .from('builder_pages')
-        .select('blocks')
-        .eq('id', funnelId)
-        .single();
-      if (!error && data?.blocks?.copy) {
-        copyContext = JSON.stringify(data.blocks.copy, null, 2);
-      }
-    } catch (e) {
-      console.error('[generate] Failed to fetch copy context:', e);
-    }
+  if (existingBlocks.copy) {
+    copyContext = JSON.stringify(existingBlocks.copy, null, 2);
   }
 
   const systemPrompt = buildSystemPrompt(category, screenshot.fileName);
   const contentPrompt = buildContentPrompt(offerContext, copyContext, category);
 
-  console.log('[generate] model:', MODEL, '| maxTokens:', MAX_OUTPUT_TOKENS, '| funnelId:', funnelId ?? 'none');
+  console.log('[generate] model:', MODEL, '| maxTokens:', MAX_OUTPUT_TOKENS, '| funnelId:', resolvedFunnelId);
 
   const encoder = new TextEncoder();
 
   try {
-    // 4. Construct user message content: text instructions + image attachment (if loaded)
+    // 7. Construct user message content: text instructions + image attachment (if loaded)
     const userMessageContent: any[] = [
       {
         type: 'text',
         text: contentPrompt,
-      }
+      },
     ];
 
     if (screenshot.data) {
@@ -1474,9 +1519,11 @@ export async function POST(req: Request) {
         image: screenshot.data,
         mimeType: screenshot.mimeType,
       });
-      console.log(`[generate] Appending screenshot file "${screenshot.fileName}" (size: ${screenshot.data.length} bytes) to Anthropic messages stream.`);
+      console.log(
+        `[generate] Appending screenshot file "${screenshot.fileName}" (size: ${screenshot.data.length} bytes) to Anthropic messages stream.`
+      );
     } else {
-      console.log(`[generate] No screenshot reference available. Running text-only page builder fallback.`);
+      console.log('[generate] No screenshot reference available. Running text-only page builder fallback.');
     }
 
     const result = streamText({
@@ -1486,7 +1533,7 @@ export async function POST(req: Request) {
         {
           role: 'user',
           content: userMessageContent,
-        }
+        },
       ],
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       headers: {
@@ -1494,48 +1541,183 @@ export async function POST(req: Request) {
       },
     });
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const send = (type: string, data: string) =>
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type, data })}\n\n`));
-
-        let fullText = '';
-
-        try {
-          for await (const part of result.fullStream) {
-            if (part.type === 'text-delta') {
-              fullText += part.text;
-            } else if (part.type === 'reasoning-delta') {
-              send('thinking', part.text);
-            } else if (part.type === 'error') {
-              send('error', String(part.error));
-            } else if (part.type === 'finish') {
-              console.log('[generate] finish — usage:', JSON.stringify(part.totalUsage ?? {}));
-            }
-          }
-
-          console.log('[generate] complete — output length:', fullText.length);
-          send('complete', fullText);
-
-        } catch (err: any) {
-          console.error('[generate] stream error:', err);
-          send('error', err?.message ?? 'Stream failed');
-        } finally {
-          controller.close();
-        }
+    // Create client SSE stream response
+    let controllerRef: ReadableStreamDefaultController | null = null;
+    const clientStream = new ReadableStream({
+      start(c) {
+        controllerRef = c;
       },
     });
 
-    return new Response(stream, {
+    const sendToClient = (type: string, data: string) => {
+      if (!controllerRef) return;
+      try {
+        controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify({ type, data })}\n\n`));
+      } catch (err) {
+        // Connection closed by client, safe to stop pushing
+        controllerRef = null;
+      }
+    };
+
+    const generatePromise = (async () => {
+      let fullText = '';
+      try {
+        for await (const part of result.fullStream) {
+          if (part.type === 'text-delta') {
+            fullText += part.text;
+          } else if (part.type === 'reasoning-delta') {
+            sendToClient('thinking', part.text);
+          } else if (part.type === 'error') {
+            sendToClient('error', String(part.error));
+          } else if (part.type === 'finish') {
+            console.log('[generate] finish — usage:', JSON.stringify(part.totalUsage ?? {}));
+          }
+        }
+
+        console.log('[generate] complete — output length:', fullText.length);
+
+        // Parse XML <page> blocks out of the generated response
+        const newPages: Record<string, any> = {};
+        const pageRegex = /<page\s+([^>]+)>([\s\S]*?)(?:<\/page>|$)/g;
+        let match;
+        let pageCount = 0;
+
+        while ((match = pageRegex.exec(fullText)) !== null) {
+          const attrs = match[1];
+          const pathMatch = attrs.match(/path=["']([^"']+)["']/i);
+          const nameMatch = attrs.match(/name=["']([^"']+)["']/i);
+
+          const pathVal = pathMatch ? pathMatch[1] : `/${pageCount}`;
+          const nameVal = nameMatch ? nameMatch[1] : `Page ${pageCount + 1}`;
+          let code = match[2].trim();
+
+          // Strip markdown code block wrappers
+          code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
+
+          // Remove rogue jsx literal string wrappers if any
+          if (code.startsWith('{`')) {
+            code = code.replace(/^\{`\n?/, '').replace(/\n?`\}$/, '').trim();
+          }
+
+          newPages[pathVal] = {
+            name: nameVal,
+            path: pathVal,
+            components: {},
+            rootList: [],
+            code,
+          };
+          pageCount++;
+        }
+
+        // Fallback: assume whole response is a single page code
+        if (pageCount === 0 && fullText.trim()) {
+          let code = fullText.trim();
+          const codeBlockMatch = code.match(/```(?:tsx|jsx|js|ts)?\n([\s\S]*?)\n```/i);
+          if (codeBlockMatch) {
+            code = codeBlockMatch[1].trim();
+          } else {
+            code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
+          }
+          if (code.includes('import ') || code.includes('export default')) {
+            newPages['/'] = {
+              name: 'Lead Capture',
+              path: '/',
+              components: {},
+              rootList: [],
+              code,
+            };
+            pageCount = 1;
+          }
+        }
+
+        if (pageCount === 0) {
+          throw new Error('Failed to find any valid generated pages in the stream.');
+        }
+
+        const initialPage = newPages['/'] || Object.values(newPages)[0];
+
+        // Fetch fresh blocks from the DB to avoid overwriting changes done during generation
+        const { data: freshRecord } = await supabase
+          .from('builder_pages')
+          .select('blocks')
+          .eq('id', resolvedFunnelId)
+          .single();
+
+        const latestBlocks = freshRecord?.blocks || {};
+        const updatedBlocks = {
+          ...latestBlocks,
+          components: initialPage.components || {},
+          rootList: initialPage.rootList || [],
+          pages: newPages,
+          generation: {
+            status: 'completed',
+            updatedAt: new Date().toISOString(),
+          },
+        };
+
+        const { error: saveErr } = await supabase
+          .from('builder_pages')
+          .update({ blocks: updatedBlocks, updated_at: new Date().toISOString() })
+          .eq('id', resolvedFunnelId);
+
+        if (saveErr) {
+          throw new Error('Failed to save final pages: ' + saveErr.message);
+        }
+
+        console.log(`[generate] Completed background save for funnelId: ${resolvedFunnelId}`);
+        sendToClient('complete', fullText);
+      } catch (err: any) {
+        console.error('[generate] background promise execution error:', err);
+
+        try {
+          const { data: freshRecord } = await supabase
+            .from('builder_pages')
+            .select('blocks')
+            .eq('id', resolvedFunnelId)
+            .single();
+
+          const latestBlocks = freshRecord?.blocks || {};
+          const updatedBlocks = {
+            ...latestBlocks,
+            generation: {
+              status: 'failed',
+              error: err.message || String(err),
+              updatedAt: new Date().toISOString(),
+            },
+          };
+
+          await supabase
+            .from('builder_pages')
+            .update({ blocks: updatedBlocks, updated_at: new Date().toISOString() })
+            .eq('id', resolvedFunnelId);
+        } catch (dbErr) {
+          console.error('[generate] Failed to save failure state:', dbErr);
+        }
+
+        sendToClient('error', err?.message ?? 'Stream failed');
+      } finally {
+        if (controllerRef) {
+          try {
+            controllerRef.close();
+          } catch (e) {
+            // ignore
+          }
+        }
+      }
+    })();
+
+    // Wait until the background task is fully resolved
+    waitUntil(generatePromise);
+
+    return new Response(clientStream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
       },
     });
-
   } catch (err: any) {
-    console.error('[generate] failed to init stream:', err);
+    console.error('[generate] failed to initialize stream:', err);
     return Response.json({ error: err?.message ?? 'Failed to start generation' }, { status: 500 });
   }
 }

@@ -52,6 +52,13 @@ export async function POST(
     return obj[upper] || obj[lower] || '';
   };
 
+  let heroHook = '';
+  if (copyData?.lead_capture?.sections?.[0]?.content) {
+    heroHook = copyData.lead_capture.sections[0].content;
+  } else if (copyData?.lead_capture?.markdown) {
+    heroHook = copyData.lead_capture.markdown.replace(/[#*`>_\-]/g, '').trim();
+  }
+
   // Build contextual prompt
   const contextSummary = [
     `OFFER NAME: ${formData.field_1_name}`,
@@ -64,9 +71,7 @@ export async function POST(
     `PRIMARY CHALLENGE: ${formData.field_8_challenge || 'Not specified'}`,
     call1 ? `SCORE SUMMARY: ${getVal(call1, 'SCORE_SUMMARY')}` : '',
     call1 ? `PAIN POINTS (KEY): ${getVal(call1, 'PAIN_POINT_MAPPING').substring(0, 500)}` : '',
-    copyData?.lead_capture?.sections?.[0]?.content
-      ? `HERO HOOK: ${copyData.lead_capture.sections[0].content.substring(0, 200)}`
-      : '',
+    heroHook ? `HERO HOOK: ${heroHook.substring(0, 200)}` : '',
   ].filter(Boolean).join('\n');
 
   const systemPrompt = `You are OfferIQ Email Sequence Engine. You write high-converting, personalised email nurture sequences for digital offers.

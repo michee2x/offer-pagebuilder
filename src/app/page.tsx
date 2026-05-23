@@ -125,7 +125,7 @@ export default async function DashboardPage(props: {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {activeWorkspace ? (
                 <a
-                  href={"/onboard?workspace=" + activeWorkspace.id}
+                  href={"/analyze?workspace=" + activeWorkspace.id}
                   className="h-14 px-8 rounded-full bg-white text-black font-bold flex items-center justify-center gap-2 transition-all hover:bg-white/90 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
                 >
                   Launch campaign <span className="text-xl">↗</span>
@@ -179,7 +179,7 @@ export default async function DashboardPage(props: {
                     />
                     <p className="text-white/40 text-[15px]">No campaigns in this workspace yet.</p>
                     <a
-                      href={"/onboard?workspace=" + activeWorkspace.id}
+                      href={"/analyze?workspace=" + activeWorkspace.id}
                       className="text-white font-semibold mt-4 hover:underline transition-all"
                     >
                       Launch your first campaign

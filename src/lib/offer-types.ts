@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// OfferIQ — Shared types for the pre-funnel intelligence flow
+// OfferIQ — Shared types
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type OfferFormat =
@@ -33,25 +33,17 @@ export type CurrencyCode = 'USD' | 'GBP' | 'EUR' | 'AUD' | 'CAD' | 'NZD' | 'ZAR'
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface OfferFormData {
-  // Field 1 — Core Offer
   field_1_name: string;
   field_1_format: OfferFormat;
-  // Field 2 — Outcome
   field_2_outcome: string;
-  // Field 3 — Persona
   field_3_persona: string;
-  // Field 4 — Pricing
   field_4_price: string;
   field_4_currency: CurrencyCode;
   field_4_upsell: string;
-  // Field 5 — Proof
   field_5_proof: string;
-  // Field 6 — Mechanism
   field_6_mechanism: string;
-  // Field 7 — Traffic
   field_7_channels: TrafficChannel[];
   field_7_detail: string;
-  // Field 8 — Challenge
   field_8_challenge: string;
 }
 
@@ -148,19 +140,126 @@ export interface Call3Output {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Copy Output
+// Page Spec — the new copy format
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface CopySectionBlock {
+/**
+ * The five possible funnel page types.
+ */
+export type FunnelPageKey =
+  | 'lead_capture'
+  | 'sales_page'
+  | 'upsell'
+  | 'downsell'
+  | 'thankyou';
+
+export const FUNNEL_PAGE_LABELS: Record<FunnelPageKey, string> = {
+  lead_capture: 'Lead Capture',
+  sales_page: 'Sales Page',
+  upsell: 'Upsell',
+  downsell: 'Downsell',
+  thankyou: 'Thank You',
+};
+
+// ── Element types the AI can place ──────────────────────────────────────────
+
+export type PageElementType =
+  | 'headline'         // Large H1-level text
+  | 'subheadline'      // H2/H3 supporting text
+  | 'body_text'        // Paragraph copy
+  | 'bullet_list'      // List of benefit/feature points
+  | 'cta_button'       // Call to action button
+  | 'video_placeholder'    // VSL or explainer video slot
+  | 'image_placeholder'    // Photo, illustration, or graphic slot
+  | 'countdown_timer'      // Urgency countdown element
+  | 'social_proof_bar'     // "X people joined" / trust bar
+  | 'testimonial_card'     // Single testimonial block
+  | 'testimonial_grid'     // Row/grid of testimonials
+  | 'price_block'          // Price display with anchoring
+  | 'guarantee_badge'      // Money-back or risk-reversal element
+  | 'avatar_stack'         // Overlapping avatars + social proof text
+  | 'divider'              // Visual section break
+  | 'icon_list'            // List items with icons
+  | 'form_input'           // Email/name opt-in field
+  | 'nav_logo'             // Logo in nav
+  | 'nav_links'            // Navigation links
+  | 'step_indicator';      // Numbered steps / progress
+
+// ── Layout options per element ───────────────────────────────────────────────
+
+export type ElementAlignment = 'left' | 'center' | 'right';
+export type SectionLayout = 'full_width' | 'centered' | 'split_left' | 'split_right' | 'two_column' | 'three_column';
+export type SpacingToken = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+// ── A single page element ────────────────────────────────────────────────────
+
+export interface PageElement {
+  id: string;
+  type: PageElementType;
+  copy?: string;                  // Main text content (editable)
+  secondary_copy?: string;        // Sub-text, label, or supporting copy
+  items?: string[];               // For bullet_list, icon_list
+  align?: ElementAlignment;
+  placeholder_label?: string;     // For video/image placeholders — "VSL goes here"
+  placeholder_aspect?: '16:9' | '9:16' | '1:1' | '4:3';  // Aspect ratio hint
+  variant?: string;               // e.g. "primary" | "secondary" | "ghost" for buttons
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+}
+
+// ── A section groups elements with layout intent ─────────────────────────────
+
+export interface PageSection {
+  id: string;
+  label: string;                  // Human-readable e.g. "Hero", "Pain Story"
+  layout: SectionLayout;
+  padding_top: SpacingToken;
+  padding_bottom: SpacingToken;
+  background?: 'default' | 'muted' | 'dark' | 'brand';
+  elements: PageElement[];
+}
+
+// ── A full page spec ─────────────────────────────────────────────────────────
+
+export interface PageSpec {
+  key: FunnelPageKey;
+  title: string;
+  sections: PageSection[];
+  word_count: number;
+  score: number;
+}
+
+// ── The full output ──────────────────────────────────────────────────────────
+
+export interface PageDeclaration {
+  pages: FunnelPageKey[];
+  rationale: string;
+}
+
+export interface CopyOutput {
+  declaration: PageDeclaration;
+  pages: Partial<Record<FunnelPageKey, PageSpec>>;
+}
+
+// ── Legacy shim — kept so email sequence route doesn't break ─────────────────
+export interface CopySection {
+  id: string;
   label: string;
   content: string;
 }
+export type CopySectionBlock = CopySection;
 
 export interface PageCopy {
-  sections: CopySectionBlock[];
+  key: FunnelPageKey;
+  title: string;
+  sections: CopySection[];
+  markdown: string;
   score: number;
   word_count: number;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Email
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface EmailCopy {
   day: number;
@@ -169,16 +268,8 @@ export interface EmailCopy {
   body: string;
 }
 
-export interface CopyOutput {
-  lead_capture: PageCopy;
-  sales_page: PageCopy;
-  upsell: PageCopy;
-  thankyou: PageCopy;
-  email_sequence: EmailCopy[];
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
-// Full intelligence store (embedded in blocks.intelligence)
+// Full intelligence store
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface OfferIntelligence {
@@ -190,10 +281,6 @@ export interface OfferIntelligence {
   call2_complete?: boolean;
   call3_complete?: boolean;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Wizard step indicator types
-// ─────────────────────────────────────────────────────────────────────────────
 
 export type StepStatus = 'done' | 'active' | 'pending';
 

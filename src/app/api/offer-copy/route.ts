@@ -1,3 +1,8 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// /api/offer-copy/route.ts — v3
+// Streams the AI page spec JSON and saves parsed CopyOutput to DB.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
@@ -37,14 +42,16 @@ export async function POST(req: Request) {
     .single();
 
   if (error || !data?.blocks?.intelligence) {
-    return Response.json({ error: 'Intelligence not found. Run Call 1 and Call 2 first.' }, { status: 400 });
+    return Response.json(
+      { error: 'Intelligence not found. Run Call 1 and Call 2 first.' },
+      { status: 400 }
+    );
   }
 
   const formData = data.blocks.intelligence.raw_input || {};
   const call1Raw = data.blocks.intelligence.call1 || {};
   const call2 = data.blocks.intelligence.call2 || {};
 
-  // Safely parse call1 into Call1Parsed format with fallback for both stringified JSON and direct structures
   const parseJsonSafe = (val: any, fallback: any) => {
     if (!val) return fallback;
     if (typeof val === 'object') return val;
@@ -57,11 +64,20 @@ export async function POST(req: Request) {
     funnel_structure_blueprint: call1Raw.FUNNEL_STRUCTURE_BLUEPRINT || call1Raw.funnel_structure_blueprint || '',
     revenue_model_architecture: call1Raw.REVENUE_MODEL_ARCHITECTURE || call1Raw.revenue_model_architecture || '',
     pain_point_mapping: call1Raw.PAIN_POINT_MAPPING || call1Raw.pain_point_mapping || '',
-    platform_priority_matrix: parseJsonSafe(call1Raw.PLATFORM_PRIORITY_MATRIX || call1Raw.platform_priority_matrix, { primary: {} }),
+    platform_priority_matrix: parseJsonSafe(
+      call1Raw.PLATFORM_PRIORITY_MATRIX || call1Raw.platform_priority_matrix,
+      { primary: {} }
+    ),
     pricing_strategy: call1Raw.PRICING_STRATEGY || call1Raw.pricing_strategy || '',
     upsell_downsell_paths: call1Raw.UPSELL_DOWNSELL_PATHS || call1Raw.upsell_downsell_paths || '',
-    strategic_bonus_recommendations: call1Raw.STRATEGIC_BONUS_RECOMMENDATIONS || call1Raw.strategic_bonus_recommendations || '',
-    design_intelligence_recommendation: call1Raw.DESIGN_INTELLIGENCE_RECOMMENDATION || call1Raw.design_intelligence_recommendation || '',
+    strategic_bonus_recommendations:
+      call1Raw.STRATEGIC_BONUS_RECOMMENDATIONS || call1Raw.strategic_bonus_recommendations || '',
+    design_intelligence_recommendation:
+      call1Raw.DESIGN_INTELLIGENCE_RECOMMENDATION || call1Raw.design_intelligence_recommendation || '',
+    funnel_health_score: parseJsonSafe(
+      call1Raw.FUNNEL_HEALTH_SCORE || call1Raw.funnel_health_score,
+      { score: 0 }
+    ),
   } as any;
 
   const userPrompt = buildCopyUserPrompt(formData, call1, call2);
@@ -70,9 +86,11 @@ export async function POST(req: Request) {
     model: anthropic('claude-sonnet-4-20250514'),
     system: COPY_SYSTEM,
     prompt: userPrompt,
+    maxOutputTokens: 8192,
     onFinish: async ({ text }) => {
       try {
         const parsed = parseCopyOutput(text);
+
         const { data: current } = await supabaseAdmin
           .from('builder_pages')
           .select('blocks')
@@ -80,6 +98,7 @@ export async function POST(req: Request) {
           .single();
 
         const currentBlocks = current?.blocks || {};
+
         await supabaseAdmin
           .from('builder_pages')
           .update({

@@ -119,7 +119,7 @@ export function WebsiteUrlForm({ onBack, onSubmit }: WebsiteUrlFormProps) {
           </div>
           
           <p className="text-white/70 text-sm mb-4">
-            We've generated a summary of the strategy based on the website. Please review and edit the details below before generating your sales intelligence.
+            We&apos;ve generated a summary of the strategy based on the website. Please review and edit the details below before generating your sales intelligence.
           </p>
 
           <textarea

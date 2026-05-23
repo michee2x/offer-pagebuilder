@@ -9,13 +9,13 @@ export function OnboardingLoading() {
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <div className="relative mb-12">
         {/* Glow effect */}
-        <div className="absolute inset-0 blur-[60px] bg-brand-yellow/15 rounded-full animate-pulse"></div>
+        <div className="absolute inset-0 blur-[60px] bg-indigo-500/20 rounded-full animate-pulse"></div>
         
         {/* Spinner */}
         <div className="relative h-40 w-40 flex items-center justify-center">
           <Spinner size="xl" />
-          <div className="absolute h-16 w-16 bg-white/5 rounded-3xl border border-white/10 flex items-center justify-center backdrop-blur-md shadow-2xl">
-            <svg className="h-8 w-8 text-brand-yellow/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <div className="absolute h-16 w-16 bg-[#0b0f19]/70 rounded-3xl border border-white/10 flex items-center justify-center backdrop-blur-md shadow-2xl">
+            <svg className="h-8 w-8 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
@@ -34,16 +34,16 @@ export function OnboardingLoading() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-[15px] text-white/50 leading-relaxed"
+          className="text-[15px] text-white/50 leading-relaxed font-light"
         >
           Our AI is deep-diving into market data, competitor analysis, and psychographic mapping to build your high-converting strategy.
         </motion.p>
       </div>
 
-      {/* Subtle progress bar instead of dots */}
-      <div className="mt-12 w-48 h-[1px] bg-white/10 rounded-full overflow-hidden">
+      {/* Premium progress bar */}
+      <div className="mt-12 w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
         <motion.div 
-          className="h-full bg-brand-yellow"
+          className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"
           initial={{ width: "0%" }}
           animate={{ width: "100%" }}
           transition={{ 

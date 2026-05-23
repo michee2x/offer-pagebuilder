@@ -1,13 +1,208 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// OfferIQ — Text parser for AI stream output
-// Extracts named sections from the structured text format
+// offer-parser — v3
+// Parses the AI's JSON page spec output into CopyOutput.
+// No more regex. JSON.parse and done.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { CopyOutput, PageCopy, EmailCopy, Call2Output, Call3Output } from './offer-types';
+import type {
+  CopyOutput,
+  PageSpec,
+  PageSection,
+  PageElement,
+  FunnelPageKey,
+  PageDeclaration,
+  Call2Output,
+  Call3Output,
+} from './offer-types';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Generic section extractor
-// ─────────────────────────────────────────────────────────────────────────────
+const VALID_PAGE_KEYS = new Set<FunnelPageKey>([
+  'lead_capture',
+  'sales_page',
+  'upsell',
+  'downsell',
+  'thankyou',
+]);
+
+// ─── Word counter ─────────────────────────────────────────────────────────────
+
+function countWords(spec: PageSpec): number {
+  let count = 0;
+  for (const section of spec.sections) {
+    for (const el of section.elements) {
+      if (el.copy) count += el.copy.split(/\s+/).filter(Boolean).length;
+      if (el.secondary_copy) count += el.secondary_copy.split(/\s+/).filter(Boolean).length;
+      if (el.items) {
+        for (const item of el.items) {
+          count += item.split(/\s+/).filter(Boolean).length;
+        }
+      }
+    }
+  }
+  return count;
+}
+
+// ─── Sanitise a page spec coming from AI ─────────────────────────────────────
+
+function sanitisePage(raw: any, key: FunnelPageKey): PageSpec | null {
+  if (!raw || typeof raw !== 'object') return null;
+
+  const sections: PageSection[] = [];
+
+  if (Array.isArray(raw.sections)) {
+    for (const sec of raw.sections) {
+      if (!sec || typeof sec !== 'object') continue;
+
+      const elements: PageElement[] = [];
+      if (Array.isArray(sec.elements)) {
+        for (const el of sec.elements) {
+          if (!el || typeof el !== 'object' || !el.type) continue;
+          elements.push({
+            id: el.id || `el_${Math.random().toString(36).slice(2, 7)}`,
+            type: el.type,
+            copy: el.copy ?? undefined,
+            secondary_copy: el.secondary_copy ?? undefined,
+            items: Array.isArray(el.items) ? el.items : undefined,
+            align: el.align ?? 'left',
+            placeholder_label: el.placeholder_label ?? undefined,
+            placeholder_aspect: el.placeholder_aspect ?? undefined,
+            variant: el.variant ?? undefined,
+            size: el.size ?? undefined,
+          });
+        }
+      }
+
+      sections.push({
+        id: sec.id || `sec_${Math.random().toString(36).slice(2, 7)}`,
+        label: sec.label || sec.id || 'Section',
+        layout: sec.layout || 'full_width',
+        padding_top: sec.padding_top || 'md',
+        padding_bottom: sec.padding_bottom || 'md',
+        background: sec.background || 'default',
+        elements,
+      });
+    }
+  }
+
+  if (sections.length === 0) return null;
+
+  const spec: PageSpec = {
+    key,
+    title: raw.title || key,
+    sections,
+    score: typeof raw.score === 'number' ? raw.score : 85,
+    word_count: 0,
+  };
+
+  spec.word_count = countWords(spec);
+
+  return spec;
+}
+
+// ─── Main export ──────────────────────────────────────────────────────────────
+
+export function parseCopyOutput(rawText: string): CopyOutput {
+  // Strip markdown code fences if AI wrapped it anyway
+  const cleaned = rawText
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+
+  let parsed: any;
+
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch (e) {
+    // Attempt to extract a JSON object if there's surrounding text
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch {
+        console.error('[parseCopyOutput] Failed to parse AI JSON output');
+        return { declaration: { pages: [], rationale: '' }, pages: {} };
+      }
+    } else {
+      console.error('[parseCopyOutput] No JSON object found in AI output');
+      return { declaration: { pages: [], rationale: '' }, pages: {} };
+    }
+  }
+
+  // Parse declaration
+  const decl = parsed.declaration || {};
+  const declaredPages: FunnelPageKey[] = Array.isArray(decl.pages)
+    ? decl.pages.filter((k: any) => VALID_PAGE_KEYS.has(k))
+    : [];
+
+  const declaration: PageDeclaration = {
+    pages: declaredPages,
+    rationale: decl.rationale || '',
+  };
+
+  // Parse pages
+  const pages: Partial<Record<FunnelPageKey, PageSpec>> = {};
+
+  const pagesRaw = parsed.pages || {};
+
+  for (const key of declaredPages) {
+    const raw = pagesRaw[key];
+    const spec = sanitisePage(raw, key);
+    if (spec) pages[key] = spec;
+  }
+
+  // Fallback: if declaration is empty but pages exist in the JSON, grab them
+  if (declaredPages.length === 0) {
+    for (const key of Object.keys(pagesRaw) as FunnelPageKey[]) {
+      if (!VALID_PAGE_KEYS.has(key)) continue;
+      const spec = sanitisePage(pagesRaw[key], key);
+      if (spec) {
+        pages[key] = spec;
+        declaration.pages.push(key);
+      }
+    }
+  }
+
+  return { declaration, pages };
+}
+
+// ─── Legacy shim — kept so hydrateSections callers don't break ───────────────
+// The new page.tsx no longer calls this but it's kept for any other consumers.
+
+import type { CopySection, PageCopy } from './offer-types';
+
+export function hydrateSections(pageCopy: PageCopy): CopySection[] {
+  if (pageCopy.sections?.length > 0) return pageCopy.sections;
+  if (pageCopy.markdown?.trim()) {
+    return [{ id: 'BODY', label: 'Page Copy', content: pageCopy.markdown.trim() }];
+  }
+  return [];
+}
+
+// ─── Email sequence parser — unchanged ───────────────────────────────────────
+
+export function parseEmailSequence(raw: string): Array<{
+  day: number;
+  subject: string;
+  preview: string;
+  body: string;
+}> {
+  const emails: Array<{ day: number; subject: string; preview: string; body: string }> = [];
+  const emailBlocks = raw.split(/EMAIL \d+ — DAY \d+/i).slice(1);
+  const dayMatches = [...raw.matchAll(/EMAIL \d+ — DAY (\d+)/gi)];
+
+  emailBlocks.forEach((block, i) => {
+    const day = parseInt(dayMatches[i]?.[1] ?? '0', 10);
+    const subject = block.match(/SUBJECT:\s*(.+)/i)?.[1]?.trim() ?? '';
+    const preview = block.match(/PREVIEW:\s*(.+)/i)?.[1]?.trim() ?? '';
+    const bodyMatch = block.match(/BODY:\s*([\s\S]*?)(?=---|$)/i);
+    const body = bodyMatch?.[1]?.trim() ?? '';
+    if (subject && body) emails.push({ day, subject, preview, body });
+  });
+
+  return emails;
+}
+
+// ─── Intel Parser Restoration ────────────────────────────────────────────────
 
 const ALL_SECTIONS = [
   'OFFER_SCORE', 'SCORE_SUMMARY', 'REVENUE_MODEL_ARCHITECTURE', 'PAIN_POINT_MAPPING',
@@ -49,37 +244,19 @@ export function extractSection(text: string, sectionName: string): string {
     }
   }
 
-  const result = text.substring(contentStart, nextSectionIndex).trim();
-
-  if (result) {
-    // Removed console.log for cleaner output
-  } else {
-    // Removed console.warn for cleaner output
-  }
-
-  return result;
+  return text.substring(contentStart, nextSectionIndex).trim();
 }
-
-// Call 1 parser
-// ─────────────────────────────────────────────────────────────────────────────
 
 export function parseCall1Output(rawText: string): Record<string, string> {
   const sections: Record<string, string> = {};
-
-  // Extract all sections into key-value pairs
   for (const sectionName of ALL_SECTIONS) {
     const content = extractSection(rawText, sectionName);
     if (content) {
       sections[sectionName] = content;
     }
   }
-
   return sections;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Call 2 parser
-// ─────────────────────────────────────────────────────────────────────────────
 
 export function parseCall2Output(rawText: string): Call2Output {
   return {
@@ -93,10 +270,6 @@ export function parseCall2Output(rawText: string): Call2Output {
   };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Call 3 parser
-// ─────────────────────────────────────────────────────────────────────────────
-
 export function parseCall3Output(rawText: string): Call3Output {
   return {
     platform_priority_narrative: extractSection(rawText, 'PLATFORM_PRIORITY_NARRATIVE'),
@@ -107,87 +280,5 @@ export function parseCall3Output(rawText: string): Call3Output {
     traffic_funnel_alignment: extractSection(rawText, 'TRAFFIC_FUNNEL_ALIGNMENT'),
     competitive_acquisition_intelligence: extractSection(rawText, 'COMPETITIVE_ACQUISITION_INTELLIGENCE'),
     launch_sequence_recommendation: extractSection(rawText, 'LAUNCH_SEQUENCE_RECOMMENDATION'),
-  };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Copy parser
-// ─────────────────────────────────────────────────────────────────────────────
-
-function extractPageCopy(rawText: string, pageName: string): PageCopy {
-  const pageMatch = rawText.match(
-    new RegExp(`(?:=|-|—)+\\s*PAGE:\\s*${pageName}\\s*(?:=|-|—)+([\\s\\S]*?)(?:(?:=|-|—)+\\s*PAGE:|(?:=|-|—)+\\s*EMAIL_SEQUENCE|$)`, 'i')
-  );
-  if (!pageMatch) return { sections: [], score: 0, word_count: 0 };
-
-  const pageText = pageMatch[1];
-  const sectionMatches = pageText.matchAll(/SECTION:\s*(\w+)\s*\n([\s\S]*?)(?=SECTION:|\s*$)/gi);
-  const sections = [];
-
-  for (const m of sectionMatches) {
-    const content = m[2].trim();
-    if (content) {
-      sections.push({ label: m[1], content });
-    }
-  }
-
-  const wordCount = sections.reduce((acc, s) => acc + s.content.split(/\s+/).length, 0);
-  // Removed console.log for cleaner output
-  return { sections, score: 85, word_count: wordCount };
-}
-
-function extractEmailSequence(rawText: string): EmailCopy[] {
-  const seqMatch = rawText.match(/(?:=|-|—)+\s*EMAIL_SEQUENCE\s*(?:=|-|—)+([\s\S]*?)(?:(?:=|-|—)+\s*END|$)/i);
-  if (!seqMatch) return [];
-
-  const seqText = seqMatch[1];
-  const emailMatches = seqText.matchAll(/EMAIL\s+(\d+)\s*(?:—|-|–)\s*DAY\s+(\d+)\s*\nSUBJECT:\s*(.*)\nPREVIEW:\s*(.*)\nBODY:\n([\s\S]*?)(?=EMAIL\s+\d+|---\s*$|\s*$)/gi);
-  const emails: EmailCopy[] = [];
-
-  for (const m of emailMatches) {
-    emails.push({
-      day: parseInt(m[2]),
-      subject: m[3].trim(),
-      preview: m[4].trim(),
-      body: m[5].replace(/^---\s*$/, '').trim(),
-    });
-  }
-
-  // Removed console.log for cleaner output
-  return emails;
-}
-
-export function parseEmailSequence(text: string): EmailCopy[] {
-  const emails: EmailCopy[] = [];
-  // Split by "EMAIL N" markers to get individual email blocks
-  const emailBlocks = text.split(/(?=EMAIL\s+\d+)/gi).filter(b => b.trim().length > 20);
-
-  for (const block of emailBlocks) {
-    const dayMatch = block.match(/DAY\s+(\d+)/i);
-    const subjectMatch = block.match(/SUBJECT:\s*(.*)/i);
-    const previewMatch = block.match(/PREVIEW:\s*(.*)/i);
-    // Body is from BODY: to the separator --- or the next EMAIL or end
-    const bodyMatch = block.match(/BODY:\s*\n?([\s\S]*?)(?=\n?---\s*|\n?EMAIL\s+\d+|$)/i);
-
-    if (dayMatch && subjectMatch && bodyMatch) {
-      emails.push({
-        day: parseInt(dayMatch[1]),
-        subject: subjectMatch[1].trim().replace(/^\[|\]$/g, ''), // remove optional brackets
-        preview: previewMatch ? previewMatch[1].trim().replace(/^\[|\]$/g, '') : '',
-        body: bodyMatch[1].trim(),
-      });
-    }
-  }
-
-  return emails;
-}
-
-export function parseCopyOutput(rawText: string): CopyOutput {
-  return {
-    lead_capture: extractPageCopy(rawText, 'LEAD_CAPTURE'),
-    sales_page: extractPageCopy(rawText, 'SALES_PAGE'),
-    upsell: extractPageCopy(rawText, 'UPSELL'),
-    thankyou: extractPageCopy(rawText, 'THANKYOU'),
-    email_sequence: extractEmailSequence(rawText),
   };
 }

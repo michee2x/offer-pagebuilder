@@ -21,6 +21,9 @@ import {
   Globe,
   Save,
   Edit2,
+  Sparkles,
+  ArrowRight,
+  Lock,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
@@ -59,6 +62,7 @@ export default function BuilderPage() {
   const [initialLoading, setInitialLoading] = React.useState(true);
   const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
   const [hasIntelligence, setHasIntelligence] = React.useState(false);
+  const [hasCopy, setHasCopy] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -73,7 +77,16 @@ export default function BuilderPage() {
               setPageId(data.page.id);
               if (data.page.name) setFunnelName(data.page.name);
               const blocks = data.page.blocks;
+              
+              // Validate Copy Presence
+              const copyData = blocks.copy;
+              const hasCopyGenerated = !!(copyData && (blocks.copy_complete || copyData.lead_capture?.markdown || copyData.sales_page?.markdown));
+              setHasCopy(hasCopyGenerated);
+
               let loadedPages = blocks.pages;
+              if (blocks.generation?.status === "generating") {
+                setIsGenerating(true);
+              }
               if (!loadedPages) {
                 loadedPages = {
                   "/": {
@@ -144,7 +157,10 @@ export default function BuilderPage() {
               }
             }
           })
-          .catch((err) => console.error("Failed to fetch page:", err))
+          .catch((err) => {
+            console.error("Failed to fetch page:", err);
+            setHasCopy(false);
+          })
           .finally(() => setInitialLoading(false));
       } else {
         // Reset store for Create New Mode
@@ -163,10 +179,73 @@ export default function BuilderPage() {
           "/",
         );
         useBuilderStore.setState({ canvasStyle: {} });
+        setHasCopy(true); // default true for blank drafts
         setInitialLoading(false);
       }
     }
   }, [setPageId, setFullState, setFunnelName, setTheme, setInitialLoading]);
+
+  React.useEffect(() => {
+    if (!pageId || !isGenerating) return;
+
+    let isSubscribed = true;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/pages/" + pageId);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (!isSubscribed) return;
+
+        const generation = data.page?.blocks?.generation;
+        if (generation) {
+          if (generation.status === "completed") {
+            clearInterval(interval);
+            const loadedPages = data.page.blocks.pages;
+            if (loadedPages) {
+              const defaultPages = {
+                "/": { name: "Lead Capture", path: "/", components: {}, rootList: [] },
+                "/upsell": { name: "Upsell", path: "/upsell", components: {}, rootList: [] },
+                "/downsell": { name: "Downsell", path: "/downsell", components: {}, rootList: [] },
+                "/thankyou": { name: "Thank You", path: "/thankyou", components: {}, rootList: [] },
+              };
+              const mergedPages = { ...defaultPages, ...loadedPages };
+              const initialPage = mergedPages["/"] || Object.values(mergedPages)[0];
+
+              setFullState(
+                initialPage.components || {},
+                initialPage.rootList || [],
+                mergedPages,
+                initialPage.path
+              );
+              if (data.page.blocks.canvasStyle) {
+                useBuilderStore.setState({ canvasStyle: data.page.blocks.canvasStyle });
+              }
+              if (data.page.blocks.theme) {
+                setTheme(data.page.blocks.theme);
+              }
+              setHasUnsavedChanges(false);
+            }
+            setIsGenerating(false);
+            toast.dismiss();
+            toast.success("AI Funnel generation completed successfully!");
+          } else if (generation.status === "failed") {
+            clearInterval(interval);
+            setIsGenerating(false);
+            toast.dismiss();
+            toast.error(generation.error || "Generation failed on the server.");
+          }
+        }
+      } catch (err) {
+        console.error("Error polling generation status:", err);
+      }
+    }, 3000);
+
+    return () => {
+      isSubscribed = false;
+      clearInterval(interval);
+    };
+  }, [pageId, isGenerating, setFullState, setTheme, setHasUnsavedChanges]);
 
   // No more DND sensors or event handlers needed
 
@@ -219,12 +298,6 @@ export default function BuilderPage() {
         }
       }
       setHasUnsavedChanges(false);
-
-      if (!pageId && data.pageId) {
-        setPageId(data.pageId);
-        window.history.replaceState(null, "", "?id=" + data.pageId);
-      }
-
       toast.success("Funnel saved and synced to database successfully!");
     } catch (e: any) {
       toast.dismiss();
@@ -235,9 +308,64 @@ export default function BuilderPage() {
     }
   };
 
+  const createInitialDraft = async () => {
+    toast.loading("Initializing new funnel draft...");
+    const payload = {
+      name: funnelName || "Untitled Funnel",
+      components: {},
+      rootList: [],
+      canvasStyle: {},
+      theme: theme || "light",
+      pages: {
+        "/": {
+          name: "Lead Capture",
+          path: "/",
+          components: {},
+          rootList: [],
+        },
+      },
+    };
+
+    const res = await fetch("/api/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error("Failed to parse init response: " + text);
+    }
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to initialize draft");
+    }
+
+    if (!data.pageId) {
+      throw new Error("No pageId returned from publish endpoint");
+    }
+
+    setPageId(data.pageId);
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", "?id=" + data.pageId);
+    }
+    toast.dismiss();
+    return data.pageId;
+  };
+
   const handleGeneratePage = async () => {
+    let startedStream = false;
     try {
       setIsGenerating(true);
+
+      let activeId = pageId;
+      if (!activeId) {
+        activeId = await createInitialDraft();
+      }
+
       toast.info("Generating page from content doc...");
 
       const qs = new URLSearchParams(window.location.search);
@@ -251,7 +379,7 @@ export default function BuilderPage() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ offerContext, funnelId: pageId }),
+        body: JSON.stringify({ offerContext, funnelId: activeId }),
       });
 
       if (!res.ok || !res.body) {
@@ -265,6 +393,7 @@ export default function BuilderPage() {
         throw new Error(errMsg);
       }
 
+      startedStream = true;
       setStreamText(""); // Reset visual stream board
 
       const reader = res.body.getReader();
@@ -425,22 +554,26 @@ export default function BuilderPage() {
         console.warn("Failed to backup to localStorage", backupErr);
       }
 
-      // 1. Auto-save the new pages to database FIRST so refreshes or HMR doesn't clear them!
-      await autoSaveGeneratedPages(newPages, initialPage);
-
-      // 2. Set local Zustand state to hot-render the pages inside the visual canvas!
+      // 1. Set local Zustand state to hot-render the pages inside the visual canvas!
       console.log("[client] Setting initialPage:", initialPage);
       setFullState(
-        initialPage.components,
-        initialPage.rootList,
+        initialPage.components || {},
+        initialPage.rootList || [],
         newPages,
         initialPage.path,
       );
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
+      setHasUnsavedChanges(false);
       setIsGenerating(false);
       setStreamText("");
+    } catch (e: any) {
+      if (startedStream) {
+        console.warn("[client] Stream reading interrupted, but generation is continuing on the server. Polling for results...");
+        toast.info("Connection interrupted. Still generating in the background...");
+      } else {
+        toast.error(e.message);
+        setIsGenerating(false);
+        setStreamText("");
+      }
     }
   };
 
@@ -521,6 +654,61 @@ export default function BuilderPage() {
           <p className="text-sm text-muted-foreground animate-pulse">
             Loading workspace...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasCopy === false) {
+    const editId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("id") : null;
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-[#f7f8fc] dark:bg-[#0a0a14] relative overflow-hidden font-sans">
+        {/* Decorative Glow Blobs */}
+        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[400px] h-[400px] rounded-full bg-[#6c63ff]/10 blur-[100px] pointer-events-none" />
+
+        <div className="max-w-md w-full mx-4 p-8 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-xl shadow-2xl relative z-10 text-center flex flex-col items-center">
+          {/* Visual Indicator / Icon */}
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 text-primary ring-8 ring-primary/5 animate-pulse">
+            <Lock className="w-6 h-6" />
+          </div>
+
+          <h2 className="text-2xl font-bold text-foreground mb-3 font-display">
+            Sales Copy Required
+          </h2>
+          
+          <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+            To build a high-converting funnel, our AI Page Builder requires your generated sales copy first. This ensures all visual sections, feature cards, and images map perfectly to your marketing messages.
+          </p>
+
+          <div className="w-full rounded-xl bg-muted/40 p-4 border border-border/30 text-left space-y-3 mb-8">
+            <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
+              <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+              <span>Verbatim copywriting mapping (zero placeholders)</span>
+            </div>
+            <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
+              <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+              <span>UI layouts custom-tailored to your copy length and structure</span>
+            </div>
+            <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
+              <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+              <span>Stock images and visual assets matched to your offer</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined" && (pageId || editId)) {
+                window.location.href = `/copy/${pageId || editId}`;
+              }
+            }}
+            className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/95 transition-all shadow-lg shadow-primary/25 hover:shadow-primary/35 flex items-center justify-center gap-2 group animate-bounce"
+          >
+            <Sparkles className="w-4 h-4 animate-spin-slow" />
+            Generate Sales Copy First
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
       </div>
     );

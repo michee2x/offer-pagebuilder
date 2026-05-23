@@ -583,7 +583,7 @@ export default function TrafficIntelligencePage({
                                       </div>
                                       <p className="text-xs font-bold text-white mb-1">High-Fidelity 3D Visual Asset Recommendation</p>
                                       <p className="text-[10px] text-muted-foreground max-w-xs leading-relaxed">
-                                        Render an abstract mock representation matching: "{ad.hook}"
+                                        Render an abstract mock representation matching: &quot;{ad.hook}&quot;
                                       </p>
                                     </div>
                                     <div className="bg-[#121824] px-4 py-3 flex items-center justify-between">
@@ -644,7 +644,7 @@ export default function TrafficIntelligencePage({
                                     Search Ad {idx + 1}
                                   </span>
                                   <span className="text-xs font-bold text-muted-foreground">
-                                    Intent Match: <span className="text-white font-black">"{search.keyword}"</span>
+                                    Intent Match: <span className="text-white font-black">&quot;{search.keyword}&quot;</span>
                                   </span>
                                 </div>
                                 <span className="text-xs font-bold text-purple-400 bg-purple-400/5 px-2 py-0.5 rounded border border-purple-400/10">

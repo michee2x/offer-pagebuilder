@@ -19,7 +19,7 @@ import { OnboardingLoading } from "@/components/onboarding/OnboardingLoading";
 import { PdfUploadForm } from "@/components/onboarding/PdfUploadForm";
 import { WebsiteUrlForm } from "@/components/onboarding/WebsiteUrlForm";
 
-type CurrentStep = "path" | "form" | "B1" | "B2" | "B3" | "pdf_upload" | "website_url" | "loading";
+type CurrentStep = "path" | "idea_subpath" | "form" | "B1" | "B2" | "B3" | "pdf_upload" | "website_url" | "loading";
 
 interface GeneratedIdea {
   title: string;
@@ -278,10 +278,17 @@ function AnalyzeContent() {
 
   const handlePathSelect = (path: CampaignPathType) => {
     setCampaignPath(path);
-    if (path === "idea") setCurrentStep("form");
-    else if (path === "scratch") setCurrentStep("B1");
-    else if (path === "pdf") setCurrentStep("pdf_upload");
-    else if (path === "website") setCurrentStep("website_url");
+    if (path === "parent_has_idea") {
+      setCurrentStep("idea_subpath");
+    } else if (path === "scratch") {
+      setCurrentStep("B1");
+    } else if (path === "idea") {
+      setCurrentStep("form");
+    } else if (path === "pdf") {
+      setCurrentStep("pdf_upload");
+    } else if (path === "website") {
+      setCurrentStep("website_url");
+    }
     setErrors({});
   };
 
@@ -381,7 +388,15 @@ function AnalyzeContent() {
   };
 
   const handleBack = () => {
-    if (currentStep === "form" || currentStep === "B1" || currentStep === "pdf_upload" || currentStep === "website_url") {
+    if (currentStep === "form" || currentStep === "pdf_upload" || currentStep === "website_url") {
+      setCurrentStep("idea_subpath");
+      setCampaignPath("parent_has_idea");
+      setErrors({});
+    } else if (currentStep === "idea_subpath") {
+      setCurrentStep("path");
+      setCampaignPath(null);
+      setErrors({});
+    } else if (currentStep === "B1") {
       setCurrentStep("path");
       setCampaignPath(null);
       setErrors({});
@@ -451,9 +466,10 @@ function AnalyzeContent() {
         )}
 
         <AnimatePresence mode="wait">
-          {currentStep === "path" && (
+          {(currentStep === "path" || currentStep === "idea_subpath") && (
             <CampaignPathSelection
-              key="path"
+              key={currentStep}
+              step={currentStep === "path" ? "path" : "idea_subpath"}
               selectedPath={campaignPath}
               onSelect={handlePathSelect}
             />

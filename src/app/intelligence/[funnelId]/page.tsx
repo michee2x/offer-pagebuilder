@@ -93,7 +93,7 @@ function GenerationOverlay({
         initial={{ top: "-10%" }}
         animate={{ top: "110%" }}
         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-        className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-brand-yellow/30 to-transparent z-0 opacity-30"
+        className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent z-0 opacity-30"
       />
       
       <div className="w-full max-w-md mx-auto px-10 text-center flex flex-col items-center relative z-10">
@@ -102,26 +102,26 @@ function GenerationOverlay({
            <motion.div 
              animate={{ rotate: 360 }}
              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-             className="absolute inset-0 rounded-full border border-brand-yellow/10 border-t-brand-yellow/50"
+             className="absolute inset-0 rounded-full border border-indigo-500/10 border-t-indigo-500/50"
            />
            {/* Inner rotating ring */}
            <motion.div 
              animate={{ rotate: -360 }}
              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-             className="absolute inset-4 rounded-full border border-brand-yellow/20 border-b-brand-yellow"
+             className="absolute inset-4 rounded-full border border-purple-500/20 border-b-purple-500"
            />
            
            <div className="absolute inset-0 flex items-center justify-center">
              <div className="flex flex-col items-center">
                <span className="text-3xl font-bold tracking-tighter text-white">{progressPercent}%</span>
-               <span className="text-[10px] uppercase font-black tracking-widest text-brand-yellow/80">Sync</span>
+               <span className="text-[10px] uppercase font-black tracking-widest text-indigo-400">Sync</span>
              </div>
            </div>
         </div>
         
         <div className="space-y-4">
           <h2 className="text-3xl font-bold text-white tracking-tighter">
-            Architecting <span className="text-brand-yellow">Sales Intelligence</span>
+            Architecting <span className="text-indigo-400">Sales Intelligence</span>
           </h2>
           <div className="h-6 overflow-hidden">
              <AnimatePresence mode="wait">
@@ -143,7 +143,7 @@ function GenerationOverlay({
            <motion.div 
              initial={{ width: 0 }}
              animate={{ width: `${progressPercent}%` }}
-             className="h-full bg-gradient-to-r from-brand-yellow/40 to-brand-yellow"
+             className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"
            />
         </div>
       </div>
@@ -279,7 +279,7 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     label: "Value Perception",
     subheader: "Core transformational mechanics transitioning the prospect from state A to state B.",
     icon: <Lightbulb className="w-4 h-4" />,
-    color: "text-brand-yellow",
+    color: "text-indigo-400",
   },
   REAL_WORLD_USE_CASE_SCENARIOS: {
     id: "REAL_WORLD_USE_CASE_SCENARIOS",
@@ -294,14 +294,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader: "Synthesized executive directive binding acquisition, monetization, and scale.",
     icon: <Cog className="w-4 h-4" />,
     color: "text-foreground",
-  },
-  TRAFFIC_INTELLIGENCE: {
-    id: "TRAFFIC_INTELLIGENCE",
-    label: "Traffic Acquisition",
-    subheader: "Omnichannel ad copy matrix, search ads, UGC scripts, and launch checklists.",
-    icon: <TrendingUp className="w-4 h-4" />,
-    color: "text-brand-yellow",
-    badge: "Call 3",
   },
 };
 
@@ -544,7 +536,7 @@ function TextRenderer({ text }: { text: string }) {
                   <span
                      className={cn(
                        "text-[10px] font-bold px-1.5 py-0.5 rounded-sm border shrink-0 mt-0.5 uppercase tracking-wide",
-                       intensity === "CRITICAL" && "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/30",
+                       intensity === "CRITICAL" && "bg-indigo-500/10 text-indigo-400 border-indigo-500/30",
                        intensity === "HIGH" && "bg-white/10 text-white border-white/20",
                        intensity === "MEDIUM" && "bg-white/5 text-white/60 border-white/10",
                        intensity === "LOW" && "bg-white/5 text-white/60 border-white/10",
@@ -639,6 +631,7 @@ export default function IntelligencePage({
   const [call2, setCall2] = useState<Call2Output | null>(null);
   const [streamingText, setStreamingText] = useState("");
   const [genStep, setGenStep] = useState(0);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   
   // Navigation State
   const [activeSectionId, setActiveSectionId] = useState<string>("OFFER_SCORE");
@@ -789,6 +782,7 @@ export default function IntelligencePage({
         const intelligence: OfferIntelligence = funnel.blocks?.intelligence || {};
         setFormData(intelligence.raw_input || null);
         setFunnelName(funnel.name || "Untitled Funnel");
+        setWorkspaceId(funnel.workspace_id || null);
 
         if (intelligence.call1) setCall1(intelligence.call1);
         if (intelligence.call2) setCall2(intelligence.call2);
@@ -837,8 +831,7 @@ export default function IntelligencePage({
       "MESSAGING_ANGLE_MATRIX",
       "PRODUCT_CORE_VALUE_PERCEPTION",
       "REAL_WORLD_USE_CASE_SCENARIOS",
-      "MONETIZATION_STRATEGY_NARRATIVE",
-      "TRAFFIC_INTELLIGENCE"
+      "MONETIZATION_STRATEGY_NARRATIVE"
     ];
   }, []);
 
@@ -848,11 +841,7 @@ export default function IntelligencePage({
     }
   }, [availableSections, activeSectionId]);
 
-  useEffect(() => {
-    if (activeSectionId === "TRAFFIC_INTELLIGENCE") {
-      router.push(`/funnels/${funnelId}/traffic`);
-    }
-  }, [activeSectionId, funnelId, router]);
+
 
   const activeIndex = availableSections.indexOf(activeSectionId);
   const prevSectionId = activeIndex > 0 ? availableSections[activeIndex - 1] : null;
@@ -888,11 +877,11 @@ export default function IntelligencePage({
           />
           <div className="flex-1 flex items-center justify-center p-8 relative">
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none opacity-20">
-              <div className="w-[500px] h-[500px] rounded-full border border-brand-yellow/10 animate-[spin_120s_linear_infinite]" />
+              <div className="w-[500px] h-[500px] rounded-full border border-indigo-500/10 animate-[spin_120s_linear_infinite]" />
               <div className="absolute w-[350px] h-[350px] rounded-full border border-blue-500/10 animate-[spin_60s_linear_infinite_reverse]" />
             </div>
             <div className="text-center space-y-4 relative z-10">
-              <Spinner className="w-10 h-10 mx-auto text-brand-yellow" />
+              <Spinner className="w-10 h-10 mx-auto text-indigo-500" />
               <p className="text-sm text-white/40 tracking-widest uppercase font-semibold">
                 Initializing Intelligence Suite...
               </p>
@@ -990,7 +979,7 @@ export default function IntelligencePage({
                       className={cn(
                         "w-full flex items-center justify-between px-3 py-2 rounded-md transition-all text-left group",
                         isActive 
-                          ? "bg-brand-yellow/10 text-brand-yellow font-semibold shadow-[inset_0_0_0_1px_rgba(245,166,35,0.1)]" 
+                          ? "bg-indigo-500/10 text-indigo-400 font-semibold shadow-[inset_0_0_0_1px_rgba(99,102,241,0.15)]" 
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
@@ -1012,7 +1001,39 @@ export default function IntelligencePage({
           {/* Central Main Document */}
           <div className="flex-1 overflow-y-auto custom-scrollbar relative bg-transparent">
 
-             {!call1 || availableSections.length === 0 ? (
+             {!formData ? (
+               <div className="flex items-center justify-center h-full p-8 relative z-10">
+                 <Card className="max-w-xl w-full border-white/5 bg-[#0b0f19]/70 backdrop-blur-2xl rounded-3xl shadow-2xl relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-transparent pointer-events-none" />
+                    <CardContent className="p-12 text-center space-y-6 relative z-10">
+                      <div className="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto shadow-inner">
+                        <Sparkles className="w-8 h-8 text-indigo-400" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h2 className="text-2xl font-bold text-white tracking-tight">Strategy Blueprint Not Found</h2>
+                        <p className="text-[14px] text-white/50 leading-relaxed max-w-sm mx-auto font-light">
+                          This campaign does not have any onboarding details yet. Let&apos;s configure your offer parameters to build a full sales intelligence report.
+                        </p>
+                      </div>
+
+                      <Button 
+                        size="lg" 
+                        onClick={() => {
+                          if (workspaceId) {
+                            router.push(`/analyze?workspace=${workspaceId}`);
+                          } else {
+                            router.push('/');
+                          }
+                        }} 
+                        className="w-full mt-4 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-indigo-500/20 transition-all active:scale-[0.98]"
+                      >
+                        Configure Campaign Strategy
+                      </Button>
+                    </CardContent>
+                 </Card>
+               </div>
+             ) : !call1 || availableSections.length === 0 ? (
                <div className="flex items-center justify-center h-full p-8 relative z-10">
                  <Card className="max-w-md w-full border-white/10 bg-[#0a0a0a]/60 backdrop-blur-xl">
                     <CardContent className="p-8 text-center space-y-4">
@@ -1025,10 +1046,29 @@ export default function IntelligencePage({
                         </>
                       ) : (
                         <>
-                          <Zap className="w-8 h-8 mx-auto text-brand-yellow/50 mb-2 animate-pulse" />
-                          <h2 className="text-xl font-semibold text-white">Starting AI Analysis</h2>
-                          <p className="text-sm text-white/60">Automatically synthesizing your intelligence profile...</p>
-                          <Button id="auto-run-btn" size="lg" onClick={runAnalysis} className="w-full mt-4 hidden">Generate Report (Hidden Trigger)</Button>
+                          <div className="relative rounded-[2.5rem] bg-blue-600/[0.02] backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
+                             <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+                             <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+                             {/* Section Header */}
+                             <div className="mb-10 flex items-baseline justify-between gap-4 border-b border-white/10 pb-6">
+                                <div className="flex items-baseline gap-3 flex-wrap">
+                                   <h1 className="text-3xl font-bold tracking-tight text-white">
+                                     {activeConfig.label}
+                                   </h1>
+                                    {activeConfig.badge && (
+                                      <span className={cn(
+                                        "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border translate-y-[-2px] bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                      )}>
+                                        {activeConfig.badge}
+                                      </span>
+                                    )}
+                                </div>
+                             </div>
+                             <Zap className="w-8 h-8 mx-auto text-indigo-400/50 mb-2 animate-pulse" />
+                             <h2 className="text-xl font-semibold text-white">Starting AI Analysis</h2>
+                             <p className="text-sm text-white/60">Automatically synthesizing your intelligence profile...</p>
+                             <Button id="auto-run-btn" size="lg" onClick={runAnalysis} className="w-full mt-4 hidden">Generate Report (Hidden Trigger)</Button>
+                          </div>
                         </>
                       )}
                     </CardContent>
@@ -1111,7 +1151,7 @@ export default function IntelligencePage({
                       {nextSectionId ? (
                         <Button 
                           variant="outline" 
-                          className="h-12 px-6 gap-3 group bg-brand-yellow/10 hover:bg-brand-yellow/20 border-brand-yellow/20 text-brand-yellow"
+                          className="h-12 px-6 gap-3 group bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/20 text-indigo-400"
                           onClick={() => setActiveSectionId(nextSectionId)}
                         >
                           <div className="flex flex-col items-end">
@@ -1121,7 +1161,7 @@ export default function IntelligencePage({
                           <ChevronRight className="w-4 h-4 opacity-70 group-hover:opacity-100 transition-colors" />
                         </Button>
                       ) : (
-                         <Button onClick={() => router.push(`/copy/${funnelId}`)} className="h-12 px-6 bg-brand-yellow text-black hover:bg-brand-yellow/90">
+                         <Button onClick={() => router.push(`/copy/${funnelId}`)} className="h-12 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 border-none shadow-lg">
                            Finish & Build Pages
                          </Button>
                       )}

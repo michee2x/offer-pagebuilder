@@ -17,7 +17,7 @@ export async function GET(
 
   const { data, error } = await supabaseAdmin
     .from('builder_pages')
-    .select('id, name, blocks, created_at')
+    .select('id, name, blocks, created_at, workspace_id')
     .eq('id', funnelId)
     .single();
 
