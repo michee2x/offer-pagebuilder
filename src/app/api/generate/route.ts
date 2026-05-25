@@ -3,7 +3,6 @@ import { streamText } from 'ai';
 import { LUCIDE_ICON_NAMES } from '@/config/components';
 import { createAdminClient } from '@/utils/supabase/admin';
 import { getSession } from '@/auth';
-import { waitUntil } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
@@ -399,12 +398,12 @@ and Upsell pages. Never to body copy, subheads, or buttons. Use it ONCE per page
 \`\`\`
 
 **2.6 HEADLINE LINE BREAKS**
-Control desktop line breaks with `<br className="hidden md:block" />`.
+Control desktop line breaks with \`<br className="hidden md:block" />\`.
 Never let the browser wrap headlines randomly.
 
 **2.7 MOBILE HEADLINE SAFETY**
-Always start T1 at `text-4xl` on mobile and scale up. Add `break-words` to
-the headline wrapper. Never use `text-6xl` or above as the base (mobile) size.
+Always start T1 at \`text-4xl\` on mobile and scale up. Add \`break-words\` to
+the headline wrapper. Never use \`text-6xl\` or above as the base (mobile) size.
 
 ---
 
@@ -412,13 +411,13 @@ the headline wrapper. Never use `text-6xl` or above as the base (mobile) size.
 
 **3.1 THE LAYER DEPTH & GRADIENT SYSTEM (MANDATORY)**
 Every page must look incredibly colorful, premium, and alive! Do NOT use plain black, white, or gray monochrome styles for the pages. The rest of the prompt may suggest dark/gray elements, but you must enrich them with gorgeous, colorful gradients, mesh backgrounds, glowing borders, and visual layers.
-- Deep Base: Deep navy/blue or dark violet base (`#030612` or `#060b18` or `#0b0f19`).
-- Card Surfaces: Use beautiful glassmorphism style (`bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-indigo-500/30 hover:bg-white/[0.05]`) with subtle inner shadows.
+- Deep Base: Deep navy/blue or dark violet base (\`#030612\` or \`#060b18\` or \`#0b0f19\`).
+- Card Surfaces: Use beautiful glassmorphism style (\`bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-indigo-500/30 hover:bg-white/[0.05]\`) with subtle inner shadows.
 - Vibrant Mesh Gradients: Blend cool, harmonious colors (e.g., violet, indigo, premium royal blue, fuchsia, teal) as soft flowing background mesh components. Place them behind cards, heroes, and headers.
-- Glow Borders: Create thin glowing borders on card items using subtle color variations (e.g. `border-white/[0.07] hover:border-indigo-500/20`).
+- Glow Borders: Create thin glowing borders on card items using subtle color variations (e.g. \`border-white/[0.07] hover:border-indigo-500/20\`).
 
 **3.2 GRADIENT & COLOR COHESIVENESS**
-- Text Gradients: Use vibrant Royal Blue to Indigo/Purple gradients (`from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent`) on headlines to create key accent hooks.
+- Text Gradients: Use vibrant Royal Blue to Indigo/Purple gradients (\`from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent\`) on headlines to create key accent hooks.
 - Micro-gradients: Integrate royal blue, fuchsia, and indigo glows strategically to guide the user's attention.
 - Quantity: Balance is key. Avert color riots (no random rainbows), but completely ban monochrome boredom. The design must look extremely premium, colorful, and state-of-the-art.
 
@@ -427,11 +426,11 @@ Every page must look incredibly colorful, premium, and alive! Do NOT use plain b
 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
 \`\`\`
 Rules:
-- Always `position: absolute` + `pointer-events-none`
-- Always inside a `relative overflow-hidden` parent to prevent page expansion or horizontal scroll
+- Always \`position: absolute\` + \`pointer-events-none\`
+- Always inside a \`relative overflow-hidden\` parent to prevent page expansion or horizontal scroll
 - Max 2 glow elements per section
-- Opacity cap: `/10` for indigo/blue/purple, `/15` for white
-- Blur: `blur-[80px]` – `blur-[140px]` (never below 60px)
+- Opacity cap: \`/10\` for indigo/blue/purple, \`/15\` for white
+- Blur: \`blur-[80px]\` – \`blur-[140px]\` (never below 60px)
 
 **3.4 COLOR TEMPO**
 - High tempo: primary color in card borders, icon backgrounds, button fills, glows
@@ -1090,9 +1089,9 @@ export default function LeadCapturePage() {
 \`\`\`
 
 **11.5 SEMANTIC HTML**
-`<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`, `<header>`.
-Every `<section>` has an `id`. Form inputs have `<label htmlFor="...">` pairs.
-The lead capture form has `aria-label="Lead capture form"`.
+\`<nav>\`, \`<main>\`, \`<section>\`, \`<article>\`, \`<footer>\`, \`<header>\`.
+Every \`<section>\` has an \`id\`. Form inputs have \`<label htmlFor="...">\` pairs.
+The lead capture form has \`aria-label="Lead capture form"\`.
 
 **11.6 KEY PROPS — ALWAYS USE STABLE IDs**
 \`\`\`jsx
@@ -1104,14 +1103,14 @@ The lead capture form has `aria-label="Lead capture form"`.
 
 ## ━━━ SECTION 12: COPY ADHERENCE & MARKDOWN LAYOUT MAPPING ━━━
 
-**12.1** You will be provided with a `COPY OBJECT` containing a rich Markdown document for each of the funnel pages. You MUST strictly use the exact copy provided inside this markdown document. You are NOT allowed to invent any copy, write generic placeholder text, add filler, or use Lorem Ipsum. Every headline, paragraph, feature list item, testimonial body, and image placement must be extracted from the markdown verbatim.
+**12.1** You will be provided with a \`COPY OBJECT\` containing a rich Markdown document for each of the funnel pages. You MUST strictly use the exact copy provided inside this markdown document. You are NOT allowed to invent any copy, write generic placeholder text, add filler, or use Lorem Ipsum. Every headline, paragraph, feature list item, testimonial body, and image placement must be extracted from the markdown verbatim.
 - STRICT VERBATIM CONSTRAINT: The copy in the JSX code must match the COPY OBJECT 100% exactly, down to every single word, number, pricing tier detail, and bullet point. Do NOT drop sections, do NOT truncate or summarize text blocks, do NOT paraphrase, and do NOT alter the text under any circumstance.
 
 **12.2** Map the Markdown structures directly to React UI elements:
-- Headings (`# Heading 1`, `## Heading 2`, `### Heading 3`) must map to section headers, sub-headings, or card titles.
-- Lists (`- Item` or `* Item`) must map to beautiful visual layout components, such as grid feature cards, itemized checklists, or value stacks.
-- Blockquotes (`> Testimonial`) must map to beautifully styled testimonial quote cards, including the reviewer's name, avatar placeholder/description, and rating if specified.
-- Image placeholders (`![alt text](url)`) must be compiled into beautiful, styled, responsive `<img>` tags or visual asset cards with rounded corners, matching the exact Unsplash URL provided.
+- Headings (\`# Heading 1\`, \`## Heading 2\`, \`### Heading 3\`) must map to section headers, sub-headings, or card titles.
+- Lists (\`- Item\` or \`* Item\`) must map to beautiful visual layout components, such as grid feature cards, itemized checklists, or value stacks.
+- Blockquotes (\`> Testimonial\`) must map to beautifully styled testimonial quote cards, including the reviewer's name, avatar placeholder/description, and rating if specified.
+- Image placeholders (\`![alt text](url)\`) must be compiled into beautiful, styled, responsive \`<img>\` tags or visual asset cards with rounded corners, matching the exact Unsplash URL provided.
 
 **12.3** Zero AI Copy Generation: Do NOT invent or add any sales arguments, details, or features that are not in the markdown copy. The provided markdown copy is already fully expanded. Your sole job is to format and compile it into a high-converting visual layout.
 
@@ -1739,15 +1738,6 @@ export async function POST(req: Request) {
         })();
       },
     });
-
-    // Also register with waitUntil as a safety net for serverless environments
-    try {
-      if (typeof waitUntil === 'function') {
-        waitUntil(generateDone);
-      }
-    } catch (e) {
-      console.warn('[generate] Error calling waitUntil:', e);
-    }
 
     return new Response(clientStream, {
       headers: {

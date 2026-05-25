@@ -61,6 +61,33 @@ export default function BuilderPage() {
   const [, setPublishedUrl] = React.useState<string | null>(null);
   const [hasIntelligence, setHasIntelligence] = React.useState(false);
   const [hasCopy, setHasCopy] = React.useState<boolean | null>(null);
+  const autoGenAttempted = React.useRef(false);
+
+  // We need handleGeneratePage in scope for the useEffect, but it's defined later.
+  // Instead of moving the huge function, we can just call it via a ref or wait.
+  // Wait, if we just move handleGeneratePage up, it's huge.
+  // Let's use a smaller function to trigger generation.
+  // We can just set a state `triggerAutoGen` and watch for it further down.
+  const [triggerAutoGen, setTriggerAutoGen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (initialLoading || isGenerating || autoGenAttempted.current) return;
+    if (typeof window !== "undefined") {
+      const qs = new URLSearchParams(window.location.search);
+      if (qs.get("autoGen") === "true") {
+        autoGenAttempted.current = true;
+        const url = new URL(window.location.href);
+        url.searchParams.delete("autoGen");
+        window.history.replaceState({}, "", url.toString());
+        
+        // Wait a small tick so the UI can settle
+        setTimeout(() => {
+          setTriggerAutoGen(true);
+        }, 300);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLoading, isGenerating]);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -676,6 +703,14 @@ export default function BuilderPage() {
       setIsSaving(false);
     }
   };
+
+  React.useEffect(() => {
+    if (triggerAutoGen) {
+      setTriggerAutoGen(false);
+      handleGeneratePage().catch(console.error);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [triggerAutoGen]);
 
   if (initialLoading) {
     return (
