@@ -113,7 +113,7 @@ Write in a warm, simple, supportive, and motivational tone. Speak like an encour
 
 export function buildCall2UserPrompt(
   form: OfferFormData,
-  call1: Record<string, string>,
+  call1: Call1Parsed,
 ): string {
   return `Analyze this digital offer and generate deep Copywriting Intelligence.
 
@@ -127,10 +127,10 @@ Proof: ${form.field_5_proof}
 Challenge: ${form.field_8_challenge}
 
 === CALL 1 CONTEXT ===
-RECOMMENDED FUNNEL TYPE: ${call1.FUNNEL_STRUCTURE_BLUEPRINT ? call1.FUNNEL_STRUCTURE_BLUEPRINT.split("\n")[0] : "Standard Funnel"}
-REVENUE MODEL: ${call1.REVENUE_MODEL_ARCHITECTURE || "Standard"}
-PAIN POINTS: ${call1.PAIN_POINT_MAPPING || "Standard"}
-PLATFORM PRIMARY: ${call1.PLATFORM_PRIORITY_MATRIX || "Standard"}
+RECOMMENDED FUNNEL TYPE: ${call1.funnel_structure_blueprint ? call1.funnel_structure_blueprint.split("\n")[0] : "Standard Funnel"}
+REVENUE MODEL: ${call1.revenue_model_architecture || "Standard"}
+PAIN POINTS: ${call1.pain_point_mapping || "Standard"}
+PLATFORM PRIMARY: ${call1.platform_priority_matrix || "Standard"}
 === END CALL 1 CONTEXT ===
 
 Now produce the following sections in this exact order, remembering to keep your tone highly motivational, simple, and encouraging:
