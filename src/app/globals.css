@@ -35,6 +35,14 @@ html {
   --color-brand-yellow: hsl(var(--brand-yellow));
   --color-brand-yellow-foreground: hsl(var(--brand-yellow-foreground));
 
+  --color-brand-blue: hsl(var(--brand-blue));
+  --color-brand-blue-foreground: hsl(var(--brand-blue-foreground));
+
+  --color-brand-indigo: hsl(var(--brand-indigo));
+  --color-brand-purple: hsl(var(--brand-purple));
+  --color-brand-pink: hsl(var(--brand-pink));
+  --color-brand-cyan: hsl(var(--brand-cyan));
+
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
 
@@ -86,6 +94,12 @@ html {
     --primary-foreground: 0 0% 98%;
     --brand-yellow: 38 92% 55%;
     --brand-yellow-foreground: 0 0% 0%;
+    --brand-blue: 221 83% 53%;
+    --brand-blue-foreground: 0 0% 100%;
+    --brand-indigo: 243 75% 59%;
+    --brand-purple: 271 81% 56%;
+    --brand-pink: 330 81% 60%;
+    --brand-cyan: 189 94% 43%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
@@ -125,7 +139,13 @@ html {
     --primary-foreground: 0 0% 9%;
     --brand-yellow: 38 92% 55%;
     --brand-yellow-foreground: 0 0% 0%;
-    --secondary: 0 0% 14.9%;
+    --brand-blue: 221 83% 53%;
+    --brand-blue-foreground: 0 0% 100%;
+    --brand-indigo: 243 75% 59%;
+    --brand-purple: 271 81% 56%;
+    --brand-pink: 330 81% 60%;
+    --brand-cyan: 189 94% 43%;
+    --secondary: 222 47% 11%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;

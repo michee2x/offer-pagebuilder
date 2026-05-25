@@ -1,7 +1,9 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
-import type { OfferFormData } from '@/lib/offer-types';
+import type { OfferFormData, FunnelPageKey } from '@/lib/offer-types';
+import { parseEmailSequenceV2, parseEmailSequence } from '@/lib/offer-parser';
+import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
 
 export const maxDuration = 120;
 
@@ -10,7 +12,28 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-import { parseEmailSequence } from '@/lib/offer-parser';
+// Email counts per page type
+const PAGE_EMAIL_COUNTS: Record<FunnelPageKey, number> = {
+  lead_capture: 4,
+  sales_page: 4,
+  upsell: 3,
+  downsell: 3,
+  thankyou: 2,
+};
+
+// Page sequence descriptions for the AI prompt
+const PAGE_SEQUENCE_GUIDANCE: Record<FunnelPageKey, string> = {
+  lead_capture:
+    'Start with a warm welcome email that thanks them for opting in and delivers the promised lead magnet or value. Follow with nurture emails that build trust, share insights, tell stories, and naturally warm them up toward the sales page offer. The final email should tease or transition into the sales pitch.',
+  sales_page:
+    'These emails pick up from the lead nurture sequence. Address objections the buyer has about the main offer, share proof and case studies, create urgency, and drive toward the purchase decision. Each email should tackle a different angle — social proof, overcoming fear, showing transformation, and a final deadline push.',
+  upsell:
+    'Post-purchase emails for buyers who just bought the main offer. Introduce the upgrade/premium offer naturally. Show how it accelerates or amplifies the results from the main purchase. Build desire for the next level.',
+  downsell:
+    'Emails for those who didn\'t take the upsell. Acknowledge their decision, then introduce a lighter/more affordable alternative. Position it as an easy win that complements their main purchase.',
+  thankyou:
+    'Post-purchase onboarding emails. Welcome them as a customer, set expectations for what happens next, deliver access instructions, and encourage early engagement with the product. Make them feel confident about their purchase.',
+};
 
 // ─── Route ────────────────────────────────────────────────────────────────────
 
@@ -41,8 +64,16 @@ export async function POST(
   const copyData = funnel.blocks?.copy;
 
   if (!formData) {
-    return Response.json({ error: 'Funnel has no offer data. Please complete the onboarding form first.' }, { status: 400 });
+    return Response.json(
+      { error: 'Funnel has no offer data. Please complete the onboarding form first.' },
+      { status: 400 }
+    );
   }
+
+  // Determine which funnel pages exist
+  const declaredPages: FunnelPageKey[] =
+    copyData?.declaration?.pages ??
+    ['lead_capture', 'sales_page', 'upsell', 'thankyou'];
 
   // Case-insensitive property getter
   const getVal = (obj: any, key: string): string => {
@@ -66,77 +97,139 @@ export async function POST(
     `OUTCOME: ${formData.field_2_outcome}`,
     `IDEAL BUYER: ${formData.field_3_persona}`,
     `PRICE: ${formData.field_4_price} ${formData.field_4_currency}`,
+    formData.field_4_upsell ? `UPSELL: ${formData.field_4_upsell}` : '',
     `UNIQUE MECHANISM: ${formData.field_6_mechanism}`,
     `TRAFFIC CHANNELS: ${formData.field_7_channels?.join(', ')}`,
     `PRIMARY CHALLENGE: ${formData.field_8_challenge || 'Not specified'}`,
     call1 ? `SCORE SUMMARY: ${getVal(call1, 'SCORE_SUMMARY')}` : '',
-    call1 ? `PAIN POINTS (KEY): ${getVal(call1, 'PAIN_POINT_MAPPING').substring(0, 500)}` : '',
+    call1
+      ? `PAIN POINTS (KEY): ${getVal(call1, 'PAIN_POINT_MAPPING').substring(0, 500)}`
+      : '',
     heroHook ? `HERO HOOK: ${heroHook.substring(0, 200)}` : '',
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 
-  const systemPrompt = `You are OfferIQ Email Sequence Engine. You write high-converting, personalised email nurture sequences for digital offers.
+  // Build per-page format instructions
+  const pageInstructions = declaredPages
+    .map((pageKey) => {
+      const count = PAGE_EMAIL_COUNTS[pageKey] ?? 3;
+      const label = FUNNEL_PAGE_LABELS[pageKey] ?? pageKey;
+      const guidance = PAGE_SEQUENCE_GUIDANCE[pageKey] ?? '';
+      return `
+=== ${pageKey.toUpperCase()} ===
+Page: ${label}
+Number of emails: ${count}
+Guidance: ${guidance}
+
+Write ${count} emails for this page section. Each email MUST follow this EXACT format:
+
+EMAIL 1 — DAY [number]
+SUBJECT: [Subject line — compelling, specific, under 50 characters]
+PREVIEW: [Preview text — one punchy sentence]
+HTML:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[Subject line repeated here]</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f7;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;">[Preview text here]</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f7;">
+<tr><td align="center" style="padding:40px 20px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+<!-- Header / Branding -->
+<tr><td style="padding:32px 40px 0 40px;">
+<h1 style="margin:0;font-size:22px;line-height:1.4;color:#1a1a2e;font-weight:700;">[Email heading/hook]</h1>
+</td></tr>
+<!-- Body -->
+<tr><td style="padding:24px 40px;font-size:15px;line-height:1.8;color:#3c3c4a;">
+[Email body paragraphs wrapped in <p> tags with margin:0 0 16px 0]
+</td></tr>
+<!-- CTA Button -->
+<tr><td align="center" style="padding:8px 40px 32px 40px;">
+<a href="#" style="display:inline-block;background-color:#4f46e5;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:8px;">[CTA text]</a>
+</td></tr>
+<!-- Footer -->
+<tr><td style="padding:24px 40px;border-top:1px solid #e8e8ed;font-size:12px;color:#8c8c9a;text-align:center;">
+You're receiving this because you signed up for [Offer Name]. <a href="#" style="color:#4f46e5;text-decoration:underline;">Unsubscribe</a>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>
+---
+
+EMAIL 2 — DAY [number]
+...and so on for all ${count} emails.`;
+    })
+    .join('\n\n');
+
+  const systemPrompt = `You are OfferIQ Email Sequence Engine. You write high-converting, personalised email nurture sequences for digital offers and return them as PRODUCTION-READY HTML emails.
 
 Your emails must:
 - Sound human and personal, not corporate or templated
 - Reference the specific offer, mechanism, and persona
 - Use the buyer's vocabulary (NOT business jargon unless the persona uses it)
-- Build a logical progression: Welcome → Story → Proof → Objection → Urgency
 - Be 200–350 words per email body
 - Never use generic placeholder text like [First Name] — write it as a real email
-- The subject lines must be compelling, specific, and under 50 characters`;
+- The subject lines must be compelling, specific, and under 50 characters
+- Include a clear CTA (call-to-action) button in each email
 
-  const userPrompt = `Write a 5-email nurture sequence for this offer:
+HTML EMAIL RULES:
+- Use ONLY inline CSS styles (no <style> blocks, no external stylesheets)
+- Use table-based layout for email client compatibility
+- Use the exact HTML structure template provided — do NOT invent your own layout
+- Each email must be a complete, valid HTML document
+- Include a hidden preheader div for preview text
+- Use <p> tags for body paragraphs with style="margin:0 0 16px 0;font-size:15px;line-height:1.8;color:#3c3c4a;"
+- The CTA button must use an <a> tag styled as a button with background-color:#4f46e5
+- Wrap the <title> tag content with the email subject line
+- Keep the email design clean, modern, and professional
+- Use a light background (#f4f4f7) with white content card
+
+CRITICAL RULES FOR SEQUENCE PROGRESSION:
+- Each funnel page has its own email sequence section
+- Emails within a page build on each other logically
+- The FIRST email of each subsequent page picks up where the LAST email of the previous page left off
+- This creates one continuous narrative journey across the entire funnel
+- Day numbers should be CONTINUOUS across pages (don't restart from Day 1 for each page)`;
+
+  const userPrompt = `Write a complete per-page email sequence for this offer. Return each email as FULL HTML CODE.
 
 ${contextSummary}
 
-Write the sequence in this exact format (no extra text before or after):
+FUNNEL PAGES IN ORDER: ${declaredPages.map((k) => FUNNEL_PAGE_LABELS[k]).join(' → ')}
 
-EMAIL 1 — DAY 1
-SUBJECT: [Subject line]
-PREVIEW: [Preview text — one punchy sentence]
-BODY:
-[Full email body — 200–350 words, conversational, personal voice]
----
+Write emails for EACH page section below. Use the exact page header format shown. Day numbers should be continuous across all pages (e.g., if lead_capture ends on Day 8, sales_page starts on Day 10).
 
-EMAIL 2 — DAY 3
-SUBJECT: [Subject line]
-PREVIEW: [Preview text]
-BODY:
-[Full email body — go deeper into the real problem. Tell a story or insight.]
----
-
-EMAIL 3 — DAY 5
-SUBJECT: [Subject line]
-PREVIEW: [Preview text]
-BODY:
-[Full email body — a case study or proof point. Real or realistic example.]
----
-
-EMAIL 4 — DAY 8
-SUBJECT: [Subject line]
-PREVIEW: [Preview text]
-BODY:
-[Full email body — crush the top objection the buyer has]
----
-
-EMAIL 5 — DAY 12
-SUBJECT: [Subject line]
-PREVIEW: [Preview text]
-BODY:
-[Full email body — urgency, final push, address any remaining fence-sitters]
----`;
+${pageInstructions}`;
 
   try {
     const result = streamText({
       model: anthropic('claude-sonnet-4-20250514'),
       system: systemPrompt,
       prompt: userPrompt,
-      maxOutputTokens: 4000,
+      maxOutputTokens: 16000,
       onFinish: async ({ text }) => {
         try {
-          const parsedEmails = parseEmailSequence(text);
-          if (parsedEmails.length === 0) {
-            console.error('[generate-email-sequence] AI returned no parseable emails onFinish.');
+          // Try v2 format first, fall back to flat
+          let parsedSequence = parseEmailSequenceV2(text);
+          if (Object.keys(parsedSequence).length === 0) {
+            // Fallback: try flat parser and assign to lead_capture
+            const flat = parseEmailSequence(text);
+            if (flat.length > 0) {
+              parsedSequence = { lead_capture: flat };
+            }
+          }
+
+          if (Object.keys(parsedSequence).length === 0) {
+            console.error(
+              '[generate-email-sequence] AI returned no parseable emails onFinish.'
+            );
             return;
           }
 
@@ -152,20 +245,26 @@ BODY:
             .update({
               blocks: {
                 ...(current?.blocks || {}),
-                email_sequence: parsedEmails,
+                email_sequence_v2: parsedSequence,
                 email_sequence_generated_at: new Date().toISOString(),
               },
             })
             .eq('id', funnelId);
         } catch (dbErr) {
-          console.error('[generate-email-sequence] DB Update failed onFinish', dbErr);
+          console.error(
+            '[generate-email-sequence] DB Update failed onFinish',
+            dbErr
+          );
         }
-      }
+      },
     });
 
     return result.toTextStreamResponse();
   } catch (e: any) {
     console.error('[generate-email-sequence]', e);
-    return Response.json({ error: e.message || 'Generation failed' }, { status: 500 });
+    return Response.json(
+      { error: e.message || 'Generation failed' },
+      { status: 500 }
+    );
   }
 }

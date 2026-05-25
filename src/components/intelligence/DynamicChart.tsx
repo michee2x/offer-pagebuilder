@@ -22,7 +22,7 @@ interface DynamicChartProps {
   className?: string;
 }
 
-const PIE_COLORS = ['hsl(var(--primary))', '#3b82f6', '#a855f7', '#f43f5e', '#f59e0b', '#10b981'];
+const PIE_COLORS = ['#06b6d4', '#a855f7', '#ec4899', '#f5a623', '#10b981', '#3b82f6'];
 
 export function DynamicChart({ type, data, title, summary, className }: DynamicChartProps) {
   let parsedData: ChartDataPoint[] = [];
@@ -46,14 +46,21 @@ export function DynamicChart({ type, data, title, summary, className }: DynamicC
         return (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={parsedData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+              <defs>
+                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
               <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
               <Tooltip 
                 cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                 contentStyle={{ backgroundColor: "#0a0a0a", borderColor: "rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff" }}
+                itemStyle={{ color: "#06b6d4", fontWeight: "bold" }}
               />
-              <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -65,17 +72,18 @@ export function DynamicChart({ type, data, title, summary, className }: DynamicC
                 data={parsedData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={5}
+                innerRadius={65}
+                outerRadius={85}
+                paddingAngle={6}
                 dataKey="value"
+                stroke="none"
               >
                 {parsedData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip 
-                itemStyle={{ color: "#fff" }}
+                itemStyle={{ color: "#fff", fontWeight: "bold" }}
                 contentStyle={{ backgroundColor: "#0a0a0a", borderColor: "rgba(255,255,255,0.1)", borderRadius: "12px" }}
               />
             </PieChart>
@@ -84,19 +92,27 @@ export function DynamicChart({ type, data, title, summary, className }: DynamicC
       case "radar":
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={parsedData}>
+            <RadarChart cx="50%" cy="50%" outerRadius="75%" data={parsedData}>
+              <defs>
+                <linearGradient id="radarDynGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#ec4899" stopOpacity={0.4}/>
+                </linearGradient>
+              </defs>
               <PolarGrid stroke="rgba(255,255,255,0.1)" />
-              <PolarAngleAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11 }} />
+              <PolarAngleAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 500 }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
               <Radar
-                name="Score"
+                name="Value"
                 dataKey="value"
-                stroke="hsl(var(--primary))"
-                fill="hsl(var(--primary))"
-                fillOpacity={0.4}
+                stroke="#a855f7"
+                strokeWidth={2}
+                fill="url(#radarDynGradient)"
+                fillOpacity={1}
               />
               <Tooltip 
                  contentStyle={{ backgroundColor: "#0a0a0a", borderColor: "rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff" }}
+                 itemStyle={{ color: "#a855f7", fontWeight: "bold" }}
               />
             </RadarChart>
           </ResponsiveContainer>
@@ -107,23 +123,29 @@ export function DynamicChart({ type, data, title, summary, className }: DynamicC
   };
 
   return (
-    <div className={cn("bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 my-6", className)}>
-      {title && (
-        <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-      )}
+    <div className={cn("bg-[#050B15]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 my-6 relative overflow-hidden", className)}>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-[50px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 blur-[50px] rounded-full pointer-events-none" />
       
-      <div className="h-[280px] w-full mt-4">
-        {renderChart()}
-      </div>
-
-      {summary && (
-        <div className="mt-6 pt-4 border-t border-white/10">
-          <p className="text-sm text-white/80 leading-relaxed font-medium">
-            <span className="text-brand-yellow font-bold mr-2">Key Insight:</span>
-            {summary}
-          </p>
+      <div className="relative z-10">
+        {title && (
+          <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+        )}
+        
+        <div className="h-[280px] w-full mt-6">
+          {renderChart()}
         </div>
-      )}
+
+        {summary && (
+          <div className="mt-6 pt-5 border-t border-white/10">
+            <p className="text-sm text-white/80 leading-relaxed font-medium">
+              <span className="text-cyan-400 font-bold mr-2 uppercase tracking-wider text-[11px]">Key Insight:</span>
+              <br />
+              {summary}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

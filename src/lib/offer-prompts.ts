@@ -48,7 +48,7 @@ Do not wrap in backticks.
 {"primary": {"channel": "string", "budget_share": X, "rationale": "string"}, "secondary": {"channel": "string", "budget_share": X, "rationale": "string"}}
 Do not wrap in backticks.
 
-Write structured, high-intensity copy. Speak as a direct-response operator, not an academic.`;
+Write in a warm, simple, supportive, and motivational tone. Speak like an encouraging business coach talking to a beginner entrepreneur. Avoid high-level corporate jargon or overly complex terminology. Use simple English that anyone can easily digest, but keep the insights sharp and actionable. Your goal is to motivate and guide them to success!`;
 
 export function buildCall1UserPrompt(form: OfferFormData): string {
   return `Analyze this digital offer and generate standard Sales Intelligence.
@@ -67,7 +67,7 @@ Traffic Details: ${form.field_7_detail}
 Primary Challenge: ${form.field_8_challenge}
 
 === GENERATION DIRECTIVE ===
-Synthesize standard Offer Architecture. Ensure strict division of sections using divider lines. Every section must have intensive, actionable copy. Apply direct-response copywriting principles throughout. Calculate exact prices and conversions where requested.`;
+Synthesize standard Offer Architecture. Ensure strict division of sections using divider lines. Every section must be written in a highly encouraging, simple, and motivational tone. Make the entrepreneur feel excited, supported, and capable of succeeding! Avoid corporate jargon and speak in plain English. Calculate exact prices and conversions where requested.`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -107,7 +107,9 @@ Paragraph 4: THE PERSONA STRATEGY — How understanding the deep desire and domi
 Paragraph 5: THE PROOF STRATEGY — Given the current proof level (be honest about what was provided), how to deploy proof most effectively and what proof to collect as a priority.
 Paragraph 6: THE TRAFFIC-FUNNEL BRIDGE — How the recommended traffic platform and the funnel structure work together. Why this traffic source goes to this funnel entry point — the alignment that makes acquisition efficient.
 Paragraph 7: THE SEQUENCE — What to build first, second, and third. Not a vague "start with the basics" instruction — a specific sequence with reasoning. What will break if built out of order.
-Paragraph 8: THE CRITICAL WARNING — The single most dangerous mistake this offer owner could make given this specific offer's situation, market, and stage. Named directly. This is the paragraph they'll remember.`;
+Paragraph 8: THE CRITICAL WARNING — The single most dangerous mistake this offer owner could make given this specific offer's situation, market, and stage. Named directly. This is the paragraph they'll remember.
+
+Write in a warm, simple, supportive, and motivational tone. Speak like an encouraging business coach talking to a beginner entrepreneur. Avoid high-level corporate jargon or overly complex terminology. Use simple English that anyone can easily digest, but keep the insights sharp and actionable. Your goal is to motivate and guide them!`;
 
 export function buildCall2UserPrompt(
   form: OfferFormData,
@@ -131,7 +133,7 @@ PAIN POINTS: ${call1.PAIN_POINT_MAPPING || "Standard"}
 PLATFORM PRIMARY: ${call1.PLATFORM_PRIORITY_MATRIX || "Standard"}
 === END CALL 1 CONTEXT ===
 
-Now produce the following sections in this exact order:
+Now produce the following sections in this exact order, remembering to keep your tone highly motivational, simple, and encouraging:
 OFFER_POSITIONING_ANALYSIS
 TARGET_PERSONA_INTELLIGENCE
 CONVERSION_HOOK_LIBRARY

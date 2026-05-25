@@ -337,14 +337,14 @@ export default async function FunnelDashboardPage({ params }: Props) {
         />
         <div className="flex flex-1 overflow-hidden">
           <FunnelSidebar funnelId={funnelId} funnelName={funnel.name} />
-          <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#0a0a0f]">
+          <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#0b0f19]">
             <div className="w-full max-w-7xl mx-auto space-y-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl font-black tracking-tight text-white/90">
+                  <h1 className="text-3xl font-black tracking-tight text-white drop-shadow-sm">
                     {funnel.name}
                   </h1>
-                  <p className="text-sm text-white/40 mt-1">
+                  <p className="text-sm font-medium text-white/50 mt-1">
                     Created{" "}
                     {new Date(funnel.created_at).toLocaleDateString("en-GB", {
                       year: "numeric",
@@ -353,8 +353,8 @@ export default async function FunnelDashboardPage({ params }: Props) {
                     })}
                   </p>
                 </div>
-                <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/60 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <div className="px-3 py-1 bg-brand-blue/10 border border-brand-blue/20 rounded-full text-xs font-bold text-brand-blue flex items-center gap-2 shadow-[inset_0_0_10px_rgba(59,130,246,0.1)]">
+                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
                   Live Tracking Active
                 </div>
               </div>

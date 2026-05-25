@@ -19,7 +19,6 @@ import {
   Check,
   Play,
   Image as ImageIcon,
-  Timer,
   Users,
   Star,
 } from "lucide-react";

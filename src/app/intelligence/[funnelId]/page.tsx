@@ -477,7 +477,8 @@ function EditableNarrativeText({
     );
   }
 
-  if (isPureJson || !text) return <StreamingPlaceholder />;
+  if (!text) return <StreamingPlaceholder />;
+  if (isPureJson && !isEditing) return null;
   
   if (!viewText && !isEditing) {
      return (
@@ -968,7 +969,7 @@ export default function IntelligencePage({
                 <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Report Sections</div>
               </div>
 
-             <nav className="p-2 overflow-y-auto space-y-0.5 flex-1 custom-scrollbar pb-6 text-sm">
+             <nav className="p-2 overflow-y-auto space-y-1 flex-1 custom-scrollbar pb-6 text-sm">
                 {availableSections.map((sid) => {
                   const cfg = SECTION_CONFIG[sid] || { label: sid, color: "text-muted-foreground", badge: "" };
                   const isActive = sid === activeSectionId;
@@ -977,19 +978,22 @@ export default function IntelligencePage({
                       key={sid}
                       onClick={() => setActiveSectionId(sid)}
                       className={cn(
-                        "w-full flex items-center justify-between px-3 py-2 rounded-md transition-all text-left group",
+                        "w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-left group relative overflow-hidden border",
                         isActive 
-                          ? "bg-indigo-500/10 text-indigo-400 font-semibold shadow-[inset_0_0_0_1px_rgba(99,102,241,0.15)]" 
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          ? "bg-white/5 border-white/10 text-white shadow-lg" 
+                          : "border-transparent text-muted-foreground hover:bg-white/5 hover:text-white"
                       )}
                     >
-                       <span className="truncate pr-2">{cfg.label}</span>
+                       {isActive && (
+                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 via-purple-500 to-pink-500" />
+                       )}
+                       <span className={cn("truncate pr-2 font-medium transition-colors", isActive && "text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 ml-1")}>{cfg.label}</span>
                        {(cfg.badge || isActive) && (
-                         <div className="shrink-0 flex items-center gap-1.5">
+                         <div className="shrink-0 flex items-center gap-1.5 z-10 relative">
                            {cfg.badge && !isActive && (
                              <span className="text-[9px] uppercase tracking-wider opacity-60 font-bold">{cfg.badge}</span>
                            )}
-                           {isActive && <ChevronRight className="w-3.5 h-3.5" />}
+                           {isActive && <ChevronRight className="w-4 h-4 text-pink-500" />}
                          </div>
                        )}
                     </button>
@@ -1083,14 +1087,15 @@ export default function IntelligencePage({
                      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/5 blur-[120px] rounded-full pointer-events-none -z-10" />
 
                      {/* Section Header */}
-                     <div className="mb-10 flex items-baseline justify-between gap-4 border-b border-white/10 pb-6">
+                     <div className="mb-10 flex items-baseline justify-between gap-4 border-b border-white/10 pb-6 relative z-10">
                         <div className="flex items-baseline gap-3 flex-wrap">
-                           <h1 className="text-3xl font-bold tracking-tight text-white">
+                           <h1 className="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/50">
                              {activeConfig.label}
                            </h1>
                             {activeConfig.badge && (
                               <span className={cn(
-                                "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border translate-y-[-2px] bg-brand-yellow/10 text-brand-yellow/80 border-brand-yellow/20"
+                                "text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border translate-y-[-4px] shadow-lg",
+                                "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border-cyan-500/30 backdrop-blur-md"
                               )}>
                                 {activeConfig.badge}
                               </span>
@@ -1099,7 +1104,7 @@ export default function IntelligencePage({
                              — {activeConfig.subheader}
                            </p>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(activeContent)} className="text-white/50 hover:text-white hover:bg-white/5 gap-2 shrink-0">
+                        <Button variant="outline" size="sm" onClick={() => copyToClipboard(activeContent)} className="text-white hover:text-cyan-300 hover:bg-white/10 border-white/10 gap-2 shrink-0 rounded-xl transition-colors">
                           <Copy className="w-4 h-4" />
                           <span className="hidden lg:inline">Copy Text</span>
                         </Button>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ExternalLink, Globe, ArrowLeft, CheckCircle2, Zap, Share2, Copy, Check } from 'lucide-react';
+import { ExternalLink, Globe, ArrowLeft, CheckCircle2, Share2, Copy, Check } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -112,7 +112,6 @@ function DeploymentSuccessContent() {
               {!imgLoaded && (
                 <div className="absolute inset-0 bg-gradient-to-r from-[#111] via-[#1a1a1a] to-[#111] animate-pulse" />
               )}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={screenshotUrl}
                 alt="Funnel preview"

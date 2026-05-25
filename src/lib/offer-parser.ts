@@ -13,6 +13,8 @@ import type {
   PageDeclaration,
   Call2Output,
   Call3Output,
+  EmailCopy,
+  FunnelEmailSequence,
 } from './offer-types';
 
 const VALID_PAGE_KEYS = new Set<FunnelPageKey>([
@@ -178,15 +180,137 @@ export function hydrateSections(pageCopy: PageCopy): CopySection[] {
   return [];
 }
 
-// ─── Email sequence parser — unchanged ───────────────────────────────────────
+// ─── Email sequence parser — per-page format ─────────────────────────────────
 
-export function parseEmailSequence(raw: string): Array<{
-  day: number;
-  subject: string;
-  preview: string;
-  body: string;
-}> {
-  const emails: Array<{ day: number; subject: string; preview: string; body: string }> = [];
+
+const PAGE_KEY_MAP: Record<string, FunnelPageKey> = {
+  LEAD_CAPTURE: 'lead_capture',
+  SALES_PAGE: 'sales_page',
+  UPSELL: 'upsell',
+  DOWNSELL: 'downsell',
+  THANKYOU: 'thankyou',
+};
+
+/**
+ * Parse the new per-page email sequence format.
+ * Expected AI output has page headers like `=== LEAD_CAPTURE ===`
+ * followed by EMAIL blocks within each section.
+ */
+export function parseEmailSequenceV2(raw: string): FunnelEmailSequence {
+  const result: FunnelEmailSequence = {};
+
+  // Split by page headers
+  const pageBlocks = raw.split(/===\s*(LEAD_CAPTURE|SALES_PAGE|UPSELL|DOWNSELL|THANKYOU)\s*===/i);
+
+  // pageBlocks: [preamble, PAGE_KEY, content, PAGE_KEY, content, ...]
+  for (let i = 1; i < pageBlocks.length; i += 2) {
+    const rawKey = pageBlocks[i].toUpperCase().trim();
+    const pageKey = PAGE_KEY_MAP[rawKey];
+    if (!pageKey) continue;
+
+    const content = pageBlocks[i + 1] || '';
+    const emails = parseEmailBlocksFromContent(content, pageKey);
+    if (emails.length > 0) {
+      result[pageKey] = emails;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Parse EMAIL blocks within a single page section.
+ * Supports both new HTML: format and legacy BODY: format.
+ */
+function parseEmailBlocksFromContent(content: string, pageKey: FunnelPageKey): EmailCopy[] {
+  const emails: EmailCopy[] = [];
+  const emailBlocks = content.split(/EMAIL\s+\d+\s*(?:—|–|-)\s*DAY\s+\d+/i).slice(1);
+  const dayMatches = [...content.matchAll(/EMAIL\s+(\d+)\s*(?:—|–|-)\s*DAY\s+(\d+)/gi)];
+
+  emailBlocks.forEach((block, i) => {
+    const emailNum = parseInt(dayMatches[i]?.[1] ?? '0', 10);
+    const day = parseInt(dayMatches[i]?.[2] ?? '0', 10);
+    const subject = block.match(/SUBJECT:\s*(.+)/i)?.[1]?.trim() ?? '';
+    const preview = block.match(/PREVIEW:\s*(.+)/i)?.[1]?.trim() ?? '';
+
+    // Try HTML: format first
+    const htmlMatch = block.match(/HTML:\s*([\s\S]*?<html[\s\S]*?<\/html>)/i);
+    let html = htmlMatch?.[1]?.trim() ?? '';
+    let body = '';
+    let cta = '';
+
+    if (html) {
+      // Extract plain text body from HTML for the text copy mode
+      body = extractPlainTextFromHtml(html);
+      // Extract CTA text from the HTML
+      const ctaMatch = html.match(/<a\b[^>]*style="[^"]*background-color[^"]*"[^>]*>([\s\S]*?)<\/a>/i);
+      cta = ctaMatch?.[1]?.replace(/<[^>]+>/g, '').trim() ?? '';
+    } else {
+      // Fallback: legacy BODY: format
+      const bodyMatch = block.match(/BODY:\s*([\s\S]*?)(?=---|CTA:|$)/i);
+      body = bodyMatch?.[1]?.trim() ?? '';
+      cta = block.match(/CTA:\s*(.+)/i)?.[1]?.trim() ?? '';
+    }
+
+    if (subject && (body || html)) {
+      emails.push({
+        day,
+        subject,
+        preview,
+        body,
+        html: html || undefined,
+        page: pageKey,
+        order: emailNum || i + 1,
+        cta: cta || undefined,
+      });
+    }
+  });
+
+  return emails;
+}
+
+/**
+ * Extract readable plain text from an HTML email string.
+ * Used to populate the text copy fields from AI-generated HTML.
+ */
+function extractPlainTextFromHtml(html: string): string {
+  // Remove everything outside <body>
+  const bodyContent = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? html;
+  // Remove hidden preheader divs
+  let text = bodyContent.replace(/<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi, '');
+  // Remove the footer row (unsubscribe etc)
+  text = text.replace(/<tr>\s*<td[^>]*border-top[^>]*>[\s\S]*?<\/td>\s*<\/tr>/gi, '');
+  // Convert <br> and </p> to newlines
+  text = text.replace(/<br\s*\/?>/gi, '\n');
+  text = text.replace(/<\/p>/gi, '\n\n');
+  // Remove CTA links (we extract those separately)
+  text = text.replace(/<a\b[^>]*style="[^"]*background-color[^"]*"[^>]*>[\s\S]*?<\/a>/gi, '');
+  // Remove all remaining HTML tags
+  text = text.replace(/<[^>]+>/g, '');
+  // Decode common HTML entities
+  text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ');
+  // Clean up whitespace
+  text = text.replace(/\n{3,}/g, '\n\n').trim();
+  return text;
+}
+
+/**
+ * Legacy flat parser — kept as fallback for old-format AI output.
+ */
+export function parseEmailSequence(raw: string): EmailCopy[] {
+  // Try v2 format first
+  if (/===\s*(LEAD_CAPTURE|SALES_PAGE|UPSELL|DOWNSELL|THANKYOU)\s*===/i.test(raw)) {
+    const perPage = parseEmailSequenceV2(raw);
+    // Flatten all pages into a single array for backward-compatible callers
+    const flat: EmailCopy[] = [];
+    for (const emails of Object.values(perPage)) {
+      if (emails) flat.push(...emails);
+    }
+    return flat;
+  }
+
+  // Old flat format
+  const emails: EmailCopy[] = [];
   const emailBlocks = raw.split(/EMAIL \d+ — DAY \d+/i).slice(1);
   const dayMatches = [...raw.matchAll(/EMAIL \d+ — DAY (\d+)/gi)];
 
@@ -200,6 +324,35 @@ export function parseEmailSequence(raw: string): Array<{
   });
 
   return emails;
+}
+
+/**
+ * Migrate a legacy flat EmailCopy[] into FunnelEmailSequence.
+ * All emails are assigned to lead_capture since we can't infer the page.
+ */
+export function migrateFlatEmailSequence(flat: EmailCopy[]): FunnelEmailSequence {
+  if (!flat || flat.length === 0) return {};
+
+  // If emails already have page keys, group them
+  const hasPages = flat.some(e => e.page);
+  if (hasPages) {
+    const grouped: FunnelEmailSequence = {};
+    for (const email of flat) {
+      const key = email.page || 'lead_capture';
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key]!.push(email);
+    }
+    return grouped;
+  }
+
+  // No page keys — assign all to lead_capture
+  return {
+    lead_capture: flat.map((e, i) => ({
+      ...e,
+      page: 'lead_capture' as FunnelPageKey,
+      order: i + 1,
+    })),
+  };
 }
 
 // ─── Intel Parser Restoration ────────────────────────────────────────────────

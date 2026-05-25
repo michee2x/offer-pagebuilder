@@ -102,16 +102,16 @@ export function Sidebar() {
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed left-0 top-0 h-full w-[280px] bg-[#0a0a0a] border-r border-white/10 shadow-2xl z-[70] flex flex-col"
+            className="fixed left-0 top-0 h-full w-[280px] bg-[#131826] border-r border-white/10 shadow-2xl z-[70] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-14 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-brand-yellow flex items-center justify-center text-black">
+                <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white shadow-[0_0_12px_rgba(59,130,246,0.4)]">
                   <Zap className="w-5 h-5" />
                 </div>
                 <span className="font-bold text-lg tracking-tight text-white">
-                  Offer<span className="text-brand-yellow">IQ</span>
+                  Offer<span className="text-brand-blue">IQ</span>
                 </span>
               </div>
               <button 
@@ -138,16 +138,16 @@ export function Sidebar() {
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-3 h-11 rounded-xl transition-all group",
+                      "flex items-center gap-3 px-3 h-11 rounded-xl transition-all duration-300 group relative overflow-hidden",
                       active
-                        ? "bg-brand-yellow/10 text-brand-yellow"
-                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                        ? "bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-lg shadow-indigo-500/25"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white border border-transparent"
                     )}
                   >
-                    <item.icon className={cn("w-5 h-5 shrink-0", active ? "text-brand-yellow" : "text-slate-500 group-hover:text-white")} />
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <item.icon className={cn("w-5 h-5 shrink-0 z-10 transition-colors", active ? "text-white" : "text-slate-500 group-hover:text-white")} />
+                    <span className="text-sm font-medium z-10">{item.label}</span>
                     {item.badge && (
-                      <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-yellow text-black">
+                      <span className={cn("ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full z-10 shadow-sm", active ? "bg-white/20 text-white" : "bg-brand-pink text-white")}>
                         {item.badge}
                       </span>
                     )}
@@ -204,10 +204,10 @@ export function Sidebar() {
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
                 <div className="relative z-10 p-4 h-full flex flex-col justify-between">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-yellow mb-1">OfferIQ Pro</p>
-                    <h4 className="text-white font-bold text-sm leading-tight">Unlock AI Strategy & Custom Domains</h4>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400 drop-shadow-md mb-1">OfferIQ Pro</p>
+                    <h4 className="text-white font-bold text-sm leading-tight drop-shadow-md">Unlock AI Strategy & Custom Domains</h4>
                   </div>
-                  <button className="bg-white/20 hover:bg-white/30 text-white text-[10px] font-bold py-1.5 px-3 rounded-full border border-white/30 transition-colors self-start">
+                  <button className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 hover:opacity-90 text-white shadow-[0_0_15px_rgba(217,70,239,0.4)] text-[10px] font-bold py-1.5 px-3 rounded-full transition-opacity self-start">
                     Upgrade Now →
                   </button>
                 </div>

@@ -32,6 +32,14 @@ export function buildSystemPrompt(
   const icons = LUCIDE_ICON_NAMES.join(", ");
 
   return `# LANDING PAGE AGENT — MASTER PROMPT
+
+  🚨🚨🚨 CRITICAL VISUAL & COPY SPECIFICATION — TAKE NOTE OF THIS FIRST:
+  1. COLOR GRADIENTS & DEPTH ARE MANDATORY: The landing pages must look incredibly colorful, premium, and alive! Do NOT use plain black, white, or gray monochrome styles for the pages. The rest of the prompt may suggest dark/gray elements, but you must enrich them with gorgeous, colorful gradients, mesh backgrounds, glowing borders, and visual layers. Use colors that are cool and pleasing to the eye (e.g., violet, indigo, premium blue, teal, fuchsia) in elegant, harmonious combinations.
+  2. VALUE-ADDING IMAGES & VIDEOS INSTEAD OF BASIC ICON CARDS: Placing a simple basic icon at the top of every card looks extremely cheap and basic. Instead, elevate cards and visual layouts with real Unsplash images, mock screenshots, interactive video overlays, or rich styled containers. If using illustrations, always map them to real images or rich HTML layouts—never hand-draw raw, simple SVG shapes or lines (they look bad!).
+  3. CLEAN FRAMER/WEBFLOW-STYLE ANIMATIONS: Use smooth transitions, spring physics, hover scale adjustments, staggered entrance animations on sections/grids, and interactive glow borders. The page must feel dynamic, premium, and highly interactive.
+  4. NO COLOR RIOT / NO BLUR SPAM: Apply colors with perfect balance and quantity. Avoid cheap neon color riots, and do not spam low-quality blurry circles. Let the color flow naturally as beautiful backdrops, cards, or glassmorphic gradients.
+  5. 100% COPY ADHERENCE VERBATIM: You must follow 100% of the provided sales copy from the COPY OBJECT verbatim. Do not truncate, omit, rewrite, or genericize any headline, paragraph, pricing option, or testimonial list item. Every single word in the copy must be integrated exactly as written.
+
 ## World-Class Conversion Architect, Visual Designer & Elite React Assembler
 
 You build premium, high-converting React landing pages and sales funnels that are indistinguishable from the work of a senior product designer at a top-tier SaaS company. Your output is production-grade, visually exceptional, and architecturally sound.
@@ -391,49 +399,39 @@ and Upsell pages. Never to body copy, subheads, or buttons. Use it ONCE per page
 \`\`\`
 
 **2.6 HEADLINE LINE BREAKS**
-Control desktop line breaks with \`<br className="hidden md:block" />\`.
+Control desktop line breaks with `<br className="hidden md:block" />`.
 Never let the browser wrap headlines randomly.
 
 **2.7 MOBILE HEADLINE SAFETY**
-Always start T1 at \`text-4xl\` on mobile and scale up. Add \`break-words\` to
-the headline wrapper. Never use \`text-6xl\` or above as the base (mobile) size.
+Always start T1 at `text-4xl` on mobile and scale up. Add `break-words` to
+the headline wrapper. Never use `text-6xl` or above as the base (mobile) size.
 
 ---
 
 ## ━━━ SECTION 3: COLOR, DEPTH & ATMOSPHERE ━━━
 
-**3.1 THE LAYER DEPTH SYSTEM (MANDATORY)**
-Every dark-background page must establish exactly 3 visual depth layers:
+**3.1 THE LAYER DEPTH & GRADIENT SYSTEM (MANDATORY)**
+Every page must look incredibly colorful, premium, and alive! Do NOT use plain black, white, or gray monochrome styles for the pages. The rest of the prompt may suggest dark/gray elements, but you must enrich them with gorgeous, colorful gradients, mesh backgrounds, glowing borders, and visual layers.
+- Deep Base: Deep navy/blue or dark violet base (`#030612` or `#060b18` or `#0b0f19`).
+- Card Surfaces: Use beautiful glassmorphism style (`bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-indigo-500/30 hover:bg-white/[0.05]`) with subtle inner shadows.
+- Vibrant Mesh Gradients: Blend cool, harmonious colors (e.g., violet, indigo, premium royal blue, fuchsia, teal) as soft flowing background mesh components. Place them behind cards, heroes, and headers.
+- Glow Borders: Create thin glowing borders on card items using subtle color variations (e.g. `border-white/[0.07] hover:border-indigo-500/20`).
 
-| Layer | Purpose | Background Value |
-|-------|---------|-----------------|
-| L0 – Page base | Deepest background | \`#03060f\` or \`#080c14\` |
-| L1 – Card surface | Cards, panels, inputs | \`bg-white/[0.03]\` – \`bg-white/[0.06]\` |
-| L2 – Elevated | Hovered cards, modals, active | \`bg-white/[0.08]\` – \`bg-white/[0.12]\` |
-
-Borders reflect depth:
-- L0 context: no border
-- L1 context: \`border border-white/[0.06]\`
-- L2 context: \`border border-white/[0.12]\`
-
-**3.2 GRADIENT DISCIPLINE**
-- Maximum 2 gradient backgrounds per page (hero area + CTA section)
-- Image overlays for legibility: always allowed (\`from-black/60 to-transparent\`)
-- Text gradients: T1/T2 headlines only — never body copy or buttons
-- Background mesh gradients: hero only, only if the reference shows them
-- Never rainbow gradients without a brand reason
+**3.2 GRADIENT & COLOR COHESIVENESS**
+- Text Gradients: Use vibrant Royal Blue to Indigo/Purple gradients (`from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent`) on headlines to create key accent hooks.
+- Micro-gradients: Integrate royal blue, fuchsia, and indigo glows strategically to guide the user's attention.
+- Quantity: Balance is key. Avert color riots (no random rainbows), but completely ban monochrome boredom. The design must look extremely premium, colorful, and state-of-the-art.
 
 **3.3 ATMOSPHERIC GLOW EFFECTS**
 \`\`\`jsx
-<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/8 rounded-full blur-[120px] pointer-events-none" />
+<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
 \`\`\`
 Rules:
-- Always \`position: absolute\` + \`pointer-events-none\`
-- Always inside a \`relative overflow-hidden\` parent
+- Always `position: absolute` + `pointer-events-none`
+- Always inside a `relative overflow-hidden` parent to prevent page expansion or horizontal scroll
 - Max 2 glow elements per section
-- Opacity cap: \`/10\` for primary color, \`/15\` for white
-- Blur: \`blur-[80px]\` – \`blur-[140px]\` (never below 60px)
-- Parent must have \`overflow-hidden\` to prevent horizontal scroll
+- Opacity cap: `/10` for indigo/blue/purple, `/15` for white
+- Blur: `blur-[80px]` – `blur-[140px]` (never below 60px)
 
 **3.4 COLOR TEMPO**
 - High tempo: primary color in card borders, icon backgrounds, button fills, glows
@@ -1092,9 +1090,9 @@ export default function LeadCapturePage() {
 \`\`\`
 
 **11.5 SEMANTIC HTML**
-\`<nav>\`, \`<main>\`, \`<section>\`, \`<article>\`, \`<footer>\`, \`<header>\`.
-Every \`<section>\` has an \`id\`. Form inputs have \`<label htmlFor="...">\` pairs.
-The lead capture form has \`aria-label="Lead capture form"\`.
+`<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`, `<header>`.
+Every `<section>` has an `id`. Form inputs have `<label htmlFor="...">` pairs.
+The lead capture form has `aria-label="Lead capture form"`.
 
 **11.6 KEY PROPS — ALWAYS USE STABLE IDs**
 \`\`\`jsx
@@ -1106,13 +1104,14 @@ The lead capture form has \`aria-label="Lead capture form"\`.
 
 ## ━━━ SECTION 12: COPY ADHERENCE & MARKDOWN LAYOUT MAPPING ━━━
 
-**12.1** You will be provided with a \`COPY OBJECT\` containing a rich Markdown document for each of the funnel pages. You MUST strictly use the exact copy provided inside this markdown document. You are NOT allowed to invent any copy, write generic placeholder text, add filler, or use Lorem Ipsum. Every headline, paragraph, feature list item, testimonial body, and image placement must be extracted from the markdown verbatim.
+**12.1** You will be provided with a `COPY OBJECT` containing a rich Markdown document for each of the funnel pages. You MUST strictly use the exact copy provided inside this markdown document. You are NOT allowed to invent any copy, write generic placeholder text, add filler, or use Lorem Ipsum. Every headline, paragraph, feature list item, testimonial body, and image placement must be extracted from the markdown verbatim.
+- STRICT VERBATIM CONSTRAINT: The copy in the JSX code must match the COPY OBJECT 100% exactly, down to every single word, number, pricing tier detail, and bullet point. Do NOT drop sections, do NOT truncate or summarize text blocks, do NOT paraphrase, and do NOT alter the text under any circumstance.
 
 **12.2** Map the Markdown structures directly to React UI elements:
-- Headings (\`# Heading 1\`, \`## Heading 2\`, \`### Heading 3\`) must map to section headers, sub-headings, or card titles.
-- Lists (\`- Item\` or \`* Item\`) must map to beautiful visual layout components, such as grid feature cards, itemized checklists, or value stacks.
-- Blockquotes (\`> Testimonial\`) must map to beautifully styled testimonial quote cards, including the reviewer's name, avatar placeholder/description, and rating if specified.
-- Image placeholders (\`![alt text](url)\`) must be compiled into beautiful, styled, responsive \`<img>\` tags or visual asset cards with rounded corners, matching the exact Unsplash URL provided.
+- Headings (`# Heading 1`, `## Heading 2`, `### Heading 3`) must map to section headers, sub-headings, or card titles.
+- Lists (`- Item` or `* Item`) must map to beautiful visual layout components, such as grid feature cards, itemized checklists, or value stacks.
+- Blockquotes (`> Testimonial`) must map to beautifully styled testimonial quote cards, including the reviewer's name, avatar placeholder/description, and rating if specified.
+- Image placeholders (`![alt text](url)`) must be compiled into beautiful, styled, responsive `<img>` tags or visual asset cards with rounded corners, matching the exact Unsplash URL provided.
 
 **12.3** Zero AI Copy Generation: Do NOT invent or add any sales arguments, details, or features that are not in the markdown copy. The provided markdown copy is already fully expanded. Your sole job is to format and compile it into a high-converting visual layout.
 
@@ -1464,6 +1463,28 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Database error: ' + e.message }, { status: 500 });
   }
 
+  // 2b. Check for stale "generating" status — if older than 5 minutes, reset it
+  const STALE_GENERATION_MS = 5 * 60 * 1000;
+  if (existingBlocks.generation?.status === 'generating' && existingBlocks.generation?.updatedAt) {
+    const genStarted = new Date(existingBlocks.generation.updatedAt).getTime();
+    const elapsed = Date.now() - genStarted;
+    if (elapsed > STALE_GENERATION_MS) {
+      console.warn(`[generate] Stale generation detected (${Math.round(elapsed / 1000)}s old). Resetting to failed.`);
+      existingBlocks = {
+        ...existingBlocks,
+        generation: {
+          status: 'failed',
+          error: 'Generation timed out (stale status reset)',
+          updatedAt: new Date().toISOString(),
+        },
+      };
+      await supabase
+        .from('builder_pages')
+        .update({ blocks: existingBlocks, updated_at: new Date().toISOString() })
+        .eq('id', resolvedFunnelId);
+    }
+  }
+
   // 3. Mark generation as "generating" in the DB
   try {
     const updatedBlocks = {
@@ -1541,13 +1562,14 @@ export async function POST(req: Request) {
       },
     });
 
-    // Create client SSE stream response
-    let controllerRef: ReadableStreamDefaultController | null = null;
-    const clientStream = new ReadableStream({
-      start(c) {
-        controllerRef = c;
-      },
+    // Create client SSE stream — the generate logic runs inline inside its pull/start,
+    // keeping the HTTP response alive until generation fully completes.
+    let generateResolve: () => void = () => {};
+    const generateDone = new Promise<void>((res) => {
+      generateResolve = res;
     });
+
+    let controllerRef: ReadableStreamDefaultController | null = null;
 
     const sendToClient = (type: string, data: string) => {
       if (!controllerRef) return;
@@ -1559,155 +1581,173 @@ export async function POST(req: Request) {
       }
     };
 
-    const generatePromise = (async () => {
-      let fullText = '';
-      try {
-        for await (const part of result.fullStream) {
-          if (part.type === 'text-delta') {
-            fullText += part.text;
-          } else if (part.type === 'reasoning-delta') {
-            sendToClient('thinking', part.text);
-          } else if (part.type === 'error') {
-            sendToClient('error', String(part.error));
-          } else if (part.type === 'finish') {
-            console.log('[generate] finish — usage:', JSON.stringify(part.totalUsage ?? {}));
-          }
-        }
+    const clientStream = new ReadableStream({
+      start(controller) {
+        controllerRef = controller;
 
-        console.log('[generate] complete — output length:', fullText.length);
-
-        // Parse XML <page> blocks out of the generated response
-        const newPages: Record<string, any> = {};
-        const pageRegex = /<page\s+([^>]+)>([\s\S]*?)(?:<\/page>|$)/g;
-        let match;
-        let pageCount = 0;
-
-        while ((match = pageRegex.exec(fullText)) !== null) {
-          const attrs = match[1];
-          const pathMatch = attrs.match(/path=["']([^"']+)["']/i);
-          const nameMatch = attrs.match(/name=["']([^"']+)["']/i);
-
-          const pathVal = pathMatch ? pathMatch[1] : `/${pageCount}`;
-          const nameVal = nameMatch ? nameMatch[1] : `Page ${pageCount + 1}`;
-          let code = match[2].trim();
-
-          // Strip markdown code block wrappers
-          code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
-
-          // Remove rogue jsx literal string wrappers if any
-          if (code.startsWith('{`')) {
-            code = code.replace(/^\{`\n?/, '').replace(/\n?`\}$/, '').trim();
-          }
-
-          newPages[pathVal] = {
-            name: nameVal,
-            path: pathVal,
-            components: {},
-            rootList: [],
-            code,
-          };
-          pageCount++;
-        }
-
-        // Fallback: assume whole response is a single page code
-        if (pageCount === 0 && fullText.trim()) {
-          let code = fullText.trim();
-          const codeBlockMatch = code.match(/```(?:tsx|jsx|js|ts)?\n([\s\S]*?)\n```/i);
-          if (codeBlockMatch) {
-            code = codeBlockMatch[1].trim();
-          } else {
-            code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
-          }
-          if (code.includes('import ') || code.includes('export default')) {
-            newPages['/'] = {
-              name: 'Lead Capture',
-              path: '/',
-              components: {},
-              rootList: [],
-              code,
-            };
-            pageCount = 1;
-          }
-        }
-
-        if (pageCount === 0) {
-          throw new Error('Failed to find any valid generated pages in the stream.');
-        }
-
-        const initialPage = newPages['/'] || Object.values(newPages)[0];
-
-        // Fetch fresh blocks from the DB to avoid overwriting changes done during generation
-        const { data: freshRecord } = await supabase
-          .from('builder_pages')
-          .select('blocks')
-          .eq('id', resolvedFunnelId)
-          .single();
-
-        const latestBlocks = freshRecord?.blocks || {};
-        const updatedBlocks = {
-          ...latestBlocks,
-          components: initialPage.components || {},
-          rootList: initialPage.rootList || [],
-          pages: newPages,
-          generation: {
-            status: 'completed',
-            updatedAt: new Date().toISOString(),
-          },
-        };
-
-        const { error: saveErr } = await supabase
-          .from('builder_pages')
-          .update({ blocks: updatedBlocks, updated_at: new Date().toISOString() })
-          .eq('id', resolvedFunnelId);
-
-        if (saveErr) {
-          throw new Error('Failed to save final pages: ' + saveErr.message);
-        }
-
-        console.log(`[generate] Completed background save for funnelId: ${resolvedFunnelId}`);
-        sendToClient('complete', fullText);
-      } catch (err: any) {
-        console.error('[generate] background promise execution error:', err);
-
-        try {
-          const { data: freshRecord } = await supabase
-            .from('builder_pages')
-            .select('blocks')
-            .eq('id', resolvedFunnelId)
-            .single();
-
-          const latestBlocks = freshRecord?.blocks || {};
-          const updatedBlocks = {
-            ...latestBlocks,
-            generation: {
-              status: 'failed',
-              error: err.message || String(err),
-              updatedAt: new Date().toISOString(),
-            },
-          };
-
-          await supabase
-            .from('builder_pages')
-            .update({ blocks: updatedBlocks, updated_at: new Date().toISOString() })
-            .eq('id', resolvedFunnelId);
-        } catch (dbErr) {
-          console.error('[generate] Failed to save failure state:', dbErr);
-        }
-
-        sendToClient('error', err?.message ?? 'Stream failed');
-      } finally {
-        if (controllerRef) {
+        // Kick off the generation as a background task tied to this stream.
+        // The stream stays open (no controller.close()) until this completes.
+        (async () => {
+          let fullText = '';
           try {
-            controllerRef.close();
-          } catch (e) {
-            // ignore
-          }
-        }
-      }
-    })();
+            for await (const part of result.fullStream) {
+              if (part.type === 'text-delta') {
+                fullText += part.text;
+                // Stream text deltas to client so partial progress is visible
+                sendToClient('text-delta', part.text);
+              } else if (part.type === 'reasoning-delta') {
+                sendToClient('thinking', part.text);
+              } else if (part.type === 'error') {
+                sendToClient('error', String(part.error));
+              } else if (part.type === 'finish') {
+                console.log('[generate] finish — usage:', JSON.stringify(part.totalUsage ?? {}));
+              }
+            }
 
-    // Wait until the background task is fully resolved
-    waitUntil(generatePromise);
+            console.log('[generate] complete — output length:', fullText.length);
+
+            // Parse XML <page> blocks out of the generated response
+            const newPages: Record<string, any> = {};
+            const pageRegex = /<page\s+([^>]+)>([\s\S]*?)(?:<\/page>|$)/g;
+            let match;
+            let pageCount = 0;
+
+            while ((match = pageRegex.exec(fullText)) !== null) {
+              const attrs = match[1];
+              const pathMatch = attrs.match(/path=["']([^"']+)["']/i);
+              const nameMatch = attrs.match(/name=["']([^"']+)["']/i);
+
+              const pathVal = pathMatch ? pathMatch[1] : `/${pageCount}`;
+              const nameVal = nameMatch ? nameMatch[1] : `Page ${pageCount + 1}`;
+              let code = match[2].trim();
+
+              // Strip markdown code block wrappers
+              code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
+
+              // Remove rogue jsx literal string wrappers if any
+              if (code.startsWith('{`')) {
+                code = code.replace(/^\{`\n?/, '').replace(/\n?`\}$/, '').trim();
+              }
+
+              newPages[pathVal] = {
+                name: nameVal,
+                path: pathVal,
+                components: {},
+                rootList: [],
+                code,
+              };
+              pageCount++;
+            }
+
+            // Fallback: assume whole response is a single page code
+            if (pageCount === 0 && fullText.trim()) {
+              let code = fullText.trim();
+              const codeBlockMatch = code.match(/```(?:tsx|jsx|js|ts)?\n([\s\S]*?)\n```/i);
+              if (codeBlockMatch) {
+                code = codeBlockMatch[1].trim();
+              } else {
+                code = code.replace(/^```[a-z]*\n/i, '').replace(/\n```$/i, '').trim();
+              }
+              if (code.includes('import ') || code.includes('export default')) {
+                newPages['/'] = {
+                  name: 'Lead Capture',
+                  path: '/',
+                  components: {},
+                  rootList: [],
+                  code,
+                };
+                pageCount = 1;
+              }
+            }
+
+            if (pageCount === 0) {
+              throw new Error('Failed to find any valid generated pages in the stream.');
+            }
+
+            const initialPage = newPages['/'] || Object.values(newPages)[0];
+
+            // Fetch fresh blocks from the DB to avoid overwriting changes done during generation
+            const { data: freshRecord } = await supabase
+              .from('builder_pages')
+              .select('blocks')
+              .eq('id', resolvedFunnelId)
+              .single();
+
+            const latestBlocks = freshRecord?.blocks || {};
+            const updatedBlocks = {
+              ...latestBlocks,
+              components: initialPage.components || {},
+              rootList: initialPage.rootList || [],
+              pages: newPages,
+              generation: {
+                status: 'completed',
+                updatedAt: new Date().toISOString(),
+              },
+            };
+
+            const { error: saveErr } = await supabase
+              .from('builder_pages')
+              .update({ blocks: updatedBlocks, updated_at: new Date().toISOString() })
+              .eq('id', resolvedFunnelId);
+
+            if (saveErr) {
+              throw new Error('Failed to save final pages: ' + saveErr.message);
+            }
+
+            console.log(`[generate] Completed background save for funnelId: ${resolvedFunnelId}`);
+            sendToClient('complete', fullText);
+            generateResolve();
+          } catch (err: any) {
+            console.error('[generate] generation error:', err);
+
+            try {
+              const { data: freshRecord } = await supabase
+                .from('builder_pages')
+                .select('blocks')
+                .eq('id', resolvedFunnelId)
+                .single();
+
+              const latestBlocks = freshRecord?.blocks || {};
+              const updatedBlocks = {
+                ...latestBlocks,
+                generation: {
+                  status: 'failed',
+                  error: err.message || String(err),
+                  updatedAt: new Date().toISOString(),
+                },
+              };
+
+              await supabase
+                .from('builder_pages')
+                .update({ blocks: updatedBlocks, updated_at: new Date().toISOString() })
+                .eq('id', resolvedFunnelId);
+            } catch (dbErr) {
+              console.error('[generate] Failed to save failure state:', dbErr);
+            }
+
+            sendToClient('error', err?.message ?? 'Stream failed');
+            generateResolve(); // Resolve (not reject) so the stream closes cleanly
+          } finally {
+            if (controllerRef) {
+              try {
+                controllerRef.close();
+              } catch (e) {
+                // ignore — stream may already be closed
+              }
+            }
+          }
+        })();
+      },
+    });
+
+    // Also register with waitUntil as a safety net for serverless environments
+    try {
+      if (typeof waitUntil === 'function') {
+        waitUntil(generateDone);
+      }
+    } catch (e) {
+      console.warn('[generate] Error calling waitUntil:', e);
+    }
 
     return new Response(clientStream, {
       headers: {

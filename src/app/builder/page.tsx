@@ -13,11 +13,9 @@ import {
   Tablet,
   Smartphone,
   Eye,
-  Link as LinkIcon,
   Check,
   Undo2,
   Redo2,
-  Plus,
   Globe,
   Save,
   Edit2,
@@ -60,7 +58,7 @@ export default function BuilderPage() {
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [streamText, setStreamText] = React.useState("");
   const [initialLoading, setInitialLoading] = React.useState(true);
-  const [publishedUrl, setPublishedUrl] = React.useState<string | null>(null);
+  const [, setPublishedUrl] = React.useState<string | null>(null);
   const [hasIntelligence, setHasIntelligence] = React.useState(false);
   const [hasCopy, setHasCopy] = React.useState<boolean | null>(null);
 
@@ -85,7 +83,16 @@ export default function BuilderPage() {
 
               let loadedPages = blocks.pages;
               if (blocks.generation?.status === "generating") {
-                setIsGenerating(true);
+                // Check if the generation is stale (>5 min) — treat as failed
+                const STALE_MS = 5 * 60 * 1000;
+                const genUpdated = blocks.generation?.updatedAt;
+                const elapsed = genUpdated ? Date.now() - new Date(genUpdated).getTime() : Infinity;
+                if (elapsed > STALE_MS) {
+                  console.warn("[client] Stale generation detected on load (", Math.round(elapsed / 1000), "s old). Not entering polling mode.");
+                  // Don't set isGenerating — let user retry manually
+                } else {
+                  setIsGenerating(true);
+                }
               }
               if (!loadedPages) {
                 loadedPages = {
@@ -189,7 +196,20 @@ export default function BuilderPage() {
     if (!pageId || !isGenerating) return;
 
     let isSubscribed = true;
+    const POLL_TIMEOUT_MS = 6 * 60 * 1000; // 6 minute max polling
+    const pollStartTime = Date.now();
+
     const interval = setInterval(async () => {
+      // Timeout guard — stop polling after 6 minutes
+      if (Date.now() - pollStartTime > POLL_TIMEOUT_MS) {
+        console.warn("[client] Polling timeout reached (6 min). Stopping.");
+        clearInterval(interval);
+        setIsGenerating(false);
+        toast.dismiss();
+        toast.error("Generation timed out. Please try again.");
+        return;
+      }
+
       try {
         const res = await fetch("/api/pages/" + pageId);
         if (!res.ok) return;
@@ -249,7 +269,7 @@ export default function BuilderPage() {
 
   // No more DND sensors or event handlers needed
 
-  const autoSaveGeneratedPages = async (newPagesList: Record<string, any>, initialPage: any) => {
+  const _autoSaveGeneratedPages = async (newPagesList: Record<string, any>, initialPage: any) => {
     try {
       setIsSaving(true);
       toast.loading("Saving draft to database...");
@@ -274,7 +294,7 @@ export default function BuilderPage() {
       let data;
       try {
         data = JSON.parse(text);
-      } catch (parseError) {
+      } catch (_parseError) {
         throw new Error(`Server error (${res.status}): Payload might be too large, or server crashed. ${text.substring(0, 50)}...`);
       }
 
@@ -413,11 +433,18 @@ export default function BuilderPage() {
 
           try {
             const event = JSON.parse(rawPayload);
-            if (event.type === "thinking") {
+            if (event.type === "text-delta") {
+              // Accumulate text deltas incrementally as they arrive
+              accumulatedText += String(event.data || "");
+            } else if (event.type === "thinking") {
               thinkingText = String(event.data || "").trim();
               setStreamText(thinkingText);
             } else if (event.type === "complete") {
-              accumulatedText += String(event.data || "");
+              // Complete event contains full text — only use if we haven't
+              // accumulated anything from text-delta (backward compat)
+              if (!accumulatedText.trim()) {
+                accumulatedText = String(event.data || "");
+              }
             } else if (event.type === "error") {
               console.error(
                 "[client] Received generation error event:",
@@ -464,11 +491,15 @@ export default function BuilderPage() {
         while ((match = eventRegex.exec(rawSseText)) !== null) {
           try {
             const event = JSON.parse(match[1]);
-            if (event.type === "thinking") {
+            if (event.type === "text-delta") {
+              accumulatedText += String(event.data || "");
+            } else if (event.type === "thinking") {
               thinkingText = String(event.data || "").trim();
               setStreamText(thinkingText);
             } else if (event.type === "complete") {
-              accumulatedText += String(event.data || "");
+              if (!accumulatedText.trim()) {
+                accumulatedText = String(event.data || "");
+              }
             }
           } catch (eventParseError) {
             console.warn(
@@ -605,7 +636,7 @@ export default function BuilderPage() {
       let data;
       try {
         data = JSON.parse(text);
-      } catch (parseError) {
+      } catch (_parseError) {
         throw new Error(`Server error (${res.status}): Payload might be too large, or server crashed. ${text.substring(0, 50)}...`);
       }
 
