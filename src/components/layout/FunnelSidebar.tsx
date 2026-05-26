@@ -36,13 +36,13 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
   const [open, setOpen] = useState(false);
 
   const navItems: FunnelNavItem[] = [
-    { label: "Overview",             href: `/funnels/${funnelId}`,                      icon: BarChart2  },
-    { label: "Sales Intelligence",   href: `/funnels/${funnelId}/report`,               icon: Brain      },
-    { label: "Sales Copy",           href: `/funnels/${funnelId}/copy`,                 icon: FileText   },
-    { label: "Email Sequence",       href: `/funnels/${funnelId}/email`,                icon: Mail       },
-    { label: "Leads",                href: `/funnels/${funnelId}/leads`,                icon: Users      },
-    { label: "Traffic Intelligence", href: `/funnels/${funnelId}/traffic`,              icon: TrendingUp },
-    { label: "Publish",              href: `/builder/publish?id=${funnelId}`,           icon: Globe      },
+    { label: "Overview", href: `/funnels/${funnelId}`, icon: BarChart2 },
+    { label: "Sales Intelligence", href: `/funnels/${funnelId}/report`, icon: Brain },
+    { label: "Sales Copy", href: `/funnels/${funnelId}/copy`, icon: FileText },
+    { label: "Email Sequence", href: `/funnels/${funnelId}/email`, icon: Mail },
+    { label: "Leads", href: `/funnels/${funnelId}/leads`, icon: Users },
+    { label: "Traffic Intelligence", href: `/funnels/${funnelId}/traffic`, icon: TrendingUp },
+    { label: "Publish", href: `/builder/publish?id=${funnelId}`, icon: Globe },
   ];
 
   if (collapsible) {
@@ -105,8 +105,8 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
                 item.href === `/funnels/${funnelId}`
                   ? pathname === `/funnels/${funnelId}`
                   : itemPath === '/builder/publish'
-                  ? pathname === '/builder/publish'
-                  : pathname.startsWith(itemPath);
+                    ? pathname === '/builder/publish'
+                    : pathname.startsWith(itemPath);
               const Icon = item.icon;
 
               return (
@@ -183,6 +183,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
 
   return (
     <div className="w-[220px] flex-shrink-0 border-r border-white/10 bg-[#131826] flex flex-col h-full overflow-hidden">
+      <div className="absolute z-0 top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-indigo to-transparent animate-pulse" />
       <div className="px-4 py-4 border-b border-white/10">
         <Link
           href="/"
@@ -208,8 +209,8 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
             item.href === `/funnels/${funnelId}`
               ? pathname === `/funnels/${funnelId}`
               : itemPath === '/builder/publish'
-              ? pathname === '/builder/publish'
-              : pathname.startsWith(itemPath);
+                ? pathname === '/builder/publish'
+                : pathname.startsWith(itemPath);
           const Icon = item.icon;
           return (
             <Link

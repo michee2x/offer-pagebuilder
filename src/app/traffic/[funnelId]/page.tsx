@@ -318,14 +318,52 @@ export default function TrafficIntelligencePage({
   const activeContent = data ? (data[activeSection] || '') : '';
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#030712] relative text-white font-sans">
-      {/* Framer style dynamic background noise and radial overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-background to-background pointer-events-none -z-10" />
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle_at_center,_rgba(236,72,153,0.06)_0%,_rgba(236,72,153,0)_70%)] rotate-[-30deg] pointer-events-none -z-10" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle_at_center,_rgba(59,130,246,0.06)_0%,_rgba(59,130,246,0)_70%)] rotate-[30deg] pointer-events-none -z-10" />
+    <div className="flex h-screen overflow-hidden bg-[#030712] relative text-white font-sans z-0">
+      {/* Background Elements (copied from home page) */}
+      <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+        {/* Radial - Pink */}
+        <div
+          className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
+            transform: 'rotate(-30deg)'
+          }}
+        />
+        {/* Radial - Blue */}
+        <div
+          className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
+            transform: 'rotate(30deg)'
+          }}
+        />
+        {/* Radial - Purple */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+          }}
+        />
+        {/* Bottom Gradient Overlay */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
+          style={{
+            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+          }}
+        />
+        {/* Noise Overlay */}
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
+          style={{
+            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '128px auto'
+          }}
+        />
+      </div>
 
       {generating && (
-        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-[#030712]/95 backdrop-blur-xl flex flex-col items-center justify-center">
           <div className="w-full max-w-md mx-auto px-6 text-center flex flex-col items-center">
             <div className="relative w-24 h-24 mb-8">
               <svg className="animate-spin w-full h-full text-brand-yellow" viewBox="0 0 24 24">
@@ -348,7 +386,7 @@ export default function TrafficIntelligencePage({
       )}
 
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
 
         <Topbar
           breadcrumbs={[
@@ -358,7 +396,7 @@ export default function TrafficIntelligencePage({
           ]}
           actions={
             data ? (
-              <Button size="sm" variant="outline" onClick={handleGenerate} disabled={generating} className="gap-1.5 font-semibold text-white border-white/10 hover:bg-white/5">
+              <Button size="sm" variant="outline" onClick={handleGenerate} disabled={generating} className="gap-1.5 font-semibold text-white bg-white/5 border-white/10 hover:bg-white/10 hover:text-white">
                 <RefreshCw className="w-3.5 h-3.5" />
                 Regenerate All
               </Button>
@@ -371,10 +409,10 @@ export default function TrafficIntelligencePage({
           <FunnelSidebar funnelId={funnelId} funnelName={funnelName} collapsible />
           
           {/* Left Navigation Rails - Section selection */}
-          <div className="w-[260px] border-r border-white/5 bg-card/10 backdrop-blur-2xl flex flex-col overflow-hidden flex-shrink-0">
-            <div className="px-4 py-4 border-b border-white/5">
+          <div className="w-[260px] border-r border-white/10 bg-[#131826] flex flex-col overflow-hidden flex-shrink-0">
+            <div className="px-4 py-4 border-b border-white/10">
               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">Operational Channels</p>
-              <div className="flex items-center gap-2 bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2.5 mb-2">
+              <div className="flex items-center gap-2 bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2.5 mb-2">
                 <TrendingUp className="w-4 h-4 text-brand-yellow flex-shrink-0" />
                 <span className="text-xs font-bold text-white truncate">{funnelName}</span>
               </div>
@@ -397,13 +435,13 @@ export default function TrafficIntelligencePage({
                       className={cn(
                         "w-full text-left rounded-xl px-3 py-3 border transition-all flex items-start gap-3 group relative",
                         isActive
-                          ? "bg-brand-yellow/10 border-brand-yellow/30 shadow-[inset_0_0_0_1px_rgba(245,166,35,0.05)]"
-                          : "border-transparent hover:bg-white/[0.03] text-muted-foreground hover:text-white"
+                          ? "bg-white/[0.08] border-white/15 text-white shadow-[0_0_10px_rgba(59,130,246,0.15)]"
+                          : "border-transparent hover:bg-white/[0.04] text-muted-foreground hover:text-white"
                       )}
                     >
                       <div className={cn(
-                        "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors",
-                        isActive ? "bg-brand-yellow text-black" : "bg-white/5 text-muted-foreground group-hover:text-white"
+                        "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 transition-all",
+                        isActive ? "bg-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]" : "bg-white/5 text-muted-foreground group-hover:text-white"
                       )}>
                         {s.icon}
                       </div>
@@ -433,10 +471,10 @@ export default function TrafficIntelligencePage({
             )}
 
             {data && (
-              <div className="p-4 border-t border-white/5 bg-[#030712]">
+              <div className="p-4 border-t border-white/10 bg-[#131826]">
                 <button
                   onClick={handleGenerate}
-                  className="w-full h-10 bg-brand-yellow text-black font-black text-xs rounded-xl flex items-center justify-center gap-2 hover:bg-brand-yellow/90 transition-all hover:scale-[1.02] shadow-lg shadow-brand-yellow/10"
+                  className="w-full h-10 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] border-transparent duration-300"
                 >
                   <Zap className="w-4 h-4" />
                   Regenerate Engine
@@ -457,7 +495,7 @@ export default function TrafficIntelligencePage({
                 <p className="text-sm text-muted-foreground text-center mb-8 leading-relaxed">
                   Synthesize an direct-response acquisition strategy based on 35,000+ comparable funnels. Receive platform priority matrices, full ad copies, 5-minute video scripts, and a 21-day validation dashboard.
                 </p>
-                <Button size="lg" onClick={handleGenerate} disabled={generating} className="bg-brand-yellow text-black font-black hover:bg-brand-yellow/90 h-12 px-8 rounded-xl shadow-xl shadow-brand-yellow/5">
+                <Button size="lg" onClick={handleGenerate} disabled={generating} className="bg-blue-600 hover:bg-blue-500 text-white font-black h-12 px-8 rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all border-0 duration-300">
                   {generating ? <Spinner size="sm" color="white" /> : <Sparkles className="w-4 h-4 mr-2" />}
                   Synthesize Traffic Strategy
                 </Button>
@@ -466,7 +504,7 @@ export default function TrafficIntelligencePage({
               <div className="max-w-5xl w-full mx-auto px-6 lg:px-12 py-10 pb-32">
                 
                 {/* Visual / Raw Toggle tab and Copy buttons */}
-                <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-8">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-8">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border border-brand-yellow/20 bg-brand-yellow/10 text-brand-yellow/90">
                       {activeConfig.badge}
@@ -475,7 +513,7 @@ export default function TrafficIntelligencePage({
                     <p className="text-xs text-muted-foreground mt-1">{activeConfig.sub}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="bg-white/5 border border-white/5 p-1 rounded-lg flex items-center">
+                    <div className="bg-white/5 border border-white/10 p-1 rounded-lg flex items-center">
                       <button 
                         onClick={() => setViewMode('visual')}
                         className={cn("px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5", viewMode === 'visual' ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white")}
@@ -491,7 +529,7 @@ export default function TrafficIntelligencePage({
                         Raw Analysis
                       </button>
                     </div>
-                    <Button variant="outline" size="sm" onClick={handleCopySection} className="text-white/60 hover:text-white border-white/10 bg-white/5 hover:bg-white/10 gap-1.5">
+                    <Button variant="outline" size="sm" onClick={handleCopySection} className="text-white bg-white/5 border border-white/10 hover:bg-white/10 gap-1.5 transition-all shadow-[0_0_10px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                       <Copy className="w-3.5 h-3.5" />
                       Copy Content
                     </Button>
@@ -500,7 +538,7 @@ export default function TrafficIntelligencePage({
 
                 {/* Conditional rendering based on mode */}
                 {viewMode === 'raw' ? (
-                  <div className="bg-[#0b0f19] border border-white/5 rounded-3xl p-8 shadow-2xl relative">
+                  <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all rounded-3xl p-8 shadow-2xl relative">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
                     <TextRenderer text={activeContent} />
                   </div>
@@ -511,7 +549,7 @@ export default function TrafficIntelligencePage({
                     {/* 1. platform_priority_narrative */}
                     {activeSection === 'platform_priority_narrative' && (
                       <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-3xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
                           <div className="absolute top-[-20%] right-[-10%] w-96 h-96 bg-amber-500/10 blur-[150px] rounded-full pointer-events-none" />
                           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                             <TrendingUp className="w-5 h-5 text-brand-yellow" />
@@ -522,13 +560,13 @@ export default function TrafficIntelligencePage({
                           </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5">
+                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-5 transition-all">
                             <h4 className="text-xs font-bold text-brand-yellow uppercase tracking-widest mb-2">Platform Selection Rationale</h4>
                             <p className="text-xs text-muted-foreground leading-relaxed">
                               Calibrated based on primary demographics, price elasticity, and specific outcomes outlined in Call 1. Designed to produce the first cash-flow event in the shortest possible validation window.
                             </p>
                           </div>
-                          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5">
+                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-5 transition-all">
                             <h4 className="text-xs font-bold text-brand-yellow uppercase tracking-widest mb-2">Operational Risk Management</h4>
                             <p className="text-xs text-muted-foreground leading-relaxed">
                               Identifies specific saturation flags, ad frequency thresholds, and pixel capture misalignments that threaten initial scaling viability.
@@ -537,18 +575,18 @@ export default function TrafficIntelligencePage({
                         </div>
                       </div>
                     )}
-
+ 
                     {/* 2. omnichannel_ad_copy_matrix */}
                     {activeSection === 'omnichannel_ad_copy_matrix' && (
                       <div className="space-y-6">
                         {parseMetaAds(activeContent).length === 0 ? (
-                          <div className="bg-[#0b0f19] border border-white/5 rounded-3xl p-8">
+                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8">
                             <TextRenderer text={activeContent} />
                           </div>
                         ) : (
                           parseMetaAds(activeContent).map((ad, idx) => (
-                            <div key={idx} className="bg-[#0b0f19] border border-white/5 rounded-3xl overflow-hidden shadow-2xl transition-all hover:border-white/10 group">
-                              <div className="flex items-center justify-between px-6 py-4 bg-white/[0.02] border-b border-white/5">
+                            <div key={idx} className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl overflow-hidden shadow-2xl transition-all hover:border-white/[0.12] group">
+                              <div className="flex items-center justify-between px-6 py-4 bg-white/[0.02] border-b border-white/[0.05]">
                                 <div className="flex items-center gap-3">
                                   <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20 uppercase tracking-wide">
                                     Ad Variant {idx + 1}
@@ -561,7 +599,7 @@ export default function TrafficIntelligencePage({
                               </div>
                               <div className="grid grid-cols-1 lg:grid-cols-12">
                                 {/* Left column - Simulated Facebook/Insta Mock */}
-                                <div className="lg:col-span-8 p-6 border-r border-white/5 flex flex-col justify-between">
+                                <div className="lg:col-span-8 p-6 border-r border-white/[0.05] flex flex-col justify-between">
                                   <div>
                                     <div className="flex items-center gap-2 mb-4">
                                       <div className="w-9 h-9 rounded-full bg-brand-yellow flex items-center justify-center text-black font-black text-xs">
@@ -576,8 +614,8 @@ export default function TrafficIntelligencePage({
                                   </div>
                                   
                                   {/* Simulated Ad Visual Placeholder */}
-                                  <div className="border border-white/5 bg-white/[0.02] rounded-xl overflow-hidden mb-4">
-                                    <div className="aspect-video relative bg-[#0e1320] flex flex-col items-center justify-center text-center p-6 border-b border-white/5">
+                                  <div className="border border-white/[0.05] bg-white/[0.01] rounded-xl overflow-hidden mb-4">
+                                    <div className="aspect-video relative bg-[#0e1320] flex flex-col items-center justify-center text-center p-6 border-b border-white/[0.05]">
                                       <div className="w-12 h-12 rounded-full bg-sky-500/10 border border-sky-500/20 flex items-center justify-center mb-3">
                                         <Sparkles className="w-5 h-5 text-sky-400" />
                                       </div>
@@ -604,7 +642,7 @@ export default function TrafficIntelligencePage({
                                       <h4 className="text-[10px] font-black uppercase tracking-widest text-sky-400 mb-1">Campaign Objective</h4>
                                       <p className="text-xs text-white font-bold">{ad.objective}</p>
                                     </div>
-                                    <div className="pt-4 border-t border-white/5">
+                                    <div className="pt-4 border-t border-white/[0.05]">
                                       <h4 className="text-[10px] font-black uppercase tracking-widest text-brand-yellow mb-2">Performance Intelligence</h4>
                                       <p className="text-xs text-white/80 leading-relaxed whitespace-pre-line font-normal">{ad.performance}</p>
                                     </div>
@@ -627,18 +665,18 @@ export default function TrafficIntelligencePage({
                         )}
                       </div>
                     )}
-
+ 
                     {/* 3. google_ads_copy_matrix */}
                     {activeSection === 'google_ads_copy_matrix' && (
                       <div className="space-y-6">
                         {parseGoogleAds(activeContent).length === 0 ? (
-                          <div className="bg-[#0b0f19] border border-white/5 rounded-3xl p-8">
+                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8">
                             <TextRenderer text={activeContent} />
                           </div>
                         ) : (
                           parseGoogleAds(activeContent).map((search, idx) => (
-                            <div key={idx} className="bg-[#0b0f19] border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden group">
-                              <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+                            <div key={idx} className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl relative overflow-hidden transition-all hover:border-white/[0.12] group">
+                              <div className="flex items-center justify-between border-b border-white/[0.05] pb-4 mb-4">
                                 <div className="flex items-center gap-3">
                                   <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-wide">
                                     Search Ad {idx + 1}
@@ -651,9 +689,9 @@ export default function TrafficIntelligencePage({
                                   {search.matchType}
                                 </span>
                               </div>
-
+ 
                               {/* Google Search Mockup */}
-                              <div className="bg-[#0e1320] border border-white/5 rounded-2xl p-5 max-w-2xl mb-6">
+                              <div className="bg-[#0e1320] border border-white/[0.05] rounded-2xl p-5 max-w-2xl mb-6">
                                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mb-2">
                                   <span className="font-bold text-white">Google Ad</span>
                                   <span>·</span>
@@ -671,8 +709,8 @@ export default function TrafficIntelligencePage({
                                   {search.descriptions.join(' ')}
                                 </p>
                               </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+ 
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/[0.05]">
                                 <div>
                                   <h4 className="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-2">All Configured Headlines</h4>
                                   <div className="space-y-1">
@@ -697,7 +735,7 @@ export default function TrafficIntelligencePage({
                                       );
                                     })}
                                   </div>
-                                  <div className="mt-6 bg-white/[0.02] border border-white/5 rounded-xl p-4">
+                                  <div className="mt-6 bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-xl p-4 transition-all">
                                     <h5 className="text-[10px] font-black uppercase tracking-widest text-white mb-1">Target Keyword Rationale</h5>
                                     <p className="text-[11px] text-muted-foreground leading-relaxed">
                                       Eliminates high-cost low-intent query bleed. Focuses budget only on buyers searching for transformational mechanisms.
@@ -710,18 +748,18 @@ export default function TrafficIntelligencePage({
                         )}
                       </div>
                     )}
-
+ 
                     {/* 4. vsl_ugc_video_script_intelligence */}
                     {activeSection === 'vsl_ugc_video_script_intelligence' && (
                       <div className="space-y-6">
                         {parseVideoScripts(activeContent).length === 0 ? (
-                          <div className="bg-[#0b0f19] border border-white/5 rounded-3xl p-8">
+                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8">
                             <TextRenderer text={activeContent} />
                           </div>
                         ) : (
                           parseVideoScripts(activeContent).map((script, idx) => (
-                            <div key={idx} className="bg-[#0b0f19] border border-white/5 rounded-3xl p-6 shadow-2xl">
-                              <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
+                            <div key={idx} className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl hover:border-white/[0.12] transition-all">
+                              <div className="flex items-center justify-between border-b border-white/[0.05] pb-4 mb-6">
                                 <div>
                                   <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wide">
                                     Script Variant {idx + 1}
@@ -736,7 +774,7 @@ export default function TrafficIntelligencePage({
                                   <p className="text-[10px] text-muted-foreground mt-0.5">Tone: {script.tone}</p>
                                 </div>
                               </div>
-
+ 
                               {/* Script Cues Timeline */}
                               <div className="space-y-4 mb-6 relative">
                                 <div className="absolute top-[20px] bottom-[20px] left-[39px] w-[2px] bg-white/5" />
@@ -749,14 +787,14 @@ export default function TrafficIntelligencePage({
                                     <div className="w-6 h-6 rounded-full bg-[#121824] border border-white/10 flex items-center justify-center shrink-0 mt-2.5 relative z-10 group-hover:border-rose-400/50 transition-colors">
                                       <Play className="w-2.5 h-2.5 text-white/50 group-hover:text-rose-400 transition-colors" />
                                     </div>
-                                    <div className="flex-1 bg-white/[0.01] border border-white/5 rounded-2xl p-4 hover:bg-white/[0.02] transition-colors">
+                                    <div className="flex-1 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 hover:bg-white/[0.04] transition-colors">
                                       <h5 className="text-[10px] font-black uppercase tracking-widest text-rose-400 mb-1.5">{cue.action}</h5>
                                       <p className="text-sm text-white/80 leading-relaxed font-normal">{cue.direction}</p>
                                     </div>
                                   </div>
                                 ))}
                               </div>
-
+ 
                               {script.successFactor && (
                                 <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-4 flex gap-3">
                                   <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
@@ -771,20 +809,20 @@ export default function TrafficIntelligencePage({
                         )}
                       </div>
                     )}
-
+ 
                     {/* 5. media_buying_strategy_report */}
                     {activeSection === 'media_buying_strategy_report' && (
                       <div className="space-y-6">
                         {parseMediaBuying(activeContent).length === 0 ? (
-                          <div className="bg-[#0b0f19] border border-white/5 rounded-3xl p-8">
+                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8">
                             <TextRenderer text={activeContent} />
                           </div>
                         ) : (
                           <div className="space-y-6">
                             {parseMediaBuying(activeContent).map((phase, pIdx) => (
-                              <div key={pIdx} className="bg-[#0b0f19] border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                              <div key={pIdx} className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl relative overflow-hidden hover:border-white/[0.12] transition-all duration-300">
                                 <div className="absolute top-[-30%] right-[-10%] w-80 h-80 bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
-                                <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
+                                <div className="flex items-center justify-between border-b border-white/[0.05] pb-4 mb-6">
                                   <div className="flex items-center gap-3">
                                     <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wide">
                                       Phase {pIdx + 1}
@@ -797,29 +835,29 @@ export default function TrafficIntelligencePage({
                                     </span>
                                   </div>
                                 </div>
-
+ 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
+                                  <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 transition-all">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Campaign Objective</h4>
                                     <p className="text-xs text-white/90 leading-relaxed font-semibold">{phase.objective}</p>
                                   </div>
-                                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
+                                  <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 transition-all">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Cold Audience Definition</h4>
                                     <p className="text-xs text-white/90 leading-relaxed font-semibold">{phase.coldAudience}</p>
                                   </div>
-                                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
+                                  <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 transition-all">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Creative Testing Approach</h4>
                                     <p className="text-xs text-white/90 leading-relaxed font-semibold">{phase.creativeTesting}</p>
                                   </div>
-                                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 border-l-2 border-l-emerald-400">
+                                  <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 border-l-2 border-l-emerald-400 transition-all">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Success KPI Threshold</h4>
                                     <p className="text-xs text-emerald-400 leading-relaxed font-black">{phase.successThreshold}</p>
                                   </div>
-                                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 border-l-2 border-l-red-500">
+                                  <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 border-l-2 border-l-red-500 transition-all">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-red-400 mb-1">Pause & Pivot Threshold</h4>
                                     <p className="text-xs text-red-400 leading-relaxed font-black">{phase.pauseThreshold}</p>
                                   </div>
-                                  <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
+                                  <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 transition-all">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-white mb-1">Conversion Pixel Events</h4>
                                     <p className="text-xs text-white/90 leading-relaxed font-semibold">{phase.pixelEvents}</p>
                                   </div>
@@ -830,10 +868,10 @@ export default function TrafficIntelligencePage({
                         )}
                       </div>
                     )}
-
+ 
                     {/* 6. traffic_funnel_alignment */}
                     {activeSection === 'traffic_funnel_alignment' && (
-                      <div className="bg-[#0b0f19] border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-3xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
                         <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-violet-500/5 blur-[150px] rounded-full pointer-events-none" />
                         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                           <AlertTriangle className="w-5 h-5 text-violet-400" />
@@ -844,10 +882,10 @@ export default function TrafficIntelligencePage({
                         </div>
                       </div>
                     )}
-
+ 
                     {/* 7. competitive_acquisition_intelligence */}
                     {activeSection === 'competitive_acquisition_intelligence' && (
-                      <div className="bg-[#0b0f19] border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-3xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
                         <div className="absolute top-[-20%] right-[-10%] w-96 h-96 bg-fuchsia-500/5 blur-[150px] rounded-full pointer-events-none" />
                         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                           <Eye className="w-5 h-5 text-fuchsia-400" />
@@ -858,10 +896,10 @@ export default function TrafficIntelligencePage({
                         </div>
                       </div>
                     )}
-
+ 
                     {/* 8. launch_sequence_recommendation */}
                     {activeSection === 'launch_sequence_recommendation' && (
-                      <div className="bg-[#0b0f19] border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-3xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
                         <div className="absolute top-[-20%] right-[-10%] w-96 h-96 bg-teal-500/5 blur-[150px] rounded-full pointer-events-none" />
                         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                           <Calendar className="w-5 h-5 text-teal-400" />
@@ -872,7 +910,6 @@ export default function TrafficIntelligencePage({
                         </div>
                       </div>
                     )}
-
                   </div>
                 )}
 

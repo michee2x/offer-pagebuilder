@@ -865,7 +865,7 @@ export default function IntelligencePage({
 
   if (loading) {
     return (
-      <div className="flex h-screen overflow-hidden bg-background">
+      <div className="flex h-screen overflow-hidden bg-[#030712]">
         <Sidebar />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <Topbar
@@ -894,9 +894,52 @@ export default function IntelligencePage({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
+      {/* Background Elements (copied from home page) */}
+      <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+        {/* Radial - Pink */}
+        <div
+          className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
+            transform: 'rotate(-30deg)'
+          }}
+        />
+        {/* Radial - Blue */}
+        <div
+          className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
+            transform: 'rotate(30deg)'
+          }}
+        />
+        {/* Radial - Purple */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+          }}
+        />
+        {/* Bottom Gradient Overlay */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
+          style={{
+            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+          }}
+        />
+        {/* Noise Overlay */}
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
+          style={{
+            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '128px auto'
+          }}
+        />
+      </div>
+
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 text-white">
 
         {/* Topbar */}
         <Topbar
@@ -909,7 +952,7 @@ export default function IntelligencePage({
         >
           {phase !== "idle" && phase !== "done" && <Spinner size="sm" />}
           
-          <Button variant="outline" size="sm" onClick={handlePrintPdf} className="gap-2 print:hidden">
+          <Button variant="outline" size="sm" onClick={handlePrintPdf} className="gap-2 print:hidden text-white bg-white/5 border-white/10 hover:bg-white/10 hover:text-white transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]">
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Export PDF</span>
           </Button>
@@ -918,7 +961,7 @@ export default function IntelligencePage({
             size="sm"
             disabled={availableSections.length === 0}
             onClick={() => router.push(`/funnels/${funnelId}/copy`)}
-            className="gap-1.5 font-semibold print:hidden"
+            className="gap-1.5 font-semibold print:hidden bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] border-transparent transition-all duration-300"
           >
             Generate Copy
             <ArrowRight className="w-3.5 h-3.5" />
@@ -1030,7 +1073,7 @@ export default function IntelligencePage({
                             router.push('/');
                           }
                         }} 
-                        className="w-full mt-4 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-indigo-500/20 transition-all active:scale-[0.98]"
+                        className="w-full mt-4 h-12 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] border-transparent transition-all duration-300"
                       >
                         Configure Campaign Strategy
                       </Button>
@@ -1050,7 +1093,7 @@ export default function IntelligencePage({
                         </>
                       ) : (
                         <>
-                          <div className="relative rounded-[2.5rem] bg-blue-600/[0.02] backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
+                          <div className="relative rounded-[2.5rem] bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all p-8 md:p-12 shadow-2xl">
                              <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none -z-10" />
                              <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/5 blur-[120px] rounded-full pointer-events-none -z-10" />
                              {/* Section Header */}
@@ -1082,7 +1125,7 @@ export default function IntelligencePage({
                 <div className="max-w-4xl mx-auto px-6 lg:px-12 py-10 pb-32 relative z-10">
                    
                    {/* Premium Glassmorphic Container for the Content */}
-                   <div className="relative rounded-[2.5rem] bg-blue-600/[0.02] backdrop-blur-3xl border border-white/5 p-8 md:p-12 shadow-2xl">
+                   <div className="relative rounded-[2.5rem] bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all p-8 md:p-12 shadow-2xl">
                      <div className="absolute top-0 right-0 w-96 h-96 bg-brand-yellow/5 blur-[120px] rounded-full pointer-events-none -z-10" />
                      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/5 blur-[120px] rounded-full pointer-events-none -z-10" />
 
@@ -1156,7 +1199,7 @@ export default function IntelligencePage({
                       {nextSectionId ? (
                         <Button 
                           variant="outline" 
-                          className="h-12 px-6 gap-3 group bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/20 text-indigo-400"
+                          className="h-12 px-6 gap-3 group bg-indigo-600 hover:bg-indigo-500 border-transparent text-white shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_25px_rgba(99,102,241,0.65)] transition-all duration-300"
                           onClick={() => setActiveSectionId(nextSectionId)}
                         >
                           <div className="flex flex-col items-end">
@@ -1166,7 +1209,7 @@ export default function IntelligencePage({
                           <ChevronRight className="w-4 h-4 opacity-70 group-hover:opacity-100 transition-colors" />
                         </Button>
                       ) : (
-                         <Button onClick={() => router.push(`/copy/${funnelId}`)} className="h-12 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 border-none shadow-lg">
+                         <Button onClick={() => router.push(`/copy/${funnelId}`)} className="h-12 px-6 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] border-transparent transition-all duration-300">
                            Finish & Build Pages
                          </Button>
                       )}

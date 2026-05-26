@@ -2,7 +2,13 @@ import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import type { OfferFormData, FunnelPageKey } from '@/lib/offer-types';
-import { parseEmailSequenceV2, parseEmailSequence } from '@/lib/offer-parser';
+import {
+  parseEmailSequenceV2,
+  parseEmailSequence,
+  clampEmailSequence,
+  EMAIL_SEQUENCE_MIN_PER_PAGE,
+  EMAIL_SEQUENCE_MAX_PER_PAGE,
+} from '@/lib/offer-parser';
 import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
 
 export const maxDuration = 120;
@@ -12,12 +18,12 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Email counts per page type
+// Email counts per page type (min 2, max 3 per section)
 const PAGE_EMAIL_COUNTS: Record<FunnelPageKey, number> = {
-  lead_capture: 4,
-  sales_page: 4,
+  lead_capture: 3,
+  sales_page: 3,
   upsell: 3,
-  downsell: 3,
+  downsell: 2,
   thankyou: 2,
 };
 
@@ -26,7 +32,7 @@ const PAGE_SEQUENCE_GUIDANCE: Record<FunnelPageKey, string> = {
   lead_capture:
     'Start with a warm welcome email that thanks them for opting in and delivers the promised lead magnet or value. Follow with nurture emails that build trust, share insights, tell stories, and naturally warm them up toward the sales page offer. The final email should tease or transition into the sales pitch.',
   sales_page:
-    'These emails pick up from the lead nurture sequence. Address objections the buyer has about the main offer, share proof and case studies, create urgency, and drive toward the purchase decision. Each email should tackle a different angle — social proof, overcoming fear, showing transformation, and a final deadline push.',
+    'These emails must be a dedicated direct-response sales campaign pitching the core product/offer itself (e.g., the course, coaching program, SaaS, etc.) that the user is selling. Instead of just continuing the general lead nurture stories, these emails should focus directly on the transaction: introducing the product by name, highlighting what is included in the purchase (modules, curriculum, features, bonuses), explaining the price/currency, offering the risk-reversal guarantee, addressing purchasing objections, and prompting a direct buy action.',
   upsell:
     'Post-purchase emails for buyers who just bought the main offer. Introduce the upgrade/premium offer naturally. Show how it accelerates or amplifies the results from the main purchase. Build desire for the next level.',
   downsell:
@@ -113,7 +119,10 @@ export async function POST(
   // Build per-page format instructions
   const pageInstructions = declaredPages
     .map((pageKey) => {
-      const count = PAGE_EMAIL_COUNTS[pageKey] ?? 3;
+      const count = Math.min(
+        EMAIL_SEQUENCE_MAX_PER_PAGE,
+        Math.max(EMAIL_SEQUENCE_MIN_PER_PAGE, PAGE_EMAIL_COUNTS[pageKey] ?? 3)
+      );
       const label = FUNNEL_PAGE_LABELS[pageKey] ?? pageKey;
       const guidance = PAGE_SEQUENCE_GUIDANCE[pageKey] ?? '';
       return `
@@ -134,26 +143,40 @@ HTML:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>[Subject line repeated here]</title>
+<style>
+  @media only screen and (max-width: 600px) {
+    .email-container {
+      width: 100% !important;
+    }
+    .email-padding {
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+    }
+    h1 {
+      font-size: 18px !important;
+    }
+  }
+</style>
 </head>
 <body style="margin:0;padding:0;background-color:#f4f4f7;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
 <div style="display:none;max-height:0;overflow:hidden;">[Preview text here]</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f7;">
-<tr><td align="center" style="padding:40px 20px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+<tr><td align="center" style="padding:40px 20px;" class="email-padding">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="email-container" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 <!-- Header / Branding -->
-<tr><td style="padding:32px 40px 0 40px;">
+<tr><td style="padding:32px 40px 0 40px;" class="email-padding">
 <h1 style="margin:0;font-size:22px;line-height:1.4;color:#1a1a2e;font-weight:700;">[Email heading/hook]</h1>
 </td></tr>
 <!-- Body -->
-<tr><td style="padding:24px 40px;font-size:15px;line-height:1.8;color:#3c3c4a;">
+<tr><td style="padding:24px 40px;font-size:15px;line-height:1.8;color:#3c3c4a;" class="email-padding">
 [Email body paragraphs wrapped in <p> tags with margin:0 0 16px 0]
 </td></tr>
 <!-- CTA Button -->
-<tr><td align="center" style="padding:8px 40px 32px 40px;">
+<tr><td align="center" style="padding:8px 40px 32px 40px;" class="email-padding">
 <a href="#" style="display:inline-block;background-color:#4f46e5;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:8px;">[CTA text]</a>
 </td></tr>
 <!-- Footer -->
-<tr><td style="padding:24px 40px;border-top:1px solid #e8e8ed;font-size:12px;color:#8c8c9a;text-align:center;">
+<tr><td style="padding:24px 40px;border-top:1px solid #e8e8ed;font-size:12px;color:#8c8c9a;text-align:center;" class="email-padding">
 You're receiving this because you signed up for [Offer Name]. <a href="#" style="color:#4f46e5;text-decoration:underline;">Unsubscribe</a>
 </td></tr>
 </table>
@@ -191,6 +214,10 @@ HTML EMAIL RULES:
 - Keep the email design clean, modern, and professional
 - Use a light background (#f4f4f7) with white content card
 
+EMAIL COUNT RULES:
+- Each funnel page section must have between ${EMAIL_SEQUENCE_MIN_PER_PAGE} and ${EMAIL_SEQUENCE_MAX_PER_PAGE} emails only
+- Never write more than ${EMAIL_SEQUENCE_MAX_PER_PAGE} or fewer than ${EMAIL_SEQUENCE_MIN_PER_PAGE} emails for any page section
+
 CRITICAL RULES FOR SEQUENCE PROGRESSION:
 - Each funnel page has its own email sequence section
 - Emails within a page build on each other logically
@@ -217,12 +244,12 @@ ${pageInstructions}`;
       onFinish: async ({ text }) => {
         try {
           // Try v2 format first, fall back to flat
-          let parsedSequence = parseEmailSequenceV2(text);
+          let parsedSequence = clampEmailSequence(parseEmailSequenceV2(text));
           if (Object.keys(parsedSequence).length === 0) {
             // Fallback: try flat parser and assign to lead_capture
             const flat = parseEmailSequence(text);
             if (flat.length > 0) {
-              parsedSequence = { lead_capture: flat };
+              parsedSequence = clampEmailSequence({ lead_capture: flat });
             }
           }
 

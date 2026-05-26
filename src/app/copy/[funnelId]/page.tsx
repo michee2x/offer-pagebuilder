@@ -111,10 +111,10 @@ function ScoreRing({ score, size = 56 }: { score: number; size?: number }) {
   const r = (size - 8) / 2;
   const circumference = 2 * Math.PI * r;
   const dash = (score / 100) * circumference;
-  const color = score >= 80 ? "hsl(var(--foreground))" : score >= 65 ? "hsl(var(--brand-yellow))" : "hsl(var(--destructive))";
+  const color = score >= 80 ? "#ffffff" : score >= 65 ? "#f5a623" : "#ef4444";
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--border))" strokeWidth={6} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255, 255, 255, 0.08)" strokeWidth={6} />
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={6}
         strokeDasharray={`${dash} ${circumference}`} strokeLinecap="round"
         style={{ transition: "stroke-dasharray 0.8s ease" }} />
@@ -847,9 +847,52 @@ export default function CopyPage({
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
+      {/* Background Elements (copied from home page) */}
+      <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+        {/* Radial - Pink */}
+        <div
+          className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
+            transform: 'rotate(-30deg)'
+          }}
+        />
+        {/* Radial - Blue */}
+        <div
+          className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
+            transform: 'rotate(30deg)'
+          }}
+        />
+        {/* Radial - Purple */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+          }}
+        />
+        {/* Bottom Gradient Overlay */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
+          style={{
+            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+          }}
+        />
+        {/* Noise Overlay */}
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
+          style={{
+            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '128px auto'
+          }}
+        />
+      </div>
+
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         <Topbar
           breadcrumbs={[
             { label: "Funnels", href: `/funnels/${funnelId}` },
@@ -865,10 +908,10 @@ export default function CopyPage({
               onClick={handleSaveCopy}
               disabled={isSaving}
               className={cn(
-                "gap-1.5 text-xs transition-all",
+                "gap-1.5 text-xs transition-all border-transparent",
                 hasUnsavedChanges
-                  ? "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 animate-pulse"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-white text-black hover:bg-white/90 shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_rgba(255,255,255,0.65)]"
+                  : "text-muted-foreground hover:text-foreground bg-white/5 border border-white/10"
               )}
             >
               {isSaving ? <Spinner size="sm" /> : hasUnsavedChanges ? <Save className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
@@ -881,7 +924,7 @@ export default function CopyPage({
             size="sm"
             onClick={generateCopy}
             disabled={isGenerating}
-            className="gap-1.5 text-xs"
+            className="gap-1.5 text-xs bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:text-white"
           >
             <RefreshCw className={cn("w-3.5 h-3.5", isGenerating && "animate-spin")} />
             Regenerate
@@ -890,7 +933,7 @@ export default function CopyPage({
           <Button
             size="sm"
             onClick={() => router.push(`/builder?id=${funnelId}&autoGen=true`)}
-            className="gap-1.5 font-semibold"
+            className="gap-1.5 font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] border-transparent transition-all duration-300"
           >
             <LayoutTemplate className="w-3.5 h-3.5" />
             Build Pages
@@ -954,7 +997,7 @@ export default function CopyPage({
           </div>
 
           {/* Main canvas — spatial page preview */}
-          <div className="flex-1 flex flex-col overflow-hidden bg-muted/10">
+          <div className="flex-1 flex flex-col overflow-hidden bg-transparent">
             {isInitializing ? (
               <div className="flex-1 flex items-center justify-center">
                 <Spinner size="md" color="muted" />
@@ -1034,7 +1077,7 @@ export default function CopyPage({
           <div className="w-48 shrink-0 border-l border-border bg-card overflow-y-auto hidden xl:block">
             <div className="p-4 space-y-4">
               {overallScore > 0 && (
-                <div className="bg-muted/30 border border-border rounded-xl p-4">
+                <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all duration-300 shadow-2xl rounded-xl p-4">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Overall Score</p>
                   <div className="flex items-center gap-3">
                     <div className="relative">
@@ -1054,7 +1097,7 @@ export default function CopyPage({
               )}
 
               {copy && pageList.length > 0 && (
-                <div className="bg-muted/30 border border-border rounded-xl p-4">
+                <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all duration-300 shadow-2xl rounded-xl p-4">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Page Scores</p>
                   <div className="space-y-2">
                     {pageList.map((key) => {
@@ -1080,7 +1123,7 @@ export default function CopyPage({
               )}
 
               {copy && activePage && activePageSpec && (
-                <div className="bg-muted/30 border border-border rounded-xl p-4">
+                <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all duration-300 shadow-2xl rounded-xl p-4">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Active Page</p>
                   <p className="text-lg font-bold text-foreground">{activePageSpec.sections.length}</p>
                   <p className="text-[11px] text-muted-foreground">sections</p>
@@ -1090,7 +1133,7 @@ export default function CopyPage({
               )}
 
               {copy?.declaration?.rationale && (
-                <div className="bg-muted/30 border border-border rounded-xl p-4">
+                <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all duration-300 shadow-2xl rounded-xl p-4">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Funnel Logic</p>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">{copy.declaration.rationale}</p>
                 </div>

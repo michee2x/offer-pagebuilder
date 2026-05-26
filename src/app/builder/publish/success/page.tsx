@@ -172,7 +172,7 @@ function DeploymentSuccessContent() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-white/90">Generate Email Sequence</p>
-                <p className="text-xs text-white/40">Build a 5-email nurture sequence from your offer</p>
+                <p className="text-xs text-white/40">Build 2–3 emails per funnel page from your offer</p>
               </div>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 border border-blue-500/20">New</span>
             </button>

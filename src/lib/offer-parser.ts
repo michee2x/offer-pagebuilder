@@ -182,6 +182,20 @@ export function hydrateSections(pageCopy: PageCopy): CopySection[] {
 
 // ─── Email sequence parser — per-page format ─────────────────────────────────
 
+export const EMAIL_SEQUENCE_MIN_PER_PAGE = 2;
+export const EMAIL_SEQUENCE_MAX_PER_PAGE = 3;
+
+/** Trim each page section to the allowed 2–3 email range. */
+export function clampEmailSequence(sequence: FunnelEmailSequence): FunnelEmailSequence {
+  const result: FunnelEmailSequence = {};
+  for (const [key, emails] of Object.entries(sequence)) {
+    if (!emails?.length) continue;
+    const pageKey = key as FunnelPageKey;
+    if (!VALID_PAGE_KEYS.has(pageKey)) continue;
+    result[pageKey] = emails.slice(0, EMAIL_SEQUENCE_MAX_PER_PAGE);
+  }
+  return result;
+}
 
 const PAGE_KEY_MAP: Record<string, FunnelPageKey> = {
   LEAD_CAPTURE: 'lead_capture',
@@ -211,7 +225,7 @@ export function parseEmailSequenceV2(raw: string): FunnelEmailSequence {
     const content = pageBlocks[i + 1] || '';
     const emails = parseEmailBlocksFromContent(content, pageKey);
     if (emails.length > 0) {
-      result[pageKey] = emails;
+      result[pageKey] = emails.slice(0, EMAIL_SEQUENCE_MAX_PER_PAGE);
     }
   }
 

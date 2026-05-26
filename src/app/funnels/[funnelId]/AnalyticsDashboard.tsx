@@ -52,7 +52,7 @@ function MetricCard({
   change?: number;
 }) {
   return (
-    <div className="bg-[#161e31] border border-white/10 rounded-2xl p-5 flex flex-col gap-3">
+    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.05] transition-all duration-300 shadow-2xl rounded-2xl p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between text-white/60">
         <p className="text-xs font-semibold tracking-wide uppercase">{label}</p>
         <div className="p-1.5 rounded-lg bg-white/5 border border-white/10">
@@ -81,9 +81,9 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
   const maxCountry = Math.max(...data.countries.map(c => c.count), 1);
 
   const deviceData = [
-    { name: "Desktop", count: data.desktopViews, fill: "#818cf8" },
-    { name: "Mobile",  count: data.mobileViews,  fill: "#c084fc" },
-    { name: "Tablet",  count: data.tabletViews,  fill: "#f472b6" },
+    { name: "Desktop", count: data.desktopViews, fill: "url(#desktopGrad)" },
+    { name: "Mobile",  count: data.mobileViews,  fill: "url(#mobileGrad)" },
+    { name: "Tablet",  count: data.tabletViews,  fill: "url(#tabletGrad)" },
   ].filter(d => d.count > 0);
 
   // Funnel drop-off — relative to first step
@@ -128,9 +128,9 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
         {/* World map */}
-        <div className="xl:col-span-2 bg-[#161e31] border border-white/10 rounded-2xl p-6 relative flex flex-col overflow-hidden">
+        <div className="xl:col-span-2 bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 relative flex flex-col overflow-hidden shadow-2xl hover:border-white/[0.12] transition-all duration-300">
           {/* Multi-stop gradient accent stripe */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-violet-500 via-fuchsia-500 via-pink-500 to-amber-400" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-fuchsia-500 via-pink-500 to-amber-400" />
           <div className="flex items-center justify-between mb-4 z-10">
             <div>
               <p className="text-sm font-bold text-white tracking-wide">Global Traffic Distribution</p>
@@ -148,18 +148,18 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                       const found = data.countries.find(c => c.country === name);
                       const intensity = found ? found.count / maxCountry : 0;
                       const fill = intensity > 0
-                        ? `rgba(99, 102, 241, ${Math.max(0.4, intensity)})`
-                        : "rgba(255,255,255,0.06)";
+                        ? `rgba(59, 130, 246, ${Math.max(0.45, intensity)})`
+                        : "rgba(255, 255, 255, 0.03)";
                       return (
                         <Geography
                           key={geo.rsmKey}
                           geography={geo}
                           fill={fill}
-                          stroke="#161e31"
+                          stroke="rgba(255, 255, 255, 0.08)"
                           strokeWidth={0.5}
                           style={{
-                            default: { outline: "none" },
-                            hover:   { fill: "#818cf8", outline: "none" },
+                            default: { outline: "none", transition: "all 250ms" },
+                            hover:   { fill: "#60a5fa", outline: "none", cursor: "pointer" },
                             pressed: { outline: "none" },
                           }}
                         />
@@ -169,7 +169,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                 </Geographies>
               </ZoomableGroup>
             </ComposableMap>
-            <div className="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_60px_rgba(10,10,10,1)]" />
+            <div className="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_40px_rgba(0,0,0,0.4)]" />
           </div>
           <div className="absolute bottom-6 right-6 text-right z-10">
             <p className="text-3xl font-black text-white">{data.pageViews.toLocaleString()}</p>
@@ -180,16 +180,36 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
         {/* Charts column */}
         <div className="flex flex-col gap-4">
           {/* Traffic quality donut */}
-          <div className="bg-[#161e31] border border-white/10 rounded-2xl p-4 flex flex-col h-50">
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-4 flex flex-col h-50 shadow-2xl hover:border-white/[0.12] transition-all duration-300">
             <p className="text-xs font-bold tracking-wide uppercase text-white/80 mb-2">Traffic Quality</p>
             <div className="flex-1 relative">
               {hasViews ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={data.tiers} innerRadius={30} outerRadius={50} paddingAngle={5} dataKey="value" stroke="none">
-                      {data.tiers.map((t, i) => <Cell key={i} fill={t.color} />)}
+                    <defs>
+                      <linearGradient id="tier1Grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" />
+                        <stop offset="100%" stopColor="#1d4ed8" />
+                      </linearGradient>
+                      <linearGradient id="tier2Grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#8b5cf6" />
+                        <stop offset="100%" stopColor="#6d28d9" />
+                      </linearGradient>
+                      <linearGradient id="tier3Grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" />
+                        <stop offset="100%" stopColor="#047857" />
+                      </linearGradient>
+                    </defs>
+                    <Pie data={data.tiers} innerRadius={40} outerRadius={55} paddingAngle={4} dataKey="value" stroke="none">
+                      {data.tiers.map((t, i) => {
+                        let fillVal = t.color;
+                        if (t.name === "Tier 1") fillVal = "url(#tier1Grad)";
+                        else if (t.name === "Tier 2") fillVal = "url(#tier2Grad)";
+                        else if (t.name === "Tier 3") fillVal = "url(#tier3Grad)";
+                        return <Cell key={i} fill={fillVal} />;
+                      })}
                     </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} />
+                    <Tooltip contentStyle={{ backgroundColor: "rgba(10, 10, 10, 0.9)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
@@ -209,15 +229,29 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
           </div>
 
           {/* Device bar chart */}
-          <div className="bg-[#161e31] border border-white/10 rounded-2xl p-4 flex flex-col h-50">
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-4 flex flex-col h-50 shadow-2xl hover:border-white/[0.12] transition-all duration-300">
             <p className="text-xs font-bold tracking-wide uppercase text-white/80 mb-2">Device Breakdown</p>
             <div className="flex-1 -ml-4">
               {hasViews && deviceData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={deviceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="desktopGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#818cf8" />
+                        <stop offset="100%" stopColor="#4f46e5" />
+                      </linearGradient>
+                      <linearGradient id="mobileGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#c084fc" />
+                        <stop offset="100%" stopColor="#8b5cf6" />
+                      </linearGradient>
+                      <linearGradient id="tabletGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f472b6" />
+                        <stop offset="100%" stopColor="#db2777" />
+                      </linearGradient>
+                    </defs>
                     <XAxis dataKey="name" tick={{ fontSize: 9, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 9, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
-                    <Tooltip cursor={{ fill: "rgba(255,255,255,0.05)" }} contentStyle={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} />
+                    <Tooltip cursor={{ fill: "rgba(255,255,255,0.03)" }} contentStyle={{ backgroundColor: "rgba(10, 10, 10, 0.9)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} />
                     <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={40}>
                       {deviceData.map((d, i) => <Cell key={i} fill={d.fill} />)}
                     </Bar>
@@ -235,14 +269,14 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* Traffic blast */}
-        <div className="bg-[#161e31] border border-white/10 rounded-2xl p-5 border-l-4 border-l-emerald-500">
+        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] border-l-4 border-l-emerald-500 rounded-2xl p-5 shadow-2xl hover:border-white/[0.12] transition-all duration-300">
           <p className="text-sm font-bold tracking-wide text-white mb-4">Traffic Blast</p>
           <div className="space-y-1">
-            <div className="grid grid-cols-3 text-[10px] font-bold text-brand-indigo uppercase tracking-widest mb-2">
+            <div className="grid grid-cols-3 text-[10px] font-bold text-violet-400 uppercase tracking-widest mb-2">
               <span>Location</span><span>Time</span><span className="text-right">Browser</span>
             </div>
             {data.recentTraffic.length > 0 ? data.recentTraffic.map((t, i) => (
-              <div key={i} className="grid grid-cols-3 text-xs items-center text-white/70 py-1.5 border-b border-white/5 last:border-0 hover:bg-white/3 rounded px-1 -mx-1 transition-colors">
+              <div key={i} className="grid grid-cols-3 text-xs items-center text-white/70 py-1.5 border-b border-white/5 last:border-0 hover:bg-white/5 rounded px-1 -mx-1 transition-colors">
                 <span className="truncate flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
                   {t.country || "Unknown"}
@@ -259,9 +293,9 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
         </div>
 
         {/* Funnel step drop-off */}
-        <div className="bg-[#161e31] border border-white/10 rounded-2xl p-5 relative overflow-hidden">
+        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 relative overflow-hidden shadow-2xl hover:border-white/[0.12] transition-all duration-300">
           {/* Gradient accent top */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-violet-500 via-fuchsia-500 via-pink-500 to-amber-400" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-fuchsia-500 via-pink-500 to-amber-400" />
           <p className="text-sm font-bold tracking-wide text-white mb-4">Funnel Drop-off</p>
           {data.pageBreakdown.length > 0 ? (
             <div className="flex flex-col gap-3">
@@ -275,7 +309,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                     </div>
                     <div className="h-2 rounded-full bg-white/5 overflow-hidden shadow-inner">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-blue-500 via-violet-500 via-fuchsia-500 via-pink-500 to-amber-400 transition-all duration-700"
+                        className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 transition-all duration-700"
                         style={{ width: `${dropPct}%` }}
                       />
                     </div>
@@ -295,7 +329,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                   </div>
                   <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-linear-to-r from-emerald-500 to-teal-400"
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
                       style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
                     />
                   </div>
@@ -313,7 +347,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
         </div>
 
         {/* Recent leads */}
-        <div className="bg-[#161e31] border border-white/10 rounded-2xl p-5 flex flex-col border-l-4 border-l-violet-500">
+        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] border-l-4 border-l-violet-500 rounded-2xl p-5 flex flex-col shadow-2xl hover:border-white/[0.12] transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm font-bold tracking-wide text-white">Recent Leads</p>
             <Link
@@ -332,18 +366,18 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                 ];
                 const color = avatarColors[i % avatarColors.length];
                 return (
-                <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0 hover:bg-white/5 rounded-lg px-2 -mx-2 transition-colors">
-                  <div className={`w-8 h-8 rounded-full ${color} text-white flex items-center justify-center text-[10px] font-black shrink-0 uppercase`}>
-                    {lead.name.slice(0, 2)}
+                  <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0 hover:bg-white/5 rounded-lg px-2 -mx-2 transition-colors">
+                    <div className={`w-8 h-8 rounded-full ${color} text-white flex items-center justify-center text-[10px] font-black shrink-0 uppercase`}>
+                      {lead.name.slice(0, 2)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-white/80 truncate">{lead.name}</p>
+                      <p className="text-[10px] text-white/35 truncate">{lead.email}</p>
+                    </div>
+                    <span className="text-[10px] text-white/25 tabular-nums shrink-0">
+                      {new Date(lead.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white/80 truncate">{lead.name}</p>
-                    <p className="text-[10px] text-white/35 truncate">{lead.email}</p>
-                  </div>
-                  <span className="text-[10px] text-white/25 tabular-nums shrink-0">
-                    {new Date(lead.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </span>
-                </div>
                 );
               })}
             </div>

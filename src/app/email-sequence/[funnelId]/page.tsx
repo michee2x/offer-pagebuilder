@@ -7,18 +7,23 @@ import { Topbar } from '@/components/layout/Topbar';
 import {
   Mail, Copy, Check, RefreshCw, Sparkles, ChevronDown, ChevronRight,
   Clock, Send, FileText, ShoppingCart, ArrowUpRight, ArrowDownRight, Heart,
-  Eye, Code2, Type, ClipboardList,
+  Eye, Code2, Type, ClipboardList, Monitor, Tablet, Smartphone,
   type LucideIcon,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import type { EmailCopy, FunnelEmailSequence, FunnelPageKey } from '@/lib/offer-types';
 import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
 import { FunnelSidebar } from '@/components/layout/FunnelSidebar';
 import { useCompletion } from '@ai-sdk/react';
-import { parseEmailSequenceV2, migrateFlatEmailSequence } from '@/lib/offer-parser';
-import { extractEmailSections, wrapPlainTextAsHtml } from '@/lib/email-html-extractor';
+import {
+  parseEmailSequenceV2,
+  migrateFlatEmailSequence,
+  clampEmailSequence,
+} from '@/lib/offer-parser';
+import { extractEmailSections, wrapPlainTextAsHtml, updateEmailHtml } from '@/lib/email-html-extractor';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -71,14 +76,6 @@ function GenerationOverlay({ visible, streamText }: { visible: boolean; streamTe
         <p className="text-sm text-muted-foreground mb-4">
           Building per-page email sequences across your entire funnel
         </p>
-
-        <div className="flex-1 w-full bg-[#1e2433] border border-white/5 rounded-xl p-6 overflow-y-auto text-left shadow-2xl relative custom-scrollbar">
-          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-brand-indigo to-transparent animate-pulse" />
-          <pre className="text-sm font-mono text-muted-foreground whitespace-pre-wrap break-words leading-relaxed">
-            {streamText || "Analysing offer intelligence…\nMapping funnel page sequence…\nCrafting email narratives…\n"}
-            <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
-          </pre>
-        </div>
       </div>
     </div>
   );
@@ -88,7 +85,7 @@ function GenerationOverlay({ visible, streamText }: { visible: boolean; streamTe
 
 function EmptyState({ onGenerate, generating }: { onGenerate: () => void; generating: boolean }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 bg-[#0b0f19]">
+    <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 bg-transparent">
       <div className="w-16 h-16 rounded-2xl bg-brand-blue/15 border border-brand-blue/30 flex items-center justify-center mb-6">
         <Mail className="w-7 h-7 text-brand-blue" />
       </div>
@@ -100,7 +97,7 @@ function EmptyState({ onGenerate, generating }: { onGenerate: () => void; genera
         size="lg"
         onClick={onGenerate}
         disabled={generating}
-        className="gap-2 font-semibold bg-gradient-to-r from-brand-blue to-brand-indigo hover:opacity-90 text-white shadow-lg shadow-indigo-500/25 transition-opacity border-0"
+        className="gap-2 font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all border-0 duration-300"
       >
         {generating ? <Spinner size="sm" color="white" /> : <Sparkles className="w-4 h-4" />}
         Generate Email Sequences
@@ -150,16 +147,14 @@ function EmailNavigator({
             {/* Page section header */}
             <button
               onClick={() => togglePage(pageKey)}
-              className={`w-full text-left rounded-xl px-3 py-2.5 flex items-center gap-2.5 transition-all duration-300 group ${
-                isActivePage
+              className={`w-full text-left rounded-xl px-3 py-2.5 flex items-center gap-2.5 transition-all duration-300 group ${isActivePage
                   ? 'bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-lg shadow-indigo-500/25'
                   : 'text-muted-foreground hover:text-white hover:bg-white/5 border border-transparent'
-              }`}
+                }`}
             >
               <div
-                className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${
-                  isActivePage ? 'text-white drop-shadow-sm' : 'bg-white/5 text-muted-foreground'
-                }`}
+                className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${isActivePage ? 'text-white drop-shadow-sm' : 'bg-white/5 text-muted-foreground'
+                  }`}
               >
                 <Icon className="w-3.5 h-3.5" />
               </div>
@@ -183,17 +178,15 @@ function EmailNavigator({
                     <button
                       key={emailIdx}
                       onClick={() => onSelect(pageKey, emailIdx)}
-                      className={`w-full text-left rounded-lg px-2.5 py-2 transition-all duration-300 ${
-                        isActive
+                      className={`w-full text-left rounded-lg px-2.5 py-2 transition-all duration-300 ${isActive
                           ? 'bg-white/5 border border-white/10 text-foreground'
                           : 'border border-transparent hover:bg-white/5 text-muted-foreground hover:text-foreground'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <span
-                          className={`w-5 h-5 rounded text-[10px] font-black flex items-center justify-center flex-shrink-0 transition-colors ${
-                            isActive ? 'bg-brand-blue text-white' : 'bg-white/5 text-muted-foreground'
-                          }`}
+                          className={`w-5 h-5 rounded text-[10px] font-black flex items-center justify-center flex-shrink-0 transition-colors ${isActive ? 'bg-brand-blue text-white' : 'bg-white/5 text-muted-foreground'
+                            }`}
                         >
                           {emailIdx + 1}
                         </span>
@@ -230,22 +223,20 @@ function ModeToggle({ mode, onChange }: { mode: CenterMode; onChange: (m: Center
     <div className="flex items-center bg-muted/50 border border-border rounded-lg p-0.5">
       <button
         onClick={() => onChange('preview')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-          mode === 'preview'
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${mode === 'preview'
             ? 'bg-background text-foreground shadow-sm border border-border'
             : 'text-muted-foreground hover:text-foreground border border-transparent'
-        }`}
+          }`}
       >
         <Eye className="w-3 h-3" />
         Preview
       </button>
       <button
         onClick={() => onChange('copy')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-          mode === 'copy'
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${mode === 'copy'
             ? 'bg-background text-foreground shadow-sm border border-border'
             : 'text-muted-foreground hover:text-foreground border border-transparent'
-        }`}
+          }`}
       >
         <ClipboardList className="w-3 h-3" />
         Copy
@@ -261,22 +252,20 @@ function CopySubToggle({ subMode, onChange }: { subMode: CopySubMode; onChange: 
     <div className="flex items-center bg-[#1a2035] border border-white/10 rounded-lg p-0.5">
       <button
         onClick={() => onChange('html')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-          subMode === 'html'
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${subMode === 'html'
             ? 'bg-brand-indigo/20 text-brand-indigo border border-brand-indigo/30'
             : 'text-muted-foreground hover:text-foreground border border-transparent'
-        }`}
+          }`}
       >
         <Code2 className="w-3 h-3" />
         HTML Code
       </button>
       <button
         onClick={() => onChange('text')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-          subMode === 'text'
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${subMode === 'text'
             ? 'bg-brand-indigo/20 text-brand-indigo border border-brand-indigo/30'
             : 'text-muted-foreground hover:text-foreground border border-transparent'
-        }`}
+          }`}
       >
         <Type className="w-3 h-3" />
         Text Fields
@@ -291,10 +280,12 @@ function CopyableField({
   label,
   value,
   multiline = false,
+  onChange,
 }: {
   label: string;
   value: string;
   multiline?: boolean;
+  onChange?: (val: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -305,7 +296,7 @@ function CopyableField({
     toast.success(`${label} copied!`);
   };
 
-  if (!value) return null;
+  if (value === undefined || value === null) return null;
 
   return (
     <div className="group">
@@ -323,17 +314,17 @@ function CopyableField({
       </div>
       {multiline ? (
         <textarea
-          readOnly
           value={value}
+          onChange={(e) => onChange?.(e.target.value)}
           rows={Math.min(Math.max(value.split('\n').length, 4), 16)}
-          className="w-full px-4 py-3 rounded-xl border border-white/10 bg-[#1a2035] text-sm text-white/90 leading-relaxed outline-none resize-none cursor-text select-all focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue/60 transition-all"
+          className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.02] text-sm text-white/90 leading-relaxed outline-none resize-none cursor-text focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue/60 hover:bg-white/[0.04] transition-all"
         />
       ) : (
         <input
-          readOnly
           type="text"
           value={value}
-          className="w-full h-10 px-4 rounded-xl border border-white/10 bg-[#1a2035] text-sm font-semibold text-white outline-none cursor-text select-all focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue/60 transition-all"
+          onChange={(e) => onChange?.(e.target.value)}
+          className="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/[0.02] text-sm font-semibold text-white outline-none cursor-text focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue/60 hover:bg-white/[0.04] transition-all"
         />
       )}
     </div>
@@ -354,6 +345,55 @@ function EmailHtmlPreview({
   totalInPage: number;
 }) {
   const html = getEmailHtml(email);
+  const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+
+  const responsiveHtml = useMemo(() => {
+    if (!html) return html;
+    
+    // Inject a responsive style block and viewport tag
+    const responsiveStyles = `
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        /* Force responsiveness of email preview inside iframe */
+        table {
+          width: 100% !important;
+          max-width: 600px !important;
+        }
+        /* Target specifically tables with width attribute = 600 */
+        table[width="600"] {
+          width: 100% !important;
+          max-width: 600px !important;
+        }
+        /* Ensure images scale correctly */
+        img {
+          max-width: 100% !important;
+          height: auto !important;
+        }
+        /* Mobile-friendly padding and typography */
+        @media only screen and (max-width: 480px) {
+          td {
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+          }
+          .email-padding {
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+          }
+          h1, .email-heading {
+            font-size: 18px !important;
+          }
+        }
+      </style>
+    `;
+
+    // Try to inject into the head or prepend
+    if (html.includes('</head>')) {
+      return html.replace('</head>', `${responsiveStyles}</head>`);
+    } else if (html.includes('<body>')) {
+      return html.replace('<body>', `<body>${responsiveStyles}`);
+    }
+    return responsiveStyles + html;
+  }, [html]);
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -363,7 +403,7 @@ function EmailHtmlPreview({
           <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">
             How it looks in the inbox
           </p>
-          <div className="bg-[#161e31] border border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] hover:bg-white/[0.05] transition-all duration-300 shadow-2xl rounded-2xl overflow-hidden">
             <div className="px-5 py-4 flex items-start gap-4 cursor-default">
               <div className="w-10 h-10 rounded-full bg-brand-blue text-white flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-black">Y</span>
@@ -385,15 +425,46 @@ function EmailHtmlPreview({
             </div>
           </div>
         </div>
-
+ 
         {/* Real HTML email render */}
         <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">
-            Rendered email
-          </p>
-          <div className="rounded-2xl overflow-hidden border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+          <div className="flex items-center justify-between mb-2.5">
+            <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+              Rendered email
+            </p>
+            <div className="flex items-center bg-[#131826]/80 backdrop-blur-md border border-white/10 rounded-xl p-1 gap-1">
+              <button
+                type="button"
+                title="Desktop"
+                onClick={() => setDeviceMode("desktop")}
+                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "desktop" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+              >
+                <Monitor className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                title="Tablet"
+                onClick={() => setDeviceMode("tablet")}
+                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "tablet" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+              >
+                <Tablet className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                title="Mobile"
+                onClick={() => setDeviceMode("mobile")}
+                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "mobile" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+              >
+                <Smartphone className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          <div className={cn(
+            "mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all duration-300",
+            deviceMode === "desktop" ? "w-full" : deviceMode === "tablet" ? "max-w-[600px] w-full" : "max-w-[375px] w-full"
+          )}>
             <iframe
-              srcDoc={html}
+              srcDoc={responsiveHtml}
               sandbox="allow-same-origin"
               title={`Email preview: ${email.subject}`}
               className="w-full bg-white border-0"
@@ -439,11 +510,13 @@ function EmailCopyPanel({
   pageKey,
   emailIndex,
   totalInPage,
+  onUpdateEmail,
 }: {
   email: EmailCopy;
   pageKey: FunnelPageKey;
   emailIndex: number;
   totalInPage: number;
+  onUpdateEmail: (updated: EmailCopy) => void;
 }) {
   const [subMode, setSubMode] = useState<CopySubMode>('html');
   const [copiedAll, setCopiedAll] = useState(false);
@@ -470,6 +543,38 @@ function EmailCopyPanel({
     setTimeout(() => setCopiedAll(false), 2000);
     toast.success('All text copied!');
   };
+
+  const handleFieldChange = (field: 'subject' | 'preview' | 'heading' | 'body' | 'cta', newVal: string) => {
+    const currentHtml = email.html || getEmailHtml(email);
+    const updatedHtml = updateEmailHtml(currentHtml, field, newVal);
+
+    const updatedEmail: EmailCopy = {
+      ...email,
+      html: updatedHtml,
+      [field === 'preview' ? 'preview' : field]: newVal,
+    };
+
+    onUpdateEmail(updatedEmail);
+  };
+
+  const handleHtmlChange = (newHtml: string) => {
+    const parsed = extractEmailSections(newHtml, email.subject);
+    const updatedEmail: EmailCopy = {
+      ...email,
+      html: newHtml,
+      subject: parsed.subject,
+      preview: parsed.preheader,
+      body: parsed.body,
+      cta: parsed.cta || email.cta,
+    };
+    onUpdateEmail(updatedEmail);
+  };
+
+  const subjectVal = extracted?.subject ?? email.subject ?? '';
+  const previewVal = extracted?.preheader ?? email.preview ?? '';
+  const headingVal = extracted?.heading ?? '';
+  const bodyVal = extracted?.body ?? email.body ?? '';
+  const ctaVal = extracted?.cta ?? email.cta ?? '';
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -508,29 +613,49 @@ function EmailCopyPanel({
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
                 </div>
                 <span className="text-[10px] font-mono text-muted-foreground ml-2">
-                  email-{emailIndex + 1}.html
+                  email-{emailIndex + 1}.html (Editable)
                 </span>
               </div>
-              <pre className="p-5 overflow-x-auto text-[13px] font-mono text-emerald-300/90 leading-relaxed custom-scrollbar">
-                <code>{html}</code>
-              </pre>
+              <textarea
+                value={html}
+                onChange={(e) => handleHtmlChange(e.target.value)}
+                rows={24}
+                className="w-full p-5 bg-[#0d1117] text-[13px] font-mono text-emerald-300/90 leading-relaxed custom-scrollbar outline-none resize-none border-0 focus:ring-0 focus:outline-none"
+              />
             </div>
           </div>
         ) : (
           /* ── Text Fields view ── */
           <div className="space-y-5">
-            <CopyableField label="Subject Line" value={email.subject} />
-            <CopyableField label="Preview Text" value={email.preview} />
-            {extracted?.heading && (
-              <CopyableField label="Heading" value={extracted.heading} />
+            <CopyableField
+              label="Subject Line"
+              value={subjectVal}
+              onChange={(val) => handleFieldChange('subject', val)}
+            />
+            <CopyableField
+              label="Preview Text"
+              value={previewVal}
+              onChange={(val) => handleFieldChange('preview', val)}
+            />
+            {headingVal !== '' && (
+              <CopyableField
+                label="Heading"
+                value={headingVal}
+                onChange={(val) => handleFieldChange('heading', val)}
+              />
             )}
             <CopyableField
               label="Email Body"
-              value={extracted?.body || email.body}
+              value={bodyVal}
               multiline
+              onChange={(val) => handleFieldChange('body', val)}
             />
-            {(extracted?.cta || email.cta) && (
-              <CopyableField label="Call-to-Action" value={extracted?.cta || email.cta || ''} />
+            {ctaVal !== '' && (
+              <CopyableField
+                label="Call-to-Action"
+                value={ctaVal}
+                onChange={(val) => handleFieldChange('cta', val)}
+              />
             )}
 
             {/* Copy all as text button */}
@@ -582,13 +707,59 @@ export default function EmailSequencePage({
   const [activePage, setActivePage] = useState<FunnelPageKey | null>(null);
   const [activeEmailIndex, setActiveEmailIndex] = useState(0);
   const [centerMode, setCenterMode] = useState<CenterMode>('preview');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleUpdateEmail = useCallback((updatedEmail: EmailCopy) => {
+    if (!activePage) return;
+    setEmailSequence((prev) => {
+      const pageEmails = prev[activePage] ?? [];
+      const updatedEmails = [...pageEmails];
+      updatedEmails[activeEmailIndex] = updatedEmail;
+      return {
+        ...prev,
+        [activePage]: updatedEmails,
+      };
+    });
+    setHasUnsavedChanges(true);
+  }, [activePage, activeEmailIndex]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    const saveToastId = toast.loading('Saving email sequence...');
+    try {
+      const res = await fetch(`/api/offer-data/${funnelId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          blocks: {
+            email_sequence_v2: emailSequence,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to save email sequence');
+      }
+
+      setHasUnsavedChanges(false);
+      toast.success('Email sequence saved successfully!', { id: saveToastId });
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save changes', { id: saveToastId });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const { completion, complete, isLoading } = useCompletion({
     api: `/api/generate-email-sequence/${funnelId}`,
     onFinish: async (text) => {
-      const parsed = parseEmailSequenceV2(text);
+      const parsed = clampEmailSequence(parseEmailSequenceV2(text));
       if (Object.keys(parsed).length > 0) {
         setEmailSequence(parsed);
+        setHasUnsavedChanges(false);
         const firstPage = PAGE_ORDER.find((k) => parsed[k] && parsed[k]!.length > 0);
         if (firstPage) {
           setActivePage(firstPage);
@@ -606,9 +777,11 @@ export default function EmailSequencePage({
         const savedV1 = data.funnel?.blocks?.email_sequence;
 
         if (savedV2 && typeof savedV2 === 'object' && Object.keys(savedV2).length > 0) {
-          setEmailSequence(savedV2);
+          setEmailSequence(clampEmailSequence(savedV2));
+          setHasUnsavedChanges(false);
         } else if (savedV1 && Array.isArray(savedV1) && savedV1.length > 0) {
-          setEmailSequence(migrateFlatEmailSequence(savedV1));
+          setEmailSequence(clampEmailSequence(migrateFlatEmailSequence(savedV1)));
+          setHasUnsavedChanges(false);
         } else {
           toast.error('AI returned unparseable text. Please retry.');
         }
@@ -635,9 +808,9 @@ export default function EmailSequencePage({
           let seq: FunnelEmailSequence = {};
 
           if (savedV2 && typeof savedV2 === 'object' && Object.keys(savedV2).length > 0) {
-            seq = savedV2;
+            seq = clampEmailSequence(savedV2);
           } else if (savedV1 && Array.isArray(savedV1) && savedV1.length > 0) {
-            seq = migrateFlatEmailSequence(savedV1);
+            seq = clampEmailSequence(migrateFlatEmailSequence(savedV1));
           }
 
           if (Object.keys(seq).length > 0) {
@@ -650,7 +823,7 @@ export default function EmailSequencePage({
           }
         }
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [funnelId]);
 
@@ -675,7 +848,7 @@ export default function EmailSequencePage({
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
+      <div className="flex h-screen items-center justify-center bg-[#030712]">
         <Spinner size="md" color="muted" />
       </div>
     );
@@ -691,10 +864,53 @@ export default function EmailSequencePage({
   );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
+      {/* Background Elements (copied from home page) */}
+      <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+        {/* Radial - Pink */}
+        <div
+          className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
+            transform: 'rotate(-30deg)'
+          }}
+        />
+        {/* Radial - Blue */}
+        <div
+          className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
+            transform: 'rotate(30deg)'
+          }}
+        />
+        {/* Radial - Purple */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]"
+          style={{
+            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+          }}
+        />
+        {/* Bottom Gradient Overlay */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
+          style={{
+            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+          }}
+        />
+        {/* Noise Overlay */}
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
+          style={{
+            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '128px auto'
+          }}
+        />
+      </div>
+
       <GenerationOverlay visible={isLoading} streamText={completion} />
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         <Topbar
           breadcrumbs={[
             { label: 'Funnels', href: `/funnels/${funnelId}` },
@@ -703,16 +919,29 @@ export default function EmailSequencePage({
           ]}
           actions={
             hasEmails ? (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleGenerate}
-                disabled={isLoading}
-                className="gap-1.5 font-semibold"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Regenerate
-              </Button>
+              <div className="flex items-center gap-2">
+                {hasUnsavedChanges && (
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving || isLoading}
+                    className="gap-1.5 font-semibold bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all duration-300"
+                  >
+                    {isSaving ? <Spinner size="sm" color="white" /> : <Check className="w-3.5 h-3.5" />}
+                    Save Changes
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleGenerate}
+                  disabled={isLoading || isSaving}
+                  className="gap-1.5 font-semibold bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Regenerate
+                </Button>
+              </div>
             ) : undefined
           }
         />
@@ -819,6 +1048,7 @@ export default function EmailSequencePage({
                     pageKey={activePage}
                     emailIndex={activeEmailIndex}
                     totalInPage={activeEmails.length}
+                    onUpdateEmail={handleUpdateEmail}
                   />
                 )}
               </>

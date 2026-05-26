@@ -67,7 +67,7 @@ export function LeadsDashboard({ leads, funnelName }: Props) {
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#0a0a0f]">
+    <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-transparent">
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Header */}
@@ -79,7 +79,7 @@ export function LeadsDashboard({ leads, funnelName }: Props) {
           {leads.length > 0 && (
             <button
               onClick={() => exportCSV(leads, funnelName)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all text-sm font-semibold"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black hover:bg-white/90 shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_rgba(255,255,255,0.65)] transition-all text-sm font-bold border-transparent"
             >
               <Download className="w-4 h-4" />
               Export CSV
@@ -92,7 +92,7 @@ export function LeadsDashboard({ leads, funnelName }: Props) {
           {stats.map(({ label, value, icon: Icon }) => (
             <div
               key={label}
-              className="rounded-2xl border border-white/8 bg-white/3 px-6 py-5 flex items-center gap-4"
+              className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.05] transition-all duration-300 shadow-2xl rounded-2xl px-6 py-5 flex items-center gap-4"
             >
               <div className="w-10 h-10 rounded-xl bg-violet-500/15 text-violet-400 flex items-center justify-center shrink-0">
                 <Icon className="w-5 h-5" />
@@ -107,7 +107,7 @@ export function LeadsDashboard({ leads, funnelName }: Props) {
 
         {/* Table */}
         {leads.length === 0 ? (
-          <div className="rounded-2xl border border-white/8 bg-white/3 flex flex-col items-center justify-center py-20 gap-4 text-center">
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl flex flex-col items-center justify-center py-20 gap-4 text-center shadow-2xl">
             <div className="w-14 h-14 rounded-full bg-violet-500/15 text-violet-400 flex items-center justify-center">
               <Users className="w-7 h-7" />
             </div>
@@ -117,7 +117,7 @@ export function LeadsDashboard({ leads, funnelName }: Props) {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-white/8 bg-white/3 overflow-hidden">
+          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -133,7 +133,7 @@ export function LeadsDashboard({ leads, funnelName }: Props) {
                   {leads.map((lead, i) => (
                     <tr
                       key={lead.id}
-                      className={`border-b border-white/5 last:border-b-0 hover:bg-white/3 transition-colors ${i % 2 === 0 ? '' : 'bg-white/[0.015]'}`}
+                      className={`border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-colors ${i % 2 === 0 ? '' : 'bg-white/[0.01]'}`}
                     >
                       <td className="px-5 py-3.5 font-semibold text-white/80">{lead.name}</td>
                       <td className="px-5 py-3.5 text-white/50">
