@@ -7,7 +7,7 @@ import { Topbar } from '@/components/layout/Topbar';
 import {
   Mail, Copy, Check, RefreshCw, Sparkles, ChevronDown, ChevronRight,
   Clock, Send, FileText, ShoppingCart, ArrowUpRight, ArrowDownRight, Heart,
-  Eye, Code2, Type, ClipboardList, Monitor, Tablet, Smartphone,
+  Eye, Code2, Type, ClipboardList, Monitor, Tablet, Smartphone, Loader2,
   type LucideIcon,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
@@ -18,6 +18,7 @@ import type { EmailCopy, FunnelEmailSequence, FunnelPageKey } from '@/lib/offer-
 import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
 import { FunnelSidebar } from '@/components/layout/FunnelSidebar';
 import { useCompletion } from '@ai-sdk/react';
+import { OfferIQAgent } from '@/components/OfferIQAgent';
 import {
   parseEmailSequenceV2,
   migrateFlatEmailSequence,
@@ -52,6 +53,42 @@ function getEmailHtml(email: EmailCopy): string {
   if (email.html) return email.html;
   // Legacy fallback: wrap plain text in an HTML email template
   return wrapPlainTextAsHtml(email.subject, email.preview, email.body, email.cta);
+}
+
+// ─── Helper: parse a single email from the regeneration API response ──────────
+
+function parseEmailFromResponse(raw: string, dayFallback: number, pageKey: FunnelPageKey): EmailCopy | null {
+  const subject = raw.match(/SUBJECT:\s*(.+)/i)?.[1]?.trim() ?? '';
+  const preview = raw.match(/PREVIEW:\s*(.+)/i)?.[1]?.trim() ?? '';
+
+  const htmlMatch = raw.match(/HTML:\s*([\s\S]*?<html[\s\S]*?<\/html>)/i);
+  let html = htmlMatch?.[1]?.trim() ?? '';
+  let body = '';
+  let cta = '';
+
+  if (html) {
+    // Extract body text from HTML for text copy mode
+    const bodyContent = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? html;
+    let text = bodyContent.replace(/<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi, '');
+    text = text.replace(/<tr>\s*<td[^>]*border-top[^>]*>[\s\S]*?<\/td>\s*<\/tr>/gi, '');
+    text = text.replace(/<br\s*\/?>/gi, '\n');
+    text = text.replace(/<\/p>/gi, '\n\n');
+    text = text.replace(/<a\b[^>]*style="[^"]*background-color[^"]*"[^>]*>[\s\S]*?<\/a>/gi, '');
+    text = text.replace(/<[^>]+>/g, '');
+    text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ');
+    body = text.replace(/\n{3,}/g, '\n\n').trim();
+    // Extract CTA
+    const ctaMatch = html.match(/<a\b[^>]*style="[^"]*background-color[^"]*"[^>]*>([\s\S]*?)<\/a>/i);
+    cta = ctaMatch?.[1]?.replace(/<[^>]+>/g, '').trim() ?? '';
+  }
+
+  if (!subject && !html) return null;
+
+  // Extract day from the response or fall back
+  const dayMatch = raw.match(/EMAIL\s+\d+\s*(?:—|–|-)\s*DAY\s+(\d+)/i);
+  const day = dayMatch ? parseInt(dayMatch[1], 10) : dayFallback;
+
+  return { day, subject, preview, body, html: html || undefined, page: pageKey, cta: cta || undefined };
 }
 
 // ─── Generation overlay ───────────────────────────────────────────────────────
@@ -338,11 +375,15 @@ function EmailHtmlPreview({
   pageKey,
   emailIndex,
   totalInPage,
+  isRegenerating,
+  onRegenerate,
 }: {
   email: EmailCopy;
   pageKey: FunnelPageKey;
   emailIndex: number;
   totalInPage: number;
+  isRegenerating: boolean;
+  onRegenerate: () => void;
 }) {
   const html = getEmailHtml(email);
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
@@ -432,35 +473,53 @@ function EmailHtmlPreview({
             <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
               Rendered email
             </p>
-            <div className="flex items-center bg-[#131826]/80 backdrop-blur-md border border-white/10 rounded-xl p-1 gap-1">
+            <div className="flex items-center gap-3">
+              {/* Per-email Regenerate button */}
               <button
                 type="button"
-                title="Desktop"
-                onClick={() => setDeviceMode("desktop")}
-                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "desktop" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+                onClick={onRegenerate}
+                disabled={isRegenerating}
+                className="h-8 px-3 rounded-xl bg-[#131826]/80 hover:bg-[#1f2942]/80 backdrop-blur-md border border-white/10 text-xs font-semibold text-white/90 hover:text-white flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Monitor className="h-4 w-4" />
+                {isRegenerating ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-3.5 h-3.5" />
+                )}
+                {isRegenerating ? 'Regenerating…' : 'Regenerate'}
               </button>
-              <button
-                type="button"
-                title="Tablet"
-                onClick={() => setDeviceMode("tablet")}
-                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "tablet" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
-              >
-                <Tablet className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                title="Mobile"
-                onClick={() => setDeviceMode("mobile")}
-                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "mobile" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
-              >
-                <Smartphone className="h-4 w-4" />
-              </button>
+
+              {/* Screens Switcher */}
+              <div className="flex items-center bg-[#131826]/80 backdrop-blur-md border border-white/10 rounded-xl p-1 gap-1">
+                <button
+                  type="button"
+                  title="Desktop"
+                  onClick={() => setDeviceMode("desktop")}
+                  className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "desktop" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+                >
+                  <Monitor className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  title="Tablet"
+                  onClick={() => setDeviceMode("tablet")}
+                  className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "tablet" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+                >
+                  <Tablet className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  title="Mobile"
+                  onClick={() => setDeviceMode("mobile")}
+                  className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${deviceMode === "mobile" ? "bg-white/10 text-white shadow-sm" : "text-muted-foreground hover:text-white hover:bg-white/5"}`}
+                >
+                  <Smartphone className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
           <div className={cn(
-            "mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all duration-300",
+            "relative mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all duration-300",
             deviceMode === "desktop" ? "w-full" : deviceMode === "tablet" ? "max-w-[600px] w-full" : "max-w-[375px] w-full"
           )}>
             <iframe
@@ -482,6 +541,24 @@ function EmailHtmlPreview({
                 }
               }}
             />
+
+            {/* Blue regeneration loader overlay */}
+            {isRegenerating && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm transition-all duration-300">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center">
+                      <Loader2 className="w-7 h-7 text-blue-500 animate-spin" />
+                    </div>
+                    <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 animate-ping" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-slate-700">Regenerating email…</p>
+                    <p className="text-xs text-slate-500 mt-1">Creating a fresh version with a new angle</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -709,6 +786,7 @@ export default function EmailSequencePage({
   const [centerMode, setCenterMode] = useState<CenterMode>('preview');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [regeneratingEmail, setRegeneratingEmail] = useState<{ pageKey: FunnelPageKey; emailIndex: number } | null>(null);
 
   const handleUpdateEmail = useCallback((updatedEmail: EmailCopy) => {
     if (!activePage) return;
@@ -723,6 +801,81 @@ export default function EmailSequencePage({
     });
     setHasUnsavedChanges(true);
   }, [activePage, activeEmailIndex]);
+
+  const handleAddEmail = useCallback((newEmail: EmailCopy) => {
+    if (!activePage) return;
+    setEmailSequence((prev) => {
+      const pageEmails = prev[activePage] ?? [];
+      const updatedEmails = [
+        ...pageEmails,
+        {
+          ...newEmail,
+          order: pageEmails.length + 1,
+        },
+      ];
+      const updated = {
+        ...prev,
+        [activePage]: updatedEmails,
+      };
+
+      // Auto-save changes to the DB
+      fetch(`/api/offer-data/${funnelId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocks: { email_sequence_v2: updated } }),
+      }).catch(() => {});
+
+      return updated;
+    });
+    
+    // Set active email to the newly added email
+    setTimeout(() => {
+      setEmailSequence((latest) => {
+        const count = latest[activePage]?.length ?? 0;
+        if (count > 0) {
+          setActiveEmailIndex(count - 1);
+        }
+        return latest;
+      });
+    }, 50);
+    toast.success('New email added to sequence!');
+  }, [activePage, funnelId]);
+
+  const handleDeleteActiveEmail = useCallback(() => {
+    if (!activePage) return;
+    const pageEmails = emailSequence[activePage] ?? [];
+    if (pageEmails.length <= 1) {
+      toast.error('You must keep at least one email in the sequence.');
+      return;
+    }
+
+    setEmailSequence((prev) => {
+      const emails = prev[activePage] ?? [];
+      const updatedEmails = emails.filter((_, idx) => idx !== activeEmailIndex);
+      // Re-index their orders
+      const reindexed = updatedEmails.map((email, idx) => ({
+        ...email,
+        order: idx + 1,
+      }));
+      const updated = {
+        ...prev,
+        [activePage]: reindexed,
+      };
+
+      // Auto-save changes to the DB
+      fetch(`/api/offer-data/${funnelId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocks: { email_sequence_v2: updated } }),
+      }).catch(() => {});
+
+      return updated;
+    });
+
+    // Clamp the active index so it stays in bounds
+    setActiveEmailIndex((i) => Math.max(0, Math.min(pageEmails.length - 2, i)));
+    toast.success('Email deleted from sequence.');
+  }, [activePage, activeEmailIndex, emailSequence, funnelId]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -831,6 +984,75 @@ export default function EmailSequencePage({
     await complete('');
   };
 
+  const handleRegenerateEmail = useCallback(async () => {
+    if (!activePage || !activeEmail) return;
+    const pageEmails = emailSequence[activePage] ?? [];
+
+    setRegeneratingEmail({ pageKey: activePage, emailIndex: activeEmailIndex });
+
+    try {
+      const res = await fetch(`/api/regenerate-single-email/${funnelId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pageKey: activePage,
+          emailIndex: activeEmailIndex,
+          currentEmail: activeEmail,
+          siblingEmails: pageEmails,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Regeneration failed' }));
+        throw new Error(err.error || 'Regeneration failed');
+      }
+
+      // Read the streamed response fully
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let fullText = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+      }
+
+      // Parse the single email from the response
+      const parsedEmail = parseEmailFromResponse(fullText, activeEmail.day, activePage);
+
+      if (parsedEmail) {
+        // Update only this email in state
+        setEmailSequence((prev) => {
+          const emails = [...(prev[activePage] ?? [])];
+          emails[activeEmailIndex] = {
+            ...parsedEmail,
+            order: activeEmailIndex + 1,
+          };
+          const updated = { ...prev, [activePage]: emails };
+
+          // Also persist to DB
+          fetch(`/api/offer-data/${funnelId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ blocks: { email_sequence_v2: updated } }),
+          }).catch(() => {});
+
+          return updated;
+        });
+        setHasUnsavedChanges(false);
+        toast.success('Email regenerated!');
+      } else {
+        toast.error('Could not parse the regenerated email. Please try again.');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to regenerate email');
+    } finally {
+      setRegeneratingEmail(null);
+    }
+  }, [activePage, activeEmailIndex, emailSequence, funnelId]);
+
   const handleSelectEmail = useCallback((page: FunnelPageKey, index: number) => {
     setActivePage(page);
     setActiveEmailIndex(index);
@@ -857,6 +1079,9 @@ export default function EmailSequencePage({
   const hasEmails = Object.keys(emailSequence).length > 0;
   const activeEmails = activePage ? emailSequence[activePage] ?? [] : [];
   const activeEmail = activeEmails[activeEmailIndex] ?? null;
+  const isCurrentEmailRegenerating = regeneratingEmail !== null
+    && regeneratingEmail.pageKey === activePage
+    && regeneratingEmail.emailIndex === activeEmailIndex;
 
   const totalEmails = Object.values(emailSequence).reduce(
     (sum, arr) => sum + (arr?.length ?? 0),
@@ -918,28 +1143,16 @@ export default function EmailSequencePage({
             { label: 'Email Sequence' },
           ]}
           actions={
-            hasEmails ? (
+            hasEmails && hasUnsavedChanges ? (
               <div className="flex items-center gap-2">
-                {hasUnsavedChanges && (
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={isSaving || isLoading}
-                    className="gap-1.5 font-semibold bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all duration-300"
-                  >
-                    {isSaving ? <Spinner size="sm" color="white" /> : <Check className="w-3.5 h-3.5" />}
-                    Save Changes
-                  </Button>
-                )}
                 <Button
                   size="sm"
-                  variant="outline"
-                  onClick={handleGenerate}
-                  disabled={isLoading || isSaving}
-                  className="gap-1.5 font-semibold bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:text-white"
+                  onClick={handleSave}
+                  disabled={isSaving || isLoading}
+                  className="gap-1.5 font-semibold bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all duration-300"
                 >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  Regenerate
+                  {isSaving ? <Spinner size="sm" color="white" /> : <Check className="w-3.5 h-3.5" />}
+                  Save Changes
                 </Button>
               </div>
             ) : undefined
@@ -1041,6 +1254,8 @@ export default function EmailSequencePage({
                     pageKey={activePage}
                     emailIndex={activeEmailIndex}
                     totalInPage={activeEmails.length}
+                    isRegenerating={isCurrentEmailRegenerating}
+                    onRegenerate={handleRegenerateEmail}
                   />
                 ) : (
                   <EmailCopyPanel
@@ -1060,6 +1275,21 @@ export default function EmailSequencePage({
           </div>
         </div>
       </div>
+
+      {hasEmails && (
+        <OfferIQAgent
+          ability="email-sequence"
+          funnelId={funnelId}
+          funnelName={funnelName}
+          activeEmail={activeEmail}
+          activePage={activePage}
+          activeEmailIndex={activeEmailIndex}
+          emailSequence={emailSequence}
+          onUpdateEmail={handleUpdateEmail}
+          onAddEmail={handleAddEmail}
+          onDeleteActiveEmail={handleDeleteActiveEmail}
+        />
+      )}
     </div>
   );
 }
