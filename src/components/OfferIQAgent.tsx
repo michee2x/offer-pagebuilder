@@ -359,7 +359,7 @@ export function OfferIQAgent({
                   const isUser = m.role === 'user';
                   const textContent = (m.parts && m.parts.length > 0)
                     ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
-                    : m.content;
+                    : (m as any).content || (m as any).text || '';
 
                   // Extract tool invocations from either m.toolInvocations or m.parts
                   const invocations = m.toolInvocations && m.toolInvocations.length > 0 
@@ -398,7 +398,7 @@ export function OfferIQAgent({
                             : "bg-[#0f1425] border border-white/5 text-slate-200 rounded-tl-none"
                         )}
                       >
-                        {parseMessageText(textContent || m.content)}
+                        {parseMessageText(textContent || (m as any).content || '')}
 
                         {/* Rendering skills invocations feedback */}
                         {invocations.map((invocator: any, i) => {
