@@ -362,8 +362,8 @@ export function OfferIQAgent({
                     : (m as any).content || (m as any).text || '';
 
                   // Extract tool invocations from either m.toolInvocations or m.parts
-                  const invocations = m.toolInvocations && m.toolInvocations.length > 0 
-                    ? m.toolInvocations 
+                  const invocations = (m as any).toolInvocations && (m as any).toolInvocations.length > 0 
+                    ? (m as any).toolInvocations 
                     : (m.parts ?? [])
                         .filter((p: any) => p.type === 'tool-invocation' || p.type === 'tool-result' || p.type === 'tool-call' || (typeof p.type === 'string' && p.type.startsWith('tool-')))
                         .map((p: any) => {
