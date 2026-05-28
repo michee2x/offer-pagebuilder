@@ -32,6 +32,7 @@ import { parseCopyOutput } from "@/lib/offer-parser";
 import { toast } from "sonner";
 import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 import { DocEditor } from "@/components/copy/DocEditor";
+import { OfferIQAgent } from "@/components/OfferIQAgent";
 
 // ─── Wizard steps ─────────────────────────────────────────────────────────────
 
@@ -264,6 +265,29 @@ export default function CopyPage({
     [copy, activePage]
   );
 
+  // ── Agent copy update handler ───────────────────────────────────────────────
+
+  const handleUpdateCopyPage = useCallback(
+    (page: FunnelPageKey, html: string) => {
+      if (!copy) return;
+      setCopy((prev) => {
+        if (!prev) return prev;
+        const pageData = prev.pages[page];
+        if (!pageData) return prev;
+
+        return {
+          ...prev,
+          pages: {
+            ...prev.pages,
+            [page]: { ...pageData, html },
+          },
+        };
+      });
+      setHasUnsavedChanges(true);
+    },
+    [copy]
+  );
+
   // ── Derived ─────────────────────────────────────────────────────────────────
 
   const pageList: FunnelPageKey[] = copy?.declaration?.pages ?? [];
@@ -482,6 +506,18 @@ export default function CopyPage({
 
         </div>
       </div>
+
+      {/* OfferIQ Agent for copy editing */}
+      {copy && activePage && (
+        <OfferIQAgent
+          ability="copy"
+          funnelId={funnelId}
+          funnelName={funnelName}
+          copy={copy}
+          activeCopyPage={activePage}
+          onUpdateCopyPage={handleUpdateCopyPage}
+        />
+      )}
 
       <GenerationOverlay visible={isGenerating} step={genStep} />
     </div>

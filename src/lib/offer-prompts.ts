@@ -428,6 +428,14 @@ Bonus stack: ${call1.strategic_bonus_recommendations}
 Pain point map: ${call1.pain_point_mapping}
 Score summary: ${call1.score_summary}
 
+=== IMPORTANT: BONUS STACK USAGE ===
+Extract the STRATEGIC_BONUS_RECOMMENDATIONS (the "bonus stack") from the sales intelligence above and treat it as official, high-value offer components.
+1) Include the bonus stack verbatim as the primary items in any "What's Included" or "Here's What's Included" section on the sales page.
+2) Use the bonus stack items as objection-killers: reference them near the price, in the guarantee framing, and as urgency/value-add bullets.
+3) Where space allows, weave a single-line benefit sentence for each bonus item (no more than 20 words) explaining why it removes a buyer objection.
+4) Do NOT invent additional bonuses — only reformat or lightly clarify the provided bonus text. Preserve original wording when possible.
+
+
 Offer positioning: ${call2.offer_positioning_analysis}
 Persona deep profile: ${call2.target_persona_intelligence}
 Conversion hooks (use these exactly — do not invent new ones): ${call2.conversion_hook_library}

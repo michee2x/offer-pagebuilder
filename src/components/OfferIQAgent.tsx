@@ -6,24 +6,30 @@ import { DefaultChatTransport } from 'ai';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Bot, Send, User, X, Loader2, Brain, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import { SparklesCore } from '@/components/ui/sparkles';
 
 import { cn } from '@/lib/utils';
-import type { EmailCopy, FunnelEmailSequence, FunnelPageKey } from '@/lib/offer-types';
+import type { EmailCopy, FunnelEmailSequence, FunnelPageKey, CopyOutput } from '@/lib/offer-types';
 import { toast } from 'sonner';
 
 interface OfferIQAgentProps {
-  ability: 'email-sequence';
+  ability: 'email-sequence' | 'copy';
   funnelId: string;
   funnelName: string;
-  // Context details
-  activeEmail: EmailCopy | null;
-  activePage: FunnelPageKey | null;
-  activeEmailIndex: number;
-  emailSequence: FunnelEmailSequence;
+  // Email context (for email-sequence ability)
+  activeEmail?: EmailCopy | null;
+  activePage?: FunnelPageKey | null;
+  activeEmailIndex?: number;
+  emailSequence?: FunnelEmailSequence;
+  // Copy context (for copy ability)
+  copy?: CopyOutput | null;
+  activeCopyPage?: FunnelPageKey | null;
   // State modifications (Skills Algorithms)
   onUpdateEmail?: (updated: EmailCopy) => void;
   onAddEmail?: (newEmail: EmailCopy) => void;
   onDeleteActiveEmail?: () => void;
+  onUpdateCopyPage?: (page: FunnelPageKey, html: string) => void;
 }
 
 const TRYOUT_RECOMMENDATIONS = {
@@ -31,6 +37,11 @@ const TRYOUT_RECOMMENDATIONS = {
     '✍️ Persuade active email tone',
     '📧 Add a follow-up nurture email',
     '🔍 Check spam words & objections',
+  ],
+  'copy': [
+    '✍️ Rewrite the main headline',
+    '🎯 Make CTA more persuasive',
+    '🔍 Audit copy for objections',
   ],
 };
 
@@ -102,18 +113,26 @@ export function OfferIQAgent({
   ability,
   funnelId,
   funnelName,
-  activeEmail,
-  activePage,
-  activeEmailIndex,
-  emailSequence,
+  activeEmail = null,
+  activePage = null,
+  activeEmailIndex = 0,
+  emailSequence = {},
+  copy = null,
+  activeCopyPage = null,
   onUpdateEmail,
   onAddEmail,
   onDeleteActiveEmail,
+  onUpdateCopyPage,
 }: OfferIQAgentProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const isDraggingRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Determine context based on ability
+  const context = ability === 'copy' 
+    ? { copy, activeCopyPage }
+    : { activeEmail, activePage, activeEmailIndex, emailSequence };
 
   // Set up V3 useChat with custom transport matching project patterns
   const { messages, sendMessage, status, setMessages } = useChat({
@@ -124,13 +143,19 @@ export function OfferIQAgent({
           id,
           messages,
           ability,
-          abilityContext: {
-            activeEmail,
-            activePage,
-            activeEmailIndex,
-            emailSequence,
-            funnelName,
-          },
+          abilityContext: ability === 'copy'
+            ? {
+                copy,
+                activeCopyPage,
+                funnelName,
+              }
+            : {
+                activeEmail,
+                activePage,
+                activeEmailIndex,
+                emailSequence,
+                funnelName,
+              },
         },
       }),
     }),
@@ -146,22 +171,28 @@ export function OfferIQAgent({
           const action = result.action;
           const data = result.data;
           
-          if (action === 'edit_email' && onUpdateEmail) {
-            const updated: EmailCopy = {
-              ...activeEmail,
-              ...data,
-              page: activePage!,
-              day: activeEmail?.day ?? 1,
-            };
-            onUpdateEmail(updated);
-          } else if (action === 'add_email' && onAddEmail) {
-            const newEmail: EmailCopy = {
-              ...data,
-              page: activePage!,
-            };
-            onAddEmail(newEmail);
-          } else if (action === 'delete_email' && onDeleteActiveEmail) {
-            onDeleteActiveEmail();
+          if (ability === 'email-sequence') {
+            if (action === 'edit_email' && onUpdateEmail) {
+              const updated: EmailCopy = {
+                ...activeEmail,
+                ...data,
+                page: activePage!,
+                day: activeEmail?.day ?? 1,
+              };
+              onUpdateEmail(updated);
+            } else if (action === 'add_email' && onAddEmail) {
+              const newEmail: EmailCopy = {
+                ...data,
+                page: activePage!,
+              };
+              onAddEmail(newEmail);
+            } else if (action === 'delete_email' && onDeleteActiveEmail) {
+              onDeleteActiveEmail();
+            }
+          } else if (ability === 'copy') {
+            if (action === 'edit_page_copy' && onUpdateCopyPage && activeCopyPage) {
+              onUpdateCopyPage(activeCopyPage, data?.html || '');
+            }
           }
         }
       }
@@ -227,9 +258,9 @@ export function OfferIQAgent({
         dragMomentum={false}
         dragConstraints={{
           left: 20,
-          right: typeof window !== 'undefined' ? window.innerWidth - 80 : 800,
+          right: typeof window !== 'undefined' ? window.innerWidth - 96 : 800,
           top: 20,
-          bottom: typeof window !== 'undefined' ? window.innerHeight - 80 : 800,
+          bottom: typeof window !== 'undefined' ? window.innerHeight - 96 : 800,
         }}
         onDragStart={() => {
           isDraggingRef.current = true;
@@ -241,21 +272,37 @@ export function OfferIQAgent({
         }}
         onClick={handleBallTap}
         style={{ touchAction: 'none' }}
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center cursor-grab active:cursor-grabbing group"
+        className="fixed bottom-6 right-6 z-50 w-24 h-24 flex items-center justify-center cursor-grab active:cursor-grabbing"
       >
-        {/* Pulsing outer visual glow */}
-        <div className="absolute inset-0 rounded-full bg-blue-500/30 blur-md group-hover:scale-110 transition-transform duration-300 animate-pulse" />
-        
-        {/* Glowing border ring */}
-        <div className="absolute -inset-0.5 rounded-full bg-gradient-to-tr from-cyan-400 via-indigo-500 to-fuchsia-500 animate-spin-slow opacity-80 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 rounded-full overflow-hidden">
+          <SparklesCore
+            background="transparent"
+            minSize={0.4}
+            maxSize={1}
+            particleDensity={1200}
+            className="w-full h-full"
+            particleColor="#FFFFFF"
+          />
+        </div>
 
-        {/* Circular ball wrapper */}
-        <div className="relative w-14 h-14 rounded-full bg-[#0a0d18] border border-white/10 flex items-center justify-center shadow-[0_4px_24px_rgba(0,0,0,0.6)] overflow-hidden">
-          {/* Background subtle mesh gradient */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.2)_0%,rgba(140,22,250,0)_70%)]" />
-          
-          {/* RENDER CUSTOM IMAGE HERE INSTEAD OF ICON IF AVAILABLE */}
-          <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)] animate-pulse" />
+        <motion.div
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <div className="w-24 h-24 rounded-full border border-cyan-500/30 shadow-[0_0_30px_rgba(56,189,248,0.18)]" />
+        </motion.div>
+
+        <div className="relative w-16 h-16 rounded-full bg-[#0a0d18] border border-white/10 flex items-center justify-center shadow-[0_4px_24px_rgba(0,0,0,0.6)] overflow-hidden z-10">
+          <div className="absolute inset-0 rounded-full border border-cyan-500/25" />
+          <Image
+            src="/bot-floating-ball-image.png"
+            alt="OfferIQ Bot"
+            width={56}
+            height={56}
+            className="w-14 h-14 rounded-full object-cover"
+            priority
+          />
         </div>
       </motion.div>
 
@@ -308,7 +355,9 @@ export function OfferIQAgent({
             <div className="px-4 py-2 bg-[#12182b] border-b border-white/5 flex items-start gap-2">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
               <p className="text-[10px] text-slate-400 leading-relaxed">
-                Operating strictly within the <strong>Email Sequence</strong> scope. Cannot build landing pages or adjust layout sections.
+                {ability === 'copy' 
+                  ? <>Operating strictly within the <strong>Copy Editing</strong> scope. Cannot build or modify landing pages, change layouts, or edit page builders.</>
+                  : <>Operating strictly within the <strong>Email Sequence</strong> scope. Cannot build landing pages or adjust layout sections.</>}
               </p>
             </div>
 
@@ -345,7 +394,9 @@ export function OfferIQAgent({
                         Hey there! 👋
                       </p>
                       <p className="text-xs text-slate-300 leading-relaxed">
-                        I am your dedicated OfferIQ agent operating under the <strong>Email Sequence Ability</strong>. I can edit this email copy, draft follow-ups, optimize tone, or run readability analysis.
+                        {ability === 'copy'
+                          ? <>I am your dedicated OfferIQ agent operating under the <strong>Copy Editing Ability</strong>. I can rewrite headlines, improve CTAs, audit copy for objections, and optimize your page copy for conversions.</>
+                          : <>I am your dedicated OfferIQ agent operating under the <strong>Email Sequence Ability</strong>. I can edit this email copy, draft follow-ups, optimize tone, or run readability analysis.</>}
                       </p>
                       <p className="text-[10px] text-slate-400 mt-2 font-medium">
                         Click any of the suggestions above or type your request below to begin.
