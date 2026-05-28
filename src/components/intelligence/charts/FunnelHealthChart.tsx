@@ -19,10 +19,33 @@ interface FunnelHealthData {
 }
 
 export function FunnelHealthChart({ content }: { content: string }) {
-  let data: FunnelHealthData | null = null;
-  try {
-    data = JSON.parse(content);
-  } catch (e) {
+  const parsedData = React.useMemo(() => {
+    try {
+      return JSON.parse(content) as FunnelHealthData;
+    } catch (e) {
+      return null;
+    }
+  }, [content]);
+
+  const [displayScore, setDisplayScore] = useState(0);
+
+  useEffect(() => {
+    if (!parsedData) return;
+    let start = 0;
+    const end = parsedData.score;
+    if (start === end) {
+      setTimeout(() => setDisplayScore(end), 0);
+      return;
+    }
+    const timer = setInterval(() => {
+      start += 1;
+      setDisplayScore(start);
+      if (start >= end) clearInterval(timer);
+    }, 1500 / end);
+    return () => clearInterval(timer);
+  }, [parsedData]);
+
+  if (!parsedData) {
     return (
       <div className="p-6 border border-dashed rounded-xl bg-muted/5 text-muted-foreground text-center">
         Unable to render funnel health visualization.
@@ -30,23 +53,7 @@ export function FunnelHealthChart({ content }: { content: string }) {
     );
   }
 
-  if (!data) return null;
-
-  const [displayScore, setDisplayScore] = useState(0);
-  useEffect(() => {
-    let start = 0;
-    const end = data.score;
-    if (start === end) {
-      setDisplayScore(end);
-      return;
-    }
-    let timer = setInterval(() => {
-      start += 1;
-      setDisplayScore(start);
-      if (start >= end) clearInterval(timer);
-    }, 1500 / end);
-    return () => clearInterval(timer);
-  }, [data.score]);
+  const data = parsedData;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12 relative z-10">

@@ -1,11 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// offer-parser — v3
-// Parses the AI's JSON page spec output into CopyOutput.
-// No more regex. JSON.parse and done.
+// offer-parser — v4
+// Parses AI JSON output into CopyOutput (PageDoc / html format).
+// Also migrates legacy PageSpec (sections/elements) data to HTML.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {
   CopyOutput,
+  PageDoc,
   PageSpec,
   PageSection,
   PageElement,
@@ -25,35 +26,141 @@ const VALID_PAGE_KEYS = new Set<FunnelPageKey>([
   'thankyou',
 ]);
 
-// ─── Word counter ─────────────────────────────────────────────────────────────
+// ─── Count words in an HTML string ───────────────────────────────────────────
 
-function countWords(spec: PageSpec): number {
-  let count = 0;
+function countHtmlWords(html: string): number {
+  const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return text ? text.split(' ').filter(Boolean).length : 0;
+}
+
+// ─── Migrate a legacy PageSpec (sections/elements) → HTML string ─────────────
+
+function legacySpecToHtml(spec: PageSpec): string {
+  const parts: string[] = [];
   for (const section of spec.sections) {
     for (const el of section.elements) {
-      if (el.copy) count += el.copy.split(/\s+/).filter(Boolean).length;
-      if (el.secondary_copy) count += el.secondary_copy.split(/\s+/).filter(Boolean).length;
-      if (el.items) {
-        for (const item of el.items) {
-          count += item.split(/\s+/).filter(Boolean).length;
-        }
+      switch (el.type) {
+        case 'headline':
+          parts.push(`<h1>${el.copy ?? ''}</h1>`);
+          break;
+        case 'subheadline':
+          parts.push(el.size === 'sm'
+            ? `<h2>${el.copy ?? ''}</h2>`
+            : `<h3>${el.copy ?? ''}</h3>`);
+          break;
+        case 'body_text':
+          parts.push(`<p>${el.copy ?? ''}</p>`);
+          break;
+        case 'bullet_list':
+        case 'icon_list':
+          if (el.items?.length) {
+            parts.push(`<ul>${el.items.map(i => `<li>${i}</li>`).join('')}</ul>`);
+          }
+          break;
+        case 'step_indicator':
+          if (el.items?.length) {
+            parts.push(`<ol>${el.items.map(i => `<li>${i}</li>`).join('')}</ol>`);
+          }
+          break;
+        case 'testimonial_card':
+          parts.push(`<blockquote><p>${el.copy ?? ''}</p>${el.secondary_copy ? `<p><em>— ${el.secondary_copy}</em></p>` : ''}</blockquote>`);
+          break;
+        case 'testimonial_grid':
+          if (el.items?.length) {
+            el.items.forEach(item => {
+              parts.push(`<blockquote><p>${item}</p></blockquote>`);
+            });
+          }
+          break;
+        case 'social_proof_bar':
+        case 'avatar_stack':
+          parts.push(`<blockquote>${el.copy ?? ''}</blockquote>`);
+          break;
+        case 'price_block':
+          parts.push(`<h3>${el.copy ?? ''}</h3>`);
+          if (el.secondary_copy) parts.push(`<p>${el.secondary_copy}</p>`);
+          break;
+        case 'guarantee_badge':
+          parts.push(`<blockquote>🛡️ ${el.copy ?? ''}</blockquote>`);
+          break;
+        case 'cta_button':
+          parts.push(`<p><em>[🔘 Button: ${el.copy ?? 'Click Here'}]</em></p>`);
+          if (el.secondary_copy) parts.push(`<p><em>${el.secondary_copy}</em></p>`);
+          break;
+        case 'video_placeholder':
+          parts.push(`<p><em>[▶️ Video: ${el.placeholder_label ?? 'Video goes here'}]</em></p>`);
+          break;
+        case 'image_placeholder':
+          parts.push(`<p><em>[📷 Image: ${el.placeholder_label ?? 'Image goes here'}]</em></p>`);
+          break;
+        case 'form_input':
+          parts.push(`<p><em>[📧 Form: ${el.copy ?? 'Enter your email'}]</em></p>`);
+          break;
+        case 'countdown_timer':
+          parts.push(`<p><em>[⏱️ Countdown: ${el.copy ?? 'Offer expires in:'}]</em></p>`);
+          break;
+        case 'divider':
+          parts.push('<hr>');
+          break;
+        case 'nav_logo':
+          parts.push(`<h3>${el.copy ?? ''}</h3>`);
+          break;
+        case 'nav_links':
+        case 'countdown_timer':
+          // skip nav/timer — editor doesn't need raw nav
+          break;
+        default:
+          if (el.copy) parts.push(`<p>${el.copy}</p>`);
       }
     }
   }
-  return count;
+  return parts.join('');
 }
 
-// ─── Sanitise a page spec coming from AI ─────────────────────────────────────
+// ─── Parse a single page from AI output into PageDoc ─────────────────────────
 
-function sanitisePage(raw: any, key: FunnelPageKey): PageSpec | null {
+function parsePageDoc(raw: any, key: FunnelPageKey): PageDoc | null {
   if (!raw || typeof raw !== 'object') return null;
 
-  const sections: PageSection[] = [];
+  // New format: page has an `html` field
+  if (typeof raw.html === 'string' && raw.html.trim()) {
+    const html = raw.html.trim();
+    return {
+      key,
+      title: raw.title || key,
+      html,
+      score: typeof raw.score === 'number' ? raw.score : 85,
+      word_count: typeof raw.word_count === 'number' && raw.word_count > 0
+        ? raw.word_count
+        : countHtmlWords(html),
+    };
+  }
 
+  // Legacy format: page has `sections` array — migrate to HTML
+  if (Array.isArray(raw.sections) && raw.sections.length > 0) {
+    const legacySpec = sanitiseLegacySpec(raw, key);
+    if (!legacySpec) return null;
+    const html = legacySpecToHtml(legacySpec);
+    return {
+      key,
+      title: raw.title || key,
+      html,
+      score: typeof raw.score === 'number' ? raw.score : 85,
+      word_count: countHtmlWords(html),
+    };
+  }
+
+  return null;
+}
+
+// ─── Sanitise a legacy PageSpec ───────────────────────────────────────────────
+
+function sanitiseLegacySpec(raw: any, key: FunnelPageKey): PageSpec | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const sections: PageSection[] = [];
   if (Array.isArray(raw.sections)) {
     for (const sec of raw.sections) {
       if (!sec || typeof sec !== 'object') continue;
-
       const elements: PageElement[] = [];
       if (Array.isArray(sec.elements)) {
         for (const el of sec.elements) {
@@ -72,7 +179,6 @@ function sanitisePage(raw: any, key: FunnelPageKey): PageSpec | null {
           });
         }
       }
-
       sections.push({
         id: sec.id || `sec_${Math.random().toString(36).slice(2, 7)}`,
         label: sec.label || sec.id || 'Section',
@@ -84,20 +190,14 @@ function sanitisePage(raw: any, key: FunnelPageKey): PageSpec | null {
       });
     }
   }
-
   if (sections.length === 0) return null;
-
-  const spec: PageSpec = {
+  return {
     key,
     title: raw.title || key,
     sections,
     score: typeof raw.score === 'number' ? raw.score : 85,
     word_count: 0,
   };
-
-  spec.word_count = countWords(spec);
-
-  return spec;
 }
 
 // ─── Main export ──────────────────────────────────────────────────────────────
@@ -114,8 +214,7 @@ export function parseCopyOutput(rawText: string): CopyOutput {
 
   try {
     parsed = JSON.parse(cleaned);
-  } catch (e) {
-    // Attempt to extract a JSON object if there's surrounding text
+  } catch {
     const match = cleaned.match(/\{[\s\S]*\}/);
     if (match) {
       try {
@@ -141,24 +240,21 @@ export function parseCopyOutput(rawText: string): CopyOutput {
     rationale: decl.rationale || '',
   };
 
-  // Parse pages
-  const pages: Partial<Record<FunnelPageKey, PageSpec>> = {};
-
+  const pages: Partial<Record<FunnelPageKey, PageDoc>> = {};
   const pagesRaw = parsed.pages || {};
 
   for (const key of declaredPages) {
-    const raw = pagesRaw[key];
-    const spec = sanitisePage(raw, key);
-    if (spec) pages[key] = spec;
+    const doc = parsePageDoc(pagesRaw[key], key);
+    if (doc) pages[key] = doc;
   }
 
-  // Fallback: if declaration is empty but pages exist in the JSON, grab them
+  // Fallback: declaration is empty but pages exist
   if (declaredPages.length === 0) {
     for (const key of Object.keys(pagesRaw) as FunnelPageKey[]) {
       if (!VALID_PAGE_KEYS.has(key)) continue;
-      const spec = sanitisePage(pagesRaw[key], key);
-      if (spec) {
-        pages[key] = spec;
+      const doc = parsePageDoc(pagesRaw[key], key);
+      if (doc) {
+        pages[key] = doc;
         declaration.pages.push(key);
       }
     }
@@ -249,7 +345,7 @@ function parseEmailBlocksFromContent(content: string, pageKey: FunnelPageKey): E
 
     // Try HTML: format first
     const htmlMatch = block.match(/HTML:\s*([\s\S]*?<html[\s\S]*?<\/html>)/i);
-    let html = htmlMatch?.[1]?.trim() ?? '';
+    const html = htmlMatch?.[1]?.trim() ?? '';
     let body = '';
     let cta = '';
 

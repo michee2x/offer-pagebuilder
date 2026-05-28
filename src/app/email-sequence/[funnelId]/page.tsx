@@ -62,7 +62,7 @@ function parseEmailFromResponse(raw: string, dayFallback: number, pageKey: Funne
   const preview = raw.match(/PREVIEW:\s*(.+)/i)?.[1]?.trim() ?? '';
 
   const htmlMatch = raw.match(/HTML:\s*([\s\S]*?<html[\s\S]*?<\/html>)/i);
-  let html = htmlMatch?.[1]?.trim() ?? '';
+  const html = htmlMatch?.[1]?.trim() ?? '';
   let body = '';
   let cta = '';
 
@@ -93,7 +93,7 @@ function parseEmailFromResponse(raw: string, dayFallback: number, pageKey: Funne
 
 // ─── Generation overlay ───────────────────────────────────────────────────────
 
-function GenerationOverlay({ visible, streamText }: { visible: boolean; streamText: string }) {
+function GenerationOverlay({ visible }: { visible: boolean }) {
   if (!visible) return null;
 
   return (
@@ -776,7 +776,6 @@ export default function EmailSequencePage({
   params: Promise<{ funnelId: string }>;
 }) {
   const { funnelId } = use(params);
-  const router = useRouter();
 
   const [funnelName, setFunnelName] = useState('Your Funnel');
   const [emailSequence, setEmailSequence] = useState<FunnelEmailSequence>({});
@@ -1051,7 +1050,7 @@ export default function EmailSequencePage({
     } finally {
       setRegeneratingEmail(null);
     }
-  }, [activePage, activeEmailIndex, emailSequence, funnelId]);
+  }, [activePage, activeEmailIndex, emailSequence, funnelId, activeEmail]);
 
   const handleSelectEmail = useCallback((page: FunnelPageKey, index: number) => {
     setActivePage(page);

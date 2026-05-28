@@ -33,7 +33,10 @@ export function PlatformPieChart({ content }: { content: string }) {
   }
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="bg-[#050B15]/80 backdrop-blur-xl rounded-2xl border border-white/10 p-8 mb-8 flex flex-col md:flex-row items-center relative overflow-hidden">

@@ -140,7 +140,7 @@ export interface Call3Output {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Page Spec — the new copy format
+// Page Doc — the rich-text editor copy format (replaces PageSpec)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -161,74 +161,17 @@ export const FUNNEL_PAGE_LABELS: Record<FunnelPageKey, string> = {
   thankyou: 'Thank You',
 };
 
-// ── Element types the AI can place ──────────────────────────────────────────
-
-export type PageElementType =
-  | 'headline'         // Large H1-level text
-  | 'subheadline'      // H2/H3 supporting text
-  | 'body_text'        // Paragraph copy
-  | 'bullet_list'      // List of benefit/feature points
-  | 'cta_button'       // Call to action button
-  | 'video_placeholder'    // VSL or explainer video slot
-  | 'image_placeholder'    // Photo, illustration, or graphic slot
-  | 'countdown_timer'      // Urgency countdown element
-  | 'social_proof_bar'     // "X people joined" / trust bar
-  | 'testimonial_card'     // Single testimonial block
-  | 'testimonial_grid'     // Row/grid of testimonials
-  | 'price_block'          // Price display with anchoring
-  | 'guarantee_badge'      // Money-back or risk-reversal element
-  | 'avatar_stack'         // Overlapping avatars + social proof text
-  | 'divider'              // Visual section break
-  | 'icon_list'            // List items with icons
-  | 'form_input'           // Email/name opt-in field
-  | 'nav_logo'             // Logo in nav
-  | 'nav_links'            // Navigation links
-  | 'step_indicator';      // Numbered steps / progress
-
-// ── Layout options per element ───────────────────────────────────────────────
-
-export type ElementAlignment = 'left' | 'center' | 'right';
-export type SectionLayout = 'full_width' | 'centered' | 'split_left' | 'split_right' | 'two_column' | 'three_column';
-export type SpacingToken = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-
-// ── A single page element ────────────────────────────────────────────────────
-
-export interface PageElement {
-  id: string;
-  type: PageElementType;
-  copy?: string;                  // Main text content (editable)
-  secondary_copy?: string;        // Sub-text, label, or supporting copy
-  items?: string[];               // For bullet_list, icon_list
-  align?: ElementAlignment;
-  placeholder_label?: string;     // For video/image placeholders — "VSL goes here"
-  placeholder_aspect?: '16:9' | '9:16' | '1:1' | '4:3';  // Aspect ratio hint
-  variant?: string;               // e.g. "primary" | "secondary" | "ghost" for buttons
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-}
-
-// ── A section groups elements with layout intent ─────────────────────────────
-
-export interface PageSection {
-  id: string;
-  label: string;                  // Human-readable e.g. "Hero", "Pain Story"
-  layout: SectionLayout;
-  padding_top: SpacingToken;
-  padding_bottom: SpacingToken;
-  background?: 'default' | 'muted' | 'dark' | 'brand';
-  elements: PageElement[];
-}
-
-// ── A full page spec ─────────────────────────────────────────────────────────
-
-export interface PageSpec {
+/**
+ * A single funnel page stored as an HTML string.
+ * The AI generates this HTML; the Tiptap editor reads and writes it.
+ */
+export interface PageDoc {
   key: FunnelPageKey;
   title: string;
-  sections: PageSection[];
+  html: string;        // Full HTML the rich-text editor stores and renders
   word_count: number;
   score: number;
 }
-
-// ── The full output ──────────────────────────────────────────────────────────
 
 export interface PageDeclaration {
   pages: FunnelPageKey[];
@@ -237,7 +180,52 @@ export interface PageDeclaration {
 
 export interface CopyOutput {
   declaration: PageDeclaration;
-  pages: Partial<Record<FunnelPageKey, PageSpec>>;
+  pages: Partial<Record<FunnelPageKey, PageDoc>>;
+}
+
+// ── Legacy element types — kept for migration of old saved data ───────────────
+
+export type PageElementType =
+  | 'headline' | 'subheadline' | 'body_text' | 'bullet_list' | 'icon_list'
+  | 'cta_button' | 'video_placeholder' | 'image_placeholder' | 'countdown_timer'
+  | 'social_proof_bar' | 'testimonial_card' | 'testimonial_grid' | 'price_block'
+  | 'guarantee_badge' | 'avatar_stack' | 'divider' | 'form_input' | 'nav_logo'
+  | 'nav_links' | 'step_indicator';
+
+export type ElementAlignment = 'left' | 'center' | 'right';
+export type SectionLayout = 'full_width' | 'centered' | 'split_left' | 'split_right' | 'two_column' | 'three_column';
+export type SpacingToken = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+export interface PageElement {
+  id: string;
+  type: PageElementType;
+  copy?: string;
+  secondary_copy?: string;
+  items?: string[];
+  align?: ElementAlignment;
+  placeholder_label?: string;
+  placeholder_aspect?: '16:9' | '9:16' | '1:1' | '4:3';
+  variant?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+}
+
+export interface PageSection {
+  id: string;
+  label: string;
+  layout: SectionLayout;
+  padding_top: SpacingToken;
+  padding_bottom: SpacingToken;
+  background?: 'default' | 'muted' | 'dark' | 'brand';
+  elements: PageElement[];
+}
+
+/** Legacy full page spec — only used for migrating old saved data */
+export interface PageSpec {
+  key: FunnelPageKey;
+  title: string;
+  sections: PageSection[];
+  word_count: number;
+  score: number;
 }
 
 // ── Legacy shim — kept so email sequence route doesn't break ─────────────────

@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Bot, Send, User, X, Loader2, Brain, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { cn } from '@/lib/utils';
 import type { EmailCopy, FunnelEmailSequence, FunnelPageKey } from '@/lib/offer-types';
 import { toast } from 'sonner';
@@ -49,7 +49,7 @@ function parseMessageText(text: string) {
     
     // Simple bold (**bold**) and inline code (`code`)
     const parts: React.ReactNode[] = [];
-    let currentText = content;
+    const currentText = content;
     const regex = /(\*\*.*?\*\*|`.*?`)/g;
     let match;
     let lastIndex = 0;

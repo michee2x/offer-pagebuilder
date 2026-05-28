@@ -6,41 +6,42 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export function ScoreRadarChart({ content }: { content: string }) {
-  let data: any[] = [];
-  let overall = 0;
-  
-  try {
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    const cleanContent = jsonMatch ? jsonMatch[0] : content;
-    const scores = JSON.parse(cleanContent);
-    overall = scores.overall || 0;
-    data = [
-      { subject: 'Market Viability', A: scores.market_viability || 0, fullMark: 100 },
-      { subject: 'Audience Clar.', A: scores.audience_clarity || 0, fullMark: 100 },
-      { subject: 'Offer Strength', A: scores.offer_strength || 0, fullMark: 100 },
-      { subject: 'Price-Value', A: scores.price_value_alignment || 0, fullMark: 100 },
-      { subject: 'Uniqueness', A: scores.uniqueness || 0, fullMark: 100 },
-      { subject: 'Proof Strength', A: scores.proof_strength || 0, fullMark: 100 },
-      { subject: 'Conv. Ready', A: scores.conversion_readiness || 0, fullMark: 100 },
-    ];
-  } catch (e) {
-    return <div className="text-sm text-muted-foreground p-4">Invalid score data</div>;
-  }
+  const parsedData = React.useMemo(() => {
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const cleanContent = jsonMatch ? jsonMatch[0] : content;
+      const scores = JSON.parse(cleanContent);
+      return {
+        overall: scores.overall || 0,
+        data: [
+          { subject: 'Market Viability', A: scores.market_viability || 0, fullMark: 100 },
+          { subject: 'Audience Clar.', A: scores.audience_clarity || 0, fullMark: 100 },
+          { subject: 'Offer Strength', A: scores.offer_strength || 0, fullMark: 100 },
+          { subject: 'Price-Value', A: scores.price_value_alignment || 0, fullMark: 100 },
+          { subject: 'Uniqueness', A: scores.uniqueness || 0, fullMark: 100 },
+          { subject: 'Proof Strength', A: scores.proof_strength || 0, fullMark: 100 },
+          { subject: 'Conv. Ready', A: scores.conversion_readiness || 0, fullMark: 100 },
+        ]
+      };
+    } catch (e) {
+      return null;
+    }
+  }, [content]);
 
-  // Count up animation
   const [displayScore, setDisplayScore] = useState(0);
   useEffect(() => {
+    if (!parsedData) return;
     let start = 0;
-    const end = overall;
+    const end = parsedData.overall;
     if (start === end) {
-      setDisplayScore(end);
+      setTimeout(() => setDisplayScore(end), 0);
       return;
     }
     
-    let totalDuration = 1500;
-    let incrementTime = (totalDuration / end);
+    const totalDuration = 1500;
+    const incrementTime = (totalDuration / end);
     
-    let timer = setInterval(() => {
+    const timer = setInterval(() => {
       start += 1;
       setDisplayScore(start);
       if (start >= end) {
@@ -50,7 +51,13 @@ export function ScoreRadarChart({ content }: { content: string }) {
     }, incrementTime);
     
     return () => clearInterval(timer);
-  }, [overall]);
+  }, [parsedData]);
+
+  if (!parsedData) {
+    return <div className="text-sm text-muted-foreground p-4">Invalid score data</div>;
+  }
+
+  const { data, overall } = parsedData;
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]";

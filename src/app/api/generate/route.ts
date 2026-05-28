@@ -497,7 +497,7 @@ export async function POST(req: Request) {
     // Create client SSE stream — the generate logic runs inline inside its pull/start,
     // keeping the HTTP response alive until generation fully completes.
     let generateResolve: () => void = () => {};
-    const generateDone = new Promise<void>((res) => {
+    new Promise<void>((res) => {
       generateResolve = res;
     });
 
@@ -507,7 +507,7 @@ export async function POST(req: Request) {
       if (!controllerRef) return;
       try {
         controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify({ type, data })}\n\n`));
-      } catch (err) {
+      } catch {
         // Connection closed by client, safe to stop pushing
         controllerRef = null;
       }

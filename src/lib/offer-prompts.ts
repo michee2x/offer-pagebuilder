@@ -346,31 +346,40 @@ PAGE STRATEGY
 
 lead_capture
 FULL persuasion page. Not just a form. Minimum 7–10 sections:
-Nav → attention/urgency bar → bold claim opener (subheadline above headline) → specific outcome headline → vivid scene subheadline → video or image placeholder → outcome bullet list (what they get) → social proof bar → opt-in form → CTA button with micro-copy → trust/guarantee line
-The form is the DESTINATION at the bottom. Everything above it builds desire.
+lead_capture — Full persuasion page. Minimum 7–10 blocks in this order:
+<h2> opener → <h1> headline → <p> vivid scene subheadline → [image/video placeholder] →
+<p> value statement → <ul> outcome bullets → <blockquote> social proof → <hr> →
+[form placeholder] → [button placeholder] → <p> trust / guarantee micro-copy
 
-sales_page
-The long page. Full persuasion weight. 12–18 sections:
-Nav → attention bar → bold claim opener → specific number headline → vivid scene subheadline → VSL placeholder → social proof bar → "does this sound familiar?" pain story (body_text, present tense) → old way vs new way → mechanism reveal → product intro → 3-step activation (step_indicator) → icon_list of outcomes → scenario-based proof → market stat blocks → testimonial_grid → guarantee_badge → price_block → urgency countdown → final CTA
+sales_page — The long page. 12–18 blocks in this order:
+<h2> opener → <h1> headline → <p> scene subheadline → [VSL placeholder] →
+<blockquote> social proof bar → <hr> → <h3> "Does This Sound Familiar?" →
+<p><p><p> pain story (present tense, second person) → <hr> → <h3> Old Way vs New Way →
+<p><p> contrast copy → <hr> → <h3> mechanism reveal → <p> product intro →
+<h3> "Here's How It Works:" → <ol> 3 exact steps → <h3> "What You Get:" →
+<ul> outcome bullets → <hr> → <h3> "Here's What People Are Saying:" →
+<blockquote> × 3 testimonials → <hr> → <h3> "Here's What's Included:" →
+<ul> features/bonuses → [image placeholder] → <blockquote> guarantee →
+<h3> price intro → <p> anchor / framing → [button placeholder] →
+[countdown placeholder] → <blockquote> final urgency statement
 
-upsell
-Fast and momentum. They just bought. Do NOT re-introduce. 4–6 sections:
-Bridge from what they just got → the gap → what this adds → fast proof → price → CTA
+upsell — Fast and momentum. 4–6 blocks:
+<h2> bridge from what they just got → <h1> what this adds → <p> gap copy →
+<blockquote> fast proof → <p> price frame → [button placeholder]
 
-downsell
-Genuine alternative. Lower price, lower commitment. Respectful. 3–5 sections.
+downsell — Genuine alternative. 3–5 blocks:
+<h2> respectful bridge → <h3> alternative offer → <p> copy → [button placeholder]
 
-thankyou
-Short. Confirm, celebrate briefly, numbered next steps. 3–4 sections.
+thankyou — Short. 3–4 blocks:
+<h1> confirmation + celebration → <p> what happens next → <ol> next steps → <p> support note
 
 ═══════════════════════════════════════
 OUTPUT FORMAT — CRITICAL
 ═══════════════════════════════════════
 
-Output a single valid JSON object and NOTHING ELSE. No prose before it. No prose after it. No markdown code fences. No explanation. Raw JSON only.
+Output a single valid JSON object and NOTHING ELSE. No prose. No markdown fences. No explanation. Raw JSON only.
 
 Structure:
-
 {
   "declaration": {
     "pages": ["lead_capture", "sales_page"],
@@ -382,53 +391,14 @@ Structure:
       "title": "Internal page name",
       "score": 85,
       "word_count": 0,
-      "sections": [
-        {
-          "id": "hero",
-          "label": "Hero",
-          "layout": "centered",
-          "padding_top": "2xl",
-          "padding_bottom": "xl",
-          "background": "default",
-          "elements": [
-            {
-              "id": "hero_badge",
-              "type": "subheadline",
-              "copy": "BRAND NEW : Short category label framing what this is — max 12 words",
-              "align": "center",
-              "size": "sm"
-            },
-            {
-              "id": "hero_headline",
-              "type": "headline",
-              "copy": "Specific outcome headline with a real number or concrete result — never vague",
-              "align": "center",
-              "size": "xl"
-            },
-            {
-              "id": "hero_sub",
-              "type": "subheadline",
-              "copy": "Vivid scene subheadline. A specific moment the reader pictures themselves in.",
-              "align": "center"
-            },
-            {
-              "id": "hero_cta",
-              "type": "cta_button",
-              "copy": "Action-oriented button label",
-              "secondary_copy": "What happens next — no risk, instant access",
-              "variant": "primary",
-              "align": "center"
-            }
-          ]
-        }
-      ]
+      "html": "<h2>BRAND NEW : Short category label — max 12 words</h2><h1>Specific outcome headline with a real number</h1><p>Vivid scene subheadline — a moment the reader pictures themselves in.</p><p><em>[📷 Image: Hero product image]</em></p><p>Here is exactly what you are getting and why it matters to you right now.</p><ul><li>Outcome bullet 1 — specific benefit, not a feature</li><li>Outcome bullet 2</li><li>Outcome bullet 3</li></ul><blockquote>Join 4,300+ people already getting results | 4.9 stars | 580+ reviews</blockquote><hr><p><em>[📧 Form: Enter your best email address]</em></p><p><em>[🔘 Button: Yes! Give Me Instant Access]</em></p><p><em>100% free. No credit card. Instant delivery.</em></p>"
     }
   }
 }
 
-Every id must be unique across the entire JSON. Use descriptive snake_case ids.
-word_count: count all copy words accurately and set it.
-score: rate 0–100 based on conversion strength of the copy and structure.`;
+word_count: count all visible text words in the HTML (ignore tags and placeholder markers). Set it accurately.
+score: rate 0–100 based on conversion strength of the copy following all 10 patterns above.
+Every html value must be a single-line JSON string (escape newlines as \\n if needed, but prefer one continuous string).`;
 
 export function buildCopyUserPrompt(
   form: OfferFormData,

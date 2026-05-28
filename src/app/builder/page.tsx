@@ -86,7 +86,6 @@ export default function BuilderPage() {
         }, 300);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLoading, isGenerating]);
 
   React.useEffect(() => {
