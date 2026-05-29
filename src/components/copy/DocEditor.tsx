@@ -42,7 +42,12 @@ interface ToolbarButtonProps {
   children: React.ReactNode;
 }
 
-function ToolbarButton({ onClick, active, title, children }: ToolbarButtonProps) {
+function ToolbarButton({
+  onClick,
+  active,
+  title,
+  children,
+}: ToolbarButtonProps) {
   return (
     <button
       onMouseDown={(e) => {
@@ -54,7 +59,7 @@ function ToolbarButton({ onClick, active, title, children }: ToolbarButtonProps)
         "w-7 h-7 flex items-center justify-center rounded transition-all duration-100",
         active
           ? "bg-white/15 text-white"
-          : "text-white/40 hover:text-white hover:bg-white/8"
+          : "text-white/40 hover:text-white hover:bg-white/8",
       )}
     >
       {children}
@@ -115,24 +120,30 @@ export function DocEditor({
     prevHtml.current = html;
     const current = editor.getHTML();
     if (current !== html) {
-      editor.commands.setContent(html || "", false);
+      editor.commands.setContent(html || "");
     }
   }, [html, editor]);
 
   const insertImagePlaceholder = useCallback(() => {
-    editor?.chain().focus()
+    editor
+      ?.chain()
+      .focus()
       .insertContent("<p><em>[📷 Image: describe what goes here]</em></p>")
       .run();
   }, [editor]);
 
   const insertVideoPlaceholder = useCallback(() => {
-    editor?.chain().focus()
+    editor
+      ?.chain()
+      .focus()
       .insertContent("<p><em>[▶️ Video: describe what goes here]</em></p>")
       .run();
   }, [editor]);
 
   const insertCtaButton = useCallback(() => {
-    editor?.chain().focus()
+    editor
+      ?.chain()
+      .focus()
       .insertContent("<p><em>[🔘 Button: Your CTA text here]</em></p>")
       .run();
   }, [editor]);
@@ -152,21 +163,27 @@ export function DocEditor({
           <Pilcrow className="w-3.5 h-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
           active={editor.isActive("heading", { level: 1 })}
           title="Heading 1"
         >
           <Heading1 className="w-3.5 h-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           active={editor.isActive("heading", { level: 2 })}
           title="Heading 2"
         >
           <Heading2 className="w-3.5 h-3.5" />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           active={editor.isActive("heading", { level: 3 })}
           title="Heading 3"
         >
@@ -264,10 +281,16 @@ export function DocEditor({
         >
           <Minus className="w-3.5 h-3.5" />
         </ToolbarButton>
-        <ToolbarButton onClick={insertImagePlaceholder} title="Insert Image Placeholder">
+        <ToolbarButton
+          onClick={insertImagePlaceholder}
+          title="Insert Image Placeholder"
+        >
           <ImageIcon className="w-3.5 h-3.5" />
         </ToolbarButton>
-        <ToolbarButton onClick={insertVideoPlaceholder} title="Insert Video Placeholder">
+        <ToolbarButton
+          onClick={insertVideoPlaceholder}
+          title="Insert Video Placeholder"
+        >
           <Video className="w-3.5 h-3.5" />
         </ToolbarButton>
         <ToolbarButton onClick={insertCtaButton} title="Insert CTA Button">
@@ -312,21 +335,27 @@ export function DocEditor({
         </ToolbarButton>
         <div className="w-px h-3 bg-white/10 mx-0.5" />
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
           active={editor.isActive("heading", { level: 1 })}
           title="H1"
         >
           <Heading1 className="w-3 h-3" />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           active={editor.isActive("heading", { level: 2 })}
           title="H2"
         >
           <Heading2 className="w-3 h-3" />
         </ToolbarButton>
         <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           active={editor.isActive("heading", { level: 3 })}
           title="H3"
         >
