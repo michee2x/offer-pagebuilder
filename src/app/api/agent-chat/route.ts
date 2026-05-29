@@ -111,7 +111,7 @@ INSTRUCTIONS FOR SKILL CALLS:
           html: { type: 'string', description: 'The complete, fully-styled inline-CSS responsive HTML email code.' },
         },
       }),
-      execute: async (data) => {
+      execute: async (data: any) => {
         console.log('=== Tool execute: edit_email_content ===', data);
         return { success: true, action: 'edit_email', data };
       },
@@ -129,7 +129,7 @@ INSTRUCTIONS FOR SKILL CALLS:
         },
         required: ['subject', 'preview', 'body', 'html', 'day'],
       }),
-      execute: async (data) => {
+      execute: async (data: any) => {
         console.log('=== Tool execute: add_new_email ===', data);
         return { success: true, action: 'add_email', data };
       },
@@ -160,7 +160,7 @@ INSTRUCTIONS FOR SKILL CALLS:
         },
         required: ['analysis', 'toneScore', 'suggestions'],
       }),
-      execute: async (data) => {
+      execute: async (data: any) => {
         console.log('=== Tool execute: suggest_email_improvements ===', data);
         return { success: true, action: 'suggest_email', data };
       },
@@ -175,7 +175,7 @@ INSTRUCTIONS FOR SKILL CALLS:
         },
         required: ['html'],
       }),
-      execute: async (data) => {
+      execute: async (data: any) => {
         console.log('=== Tool execute: edit_page_copy ===', data);
         return { success: true, action: 'edit_page_copy', data };
       },
@@ -195,7 +195,7 @@ INSTRUCTIONS FOR SKILL CALLS:
         },
         required: ['analysis', 'conversionScore', 'suggestions'],
       }),
-      execute: async (data) => {
+      execute: async (data: any) => {
         console.log('=== Tool execute: suggest_copy_improvements ===', data);
         return { success: true, action: 'suggest_copy', data };
       },
