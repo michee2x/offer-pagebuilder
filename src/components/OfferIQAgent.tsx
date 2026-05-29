@@ -563,7 +563,7 @@ export function OfferIQAgent({
                         )}
 
                         {/* Rendering skills invocations feedback */}
-                        {invocations.map((invocator: any, i) => {
+                        {invocations.map((invocator: any, i: number) => {
                           const toolName =
                             invocator.toolName ?? invocator.toolCall?.name;
                           const actionLabel =
