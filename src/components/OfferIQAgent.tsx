@@ -1,20 +1,34 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport } from 'ai';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Bot, Send, User, X, Loader2, Brain, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-import { SparklesCore } from '@/components/ui/sparkles';
+import React, { useState, useRef, useEffect } from "react";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Sparkles,
+  Bot,
+  Send,
+  User,
+  X,
+  Loader2,
+  Brain,
+  AlertTriangle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { SparklesCore } from "@/components/ui/sparkles";
 
-import { cn } from '@/lib/utils';
-import type { EmailCopy, FunnelEmailSequence, FunnelPageKey, CopyOutput } from '@/lib/offer-types';
-import { toast } from 'sonner';
+import { cn } from "@/lib/utils";
+import type {
+  EmailCopy,
+  FunnelEmailSequence,
+  FunnelPageKey,
+  CopyOutput,
+} from "@/lib/offer-types";
+import { toast } from "sonner";
 
 interface OfferIQAgentProps {
-  ability: 'email-sequence' | 'copy' | 'builder';
+  ability: "email-sequence" | "copy" | "builder";
   funnelId: string;
   funnelName: string;
   // Email context (for email-sequence ability)
@@ -34,85 +48,100 @@ interface OfferIQAgentProps {
   builderPages?: Record<string, any> | null;
   activeBuilderPagePath?: string | null;
   onUpdateBuilderCode?: (code: string) => void;
-  onApplyBuilderState?: (components: Record<string, any>, rootList: string[]) => void;
+  onApplyBuilderState?: (
+    components: Record<string, any>,
+    rootList: string[],
+  ) => void;
 }
 
 const TRYOUT_RECOMMENDATIONS = {
-  'email-sequence': [
-    '✍️ Persuade active email tone',
-    '📧 Add a follow-up nurture email',
-    '🔍 Check spam words & objections',
+  "email-sequence": [
+    "✍️ Persuade active email tone",
+    "📧 Add a follow-up nurture email",
+    "🔍 Check spam words & objections",
   ],
-  'copy': [
-    '✍️ Rewrite the main headline',
-    '🎯 Make CTA more persuasive',
-    '🔍 Audit copy for objections',
+  copy: [
+    "✍️ Rewrite the main headline",
+    "🎯 Make CTA more persuasive",
+    "🔍 Audit copy for objections",
   ],
-  'builder': [
-    '🔧 Refactor hero component to accept dynamic props',
-    '🎨 Update CTA styles across the page',
-    '⚡️ Convert this section to responsive grid layout',
+  builder: [
+    "🔧 Refactor hero component to accept dynamic props",
+    "🎨 Update CTA styles across the page",
+    "⚡️ Convert this section to responsive grid layout",
   ],
 };
 
 function parseMessageText(text: string) {
   if (!text) return null;
-  
-  const lines = text.split('\n');
+
+  const lines = text.split("\n");
   return lines.map((line, idx) => {
     let content = line;
-    
+
     // Check if bullet list
-    const isBullet = line.trim().startsWith('- ') || line.trim().startsWith('* ') || line.trim().startsWith('• ');
+    const isBullet =
+      line.trim().startsWith("- ") ||
+      line.trim().startsWith("* ") ||
+      line.trim().startsWith("• ");
     if (isBullet) {
-      content = line.trim().replace(/^[-*•]\s+/, '');
+      content = line.trim().replace(/^[-*•]\s+/, "");
     }
-    
+
     // Simple bold (**bold**) and inline code (`code`)
     const parts: React.ReactNode[] = [];
     const currentText = content;
     const regex = /(\*\*.*?\*\*|`.*?`)/g;
     let match;
     let lastIndex = 0;
-    
+
     while ((match = regex.exec(currentText)) !== null) {
       const matchIndex = match.index;
       if (matchIndex > lastIndex) {
         parts.push(currentText.substring(lastIndex, matchIndex));
       }
-      
+
       const token = match[0];
-      if (token.startsWith('**') && token.endsWith('**')) {
+      if (token.startsWith("**") && token.endsWith("**")) {
         parts.push(
           <strong key={matchIndex} className="font-bold text-white">
             {token.substring(2, token.length - 2)}
-          </strong>
+          </strong>,
         );
-      } else if (token.startsWith('`') && token.endsWith('`')) {
+      } else if (token.startsWith("`") && token.endsWith("`")) {
         parts.push(
-          <code key={matchIndex} className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[11px] text-pink-400">
+          <code
+            key={matchIndex}
+            className="px-1.5 py-0.5 rounded bg-white/10 font-mono text-[11px] text-pink-400"
+          >
             {token.substring(1, token.length - 1)}
-          </code>
+          </code>,
         );
       }
-      
+
       lastIndex = regex.lastIndex;
     }
-    
+
     if (lastIndex < currentText.length) {
       parts.push(currentText.substring(lastIndex));
     }
-    
+
     if (isBullet) {
       return (
-        <li key={idx} className="ml-4 list-disc text-white/90 mt-1 leading-relaxed text-xs">
+        <li
+          key={idx}
+          className="ml-4 list-disc text-white/90 mt-1 leading-relaxed text-xs"
+        >
           {parts.length > 0 ? parts : content}
         </li>
       );
     }
-    
+
     return (
-      <p key={idx} className="mb-2 leading-relaxed text-xs text-white/85 last:mb-0">
+      <p
+        key={idx}
+        className="mb-2 leading-relaxed text-xs text-white/85 last:mb-0"
+      >
         {parts.length > 0 ? parts : content}
       </p>
     );
@@ -133,50 +162,65 @@ export function OfferIQAgent({
   onAddEmail,
   onDeleteActiveEmail,
   onUpdateCopyPage,
+  builderPages = null,
+  activeBuilderPagePath = null,
+  onUpdateBuilderCode,
+  onApplyBuilderState,
 }: OfferIQAgentProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const isDraggingRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Determine context based on ability
-  const context = ability === 'copy'
-    ? { copy, activeCopyPage }
-    : ability === 'builder'
-    ? { builderPages, activeBuilderPagePath }
-    : { activeEmail, activePage, activeEmailIndex, emailSequence };
+  const context =
+    ability === "copy"
+      ? { copy, activeCopyPage }
+      : ability === "builder"
+        ? { builderPages, activeBuilderPagePath }
+        : { activeEmail, activePage, activeEmailIndex, emailSequence };
 
   // Set up V3 useChat with custom transport matching project patterns
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({
-      api: '/api/agent-chat',
+      api: "/api/agent-chat",
       prepareSendMessagesRequest: ({ messages, id }) => ({
         body: {
           id,
           messages,
           ability,
-          abilityContext: ability === 'copy'
-            ? { copy, activeCopyPage, funnelName }
-            : ability === 'builder'
-            ? { builderPages, activeBuilderPagePath, funnelName }
-            : { activeEmail, activePage, activeEmailIndex, emailSequence, funnelName },
+          abilityContext:
+            ability === "copy"
+              ? { copy, activeCopyPage, funnelName }
+              : ability === "builder"
+                ? { builderPages, activeBuilderPagePath, funnelName }
+                : {
+                    activeEmail,
+                    activePage,
+                    activeEmailIndex,
+                    emailSequence,
+                    funnelName,
+                  },
         },
       }),
     }),
     onFinish: ({ message }) => {
-      console.log('[OfferIQAgent] onFinish message:', JSON.stringify(message, null, 2));
+      console.log(
+        "[OfferIQAgent] onFinish message:",
+        JSON.stringify(message, null, 2),
+      );
       const parts = message.parts ?? [];
-      
+
       // Look for completed tool results representing executing skills
       for (const part of parts as any[]) {
         const result = part?.result ?? part?.output;
         if (result?.success) {
-          toast.success('Skill executed successfully!');
+          toast.success("Skill executed successfully!");
           const action = result.action;
           const data = result.data;
-          
-          if (ability === 'email-sequence') {
-            if (action === 'edit_email' && onUpdateEmail) {
+
+          if (ability === "email-sequence") {
+            if (action === "edit_email" && onUpdateEmail) {
               const updated: EmailCopy = {
                 ...activeEmail,
                 ...data,
@@ -184,25 +228,32 @@ export function OfferIQAgent({
                 day: activeEmail?.day ?? 1,
               };
               onUpdateEmail(updated);
-            } else if (action === 'add_email' && onAddEmail) {
+            } else if (action === "add_email" && onAddEmail) {
               const newEmail: EmailCopy = {
                 ...data,
                 page: activePage!,
               };
               onAddEmail(newEmail);
-            } else if (action === 'delete_email' && onDeleteActiveEmail) {
+            } else if (action === "delete_email" && onDeleteActiveEmail) {
               onDeleteActiveEmail();
             }
-          } else if (ability === 'copy') {
-            if (action === 'edit_page_copy' && onUpdateCopyPage && activeCopyPage) {
-              onUpdateCopyPage(activeCopyPage, data?.html || '');
+          } else if (ability === "copy") {
+            if (
+              action === "edit_page_copy" &&
+              onUpdateCopyPage &&
+              activeCopyPage
+            ) {
+              onUpdateCopyPage(activeCopyPage, data?.html || "");
             }
-          } else if (ability === 'builder') {
+          } else if (ability === "builder") {
             // Builder-specific skill executions
-            if (action === 'edit_builder_code' && onUpdateBuilderCode) {
+            if (action === "edit_builder_code" && onUpdateBuilderCode) {
               // data is expected to contain { code: string }
-              onUpdateBuilderCode(data?.code || '');
-            } else if (action === 'apply_builder_state' && onApplyBuilderState) {
+              onUpdateBuilderCode(data?.code || "");
+            } else if (
+              action === "apply_builder_state" &&
+              onApplyBuilderState
+            ) {
               // data expected to contain { components, rootList }
               onApplyBuilderState(data?.components || {}, data?.rootList || []);
             }
@@ -211,11 +262,11 @@ export function OfferIQAgent({
       }
     },
     onError: (err) => {
-      toast.error(err.message || 'Chat error');
+      toast.error(err.message || "Chat error");
     },
   });
 
-  const isLoading = status === 'streaming' || status === 'submitted';
+  const isLoading = status === "streaming" || status === "submitted";
 
   const tryouts = TRYOUT_RECOMMENDATIONS[ability] || [];
 
@@ -237,7 +288,10 @@ export function OfferIQAgent({
   // Persist messages to localStorage when updated
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem(`offeriq_agent_history_${funnelId}`, JSON.stringify(messages));
+      localStorage.setItem(
+        `offeriq_agent_history_${funnelId}`,
+        JSON.stringify(messages),
+      );
     }
   }, [messages, funnelId]);
 
@@ -245,12 +299,12 @@ export function OfferIQAgent({
     if (messages.length === 0) return;
     setMessages([]);
     localStorage.removeItem(`offeriq_agent_history_${funnelId}`);
-    toast.success('Chat history cleared!');
+    toast.success("Chat history cleared!");
   };
 
   const handleTryoutClick = (text: string) => {
     if (isLoading) return;
-    sendMessage({ role: 'user', parts: [{ type: 'text', text: text }] });
+    sendMessage({ role: "user", parts: [{ type: "text", text: text }] });
   };
 
   const handleBallTap = () => {
@@ -260,7 +314,7 @@ export function OfferIQAgent({
 
   // Auto-scroll chat area on new message or stream
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading, isPanelOpen]);
 
   return (
@@ -271,9 +325,9 @@ export function OfferIQAgent({
         dragMomentum={false}
         dragConstraints={{
           left: 20,
-          right: typeof window !== 'undefined' ? window.innerWidth - 96 : 800,
+          right: typeof window !== "undefined" ? window.innerWidth - 96 : 800,
           top: 20,
-          bottom: typeof window !== 'undefined' ? window.innerHeight - 96 : 800,
+          bottom: typeof window !== "undefined" ? window.innerHeight - 96 : 800,
         }}
         onDragStart={() => {
           isDraggingRef.current = true;
@@ -284,7 +338,7 @@ export function OfferIQAgent({
           }, 60);
         }}
         onClick={handleBallTap}
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: "none" }}
         className="fixed bottom-6 right-6 z-50 w-24 h-24 flex items-center justify-center cursor-grab active:cursor-grabbing"
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
@@ -300,7 +354,7 @@ export function OfferIQAgent({
 
         <motion.div
           animate={{ rotate: [0, 360] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
           <div className="w-24 h-24 rounded-full border border-cyan-500/30 shadow-[0_0_30px_rgba(56,189,248,0.18)]" />
@@ -323,10 +377,10 @@ export function OfferIQAgent({
       <AnimatePresence>
         {isPanelOpen && (
           <motion.div
-            initial={{ x: '100%' }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 26, stiffness: 220 }}
             className="fixed right-0 top-0 bottom-0 z-50 w-[380px] h-screen bg-[#080b14] border-l border-white/10 shadow-[-15px_0_40px_rgba(0,0,0,0.7)] flex flex-col pointer-events-auto"
           >
             {/* Panel Top header */}
@@ -336,11 +390,13 @@ export function OfferIQAgent({
                   <Brain className="w-4.5 h-4.5 text-cyan-400" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-white">OfferIQ Agent</h3>
+                  <h3 className="text-xs font-bold text-white">
+                    OfferIQ Agent
+                  </h3>
                   <div className="flex items-center gap-1 mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="text-[9px] font-semibold text-emerald-400 capitalize">
-                      {ability.replace('-', ' ')} ability
+                      {ability.replace("-", " ")} ability
                     </span>
                   </div>
                 </div>
@@ -368,9 +424,19 @@ export function OfferIQAgent({
             <div className="px-4 py-2 bg-[#12182b] border-b border-white/5 flex items-start gap-2">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
               <p className="text-[10px] text-slate-400 leading-relaxed">
-                {ability === 'copy' 
-                  ? <>Operating strictly within the <strong>Copy Editing</strong> scope. Cannot build or modify landing pages, change layouts, or edit page builders.</>
-                  : <>Operating strictly within the <strong>Email Sequence</strong> scope. Cannot build landing pages or adjust layout sections.</>}
+                {ability === "copy" ? (
+                  <>
+                    Operating strictly within the <strong>Copy Editing</strong>{" "}
+                    scope. Cannot build or modify landing pages, change layouts,
+                    or edit page builders.
+                  </>
+                ) : (
+                  <>
+                    Operating strictly within the{" "}
+                    <strong>Email Sequence</strong> scope. Cannot build landing
+                    pages or adjust layout sections.
+                  </>
+                )}
               </p>
             </div>
 
@@ -407,12 +473,26 @@ export function OfferIQAgent({
                         Hey there! 👋
                       </p>
                       <p className="text-xs text-slate-300 leading-relaxed">
-                        {ability === 'copy'
-                          ? <>I am your dedicated OfferIQ agent operating under the <strong>Copy Editing Ability</strong>. I can rewrite headlines, improve CTAs, audit copy for objections, and optimize your page copy for conversions.</>
-                          : <>I am your dedicated OfferIQ agent operating under the <strong>Email Sequence Ability</strong>. I can edit this email copy, draft follow-ups, optimize tone, or run readability analysis.</>}
+                        {ability === "copy" ? (
+                          <>
+                            I am your dedicated OfferIQ agent operating under
+                            the <strong>Copy Editing Ability</strong>. I can
+                            rewrite headlines, improve CTAs, audit copy for
+                            objections, and optimize your page copy for
+                            conversions.
+                          </>
+                        ) : (
+                          <>
+                            I am your dedicated OfferIQ agent operating under
+                            the <strong>Email Sequence Ability</strong>. I can
+                            edit this email copy, draft follow-ups, optimize
+                            tone, or run readability analysis.
+                          </>
+                        )}
                       </p>
                       <p className="text-[10px] text-slate-400 mt-2 font-medium">
-                        Click any of the suggestions above or type your request below to begin.
+                        Click any of the suggestions above or type your request
+                        below to begin.
                       </p>
                     </div>
                   </div>
@@ -420,33 +500,49 @@ export function OfferIQAgent({
 
                 {/* Message items */}
                 {messages.map((m) => {
-                  const isUser = m.role === 'user';
-                  const textContent = (m.parts && m.parts.length > 0)
-                    ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
-                    : (m as any).content || (m as any).text || '';
+                  const isUser = m.role === "user";
+                  const textContent =
+                    m.parts && m.parts.length > 0
+                      ? m.parts
+                          .filter((p: any) => p.type === "text")
+                          .map((p: any) => p.text)
+                          .join("")
+                      : (m as any).content || (m as any).text || "";
 
                   // Extract tool invocations from either m.toolInvocations or m.parts
-                  const invocations = (m as any).toolInvocations && (m as any).toolInvocations.length > 0 
-                    ? (m as any).toolInvocations 
-                    : (m.parts ?? [])
-                        .filter((p: any) => p.type === 'tool-invocation' || p.type === 'tool-result' || p.type === 'tool-call' || (typeof p.type === 'string' && p.type.startsWith('tool-')))
-                        .map((p: any) => {
-                          const base = p.toolInvocation ?? p;
-                          // Handle new AI SDK 3.0.x format where type is 'tool-<name>'
-                          if (p.type?.startsWith('tool-') && !base.toolName) {
-                            base.toolName = p.type.replace('tool-', '');
-                            base.args = base.args ?? p.input;
-                            base.result = base.result ?? p.output;
-                            base.state = base.state ?? p.state;
-                          }
-                          return base;
-                        })
-                        .filter(Boolean);
+                  const invocations =
+                    (m as any).toolInvocations &&
+                    (m as any).toolInvocations.length > 0
+                      ? (m as any).toolInvocations
+                      : (m.parts ?? [])
+                          .filter(
+                            (p: any) =>
+                              p.type === "tool-invocation" ||
+                              p.type === "tool-result" ||
+                              p.type === "tool-call" ||
+                              (typeof p.type === "string" &&
+                                p.type.startsWith("tool-")),
+                          )
+                          .map((p: any) => {
+                            const base = p.toolInvocation ?? p;
+                            // Handle new AI SDK 3.0.x format where type is 'tool-<name>'
+                            if (p.type?.startsWith("tool-") && !base.toolName) {
+                              base.toolName = p.type.replace("tool-", "");
+                              base.args = base.args ?? p.input;
+                              base.result = base.result ?? p.output;
+                              base.state = base.state ?? p.state;
+                            }
+                            return base;
+                          })
+                          .filter(Boolean);
 
                   return (
                     <div
                       key={m.id}
-                      className={cn("flex gap-2.5 items-start w-full", isUser ? "justify-end" : "justify-start")}
+                      className={cn(
+                        "flex gap-2.5 items-start w-full",
+                        isUser ? "justify-end" : "justify-start",
+                      )}
                     >
                       {!isUser && (
                         <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -459,44 +555,75 @@ export function OfferIQAgent({
                           "rounded-2xl px-3.5 py-2.5 max-w-[85%] text-xs flex flex-col gap-1 shadow-sm",
                           isUser
                             ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-none border-0"
-                            : "bg-[#0f1425] border border-white/5 text-slate-200 rounded-tl-none"
+                            : "bg-[#0f1425] border border-white/5 text-slate-200 rounded-tl-none",
                         )}
                       >
-                        {parseMessageText(textContent || (m as any).content || '')}
+                        {parseMessageText(
+                          textContent || (m as any).content || "",
+                        )}
 
                         {/* Rendering skills invocations feedback */}
                         {invocations.map((invocator: any, i) => {
-                          const toolName = invocator.toolName ?? invocator.toolCall?.name;
-                          const actionLabel = 
-                            toolName === 'edit_email_content' ? 'editing email copy' :
-                            toolName === 'add_new_email' ? 'adding follow-up email' :
-                            toolName === 'delete_active_email' ? 'deleting email' :
-                            'analyzing content';
+                          const toolName =
+                            invocator.toolName ?? invocator.toolCall?.name;
+                          const actionLabel =
+                            toolName === "edit_email_content"
+                              ? "editing email copy"
+                              : toolName === "add_new_email"
+                                ? "adding follow-up email"
+                                : toolName === "delete_active_email"
+                                  ? "deleting email"
+                                  : "analyzing content";
 
-                          const toolResult = invocator.result ?? invocator.output ?? invocator.toolInvocation?.result;
-                          const toolArgs = invocator.args ?? invocator.toolInvocation?.args;
-                          const isCompleted = !!toolResult || invocator.state === 'result' || invocator.state === 'output-available';
-                          
+                          const toolResult =
+                            invocator.result ??
+                            invocator.output ??
+                            invocator.toolInvocation?.result;
+                          const toolArgs =
+                            invocator.args ?? invocator.toolInvocation?.args;
+                          const isCompleted =
+                            !!toolResult ||
+                            invocator.state === "result" ||
+                            invocator.state === "output-available";
+
                           // Use toolArgs as fallback if toolResult is empty (happens during stream or maxSteps=1 disconnect)
-                          const rawData = toolResult?.data ?? toolResult ?? toolArgs;
+                          const rawData =
+                            toolResult?.data ?? toolResult ?? toolArgs;
 
                           // Extract target data mapping with safety fallback values
-                          const isSuggestEmail = rawData?.action === 'suggest_email' || !!rawData?.analysis;
-                          const suggestData = rawData?.action === 'suggest_email' ? rawData.data : rawData;
+                          const isSuggestEmail =
+                            rawData?.action === "suggest_email" ||
+                            !!rawData?.analysis;
+                          const suggestData =
+                            rawData?.action === "suggest_email"
+                              ? rawData.data
+                              : rawData;
 
-                          const isEditEmail = rawData?.action === 'edit_email' || (!!rawData?.subject && !rawData?.suggestions);
-                          const editData = rawData?.action === 'edit_email' ? rawData.data : rawData;
+                          const isEditEmail =
+                            rawData?.action === "edit_email" ||
+                            (!!rawData?.subject && !rawData?.suggestions);
+                          const editData =
+                            rawData?.action === "edit_email"
+                              ? rawData.data
+                              : rawData;
 
-                          const isAddEmail = rawData?.action === 'add_email' || (!!rawData?.day && !!rawData?.subject);
-                          const addData = rawData?.action === 'add_email' ? rawData.data : rawData;
+                          const isAddEmail =
+                            rawData?.action === "add_email" ||
+                            (!!rawData?.day && !!rawData?.subject);
+                          const addData =
+                            rawData?.action === "add_email"
+                              ? rawData.data
+                              : rawData;
 
                           return (
                             <div key={i} className="mt-2">
                               {/* Status block */}
-                              <div className={cn(
-                                "flex items-center gap-1.5 text-[10px] font-semibold",
-                                isUser ? "text-white/70" : "text-cyan-400/80"
-                              )}>
+                              <div
+                                className={cn(
+                                  "flex items-center gap-1.5 text-[10px] font-semibold",
+                                  isUser ? "text-white/70" : "text-cyan-400/80",
+                                )}
+                              >
                                 {!isCompleted ? (
                                   <>
                                     <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
@@ -515,56 +642,94 @@ export function OfferIQAgent({
                                   {isSuggestEmail && suggestData && (
                                     <div className="p-3 rounded-xl bg-white/[0.02] border border-white/10 space-y-2.5">
                                       <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">Copy audit & Objections</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+                                          Copy audit & Objections
+                                        </span>
                                         <div className="flex items-center gap-1.5">
-                                          <span className="text-[10px] text-slate-400">Tone Score:</span>
-                                          <span className={cn(
-                                            "px-1.5 py-0.5 rounded text-[10px] font-black",
-                                            (suggestData.toneScore ?? 0) >= 80 ? "bg-emerald-500/20 text-emerald-400" :
-                                            (suggestData.toneScore ?? 0) >= 60 ? "bg-amber-500/20 text-amber-400" :
-                                            "bg-rose-500/20 text-rose-400"
-                                          )}>
+                                          <span className="text-[10px] text-slate-400">
+                                            Tone Score:
+                                          </span>
+                                          <span
+                                            className={cn(
+                                              "px-1.5 py-0.5 rounded text-[10px] font-black",
+                                              (suggestData.toneScore ?? 0) >= 80
+                                                ? "bg-emerald-500/20 text-emerald-400"
+                                                : (suggestData.toneScore ??
+                                                      0) >= 60
+                                                  ? "bg-amber-500/20 text-amber-400"
+                                                  : "bg-rose-500/20 text-rose-400",
+                                            )}
+                                          >
                                             {suggestData.toneScore ?? 0}/100
                                           </span>
                                         </div>
                                       </div>
-                                      
+
                                       <p className="text-[11px] text-slate-300 leading-relaxed">
                                         {suggestData.analysis}
                                       </p>
 
-                                      {suggestData.suggestions && suggestData.suggestions.length > 0 && (
-                                        <div className="space-y-1.5 pt-1">
-                                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Actionable Suggestions:</span>
-                                          <ul className="space-y-1">
-                                            {suggestData.suggestions.map((suggestion: string, idx: number) => (
-                                              <li key={idx} className="text-[11px] text-slate-300 flex items-start gap-1.5 leading-relaxed">
-                                                <span className="text-cyan-400 shrink-0 mt-0.5">✦</span>
-                                                <span>{suggestion}</span>
-                                              </li>
-                                            ))}
-                                          </ul>
-                                        </div>
-                                      )}
+                                      {suggestData.suggestions &&
+                                        suggestData.suggestions.length > 0 && (
+                                          <div className="space-y-1.5 pt-1">
+                                            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                                              Actionable Suggestions:
+                                            </span>
+                                            <ul className="space-y-1">
+                                              {suggestData.suggestions.map(
+                                                (
+                                                  suggestion: string,
+                                                  idx: number,
+                                                ) => (
+                                                  <li
+                                                    key={idx}
+                                                    className="text-[11px] text-slate-300 flex items-start gap-1.5 leading-relaxed"
+                                                  >
+                                                    <span className="text-cyan-400 shrink-0 mt-0.5">
+                                                      ✦
+                                                    </span>
+                                                    <span>{suggestion}</span>
+                                                  </li>
+                                                ),
+                                              )}
+                                            </ul>
+                                          </div>
+                                        )}
                                     </div>
                                   )}
 
                                   {isEditEmail && editData && (
                                     <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/10 space-y-1">
-                                      <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-400">Email Copy Tweaked</span>
+                                      <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-400">
+                                        Email Copy Tweaked
+                                      </span>
                                       <div className="text-[10px] text-slate-300 space-y-0.5">
-                                        <p><strong>Subject:</strong> {editData.subject}</p>
-                                        <p><strong>Preview:</strong> {editData.preview}</p>
+                                        <p>
+                                          <strong>Subject:</strong>{" "}
+                                          {editData.subject}
+                                        </p>
+                                        <p>
+                                          <strong>Preview:</strong>{" "}
+                                          {editData.preview}
+                                        </p>
                                       </div>
                                     </div>
                                   )}
 
                                   {isAddEmail && addData && (
                                     <div className="p-2.5 rounded-lg bg-indigo-500/5 border border-indigo-500/10 space-y-1">
-                                      <span className="text-[9px] font-bold uppercase tracking-wider text-indigo-400">New Email Added (Day {addData.day})</span>
+                                      <span className="text-[9px] font-bold uppercase tracking-wider text-indigo-400">
+                                        New Email Added (Day {addData.day})
+                                      </span>
                                       <div className="text-[10px] text-slate-300 space-y-0.5">
-                                        <p><strong>Subject:</strong> {addData.subject}</p>
-                                        <p><strong>Preview:</strong> {addData.preview}</p>
+                                        <p>
+                                          <strong>Subject:</strong>{" "}
+                                          {addData.subject}
+                                        </p>
+                                        <p>
+                                          <strong>Preview:</strong>{" "}
+                                          {addData.preview}
+                                        </p>
                                       </div>
                                     </div>
                                   )}
@@ -592,18 +757,20 @@ export function OfferIQAgent({
                 })}
 
                 {/* Loading state indicator */}
-                {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
-                  <div className="flex gap-2.5 items-start">
-                    <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <Bot className="w-4 h-4 text-cyan-400" />
+                {isLoading &&
+                  messages.length > 0 &&
+                  messages[messages.length - 1].role === "user" && (
+                    <div className="flex gap-2.5 items-start">
+                      <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                        <Bot className="w-4 h-4 text-cyan-400" />
+                      </div>
+                      <div className="bg-[#0f1425] border border-white/5 px-4 py-3 rounded-2xl rounded-tl-none flex items-center space-x-1.5 shadow-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce delay-75" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce delay-150" />
+                      </div>
                     </div>
-                    <div className="bg-[#0f1425] border border-white/5 px-4 py-3 rounded-2xl rounded-tl-none flex items-center space-x-1.5 shadow-sm">
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" />
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce delay-75" />
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce delay-150" />
-                    </div>
-                  </div>
-                )}
+                  )}
 
                 <div ref={bottomRef} />
               </div>
@@ -615,8 +782,11 @@ export function OfferIQAgent({
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (!inputValue.trim() || isLoading) return;
-                  sendMessage({ role: 'user', parts: [{ type: 'text', text: inputValue.trim() }] });
-                  setInputValue('');
+                  sendMessage({
+                    role: "user",
+                    parts: [{ type: "text", text: inputValue.trim() }],
+                  });
+                  setInputValue("");
                 }}
                 className="flex items-center space-x-2 bg-[#06080e] border border-white/10 focus-within:border-cyan-500/40 rounded-xl px-3 py-1.5 transition-all"
               >
@@ -627,11 +797,14 @@ export function OfferIQAgent({
                   placeholder="e.g. rewrite subject line to be emotional"
                   className="flex-1 bg-transparent border-0 text-slate-200 outline-none text-xs placeholder:text-slate-500 focus:ring-0 focus:outline-none"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
                       if (!inputValue.trim() || isLoading) return;
-                      sendMessage({ role: 'user', parts: [{ type: 'text', text: inputValue.trim() }] });
-                      setInputValue('');
+                      sendMessage({
+                        role: "user",
+                        parts: [{ type: "text", text: inputValue.trim() }],
+                      });
+                      setInputValue("");
                     }
                   }}
                 />
@@ -641,7 +814,11 @@ export function OfferIQAgent({
                   className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shrink-0 cursor-pointer shadow-sm border-0"
                   disabled={isLoading || !inputValue.trim()}
                 >
-                  {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                  {isLoading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Send className="h-3.5 w-3.5" />
+                  )}
                 </Button>
               </form>
             </div>

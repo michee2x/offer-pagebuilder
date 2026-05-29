@@ -1,30 +1,57 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback, useMemo, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
+import React, { useState, useEffect, useCallback, useMemo, use } from "react";
+import { useRouter } from "next/navigation";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
 import {
-  Mail, Copy, Check, RefreshCw, Sparkles, ChevronDown, ChevronRight,
-  Clock, Send, FileText, ShoppingCart, ArrowUpRight, ArrowDownRight, Heart,
-  Eye, Code2, Type, ClipboardList, Monitor, Tablet, Smartphone, Loader2,
+  Mail,
+  Copy,
+  Check,
+  RefreshCw,
+  Sparkles,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Send,
+  FileText,
+  ShoppingCart,
+  ArrowUpRight,
+  ArrowDownRight,
+  Heart,
+  Eye,
+  Code2,
+  Type,
+  ClipboardList,
+  Monitor,
+  Tablet,
+  Smartphone,
+  Loader2,
   type LucideIcon,
-} from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import type { EmailCopy, FunnelEmailSequence, FunnelPageKey } from '@/lib/offer-types';
-import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
-import { FunnelSidebar } from '@/components/layout/FunnelSidebar';
-import { useCompletion } from '@ai-sdk/react';
-import { OfferIQAgent } from '@/components/OfferIQAgent';
+} from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import type {
+  EmailCopy,
+  FunnelEmailSequence,
+  FunnelPageKey,
+} from "@/lib/offer-types";
+import { FUNNEL_PAGE_LABELS } from "@/lib/offer-types";
+import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
+import { useCompletion } from "@ai-sdk/react";
+import { OfferIQAgent } from "@/components/OfferIQAgent";
 import {
   parseEmailSequenceV2,
   migrateFlatEmailSequence,
   clampEmailSequence,
-} from '@/lib/offer-parser';
-import { extractEmailSections, wrapPlainTextAsHtml, updateEmailHtml } from '@/lib/email-html-extractor';
+} from "@/lib/offer-parser";
+import {
+  extractEmailSections,
+  wrapPlainTextAsHtml,
+  updateEmailHtml,
+} from "@/lib/email-html-extractor";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -37,49 +64,76 @@ const PAGE_ICONS: Record<FunnelPageKey, LucideIcon> = {
 };
 
 const PAGE_ORDER: FunnelPageKey[] = [
-  'lead_capture',
-  'sales_page',
-  'upsell',
-  'downsell',
-  'thankyou',
+  "lead_capture",
+  "sales_page",
+  "upsell",
+  "downsell",
+  "thankyou",
 ];
 
-type CenterMode = 'preview' | 'copy';
-type CopySubMode = 'html' | 'text';
+type CenterMode = "preview" | "copy";
+type CopySubMode = "html" | "text";
 
 // ─── Helper: get HTML for an email (handles legacy plain-text) ────────────────
 
 function getEmailHtml(email: EmailCopy): string {
   if (email.html) return email.html;
   // Legacy fallback: wrap plain text in an HTML email template
-  return wrapPlainTextAsHtml(email.subject, email.preview, email.body, email.cta);
+  return wrapPlainTextAsHtml(
+    email.subject,
+    email.preview,
+    email.body,
+    email.cta,
+  );
 }
 
 // ─── Helper: parse a single email from the regeneration API response ──────────
 
-function parseEmailFromResponse(raw: string, dayFallback: number, pageKey: FunnelPageKey): EmailCopy | null {
-  const subject = raw.match(/SUBJECT:\s*(.+)/i)?.[1]?.trim() ?? '';
-  const preview = raw.match(/PREVIEW:\s*(.+)/i)?.[1]?.trim() ?? '';
+function parseEmailFromResponse(
+  raw: string,
+  dayFallback: number,
+  pageKey: FunnelPageKey,
+): EmailCopy | null {
+  const subject = raw.match(/SUBJECT:\s*(.+)/i)?.[1]?.trim() ?? "";
+  const preview = raw.match(/PREVIEW:\s*(.+)/i)?.[1]?.trim() ?? "";
 
   const htmlMatch = raw.match(/HTML:\s*([\s\S]*?<html[\s\S]*?<\/html>)/i);
-  const html = htmlMatch?.[1]?.trim() ?? '';
-  let body = '';
-  let cta = '';
+  const html = htmlMatch?.[1]?.trim() ?? "";
+  let body = "";
+  let cta = "";
 
   if (html) {
     // Extract body text from HTML for text copy mode
-    const bodyContent = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? html;
-    let text = bodyContent.replace(/<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi, '');
-    text = text.replace(/<tr>\s*<td[^>]*border-top[^>]*>[\s\S]*?<\/td>\s*<\/tr>/gi, '');
-    text = text.replace(/<br\s*\/?>/gi, '\n');
-    text = text.replace(/<\/p>/gi, '\n\n');
-    text = text.replace(/<a\b[^>]*style="[^"]*background-color[^"]*"[^>]*>[\s\S]*?<\/a>/gi, '');
-    text = text.replace(/<[^>]+>/g, '');
-    text = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ');
-    body = text.replace(/\n{3,}/g, '\n\n').trim();
+    const bodyContent =
+      html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? html;
+    let text = bodyContent.replace(
+      /<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi,
+      "",
+    );
+    text = text.replace(
+      /<tr>\s*<td[^>]*border-top[^>]*>[\s\S]*?<\/td>\s*<\/tr>/gi,
+      "",
+    );
+    text = text.replace(/<br\s*\/?>/gi, "\n");
+    text = text.replace(/<\/p>/gi, "\n\n");
+    text = text.replace(
+      /<a\b[^>]*style="[^"]*background-color[^"]*"[^>]*>[\s\S]*?<\/a>/gi,
+      "",
+    );
+    text = text.replace(/<[^>]+>/g, "");
+    text = text
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, " ");
+    body = text.replace(/\n{3,}/g, "\n\n").trim();
     // Extract CTA
-    const ctaMatch = html.match(/<a\b[^>]*style="[^"]*background-color[^"]*"[^>]*>([\s\S]*?)<\/a>/i);
-    cta = ctaMatch?.[1]?.replace(/<[^>]+>/g, '').trim() ?? '';
+    const ctaMatch = html.match(
+      /<a\b[^>]*style="[^"]*background-color[^"]*"[^>]*>([\s\S]*?)<\/a>/i,
+    );
+    cta = ctaMatch?.[1]?.replace(/<[^>]+>/g, "").trim() ?? "";
   }
 
   if (!subject && !html) return null;
@@ -88,12 +142,26 @@ function parseEmailFromResponse(raw: string, dayFallback: number, pageKey: Funne
   const dayMatch = raw.match(/EMAIL\s+\d+\s*(?:—|–|-)\s*DAY\s+(\d+)/i);
   const day = dayMatch ? parseInt(dayMatch[1], 10) : dayFallback;
 
-  return { day, subject, preview, body, html: html || undefined, page: pageKey, cta: cta || undefined };
+  return {
+    day,
+    subject,
+    preview,
+    body,
+    html: html || undefined,
+    page: pageKey,
+    cta: cta || undefined,
+  };
 }
 
 // ─── Generation overlay ───────────────────────────────────────────────────────
 
-function GenerationOverlay({ visible, streamText }: { visible: boolean; streamText?: string }) {
+function GenerationOverlay({
+  visible,
+  streamText,
+}: {
+  visible: boolean;
+  streamText?: string;
+}) {
   if (!visible) return null;
 
   return (
@@ -101,9 +169,24 @@ function GenerationOverlay({ visible, streamText }: { visible: boolean; streamTe
       <div className="w-full max-w-3xl mx-auto flex flex-col items-center h-[80vh]">
         <div className="flex items-center gap-3 mb-6">
           <div className="relative w-8 h-8">
-            <svg className="animate-spin w-full h-full text-foreground/80" viewBox="0 0 24 24">
-              <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-              <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            <svg
+              className="animate-spin w-full h-full text-foreground/80"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-20"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+              />
+              <path
+                className="opacity-80"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
             </svg>
           </div>
           <h2 className="text-xl font-bold text-foreground tracking-tight">
@@ -120,15 +203,24 @@ function GenerationOverlay({ visible, streamText }: { visible: boolean; streamTe
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
-function EmptyState({ onGenerate, generating }: { onGenerate: () => void; generating: boolean }) {
+function EmptyState({
+  onGenerate,
+  generating,
+}: {
+  onGenerate: () => void;
+  generating: boolean;
+}) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-20 px-6 bg-transparent">
       <div className="w-16 h-16 rounded-2xl bg-brand-blue/15 border border-brand-blue/30 flex items-center justify-center mb-6">
         <Mail className="w-7 h-7 text-brand-blue" />
       </div>
-      <h2 className="text-xl font-bold text-foreground mb-2">No email sequences yet</h2>
+      <h2 className="text-xl font-bold text-foreground mb-2">
+        No email sequences yet
+      </h2>
       <p className="text-sm text-muted-foreground text-center max-w-sm mb-8 leading-relaxed">
-        Generate personalised email sequences for each page in your funnel — from lead nurture to post-purchase onboarding.
+        Generate personalised email sequences for each page in your funnel —
+        from lead nurture to post-purchase onboarding.
       </p>
       <Button
         size="lg"
@@ -136,7 +228,11 @@ function EmptyState({ onGenerate, generating }: { onGenerate: () => void; genera
         disabled={generating}
         className="gap-2 font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all border-0 duration-300"
       >
-        {generating ? <Spinner size="sm" color="white" /> : <Sparkles className="w-4 h-4" />}
+        {generating ? (
+          <Spinner size="sm" color="white" />
+        ) : (
+          <Sparkles className="w-4 h-4" />
+        )}
         Generate Email Sequences
       </Button>
     </div>
@@ -157,7 +253,7 @@ function EmailNavigator({
   onSelect: (page: FunnelPageKey, index: number) => void;
 }) {
   const [expandedPages, setExpandedPages] = useState<Set<FunnelPageKey>>(
-    new Set(Object.keys(emailSequence) as FunnelPageKey[])
+    new Set(Object.keys(emailSequence) as FunnelPageKey[]),
   );
 
   const togglePage = (page: FunnelPageKey) => {
@@ -169,7 +265,9 @@ function EmailNavigator({
     });
   };
 
-  const orderedPages = PAGE_ORDER.filter((k) => emailSequence[k] && emailSequence[k]!.length > 0);
+  const orderedPages = PAGE_ORDER.filter(
+    (k) => emailSequence[k] && emailSequence[k]!.length > 0,
+  );
 
   return (
     <div className="flex-1 overflow-y-auto py-2 px-2">
@@ -184,19 +282,25 @@ function EmailNavigator({
             {/* Page section header */}
             <button
               onClick={() => togglePage(pageKey)}
-              className={`w-full text-left rounded-xl px-3 py-2.5 flex items-center gap-2.5 transition-all duration-300 group ${isActivePage
-                  ? 'bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-lg shadow-indigo-500/25'
-                  : 'text-muted-foreground hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
+              className={`w-full text-left rounded-xl px-3 py-2.5 flex items-center gap-2.5 transition-all duration-300 group ${
+                isActivePage
+                  ? "bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-lg shadow-indigo-500/25"
+                  : "text-muted-foreground hover:text-white hover:bg-white/5 border border-transparent"
+              }`}
             >
               <div
-                className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${isActivePage ? 'text-white drop-shadow-sm' : 'bg-white/5 text-muted-foreground'
-                  }`}
+                className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-colors ${
+                  isActivePage
+                    ? "text-white drop-shadow-sm"
+                    : "bg-white/5 text-muted-foreground"
+                }`}
               >
                 <Icon className="w-3.5 h-3.5" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-bold truncate">{FUNNEL_PAGE_LABELS[pageKey]}</p>
+                <p className="text-[11px] font-bold truncate">
+                  {FUNNEL_PAGE_LABELS[pageKey]}
+                </p>
                 <p className="text-[9px] opacity-60">{emails.length} emails</p>
               </div>
               {isExpanded ? (
@@ -210,28 +314,35 @@ function EmailNavigator({
             {isExpanded && (
               <div className="ml-3 pl-3 border-l border-border/50 mt-1 mb-2 space-y-0.5">
                 {emails.map((email, emailIdx) => {
-                  const isActive = activePage === pageKey && activeEmailIndex === emailIdx;
+                  const isActive =
+                    activePage === pageKey && activeEmailIndex === emailIdx;
                   return (
                     <button
                       key={emailIdx}
                       onClick={() => onSelect(pageKey, emailIdx)}
-                      className={`w-full text-left rounded-lg px-2.5 py-2 transition-all duration-300 ${isActive
-                          ? 'bg-white/5 border border-white/10 text-foreground'
-                          : 'border border-transparent hover:bg-white/5 text-muted-foreground hover:text-foreground'
-                        }`}
+                      className={`w-full text-left rounded-lg px-2.5 py-2 transition-all duration-300 ${
+                        isActive
+                          ? "bg-white/5 border border-white/10 text-foreground"
+                          : "border border-transparent hover:bg-white/5 text-muted-foreground hover:text-foreground"
+                      }`}
                     >
                       <div className="flex items-center gap-2">
                         <span
-                          className={`w-5 h-5 rounded text-[10px] font-black flex items-center justify-center flex-shrink-0 transition-colors ${isActive ? 'bg-brand-blue text-white' : 'bg-white/5 text-muted-foreground'
-                            }`}
+                          className={`w-5 h-5 rounded text-[10px] font-black flex items-center justify-center flex-shrink-0 transition-colors ${
+                            isActive
+                              ? "bg-brand-blue text-white"
+                              : "bg-white/5 text-muted-foreground"
+                          }`}
                         >
                           {emailIdx + 1}
                         </span>
                         <div className="min-w-0 flex-1">
                           <p className="text-[11px] font-semibold truncate leading-tight">
-                            {email.subject || 'Untitled'}
+                            {email.subject || "Untitled"}
                           </p>
-                          <p className="text-[9px] opacity-50 mt-0.5">Day {email.day}</p>
+                          <p className="text-[9px] opacity-50 mt-0.5">
+                            Day {email.day}
+                          </p>
                         </div>
                       </div>
                     </button>
@@ -255,25 +366,33 @@ function EmailNavigator({
 
 // ─── Mode toggle (Preview / Copy) ─────────────────────────────────────────────
 
-function ModeToggle({ mode, onChange }: { mode: CenterMode; onChange: (m: CenterMode) => void }) {
+function ModeToggle({
+  mode,
+  onChange,
+}: {
+  mode: CenterMode;
+  onChange: (m: CenterMode) => void;
+}) {
   return (
     <div className="flex items-center bg-muted/50 border border-border rounded-lg p-0.5">
       <button
-        onClick={() => onChange('preview')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${mode === 'preview'
-            ? 'bg-background text-foreground shadow-sm border border-border'
-            : 'text-muted-foreground hover:text-foreground border border-transparent'
-          }`}
+        onClick={() => onChange("preview")}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+          mode === "preview"
+            ? "bg-background text-foreground shadow-sm border border-border"
+            : "text-muted-foreground hover:text-foreground border border-transparent"
+        }`}
       >
         <Eye className="w-3 h-3" />
         Preview
       </button>
       <button
-        onClick={() => onChange('copy')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${mode === 'copy'
-            ? 'bg-background text-foreground shadow-sm border border-border'
-            : 'text-muted-foreground hover:text-foreground border border-transparent'
-          }`}
+        onClick={() => onChange("copy")}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+          mode === "copy"
+            ? "bg-background text-foreground shadow-sm border border-border"
+            : "text-muted-foreground hover:text-foreground border border-transparent"
+        }`}
       >
         <ClipboardList className="w-3 h-3" />
         Copy
@@ -284,25 +403,33 @@ function ModeToggle({ mode, onChange }: { mode: CenterMode; onChange: (m: Center
 
 // ─── Copy sub-mode toggle (HTML / Text) ───────────────────────────────────────
 
-function CopySubToggle({ subMode, onChange }: { subMode: CopySubMode; onChange: (m: CopySubMode) => void }) {
+function CopySubToggle({
+  subMode,
+  onChange,
+}: {
+  subMode: CopySubMode;
+  onChange: (m: CopySubMode) => void;
+}) {
   return (
     <div className="flex items-center bg-[#1a2035] border border-white/10 rounded-lg p-0.5">
       <button
-        onClick={() => onChange('html')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${subMode === 'html'
-            ? 'bg-brand-indigo/20 text-brand-indigo border border-brand-indigo/30'
-            : 'text-muted-foreground hover:text-foreground border border-transparent'
-          }`}
+        onClick={() => onChange("html")}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+          subMode === "html"
+            ? "bg-brand-indigo/20 text-brand-indigo border border-brand-indigo/30"
+            : "text-muted-foreground hover:text-foreground border border-transparent"
+        }`}
       >
         <Code2 className="w-3 h-3" />
         HTML Code
       </button>
       <button
-        onClick={() => onChange('text')}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${subMode === 'text'
-            ? 'bg-brand-indigo/20 text-brand-indigo border border-brand-indigo/30'
-            : 'text-muted-foreground hover:text-foreground border border-transparent'
-          }`}
+        onClick={() => onChange("text")}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+          subMode === "text"
+            ? "bg-brand-indigo/20 text-brand-indigo border border-brand-indigo/30"
+            : "text-muted-foreground hover:text-foreground border border-transparent"
+        }`}
       >
         <Type className="w-3 h-3" />
         Text Fields
@@ -345,15 +472,19 @@ function CopyableField({
           onClick={handleCopy}
           className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-all opacity-0 group-hover:opacity-100 hover:bg-white/5 text-muted-foreground hover:text-foreground"
         >
-          {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? (
+            <Check className="w-3 h-3 text-emerald-400" />
+          ) : (
+            <Copy className="w-3 h-3" />
+          )}
+          {copied ? "Copied" : "Copy"}
         </button>
       </div>
       {multiline ? (
         <textarea
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
-          rows={Math.min(Math.max(value.split('\n').length, 4), 16)}
+          rows={Math.min(Math.max(value.split("\n").length, 4), 16)}
           className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.02] text-sm text-white/90 leading-relaxed outline-none resize-none cursor-text focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue/60 hover:bg-white/[0.04] transition-all"
         />
       ) : (
@@ -386,11 +517,13 @@ function EmailHtmlPreview({
   onRegenerate: () => void;
 }) {
   const html = getEmailHtml(email);
-  const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [deviceMode, setDeviceMode] = useState<"desktop" | "tablet" | "mobile">(
+    "desktop",
+  );
 
   const responsiveHtml = useMemo(() => {
     if (!html) return html;
-    
+
     // Inject a responsive style block and viewport tag
     const responsiveStyles = `
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -428,10 +561,10 @@ function EmailHtmlPreview({
     `;
 
     // Try to inject into the head or prepend
-    if (html.includes('</head>')) {
-      return html.replace('</head>', `${responsiveStyles}</head>`);
-    } else if (html.includes('<body>')) {
-      return html.replace('<body>', `<body>${responsiveStyles}`);
+    if (html.includes("</head>")) {
+      return html.replace("</head>", `${responsiveStyles}</head>`);
+    } else if (html.includes("<body>")) {
+      return html.replace("<body>", `<body>${responsiveStyles}`);
     }
     return responsiveStyles + html;
   }, [html]);
@@ -451,22 +584,26 @@ function EmailHtmlPreview({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-bold text-foreground">Your Name</span>
+                  <span className="text-sm font-bold text-foreground">
+                    Your Name
+                  </span>
                   <span className="text-[11px] text-muted-foreground flex-shrink-0">
                     Day {email.day}
                   </span>
                 </div>
                 <p className="text-sm font-semibold text-foreground truncate mt-0.5">
-                  {email.subject || 'No subject'}
+                  {email.subject || "No subject"}
                 </p>
                 <p className="text-xs text-muted-foreground truncate mt-0.5">
-                  {email.preview || email.body?.substring(0, 100) || 'No preview text'}
+                  {email.preview ||
+                    email.body?.substring(0, 100) ||
+                    "No preview text"}
                 </p>
               </div>
             </div>
           </div>
         </div>
- 
+
         {/* Real HTML email render */}
         <div>
           <div className="flex items-center justify-between mb-2.5">
@@ -486,7 +623,7 @@ function EmailHtmlPreview({
                 ) : (
                   <RefreshCw className="w-3.5 h-3.5" />
                 )}
-                {isRegenerating ? 'Regenerating…' : 'Regenerate'}
+                {isRegenerating ? "Regenerating…" : "Regenerate"}
               </button>
 
               {/* Screens Switcher */}
@@ -518,21 +655,28 @@ function EmailHtmlPreview({
               </div>
             </div>
           </div>
-          <div className={cn(
-            "relative mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all duration-300",
-            deviceMode === "desktop" ? "w-full" : deviceMode === "tablet" ? "max-w-[600px] w-full" : "max-w-[375px] w-full"
-          )}>
+          <div
+            className={cn(
+              "relative mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)] transition-all duration-300",
+              deviceMode === "desktop"
+                ? "w-full"
+                : deviceMode === "tablet"
+                  ? "max-w-[600px] w-full"
+                  : "max-w-[375px] w-full",
+            )}
+          >
             <iframe
               srcDoc={responsiveHtml}
               sandbox="allow-same-origin"
               title={`Email preview: ${email.subject}`}
               className="w-full bg-white border-0"
-              style={{ minHeight: '600px', height: '100%' }}
+              style={{ minHeight: "600px", height: "100%" }}
               onLoad={(e) => {
                 // Auto-resize iframe to content height
                 const iframe = e.target as HTMLIFrameElement;
                 try {
-                  const contentHeight = iframe.contentDocument?.documentElement?.scrollHeight;
+                  const contentHeight =
+                    iframe.contentDocument?.documentElement?.scrollHeight;
                   if (contentHeight) {
                     iframe.style.height = `${contentHeight + 20}px`;
                   }
@@ -553,8 +697,12 @@ function EmailHtmlPreview({
                     <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 animate-ping" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-slate-700">Regenerating email…</p>
-                    <p className="text-xs text-slate-500 mt-1">Creating a fresh version with a new angle</p>
+                    <p className="text-sm font-semibold text-slate-700">
+                      Regenerating email…
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Creating a fresh version with a new angle
+                    </p>
                   </div>
                 </div>
               </div>
@@ -566,12 +714,15 @@ function EmailHtmlPreview({
         <div className="flex items-center gap-3 pb-4">
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10">
             <Clock className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[11px] font-semibold text-muted-foreground">Day {email.day}</span>
+            <span className="text-[11px] font-semibold text-muted-foreground">
+              Day {email.day}
+            </span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10">
             <FileText className="w-3 h-3 text-muted-foreground" />
             <span className="text-[11px] font-semibold text-muted-foreground">
-              {FUNNEL_PAGE_LABELS[pageKey]} · Email {emailIndex + 1} of {totalInPage}
+              {FUNNEL_PAGE_LABELS[pageKey]} · Email {emailIndex + 1} of{" "}
+              {totalInPage}
             </span>
           </div>
         </div>
@@ -595,14 +746,14 @@ function EmailCopyPanel({
   totalInPage: number;
   onUpdateEmail: (updated: EmailCopy) => void;
 }) {
-  const [subMode, setSubMode] = useState<CopySubMode>('html');
+  const [subMode, setSubMode] = useState<CopySubMode>("html");
   const [copiedAll, setCopiedAll] = useState(false);
 
   const html = getEmailHtml(email);
 
   // Extract text sections from the HTML
   const extracted = useMemo(() => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === "undefined") return null;
     return extractEmailSections(html, email.subject);
   }, [html, email.subject]);
 
@@ -610,7 +761,7 @@ function EmailCopyPanel({
     navigator.clipboard.writeText(html);
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 2000);
-    toast.success('HTML code copied!');
+    toast.success("HTML code copied!");
   };
 
   const handleCopyAllText = () => {
@@ -618,17 +769,20 @@ function EmailCopyPanel({
     navigator.clipboard.writeText(extracted.fullPlainText);
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 2000);
-    toast.success('All text copied!');
+    toast.success("All text copied!");
   };
 
-  const handleFieldChange = (field: 'subject' | 'preview' | 'heading' | 'body' | 'cta', newVal: string) => {
+  const handleFieldChange = (
+    field: "subject" | "preview" | "heading" | "body" | "cta",
+    newVal: string,
+  ) => {
     const currentHtml = email.html || getEmailHtml(email);
     const updatedHtml = updateEmailHtml(currentHtml, field, newVal);
 
     const updatedEmail: EmailCopy = {
       ...email,
       html: updatedHtml,
-      [field === 'preview' ? 'preview' : field]: newVal,
+      [field === "preview" ? "preview" : field]: newVal,
     };
 
     onUpdateEmail(updatedEmail);
@@ -647,11 +801,11 @@ function EmailCopyPanel({
     onUpdateEmail(updatedEmail);
   };
 
-  const subjectVal = extracted?.subject ?? email.subject ?? '';
-  const previewVal = extracted?.preheader ?? email.preview ?? '';
-  const headingVal = extracted?.heading ?? '';
-  const bodyVal = extracted?.body ?? email.body ?? '';
-  const ctaVal = extracted?.cta ?? email.cta ?? '';
+  const subjectVal = extracted?.subject ?? email.subject ?? "";
+  const previewVal = extracted?.preheader ?? email.preview ?? "";
+  const headingVal = extracted?.heading ?? "";
+  const bodyVal = extracted?.body ?? email.body ?? "";
+  const ctaVal = extracted?.cta ?? email.cta ?? "";
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -663,14 +817,22 @@ function EmailCopyPanel({
             size="sm"
             variant="outline"
             className="gap-2 border-white/10 hover:bg-white/5 bg-transparent text-xs"
-            onClick={subMode === 'html' ? handleCopyHtml : handleCopyAllText}
+            onClick={subMode === "html" ? handleCopyHtml : handleCopyAllText}
           >
-            {copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            {copiedAll ? 'Copied!' : subMode === 'html' ? 'Copy HTML' : 'Copy All Text'}
+            {copiedAll ? (
+              <Check className="w-3.5 h-3.5 text-emerald-400" />
+            ) : (
+              <Copy className="w-3.5 h-3.5" />
+            )}
+            {copiedAll
+              ? "Copied!"
+              : subMode === "html"
+                ? "Copy HTML"
+                : "Copy All Text"}
           </Button>
         </div>
 
-        {subMode === 'html' ? (
+        {subMode === "html" ? (
           /* ── HTML Code view ── */
           <div className="relative group">
             <div className="absolute top-3 right-3 z-10">
@@ -678,8 +840,12 @@ function EmailCopyPanel({
                 onClick={handleCopyHtml}
                 className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 text-[10px] font-semibold text-white/70 hover:text-white hover:bg-white/15 transition-all"
               >
-                {copiedAll ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                {copiedAll ? 'Copied' : 'Copy'}
+                {copiedAll ? (
+                  <Check className="w-3 h-3 text-emerald-400" />
+                ) : (
+                  <Copy className="w-3 h-3" />
+                )}
+                {copiedAll ? "Copied" : "Copy"}
               </button>
             </div>
             <div className="bg-[#0d1117] border border-white/10 rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
@@ -707,31 +873,31 @@ function EmailCopyPanel({
             <CopyableField
               label="Subject Line"
               value={subjectVal}
-              onChange={(val) => handleFieldChange('subject', val)}
+              onChange={(val) => handleFieldChange("subject", val)}
             />
             <CopyableField
               label="Preview Text"
               value={previewVal}
-              onChange={(val) => handleFieldChange('preview', val)}
+              onChange={(val) => handleFieldChange("preview", val)}
             />
-            {headingVal !== '' && (
+            {headingVal !== "" && (
               <CopyableField
                 label="Heading"
                 value={headingVal}
-                onChange={(val) => handleFieldChange('heading', val)}
+                onChange={(val) => handleFieldChange("heading", val)}
               />
             )}
             <CopyableField
               label="Email Body"
               value={bodyVal}
               multiline
-              onChange={(val) => handleFieldChange('body', val)}
+              onChange={(val) => handleFieldChange("body", val)}
             />
-            {ctaVal !== '' && (
+            {ctaVal !== "" && (
               <CopyableField
                 label="Call-to-Action"
                 value={ctaVal}
-                onChange={(val) => handleFieldChange('cta', val)}
+                onChange={(val) => handleFieldChange("cta", val)}
               />
             )}
 
@@ -743,8 +909,12 @@ function EmailCopyPanel({
                 className="gap-2 border-white/10 hover:bg-white/5 bg-transparent w-full justify-center"
                 onClick={handleCopyAllText}
               >
-                {copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                {copiedAll ? 'Copied!' : 'Copy All as Plain Text'}
+                {copiedAll ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+                {copiedAll ? "Copied!" : "Copy All as Plain Text"}
               </Button>
             </div>
           </div>
@@ -754,12 +924,15 @@ function EmailCopyPanel({
         <div className="flex items-center gap-3 pb-4">
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10">
             <Clock className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[11px] font-semibold text-muted-foreground">Day {email.day}</span>
+            <span className="text-[11px] font-semibold text-muted-foreground">
+              Day {email.day}
+            </span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10">
             <FileText className="w-3 h-3 text-muted-foreground" />
             <span className="text-[11px] font-semibold text-muted-foreground">
-              {FUNNEL_PAGE_LABELS[pageKey]} · Email {emailIndex + 1} of {totalInPage}
+              {FUNNEL_PAGE_LABELS[pageKey]} · Email {emailIndex + 1} of{" "}
+              {totalInPage}
             </span>
           </div>
         </div>
@@ -777,74 +950,83 @@ export default function EmailSequencePage({
 }) {
   const { funnelId } = use(params);
 
-  const [funnelName, setFunnelName] = useState('Your Funnel');
+  const [funnelName, setFunnelName] = useState("Your Funnel");
   const [emailSequence, setEmailSequence] = useState<FunnelEmailSequence>({});
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState<FunnelPageKey | null>(null);
   const [activeEmailIndex, setActiveEmailIndex] = useState(0);
-  const [centerMode, setCenterMode] = useState<CenterMode>('preview');
+  const [centerMode, setCenterMode] = useState<CenterMode>("preview");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [regeneratingEmail, setRegeneratingEmail] = useState<{ pageKey: FunnelPageKey; emailIndex: number } | null>(null);
+  const [regeneratingEmail, setRegeneratingEmail] = useState<{
+    pageKey: FunnelPageKey;
+    emailIndex: number;
+  } | null>(null);
 
-  const handleUpdateEmail = useCallback((updatedEmail: EmailCopy) => {
-    if (!activePage) return;
-    setEmailSequence((prev) => {
-      const pageEmails = prev[activePage] ?? [];
-      const updatedEmails = [...pageEmails];
-      updatedEmails[activeEmailIndex] = updatedEmail;
-      return {
-        ...prev,
-        [activePage]: updatedEmails,
-      };
-    });
-    setHasUnsavedChanges(true);
-  }, [activePage, activeEmailIndex]);
-
-  const handleAddEmail = useCallback((newEmail: EmailCopy) => {
-    if (!activePage) return;
-    setEmailSequence((prev) => {
-      const pageEmails = prev[activePage] ?? [];
-      const updatedEmails = [
-        ...pageEmails,
-        {
-          ...newEmail,
-          order: pageEmails.length + 1,
-        },
-      ];
-      const updated = {
-        ...prev,
-        [activePage]: updatedEmails,
-      };
-
-      // Auto-save changes to the DB
-      fetch(`/api/offer-data/${funnelId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blocks: { email_sequence_v2: updated } }),
-      }).catch(() => {});
-
-      return updated;
-    });
-    
-    // Set active email to the newly added email
-    setTimeout(() => {
-      setEmailSequence((latest) => {
-        const count = latest[activePage]?.length ?? 0;
-        if (count > 0) {
-          setActiveEmailIndex(count - 1);
-        }
-        return latest;
+  const handleUpdateEmail = useCallback(
+    (updatedEmail: EmailCopy) => {
+      if (!activePage) return;
+      setEmailSequence((prev) => {
+        const pageEmails = prev[activePage] ?? [];
+        const updatedEmails = [...pageEmails];
+        updatedEmails[activeEmailIndex] = updatedEmail;
+        return {
+          ...prev,
+          [activePage]: updatedEmails,
+        };
       });
-    }, 50);
-    toast.success('New email added to sequence!');
-  }, [activePage, funnelId]);
+      setHasUnsavedChanges(true);
+    },
+    [activePage, activeEmailIndex],
+  );
+
+  const handleAddEmail = useCallback(
+    (newEmail: EmailCopy) => {
+      if (!activePage) return;
+      setEmailSequence((prev) => {
+        const pageEmails = prev[activePage] ?? [];
+        const updatedEmails = [
+          ...pageEmails,
+          {
+            ...newEmail,
+            order: pageEmails.length + 1,
+          },
+        ];
+        const updated = {
+          ...prev,
+          [activePage]: updatedEmails,
+        };
+
+        // Auto-save changes to the DB
+        fetch(`/api/offer-data/${funnelId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ blocks: { email_sequence_v2: updated } }),
+        }).catch(() => {});
+
+        return updated;
+      });
+
+      // Set active email to the newly added email
+      setTimeout(() => {
+        setEmailSequence((latest) => {
+          const count = latest[activePage]?.length ?? 0;
+          if (count > 0) {
+            setActiveEmailIndex(count - 1);
+          }
+          return latest;
+        });
+      }, 50);
+      toast.success("New email added to sequence!");
+    },
+    [activePage, funnelId],
+  );
 
   const handleDeleteActiveEmail = useCallback(() => {
     if (!activePage) return;
     const pageEmails = emailSequence[activePage] ?? [];
     if (pageEmails.length <= 1) {
-      toast.error('You must keep at least one email in the sequence.');
+      toast.error("You must keep at least one email in the sequence.");
       return;
     }
 
@@ -863,8 +1045,8 @@ export default function EmailSequencePage({
 
       // Auto-save changes to the DB
       fetch(`/api/offer-data/${funnelId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ blocks: { email_sequence_v2: updated } }),
       }).catch(() => {});
 
@@ -873,17 +1055,17 @@ export default function EmailSequencePage({
 
     // Clamp the active index so it stays in bounds
     setActiveEmailIndex((i) => Math.max(0, Math.min(pageEmails.length - 2, i)));
-    toast.success('Email deleted from sequence.');
+    toast.success("Email deleted from sequence.");
   }, [activePage, activeEmailIndex, emailSequence, funnelId]);
 
   const handleSave = async () => {
     setIsSaving(true);
-    const saveToastId = toast.loading('Saving email sequence...');
+    const saveToastId = toast.loading("Saving email sequence...");
     try {
       const res = await fetch(`/api/offer-data/${funnelId}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           blocks: {
@@ -893,13 +1075,13 @@ export default function EmailSequencePage({
       });
 
       if (!res.ok) {
-        throw new Error('Failed to save email sequence');
+        throw new Error("Failed to save email sequence");
       }
 
       setHasUnsavedChanges(false);
-      toast.success('Email sequence saved successfully!', { id: saveToastId });
+      toast.success("Email sequence saved successfully!", { id: saveToastId });
     } catch (err: any) {
-      toast.error(err.message || 'Failed to save changes', { id: saveToastId });
+      toast.error(err.message || "Failed to save changes", { id: saveToastId });
     } finally {
       setIsSaving(false);
     }
@@ -912,12 +1094,14 @@ export default function EmailSequencePage({
       if (Object.keys(parsed).length > 0) {
         setEmailSequence(parsed);
         setHasUnsavedChanges(false);
-        const firstPage = PAGE_ORDER.find((k) => parsed[k] && parsed[k]!.length > 0);
+        const firstPage = PAGE_ORDER.find(
+          (k) => parsed[k] && parsed[k]!.length > 0,
+        );
         if (firstPage) {
           setActivePage(firstPage);
           setActiveEmailIndex(0);
         }
-        toast.success('Email sequences generated!');
+        toast.success("Email sequences generated!");
         return;
       }
 
@@ -928,21 +1112,27 @@ export default function EmailSequencePage({
         const savedV2 = data.funnel?.blocks?.email_sequence_v2;
         const savedV1 = data.funnel?.blocks?.email_sequence;
 
-        if (savedV2 && typeof savedV2 === 'object' && Object.keys(savedV2).length > 0) {
+        if (
+          savedV2 &&
+          typeof savedV2 === "object" &&
+          Object.keys(savedV2).length > 0
+        ) {
           setEmailSequence(clampEmailSequence(savedV2));
           setHasUnsavedChanges(false);
         } else if (savedV1 && Array.isArray(savedV1) && savedV1.length > 0) {
-          setEmailSequence(clampEmailSequence(migrateFlatEmailSequence(savedV1)));
+          setEmailSequence(
+            clampEmailSequence(migrateFlatEmailSequence(savedV1)),
+          );
           setHasUnsavedChanges(false);
         } else {
-          toast.error('AI returned unparseable text. Please retry.');
+          toast.error("AI returned unparseable text. Please retry.");
         }
       } catch (e) {
         // quiet error
       }
     },
     onError: (e) => {
-      toast.error(e.message || 'Generation failed');
+      toast.error(e.message || "Generation failed");
     },
   });
 
@@ -952,14 +1142,18 @@ export default function EmailSequencePage({
       .then((r) => r.json())
       .then((data) => {
         if (data.funnel) {
-          setFunnelName(data.funnel.name || 'Your Funnel');
+          setFunnelName(data.funnel.name || "Your Funnel");
 
           const savedV2 = data.funnel.blocks?.email_sequence_v2;
           const savedV1 = data.funnel.blocks?.email_sequence;
 
           let seq: FunnelEmailSequence = {};
 
-          if (savedV2 && typeof savedV2 === 'object' && Object.keys(savedV2).length > 0) {
+          if (
+            savedV2 &&
+            typeof savedV2 === "object" &&
+            Object.keys(savedV2).length > 0
+          ) {
             seq = clampEmailSequence(savedV2);
           } else if (savedV1 && Array.isArray(savedV1) && savedV1.length > 0) {
             seq = clampEmailSequence(migrateFlatEmailSequence(savedV1));
@@ -967,7 +1161,9 @@ export default function EmailSequencePage({
 
           if (Object.keys(seq).length > 0) {
             setEmailSequence(seq);
-            const firstPage = PAGE_ORDER.find((k) => seq[k] && seq[k]!.length > 0);
+            const firstPage = PAGE_ORDER.find(
+              (k) => seq[k] && seq[k]!.length > 0,
+            );
             if (firstPage) {
               setActivePage(firstPage);
               setActiveEmailIndex(0);
@@ -975,12 +1171,12 @@ export default function EmailSequencePage({
           }
         }
       })
-      .catch(() => { })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [funnelId]);
 
   const handleGenerate = async () => {
-    await complete('');
+    await complete("");
   };
 
   const handleRegenerateEmail = useCallback(async () => {
@@ -993,8 +1189,8 @@ export default function EmailSequencePage({
 
     try {
       const res = await fetch(`/api/regenerate-single-email/${funnelId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           pageKey: activePage,
           emailIndex: activeEmailIndex,
@@ -1004,16 +1200,18 @@ export default function EmailSequencePage({
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Regeneration failed' }));
-        throw new Error(err.error || 'Regeneration failed');
+        const err = await res
+          .json()
+          .catch(() => ({ error: "Regeneration failed" }));
+        throw new Error(err.error || "Regeneration failed");
       }
 
       // Read the streamed response fully
       const reader = res.body?.getReader();
-      if (!reader) throw new Error('No response body');
+      if (!reader) throw new Error("No response body");
 
       const decoder = new TextDecoder();
-      let fullText = '';
+      let fullText = "";
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -1021,7 +1219,11 @@ export default function EmailSequencePage({
       }
 
       // Parse the single email from the response
-      const parsedEmail = parseEmailFromResponse(fullText, currentEmail.day, activePage);
+      const parsedEmail = parseEmailFromResponse(
+        fullText,
+        currentEmail.day,
+        activePage,
+      );
 
       if (parsedEmail) {
         // Update only this email in state
@@ -1035,29 +1237,32 @@ export default function EmailSequencePage({
 
           // Also persist to DB
           fetch(`/api/offer-data/${funnelId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ blocks: { email_sequence_v2: updated } }),
           }).catch(() => {});
 
           return updated;
         });
         setHasUnsavedChanges(false);
-        toast.success('Email regenerated!');
+        toast.success("Email regenerated!");
       } else {
-        toast.error('Could not parse the regenerated email. Please try again.');
+        toast.error("Could not parse the regenerated email. Please try again.");
       }
     } catch (err: any) {
-      toast.error(err.message || 'Failed to regenerate email');
+      toast.error(err.message || "Failed to regenerate email");
     } finally {
       setRegeneratingEmail(null);
     }
   }, [activePage, activeEmailIndex, emailSequence, funnelId]);
 
-  const handleSelectEmail = useCallback((page: FunnelPageKey, index: number) => {
-    setActivePage(page);
-    setActiveEmailIndex(index);
-  }, []);
+  const handleSelectEmail = useCallback(
+    (page: FunnelPageKey, index: number) => {
+      setActivePage(page);
+      setActiveEmailIndex(index);
+    },
+    [],
+  );
 
   const handlePrevEmail = useCallback(() => {
     setActiveEmailIndex((i) => Math.max(0, i - 1));
@@ -1078,15 +1283,16 @@ export default function EmailSequencePage({
   }
 
   const hasEmails = Object.keys(emailSequence).length > 0;
-  const activeEmails = activePage ? emailSequence[activePage] ?? [] : [];
+  const activeEmails = activePage ? (emailSequence[activePage] ?? []) : [];
   const activeEmail = activeEmails[activeEmailIndex] ?? null;
-  const isCurrentEmailRegenerating = regeneratingEmail !== null
-    && regeneratingEmail.pageKey === activePage
-    && regeneratingEmail.emailIndex === activeEmailIndex;
+  const isCurrentEmailRegenerating =
+    regeneratingEmail !== null &&
+    regeneratingEmail.pageKey === activePage &&
+    regeneratingEmail.emailIndex === activeEmailIndex;
 
   const totalEmails = Object.values(emailSequence).reduce(
     (sum, arr) => sum + (arr?.length ?? 0),
-    0
+    0,
   );
 
   return (
@@ -1097,39 +1303,44 @@ export default function EmailSequencePage({
         <div
           className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
-            transform: 'rotate(-30deg)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)",
+            transform: "rotate(-30deg)",
           }}
         />
         {/* Radial - Blue */}
         <div
           className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
-            transform: 'rotate(30deg)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)",
+            transform: "rotate(30deg)",
           }}
         />
         {/* Radial - Purple */}
         <div
           className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)",
           }}
         />
         {/* Bottom Gradient Overlay */}
         <div
           className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
           style={{
-            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+            background:
+              "linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)",
           }}
         />
         {/* Noise Overlay */}
         <div
           className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
           style={{
-            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
-            backgroundRepeat: 'repeat',
-            backgroundSize: '128px auto'
+            backgroundImage:
+              "url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)",
+            backgroundRepeat: "repeat",
+            backgroundSize: "128px auto",
           }}
         />
       </div>
@@ -1139,9 +1350,9 @@ export default function EmailSequencePage({
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         <Topbar
           breadcrumbs={[
-            { label: 'Funnels', href: `/funnels/${funnelId}` },
-            { label: funnelName, href: '#' },
-            { label: 'Email Sequence' },
+            { label: "Funnels", href: `/funnels/${funnelId}` },
+            { label: funnelName, href: "#" },
+            { label: "Email Sequence" },
           ]}
           actions={
             hasEmails && hasUnsavedChanges ? (
@@ -1152,7 +1363,11 @@ export default function EmailSequencePage({
                   disabled={isSaving || isLoading}
                   className="gap-1.5 font-semibold bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all duration-300"
                 >
-                  {isSaving ? <Spinner size="sm" color="white" /> : <Check className="w-3.5 h-3.5" />}
+                  {isSaving ? (
+                    <Spinner size="sm" color="white" />
+                  ) : (
+                    <Check className="w-3.5 h-3.5" />
+                  )}
                   Save Changes
                 </Button>
               </div>
@@ -1162,7 +1377,11 @@ export default function EmailSequencePage({
 
         <div className="flex flex-1 overflow-hidden">
           {/* Funnel secondary sidebar */}
-          <FunnelSidebar funnelId={funnelId} funnelName={funnelName} collapsible />
+          <FunnelSidebar
+            funnelId={funnelId}
+            funnelName={funnelName}
+            collapsible
+          />
 
           {/* Section A: Left panel — Page-segmented email navigator */}
           <div className="w-[240px] border-r border-white/10 bg-[#131826] flex flex-col overflow-hidden flex-shrink-0">
@@ -1180,7 +1399,8 @@ export default function EmailSequencePage({
                 <div className="flex items-center gap-1.5 mt-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-[11px] font-semibold text-emerald-400">
-                    {totalEmails} emails · {Object.keys(emailSequence).length} pages
+                    {totalEmails} emails · {Object.keys(emailSequence).length}{" "}
+                    pages
                   </span>
                 </div>
               )}
@@ -1214,12 +1434,17 @@ export default function EmailSequencePage({
                   <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-violet-500 via-fuchsia-500 via-pink-500 to-amber-400" />
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-brand-indigo/15 border border-brand-indigo/30 flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.2)]">
-                      {React.createElement(PAGE_ICONS[activePage], { className: 'w-4 h-4 text-brand-indigo drop-shadow-sm' })}
+                      {React.createElement(PAGE_ICONS[activePage], {
+                        className: "w-4 h-4 text-brand-indigo drop-shadow-sm",
+                      })}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground leading-tight">{FUNNEL_PAGE_LABELS[activePage]}</p>
+                      <p className="text-sm font-bold text-foreground leading-tight">
+                        {FUNNEL_PAGE_LABELS[activePage]}
+                      </p>
                       <p className="text-[11px] text-muted-foreground">
-                        Email {activeEmailIndex + 1} of {activeEmails.length} · Day {activeEmail.day}
+                        Email {activeEmailIndex + 1} of {activeEmails.length} ·
+                        Day {activeEmail.day}
                       </p>
                     </div>
                   </div>
@@ -1249,7 +1474,7 @@ export default function EmailSequencePage({
                 </div>
 
                 {/* Content area — switches between preview and copy */}
-                {centerMode === 'preview' ? (
+                {centerMode === "preview" ? (
                   <EmailHtmlPreview
                     email={activeEmail}
                     pageKey={activePage}
@@ -1270,7 +1495,9 @@ export default function EmailSequencePage({
               </>
             ) : (
               <div className="flex-1 flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Select an email to view</p>
+                <p className="text-sm text-muted-foreground">
+                  Select an email to view
+                </p>
               </div>
             )}
           </div>
