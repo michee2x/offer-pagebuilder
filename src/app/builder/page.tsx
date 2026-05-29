@@ -6,6 +6,7 @@ import { RightPanel } from "@/components/builder/RightPanel";
 import { ThemeSwitcher } from "@/components/builder/ThemeSwitcher";
 import { SectionLibraryModal } from "@/components/builder/SectionLibraryModal";
 import { AiStreamBoard } from "@/components/builder/AiStreamBoard";
+import { OfferIQAgent } from '@/components/OfferIQAgent';
 import { useBuilderStore } from "@/store/builderStore";
 import {
   Wand2,
@@ -54,6 +55,7 @@ export default function BuilderPage() {
     past,
     future,
   } = useBuilderStore();
+  const updateCode = useBuilderStore((s) => s.updateCode);
   const [isSaving, setIsSaving] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [streamText, setStreamText] = React.useState("");
@@ -964,6 +966,16 @@ export default function BuilderPage() {
 
         {/* Modals outside main flex flow */}
         <SectionLibraryModal />
+        {/* OfferIQ Agent for builder editing */}
+        <OfferIQAgent
+          ability="builder"
+          funnelId={pageId ?? 'new'}
+          funnelName={funnelName}
+          builderPages={pages}
+          activeBuilderPagePath={activePagePath}
+          onUpdateBuilderCode={(code) => updateCode(code)}
+          onApplyBuilderState={(components, rootList) => setFullState(components, rootList, pages, activePagePath)}
+        />
         <AiStreamBoard isOpen={isGenerating} thinkingText={streamText} />
       </div>
     </div>

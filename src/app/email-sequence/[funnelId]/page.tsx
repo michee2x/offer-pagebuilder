@@ -93,7 +93,7 @@ function parseEmailFromResponse(raw: string, dayFallback: number, pageKey: Funne
 
 // ─── Generation overlay ───────────────────────────────────────────────────────
 
-function GenerationOverlay({ visible }: { visible: boolean }) {
+function GenerationOverlay({ visible, streamText }: { visible: boolean; streamText?: string }) {
   if (!visible) return null;
 
   return (
