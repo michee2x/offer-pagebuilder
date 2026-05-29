@@ -116,6 +116,7 @@ export default function CopyPage({
 
   const [isInitializing, setIsInitializing] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isRegeneratingSection, setIsRegeneratingSection] = useState(false);
   const [genStep, setGenStep] = useState(0);
   const [funnelName, setFunnelName] = useState("");
   const [copy, setCopy] = useState<CopyOutput | null>(null);
@@ -288,6 +289,67 @@ export default function CopyPage({
     [copy]
   );
 
+  // ── Regenerate single section ────────────────────────────────────────────────
+
+  const handleRegenerateSection = useCallback(async () => {
+    if (!copy || !activePage) return;
+    setIsRegeneratingSection(true);
+    try {
+      const res = await fetch("/api/regenerate-section-copy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          funnelId,
+          pageKey: activePage,
+          currentCopy: copy.pages[activePage],
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Unknown" }));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+
+      if (!res.body) throw new Error("No response body");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+      }
+
+      // Parse the regenerated section copy (expect HTML + metadata)
+      const lines = accumulated.trim().split('\n');
+      const htmlMatch = accumulated.match(/<html[\s\S]*<\/html>/i);
+      const html = htmlMatch ? htmlMatch[0] : accumulated;
+
+      if (html) {
+        setCopy((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            pages: {
+              ...prev.pages,
+              [activePage]: {
+                ...prev.pages[activePage],
+                html,
+              },
+            },
+          };
+        });
+        setHasUnsavedChanges(true);
+        toast.success(`${FUNNEL_PAGE_LABELS[activePage]} regenerated!`);
+      }
+    } catch (e: any) {
+      toast.error(`Regeneration failed: ${e.message}`);
+    } finally {
+      setIsRegeneratingSection(false);
+    }
+  }, [funnelId, copy, activePage]);
+
   // ── Derived ─────────────────────────────────────────────────────────────────
 
   const pageList: FunnelPageKey[] = copy?.declaration?.pages ?? [];
@@ -377,17 +439,6 @@ export default function CopyPage({
           )}
 
           <Button
-            variant="outline"
-            size="sm"
-            onClick={generateCopy}
-            disabled={isGenerating}
-            className="gap-1.5 text-xs bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:text-white"
-          >
-            <RefreshCw className={cn("w-3.5 h-3.5", isGenerating && "animate-spin")} />
-            Regenerate
-          </Button>
-
-          <Button
             size="sm"
             onClick={() => router.push(`/builder?id=${funnelId}&autoGen=true`)}
             className="gap-1.5 font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] border-transparent transition-all duration-300"
@@ -472,6 +523,8 @@ export default function CopyPage({
                   <DocEditor
                     html={activePageSpec.html || ""}
                     onChange={handleUpdateDoc}
+                    onRegenerate={handleRegenerateSection}
+                    isRegenerating={isRegeneratingSection}
                   />
                 </div>
               </div>

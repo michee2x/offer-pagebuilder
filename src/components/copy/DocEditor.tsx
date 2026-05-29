@@ -31,6 +31,8 @@ import {
   Pilcrow,
   Highlighter,
   MousePointerClick,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 
 // ─── Toolbar primitives ───────────────────────────────────────────────────────
@@ -76,12 +78,16 @@ function Sep() {
 interface DocEditorProps {
   html: string;
   onChange: (html: string) => void;
+  onRegenerate?: () => Promise<void>;
+  isRegenerating?: boolean;
   placeholder?: string;
 }
 
 export function DocEditor({
   html,
   onChange,
+  onRegenerate,
+  isRegenerating = false,
   placeholder = "Start writing your page copy… or click Regenerate to generate new copy.",
 }: DocEditorProps) {
   const prevHtml = useRef(html);
@@ -296,6 +302,26 @@ export function DocEditor({
         <ToolbarButton onClick={insertCtaButton} title="Insert CTA Button">
           <MousePointerClick className="w-3.5 h-3.5" />
         </ToolbarButton>
+
+        {/* Spacer to push regenerate button to the right */}
+        <div className="flex-1" />
+
+        {/* Regenerate button */}
+        {onRegenerate && (
+          <button
+            onClick={onRegenerate}
+            disabled={isRegenerating}
+            title="Regenerate this section"
+            className="ml-auto flex items-center gap-1.5 px-3 h-7 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/15 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isRegenerating ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="w-3.5 h-3.5" />
+            )}
+            {isRegenerating ? 'Generating…' : 'Regenerate'}
+          </button>
+        )}
       </div>
 
       {/* ── Floating bubble menu on text selection ───────────────────── */}
