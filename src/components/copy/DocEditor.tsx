@@ -301,7 +301,7 @@ export function DocEditor({
       {/* ── Floating bubble menu on text selection ───────────────────── */}
       <BubbleMenu
         editor={editor}
-        tippyOptions={{ duration: 120, placement: "top" }}
+        options={{ placement: "top" }}
         className="flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-[#12121f] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-xl"
       >
         <ToolbarButton
