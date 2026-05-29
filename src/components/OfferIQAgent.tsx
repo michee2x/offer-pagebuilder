@@ -14,7 +14,7 @@ import type { EmailCopy, FunnelEmailSequence, FunnelPageKey, CopyOutput } from '
 import { toast } from 'sonner';
 
 interface OfferIQAgentProps {
-  ability: 'email-sequence' | 'copy';
+  ability: 'email-sequence' | 'copy' | 'builder';
   funnelId: string;
   funnelName: string;
   // Email context (for email-sequence ability)
@@ -30,6 +30,11 @@ interface OfferIQAgentProps {
   onAddEmail?: (newEmail: EmailCopy) => void;
   onDeleteActiveEmail?: () => void;
   onUpdateCopyPage?: (page: FunnelPageKey, html: string) => void;
+  // Builder context
+  builderPages?: Record<string, any> | null;
+  activeBuilderPagePath?: string | null;
+  onUpdateBuilderCode?: (code: string) => void;
+  onApplyBuilderState?: (components: Record<string, any>, rootList: string[]) => void;
 }
 
 const TRYOUT_RECOMMENDATIONS = {
@@ -42,6 +47,11 @@ const TRYOUT_RECOMMENDATIONS = {
     '✍️ Rewrite the main headline',
     '🎯 Make CTA more persuasive',
     '🔍 Audit copy for objections',
+  ],
+  'builder': [
+    '🔧 Refactor hero component to accept dynamic props',
+    '🎨 Update CTA styles across the page',
+    '⚡️ Convert this section to responsive grid layout',
   ],
 };
 
@@ -130,8 +140,10 @@ export function OfferIQAgent({
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Determine context based on ability
-  const context = ability === 'copy' 
+  const context = ability === 'copy'
     ? { copy, activeCopyPage }
+    : ability === 'builder'
+    ? { builderPages, activeBuilderPagePath }
     : { activeEmail, activePage, activeEmailIndex, emailSequence };
 
   // Set up V3 useChat with custom transport matching project patterns
@@ -144,18 +156,10 @@ export function OfferIQAgent({
           messages,
           ability,
           abilityContext: ability === 'copy'
-            ? {
-                copy,
-                activeCopyPage,
-                funnelName,
-              }
-            : {
-                activeEmail,
-                activePage,
-                activeEmailIndex,
-                emailSequence,
-                funnelName,
-              },
+            ? { copy, activeCopyPage, funnelName }
+            : ability === 'builder'
+            ? { builderPages, activeBuilderPagePath, funnelName }
+            : { activeEmail, activePage, activeEmailIndex, emailSequence, funnelName },
         },
       }),
     }),
@@ -192,6 +196,15 @@ export function OfferIQAgent({
           } else if (ability === 'copy') {
             if (action === 'edit_page_copy' && onUpdateCopyPage && activeCopyPage) {
               onUpdateCopyPage(activeCopyPage, data?.html || '');
+            }
+          } else if (ability === 'builder') {
+            // Builder-specific skill executions
+            if (action === 'edit_builder_code' && onUpdateBuilderCode) {
+              // data is expected to contain { code: string }
+              onUpdateBuilderCode(data?.code || '');
+            } else if (action === 'apply_builder_state' && onApplyBuilderState) {
+              // data expected to contain { components, rootList }
+              onApplyBuilderState(data?.components || {}, data?.rootList || []);
             }
           }
         }

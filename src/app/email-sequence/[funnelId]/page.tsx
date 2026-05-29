@@ -984,8 +984,10 @@ export default function EmailSequencePage({
   };
 
   const handleRegenerateEmail = useCallback(async () => {
-    if (!activePage || !activeEmail) return;
+    if (!activePage) return;
     const pageEmails = emailSequence[activePage] ?? [];
+    const currentEmail = pageEmails[activeEmailIndex] ?? null;
+    if (!currentEmail) return;
 
     setRegeneratingEmail({ pageKey: activePage, emailIndex: activeEmailIndex });
 
@@ -996,7 +998,7 @@ export default function EmailSequencePage({
         body: JSON.stringify({
           pageKey: activePage,
           emailIndex: activeEmailIndex,
-          currentEmail: activeEmail,
+          currentEmail,
           siblingEmails: pageEmails,
         }),
       });
@@ -1019,7 +1021,7 @@ export default function EmailSequencePage({
       }
 
       // Parse the single email from the response
-      const parsedEmail = parseEmailFromResponse(fullText, activeEmail.day, activePage);
+      const parsedEmail = parseEmailFromResponse(fullText, currentEmail.day, activePage);
 
       if (parsedEmail) {
         // Update only this email in state
@@ -1050,7 +1052,7 @@ export default function EmailSequencePage({
     } finally {
       setRegeneratingEmail(null);
     }
-  }, [activePage, activeEmailIndex, emailSequence, funnelId, activeEmail]);
+  }, [activePage, activeEmailIndex, emailSequence, funnelId]);
 
   const handleSelectEmail = useCallback((page: FunnelPageKey, index: number) => {
     setActivePage(page);
