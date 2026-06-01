@@ -301,7 +301,6 @@ export function IntelligenceEditor({
       {/* ── Bubble Menu ──────────────────────────────────────────────── */}
       <BubbleMenu
         editor={editor}
-        floatingOptions={{ placement: "top" }}
         className="flex items-center gap-0.5 px-2 py-1.5 rounded-lg bg-[#12121f] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-xl z-50 transition-all duration-100"
       >
         <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
