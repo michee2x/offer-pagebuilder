@@ -6,18 +6,10 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { cn } from "@/lib/utils";
-import { ScoreRadarChart } from "@/components/intelligence/charts/ScoreRadarChart";
-import { PricingBarChart } from "@/components/intelligence/charts/PricingBarChart";
-import { PlatformPieChart } from "@/components/intelligence/charts/PlatformPieChart";
 import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
-import { FunnelHealthChart } from "@/components/intelligence/charts/FunnelHealthChart";
 import { motion, AnimatePresence } from "framer-motion";
-import { DesignPreviewCard } from "@/components/intelligence/charts/DesignPreviewCard";
-import { DynamicChart } from "@/components/intelligence/DynamicChart";
-import { InsightCard } from "@/components/intelligence/InsightCard";
-import { ReferenceLink } from "@/components/intelligence/ReferenceLink";
+import { IntelligenceEditor } from "@/components/ui/intelligence-editor";
 import {
   Zap,
   ArrowRight,
@@ -308,308 +300,7 @@ const CALL2_SECTION_MAP = {
   monetization_strategy_narrative: "MONETIZATION_STRATEGY_NARRATIVE",
 };
 
-// ─── Interactive UI Components ────────────────────────────────────────────────
 
-function InteractiveCheckbox({ label }: { label: string }) {
-  const [checked, setChecked] = useState(false);
-  return (
-    <div 
-      className={cn(
-        "flex items-start gap-3 my-2 cursor-pointer p-3 rounded-lg border transition-all",
-        checked ? "bg-muted/10 border-border" : "bg-card border-transparent hover:bg-muted/30"
-      )}
-      onClick={(e) => {
-        e.stopPropagation();
-        setChecked(!checked);
-      }}
-    >
-      <div 
-        className={cn(
-          "w-5 h-5 rounded border mt-0.5 flex items-center justify-center shrink-0 transition-all", 
-          checked ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground bg-transparent"
-        )}
-      >
-        {checked && <CheckCircle2 className="w-3.5 h-3.5" />}
-      </div>
-      <span className={cn("text-sm leading-relaxed", checked ? "line-through text-muted-foreground" : "text-foreground")}>
-        {label}
-      </span>
-    </div>
-  );
-}
-
-function EditableNarrativeText({
-  text,
-  onChange,
-}: {
-  text: string;
-  onChange: (newText: string) => void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-
-  if (!text) return <StreamingPlaceholder />;
-
-  // Replace XML tags with special tokens to split the text, or just parse line by line if they are inline.
-  // Since streaming might break tags, we use a custom renderer.
-  const parseRichContent = (rawText: string) => {
-    const blocks: React.ReactNode[] = [];
-    let currentText = rawText;
-
-    const chartRegex = /<Chart\s+type="([^"]+)"\s+data='([^']+)'(?:\s+title="([^"]*)")?(?:\s+summary="([^"]*)")?\s*\/>/i;
-    const insightRegex = /<Insight\s+value="([^"]*)"(?:\s+title="([^"]*)")?>([\s\S]*?)<\/Insight>/i;
-    const referenceRegex = /<Reference\s+url="([^"]+)"\s+domain="([^"]+)">([\s\S]*?)<\/Reference>/i;
-
-    let matchCount = 0;
-    while (currentText.length > 0 && matchCount < 100) {
-      matchCount++;
-      const cMatch = currentText.match(chartRegex);
-      const iMatch = currentText.match(insightRegex);
-      const rMatch = currentText.match(referenceRegex);
-
-      const matches = [
-        { match: cMatch, type: 'chart' },
-        { match: iMatch, type: 'insight' },
-        { match: rMatch, type: 'reference' }
-      ].filter(m => m.match !== null);
-
-      if (matches.length === 0) {
-        blocks.push(<TextRenderer key={`text-${matchCount}`} text={currentText} />);
-        break;
-      }
-
-      // Find the earliest match
-      matches.sort((a, b) => a.match!.index! - b.match!.index!);
-      const earliest = matches[0];
-      const matchIndex = earliest.match!.index!;
-      
-      if (matchIndex > 0) {
-        blocks.push(<TextRenderer key={`text-before-${matchCount}`} text={currentText.substring(0, matchIndex)} />);
-      }
-
-      const fullMatch = earliest.match![0];
-      if (earliest.type === 'chart') {
-        blocks.push(
-          <DynamicChart 
-            key={`chart-${matchCount}`} 
-            type={earliest.match![1] as any} 
-            data={earliest.match![2]} 
-            title={earliest.match![3]} 
-            summary={earliest.match![4]} 
-          />
-        );
-      } else if (earliest.type === 'insight') {
-        blocks.push(
-          <InsightCard 
-            key={`insight-${matchCount}`} 
-            value={earliest.match![1]} 
-            title={earliest.match![2] || "Key Insight"}
-          >
-            {earliest.match![3]}
-          </InsightCard>
-        );
-      } else if (earliest.type === 'reference') {
-        blocks.push(
-          <ReferenceLink 
-            key={`ref-${matchCount}`} 
-            url={earliest.match![1]} 
-            domain={earliest.match![2]} 
-            title={earliest.match![3]} 
-          />
-        );
-      }
-
-      currentText = currentText.substring(matchIndex + fullMatch.length);
-    }
-    
-    return blocks;
-  };
-
-  // Clean up any JSON codeblocks from view if they are just data payloads
-  const viewText = text.replace(/```json[\s\S]*?```/g, '').trim();
-
-  // If text is purely JSON object without backticks
-  let isPureJson = false;
-  try {
-    if ((text.trim().startsWith('{') || text.trim().startsWith('['))) {
-      JSON.parse(text.trim());
-      isPureJson = true;
-    }
-  } catch(e) {}
-
-  // If text is HTML from a previous Tiptap edit
-  const isHtml = text.trim().startsWith('<') && text.trim().endsWith('>');
-
-  let editorInitialContent = text;
-  if (!isHtml && isEditing) {
-    // If we're opening the editor to edit raw markdown, convert basic elements to HTML
-    editorInitialContent = viewText
-      .split('\n')
-      .map(line => {
-        if (!line.trim()) return '<p></p>';
-        const l = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        if (l.startsWith('# ')) return `<h1>${l.substring(2)}</h1>`;
-        if (l.startsWith('## ')) return `<h2>${l.substring(3)}</h2>`;
-        if (l.startsWith('### ')) return `<h3>${l.substring(4)}</h3>`;
-        return `<p>${l}</p>`;
-      })
-      .join('');
-  }
-
-  if (isEditing) {
-    return (
-      <div className="relative group rounded-xl border border-primary/30 p-2 bg-muted/10 transition-all">
-        <div className="flex justify-end p-2 border-b border-border mb-4 bg-background rounded-t-lg">
-          <Button 
-            size="sm" 
-            variant="default"
-            className="h-8 gap-2"
-            onClick={() => setIsEditing(false)}
-          >
-            <Check className="w-4 h-4" />
-            Done Editing
-          </Button>
-        </div>
-        <RichTextEditor
-          content={editorInitialContent}
-          onChange={onChange}
-        />
-      </div>
-    );
-  }
-
-  if (!text) return <StreamingPlaceholder />;
-  if (isPureJson && !isEditing) return null;
-  
-  if (!viewText && !isEditing) {
-     return (
-       <div className="w-full mt-4 flex justify-end">
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-             + Add Narrative Analysis
-          </Button>
-       </div>
-     );
-  }
-
-  return (
-    <div 
-      className="text-foreground text-[15px] leading-relaxed max-w-none p-4 -mx-4 rounded-xl transition-colors hover:bg-muted/10 group relative space-y-4"
-    >
-      <div 
-        className="absolute top-2 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-background border px-3 py-1.5 rounded-lg text-xs text-muted-foreground shadow-sm z-10 cursor-pointer hover:bg-muted hover:text-foreground flex items-center gap-2"
-        onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-      >
-        <Copy className="w-3.5 h-3.5" />
-        Edit Section
-      </div>
-      
-      {isHtml ? (
-         <div dangerouslySetInnerHTML={{ __html: text }} />
-      ) : (
-         <div className="space-y-4">
-           {parseRichContent(viewText)}
-         </div>
-      )}
-    </div>
-  );
-}
-
-function TextRenderer({ text }: { text: string }) {
-  if (!text.trim()) return null;
-  
-  return (
-    <>
-      {text.split("\n").map((line, i) => {
-           if (!line.trim() || line.trim() === '---' || line.trim() === '##' || line.trim() === '***') return <div key={i} className="h-4" />;
-           
-           // Clean up markdown checkboxes if they exist so it just looks like a bullet
-           let processedLine = line;
-           if (processedLine.trim().match(/^-\s+\[\s?\]/)) {
-             processedLine = processedLine.replace(/^-\s+\[\s?\]/, "-");
-           }
-           
-           // Smart Badges for INTENSITY or STAGE keys
-           const isIntensity = /INTENSITY:\s*(CRITICAL|HIGH|MEDIUM|LOW)/i.test(processedLine);
-           if (isIntensity) {
-             const intensity = processedLine.match(/INTENSITY:\s*(\w+)/i)?.[1].toUpperCase();
-             const cleanText = processedLine.replace(/INTENSITY:\s*\w+/i, "").trim();
-             return (
-               <div key={i} className="text-[15px] leading-relaxed mb-3 flex items-start gap-2">
-                  <span
-                     className={cn(
-                       "text-[10px] font-bold px-1.5 py-0.5 rounded-sm border shrink-0 mt-0.5 uppercase tracking-wide",
-                       intensity === "CRITICAL" && "bg-indigo-500/10 text-indigo-400 border-indigo-500/30",
-                       intensity === "HIGH" && "bg-white/10 text-white border-white/20",
-                       intensity === "MEDIUM" && "bg-white/5 text-white/60 border-white/10",
-                       intensity === "LOW" && "bg-white/5 text-white/60 border-white/10",
-                     )}
-                   >
-                     {intensity}
-                   </span>
-                   <span className="text-white/80 font-normal">{cleanText}</span>
-               </div>
-             )
-           }
-
-           // Handle simple bold markup **bold** and headers
-           const renderLine = () => {
-             let textLine = processedLine.trim();
-             let headerClass = "";
-             if (textLine.startsWith('###')) { textLine = textLine.replace(/^###\s*/, ''); headerClass = "text-lg font-bold text-white mt-4 mb-2"; }
-             else if (textLine.startsWith('##')) { textLine = textLine.replace(/^##\s*/, ''); headerClass = "text-xl font-bold text-white mt-6 mb-2"; }
-             else if (textLine.startsWith('#')) { textLine = textLine.replace(/^#\s*/, ''); headerClass = "text-2xl font-bold text-white mt-6 mb-3"; }
-             
-             let prefixNode = null;
-             
-             if (!headerClass) {
-               // Extract keys like "VISUAL THEME:" or "HOOK 1 —" to bold just the prefix
-               const keyRegex = /^([A-Z0-9_\s]+:|STAGE:|BONUS.*?:|HOOK.*?—|ANGLE.*?:)(.*)/;
-               const match = textLine.match(keyRegex);
-               if (match) {
-                 prefixNode = <strong className="text-white font-semibold mr-1.5">{match[1]}</strong>;
-                 textLine = match[2];
-               }
-             }
-
-             const fragments = textLine.split(/(\*\*.*?\*\*)/g).map((part, j) => {
-               if (part.startsWith('**') && part.endsWith('**')) {
-                 return <strong key={j} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
-               }
-               return <React.Fragment key={j}>{part}</React.Fragment>;
-             });
-
-             if (headerClass) return <div className={headerClass}>{fragments}</div>;
-             
-             return (
-               <div className={prefixNode ? "mt-4" : ""}>
-                 {prefixNode}
-                 <span className="text-white/80 font-normal">{fragments}</span>
-               </div>
-             );
-           };
-
-           return (
-             <div
-               key={i}
-               className="text-[15px] leading-relaxed mb-3 last:mb-0"
-             >
-               {renderLine()}
-             </div>
-           );
-         })}
-    </>
-  );
-}
-
-function StreamingPlaceholder() {
-  return (
-    <div className="space-y-2 animate-pulse w-full max-w-3xl">
-      <div className="h-3 bg-muted rounded w-3/4" />
-      <div className="h-3 bg-muted rounded w-full" />
-      <div className="h-3 bg-muted rounded w-5/6" />
-      <div className="h-3 bg-muted rounded w-2/3" />
-    </div>
-  );
-}
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
@@ -731,6 +422,35 @@ export default function IntelligencePage({
       setGenStep(GEN_STEPS.length);
     }
   }, [call1, call2, formData, streamCall1, streamCall2]);
+
+  const regenerateAnalysis = useCallback(async () => {
+    if (!formData) return;
+    
+    // Animate steps
+    let step = 0;
+    setGenStep(0);
+    const interval = setInterval(() => {
+      step = Math.min(step + 1, GEN_STEPS.length - 1);
+      setGenStep(step);
+    }, 6000);
+
+    try {
+      setErrorMsg("");
+      // Force regeneration by passing undefined for existing calls
+      const c1 = await streamCall1(formData, undefined);
+      if (!c1 || Object.keys(c1).length === 0) {
+        throw new Error("Structural analysis returned empty output.");
+      }
+      await streamCall2(formData, c1, undefined);
+      setPhase("done");
+    } catch (e: any) {
+      setErrorMsg(e.message || "Analysis failed");
+      setPhase("error");
+    } finally {
+      clearInterval(interval);
+      setGenStep(GEN_STEPS.length);
+    }
+  }, [formData, streamCall1, streamCall2]);
 
   const updateSectionContent = useCallback(async (key: string, newText: string) => {
     // Determine if it's Call1 or Call2
@@ -952,6 +672,11 @@ export default function IntelligencePage({
         >
           {phase !== "idle" && phase !== "done" && <Spinner size="sm" />}
           
+          <Button variant="outline" size="sm" onClick={regenerateAnalysis} className="gap-2 print:hidden text-white bg-white/5 border-white/10 hover:bg-white/10 hover:text-white transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]">
+            <Zap className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Regenerate</span>
+          </Button>
+
           <Button variant="outline" size="sm" onClick={handlePrintPdf} className="gap-2 print:hidden text-white bg-white/5 border-white/10 hover:bg-white/10 hover:text-white transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]">
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Export PDF</span>
@@ -1153,28 +878,14 @@ export default function IntelligencePage({
                         </Button>
                      </div>
 
-                   {/* Dynamic Chart Integration */}
-                   {activeConfig.chartType === "radar" && activeSectionId === "OFFER_SCORE" && (
-                     <ScoreRadarChart content={activeContent} />
-                   )}
-                   {activeConfig.chartType === "bar" && activeSectionId === "PRICING_STRATEGY" && (
-                     <PricingBarChart content={activeContent} />
-                   )}
-                   {activeConfig.chartType === "pie" && activeSectionId === "PLATFORM_PRIORITY_MATRIX" && (
-                     <PlatformPieChart content={activeContent} />
-                   )}
-                    {activeConfig.chartType === "design" && activeSectionId === "DESIGN_INTELLIGENCE_RECOMMENDATION" && (
-                      <DesignPreviewCard content={activeContent} />
-                    )}
-                    {activeConfig.chartType === "gauge" && activeSectionId === "FUNNEL_HEALTH_SCORE" && (
-                      <FunnelHealthChart content={activeContent} />
-                    )}
+
 
                    {/* Editable Markdown Body */}
                    <div className="min-h-[250px] mb-12 relative z-10">
-                      <EditableNarrativeText 
-                        text={activeContent} 
+                      <IntelligenceEditor 
+                        content={activeContent} 
                         onChange={(newText) => updateSectionContent(activeSectionId, newText)} 
+                        isStreaming={phase === "call1" || phase === "call2"}
                       />
                    </div>
 

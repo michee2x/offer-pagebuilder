@@ -23,10 +23,7 @@ import {
   Star,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import type {
-  CopyOutput,
-  FunnelPageKey,
-} from "@/lib/offer-types";
+import type { CopyOutput, FunnelPageKey } from "@/lib/offer-types";
 import { FUNNEL_PAGE_LABELS } from "@/lib/offer-types";
 import { parseCopyOutput } from "@/lib/offer-parser";
 import { toast } from "sonner";
@@ -48,17 +45,33 @@ const WIZARD_STEPS = [
 
 function Target(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-      strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
     </svg>
   );
 }
 
 function TrendDown(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-      strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
       <polyline points="22 17 13.5 8.5 8.5 13.5 2 7" />
       <polyline points="16 17 22 17 22 11" />
     </svg>
@@ -83,26 +96,43 @@ const GEN_STEPS = [
   "Finalizing page spec",
 ];
 
-function GenerationOverlay({ visible, step }: { visible: boolean; step: number }) {
+function GenerationOverlay({
+  visible,
+  step,
+}: {
+  visible: boolean;
+  step: number;
+}) {
   if (!visible) return null;
   const pct = Math.min(100, Math.round((step / GEN_STEPS.length) * 100));
-  const label = step >= GEN_STEPS.length ? "Finalizing…" : GEN_STEPS[Math.min(step, GEN_STEPS.length - 1)];
+  const label =
+    step >= GEN_STEPS.length
+      ? "Finalizing…"
+      : GEN_STEPS[Math.min(step, GEN_STEPS.length - 1)];
   return (
     <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center">
       <div className="w-full max-w-sm mx-auto px-6 text-center flex flex-col items-center">
         <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
-          <Spinner size="xl" className="absolute inset-0 h-full w-full border-4" />
-          <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">{pct}%</div>
+          <Spinner
+            size="xl"
+            className="absolute inset-0 h-full w-full border-4"
+          />
+          <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
+            {pct}%
+          </div>
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">Designing Your Pages</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
+          Designing Your Pages
+        </h2>
         <div className="h-6 overflow-hidden">
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">{label}</p>
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">
+            {label}
+          </p>
         </div>
       </div>
     </div>
   );
 }
-
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
@@ -263,7 +293,7 @@ export default function CopyPage({
       });
       setHasUnsavedChanges(true);
     },
-    [copy, activePage]
+    [copy, activePage],
   );
 
   // ── Agent copy update handler ───────────────────────────────────────────────
@@ -286,7 +316,7 @@ export default function CopyPage({
       });
       setHasUnsavedChanges(true);
     },
-    [copy]
+    [copy],
   );
 
   // ── Regenerate single section ────────────────────────────────────────────────
@@ -322,7 +352,7 @@ export default function CopyPage({
       }
 
       // Parse the regenerated section copy (expect HTML + metadata)
-      const lines = accumulated.trim().split('\n');
+      const lines = accumulated.trim().split("\n");
       const htmlMatch = accumulated.match(/<html[\s\S]*<\/html>/i);
       const html = htmlMatch ? htmlMatch[0] : accumulated;
 
@@ -356,12 +386,12 @@ export default function CopyPage({
 
   const overallScore = copy
     ? Math.round(
-      pageList.reduce((a, k) => a + (copy.pages[k]?.score ?? 0), 0) /
-      Math.max(pageList.length, 1)
-    )
+        pageList.reduce((a, k) => a + (copy.pages[k]?.score ?? 0), 0) /
+          Math.max(pageList.length, 1),
+      )
     : 0;
 
-  const activePageSpec = activePage ? copy?.pages[activePage] ?? null : null;
+  const activePageSpec = activePage ? (copy?.pages[activePage] ?? null) : null;
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
@@ -373,39 +403,44 @@ export default function CopyPage({
         <div
           className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
-            transform: 'rotate(-30deg)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)",
+            transform: "rotate(-30deg)",
           }}
         />
         {/* Radial - Blue */}
         <div
           className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
-            transform: 'rotate(30deg)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)",
+            transform: "rotate(30deg)",
           }}
         />
         {/* Radial - Purple */}
         <div
           className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)",
           }}
         />
         {/* Bottom Gradient Overlay */}
         <div
           className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
           style={{
-            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+            background:
+              "linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)",
           }}
         />
         {/* Noise Overlay */}
         <div
           className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
           style={{
-            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
-            backgroundRepeat: 'repeat',
-            backgroundSize: '128px auto'
+            backgroundImage:
+              "url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)",
+            backgroundRepeat: "repeat",
+            backgroundSize: "128px auto",
           }}
         />
       </div>
@@ -430,10 +465,16 @@ export default function CopyPage({
                 "gap-1.5 text-xs transition-all border-transparent",
                 hasUnsavedChanges
                   ? "bg-white text-black hover:bg-white/90 shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_rgba(255,255,255,0.65)]"
-                  : "text-muted-foreground hover:text-foreground bg-white/5 border border-white/10"
+                  : "text-muted-foreground hover:text-foreground bg-white/5 border border-white/10",
               )}
             >
-              {isSaving ? <Spinner size="sm" /> : hasUnsavedChanges ? <Save className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
+              {isSaving ? (
+                <Spinner size="sm" />
+              ) : hasUnsavedChanges ? (
+                <Save className="w-3.5 h-3.5" />
+              ) : (
+                <Check className="w-3.5 h-3.5" />
+              )}
               {hasUnsavedChanges ? "Save" : "Saved"}
             </Button>
           )}
@@ -450,14 +491,22 @@ export default function CopyPage({
         </Topbar>
 
         <div className="flex flex-1 overflow-hidden">
-          <FunnelSidebar funnelId={funnelId} funnelName={funnelName || funnelId} collapsible />
+          <FunnelSidebar
+            funnelId={funnelId}
+            funnelName={funnelName || funnelId}
+            collapsible
+          />
 
           {/* Page nav */}
           <div className="w-48 shrink-0 border-r border-border bg-card flex flex-col overflow-hidden">
             <div className="px-4 py-3 border-b border-border">
-              <p className="text-xs font-bold text-foreground truncate">{funnelName || "Copy Engine"}</p>
+              <p className="text-xs font-bold text-foreground truncate">
+                {funnelName || "Copy Engine"}
+              </p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                {pageList.length > 0 ? `${pageList.length} pages` : "Generating…"}
+                {pageList.length > 0
+                  ? `${pageList.length} pages`
+                  : "Generating…"}
               </p>
             </div>
             <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
@@ -471,14 +520,29 @@ export default function CopyPage({
                     onClick={() => setActivePage(key)}
                     className={cn(
                       "w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-lg border text-left transition-all group",
-                      active ? "bg-muted border-border" : "border-transparent hover:bg-muted/40"
+                      active
+                        ? "bg-muted border-border"
+                        : "border-transparent hover:bg-muted/40",
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={cn(active ? "text-brand-yellow" : "text-muted-foreground group-hover:text-foreground")}>
+                      <span
+                        className={cn(
+                          active
+                            ? "text-brand-yellow"
+                            : "text-muted-foreground group-hover:text-foreground",
+                        )}
+                      >
                         {PAGE_ICONS[key]}
                       </span>
-                      <span className={cn("text-xs font-semibold", active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
+                      <span
+                        className={cn(
+                          "text-xs font-semibold",
+                          active
+                            ? "text-foreground"
+                            : "text-muted-foreground group-hover:text-foreground",
+                        )}
+                      >
                         {FUNNEL_PAGE_LABELS[key]}
                       </span>
                     </div>
@@ -488,12 +552,23 @@ export default function CopyPage({
                           <div
                             className={cn(
                               "h-full rounded-full",
-                              score >= 80 ? "bg-foreground" : score >= 65 ? "bg-brand-yellow" : "bg-destructive"
+                              score >= 80
+                                ? "bg-foreground"
+                                : score >= 65
+                                  ? "bg-brand-yellow"
+                                  : "bg-destructive",
                             )}
                             style={{ width: `${score}%` }}
                           />
                         </div>
-                        <span className={cn("text-[10px] font-bold", active ? "text-foreground" : "text-muted-foreground")}>
+                        <span
+                          className={cn(
+                            "text-[10px] font-bold",
+                            active
+                              ? "text-foreground"
+                              : "text-muted-foreground",
+                          )}
+                        >
                           {score}
                         </span>
                       </div>
@@ -517,7 +592,6 @@ export default function CopyPage({
               </div>
             ) : copy && activePage && activePageSpec ? (
               <div className="flex-1 overflow-y-auto">
-
                 {/* Editor container */}
                 <div className="flex-1 bg-background h-full overflow-hidden">
                   <DocEditor
@@ -531,7 +605,9 @@ export default function CopyPage({
             ) : copy && pageList.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-3 text-muted-foreground">
                 <FileText className="w-8 h-8 opacity-40" />
-                <p className="text-sm">No pages were generated. Try regenerating.</p>
+                <p className="text-sm">
+                  No pages were generated. Try regenerating.
+                </p>
                 <Button size="sm" onClick={generateCopy} className="gap-1.5">
                   <RefreshCw className="w-3.5 h-3.5" /> Regenerate
                 </Button>
@@ -540,7 +616,9 @@ export default function CopyPage({
               <div className="flex-1 flex flex-col items-center justify-center gap-3 text-muted-foreground">
                 <FileText className="w-8 h-8 opacity-40" />
                 <p className="text-sm">
-                  {intelligenceComplete ? "No copy yet." : "Complete intelligence analysis first."}
+                  {intelligenceComplete
+                    ? "No copy yet."
+                    : "Complete intelligence analysis first."}
                 </p>
                 {intelligenceComplete && (
                   <Button size="sm" onClick={generateCopy} className="gap-1.5">
@@ -548,15 +626,17 @@ export default function CopyPage({
                   </Button>
                 )}
                 {!intelligenceComplete && (
-                  <Button size="sm" onClick={() => router.push(`/intelligence/${funnelId}`)} className="gap-1.5">
+                  <Button
+                    size="sm"
+                    onClick={() => router.push(`/intelligence/${funnelId}`)}
+                    className="gap-1.5"
+                  >
                     <ArrowRight className="w-3.5 h-3.5" /> Go to Intelligence
                   </Button>
                 )}
               </div>
             ) : null}
           </div>
-
-
         </div>
       </div>
 

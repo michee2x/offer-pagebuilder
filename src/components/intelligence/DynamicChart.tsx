@@ -22,7 +22,16 @@ interface DynamicChartProps {
   className?: string;
 }
 
-const PIE_COLORS = ['#06b6d4', '#a855f7', '#ec4899', '#f5a623', '#10b981', '#3b82f6'];
+const GRADIENT_CONTINUUM = [
+  '#00f2fe', // Bright Cyan
+  '#4facfe', // Light Blue
+  '#5b86e5', // Royal Blue
+  '#8e2de2', // Deep Purple
+  '#a855f7', // Violet
+  '#ec4899', // Pink
+  '#ff0844', // Hot Red
+  '#ffb199', // Peach
+];
 
 export function DynamicChart({ type, data, title, summary, className }: DynamicChartProps) {
   let parsedData: ChartDataPoint[] = [];
@@ -38,7 +47,15 @@ export function DynamicChart({ type, data, title, summary, className }: DynamicC
     parsedData = data;
   }
 
-  if (!parsedData || parsedData.length === 0) return null;
+  // Handle case where AI outputs an object instead of an array
+  if (parsedData && typeof parsedData === "object" && !Array.isArray(parsedData)) {
+    parsedData = Object.entries(parsedData).map(([key, value]) => ({
+      name: key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+      value: Number(value) || 0
+    }));
+  }
+
+  if (!parsedData || !Array.isArray(parsedData) || parsedData.length === 0) return null;
 
   const renderChart = () => {
     switch (type) {
@@ -47,20 +64,26 @@ export function DynamicChart({ type, data, title, summary, className }: DynamicC
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={parsedData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
               <defs>
-                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                </linearGradient>
+                {GRADIENT_CONTINUUM.map((color, idx) => (
+                  <linearGradient key={`barGrad${idx}`} id={`barGrad${idx}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0.2} />
+                  </linearGradient>
+                ))}
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+              <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={11} tickLine={false} axisLine={false} />
+              <YAxis stroke="rgba(255,255,255,0.4)" fontSize={11} tickLine={false} axisLine={false} />
               <Tooltip 
-                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                contentStyle={{ backgroundColor: "#0a0a0a", borderColor: "rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff" }}
-                itemStyle={{ color: "#06b6d4", fontWeight: "bold" }}
+                cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                contentStyle={{ backgroundColor: "#0f172a", borderColor: "rgba(255,255,255,0.05)", borderRadius: "12px", color: "#fff", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}
+                itemStyle={{ color: "#fff", fontWeight: "bold" }}
               />
-              <Bar dataKey="value" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                {parsedData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={`url(#barGrad${index % GRADIENT_CONTINUUM.length})`} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         );
@@ -68,23 +91,36 @@ export function DynamicChart({ type, data, title, summary, className }: DynamicC
         return (
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
+              <defs>
+                {GRADIENT_CONTINUUM.map((color, idx) => {
+                  // Create a slightly shifted next color for a radial blend effect
+                  const nextColor = GRADIENT_CONTINUUM[(idx + 1) % GRADIENT_CONTINUUM.length];
+                  return (
+                    <linearGradient key={`pieGrad${idx}`} id={`pieGrad${idx}`} x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor={color} stopOpacity={1} />
+                      <stop offset="100%" stopColor={nextColor} stopOpacity={0.8} />
+                    </linearGradient>
+                  );
+                })}
+              </defs>
               <Pie
                 data={parsedData}
                 cx="50%"
                 cy="50%"
-                innerRadius={65}
+                innerRadius={60}
                 outerRadius={85}
-                paddingAngle={6}
+                paddingAngle={8}
                 dataKey="value"
                 stroke="none"
+                cornerRadius={4}
               >
                 {parsedData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={`url(#pieGrad${index % GRADIENT_CONTINUUM.length})`} />
                 ))}
               </Pie>
               <Tooltip 
                 itemStyle={{ color: "#fff", fontWeight: "bold" }}
-                contentStyle={{ backgroundColor: "#0a0a0a", borderColor: "rgba(255,255,255,0.1)", borderRadius: "12px" }}
+                contentStyle={{ backgroundColor: "#0f172a", borderColor: "rgba(255,255,255,0.05)", borderRadius: "12px", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -95,17 +131,17 @@ export function DynamicChart({ type, data, title, summary, className }: DynamicC
             <RadarChart cx="50%" cy="50%" outerRadius="75%" data={parsedData}>
               <defs>
                 <linearGradient id="radarDynGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#ec4899" stopOpacity={0.4}/>
+                  <stop offset="0%" stopColor="#00f2fe" stopOpacity={0.8}/>
+                  <stop offset="100%" stopColor="#8e2de2" stopOpacity={0.2}/>
                 </linearGradient>
               </defs>
-              <PolarGrid stroke="rgba(255,255,255,0.1)" />
-              <PolarAngleAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 500 }} />
+              <PolarGrid stroke="rgba(255,255,255,0.05)" />
+              <PolarAngleAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: 500 }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
               <Radar
                 name="Value"
                 dataKey="value"
-                stroke="#a855f7"
+                stroke="#00f2fe"
                 strokeWidth={2}
                 fill="url(#radarDynGradient)"
                 fillOpacity={1}

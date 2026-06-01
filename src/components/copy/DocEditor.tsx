@@ -319,7 +319,7 @@ export function DocEditor({
             ) : (
               <RefreshCw className="w-3.5 h-3.5" />
             )}
-            {isRegenerating ? 'Generating…' : 'Regenerate'}
+            {isRegenerating ? "Generating…" : "Regenerate"}
           </button>
         )}
       </div>

@@ -511,37 +511,63 @@ export function extractSection(text: string, sectionName: string): string {
 }
 
 export function parseCall1Output(rawText: string): Record<string, string> {
+  const cleaned = rawText
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+
+  let parsed: any = {};
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch {
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch {
+        console.error('[parseCall1Output] Failed to parse AI JSON output');
+      }
+    }
+  }
+
   const sections: Record<string, string> = {};
   for (const sectionName of ALL_SECTIONS) {
-    const content = extractSection(rawText, sectionName);
-    if (content) {
-      sections[sectionName] = content;
+    if (parsed && typeof parsed === 'object' && parsed[sectionName]) {
+      sections[sectionName] = parsed[sectionName];
+    } else {
+      const fallback = extractSection(rawText, sectionName);
+      if (fallback) {
+        sections[sectionName] = fallback;
+      }
     }
   }
   return sections;
 }
 
 export function parseCall2Output(rawText: string): Call2Output {
+  const parsedMap = parseCall1Output(rawText);
   return {
-    offer_positioning_analysis: extractSection(rawText, 'OFFER_POSITIONING_ANALYSIS'),
-    target_persona_intelligence: extractSection(rawText, 'TARGET_PERSONA_INTELLIGENCE'),
-    conversion_hook_library: extractSection(rawText, 'CONVERSION_HOOK_LIBRARY'),
-    messaging_angle_matrix: extractSection(rawText, 'MESSAGING_ANGLE_MATRIX'),
-    product_core_value_perception: extractSection(rawText, 'PRODUCT_CORE_VALUE_PERCEPTION'),
-    real_world_use_case_scenarios: extractSection(rawText, 'REAL_WORLD_USE_CASE_SCENARIOS'),
-    monetization_strategy_narrative: extractSection(rawText, 'MONETIZATION_STRATEGY_NARRATIVE'),
+    offer_positioning_analysis: parsedMap['OFFER_POSITIONING_ANALYSIS'] || extractSection(rawText, 'OFFER_POSITIONING_ANALYSIS'),
+    target_persona_intelligence: parsedMap['TARGET_PERSONA_INTELLIGENCE'] || extractSection(rawText, 'TARGET_PERSONA_INTELLIGENCE'),
+    conversion_hook_library: parsedMap['CONVERSION_HOOK_LIBRARY'] || extractSection(rawText, 'CONVERSION_HOOK_LIBRARY'),
+    messaging_angle_matrix: parsedMap['MESSAGING_ANGLE_MATRIX'] || extractSection(rawText, 'MESSAGING_ANGLE_MATRIX'),
+    product_core_value_perception: parsedMap['PRODUCT_CORE_VALUE_PERCEPTION'] || extractSection(rawText, 'PRODUCT_CORE_VALUE_PERCEPTION'),
+    real_world_use_case_scenarios: parsedMap['REAL_WORLD_USE_CASE_SCENARIOS'] || extractSection(rawText, 'REAL_WORLD_USE_CASE_SCENARIOS'),
+    monetization_strategy_narrative: parsedMap['MONETIZATION_STRATEGY_NARRATIVE'] || extractSection(rawText, 'MONETIZATION_STRATEGY_NARRATIVE'),
   };
 }
 
 export function parseCall3Output(rawText: string): Call3Output {
+  const parsedMap = parseCall1Output(rawText);
   return {
-    platform_priority_narrative: extractSection(rawText, 'PLATFORM_PRIORITY_NARRATIVE'),
-    omnichannel_ad_copy_matrix: extractSection(rawText, 'OMNICHANNEL_AD_COPY_MATRIX'),
-    google_ads_copy_matrix: extractSection(rawText, 'GOOGLE_ADS_COPY_MATRIX'),
-    vsl_ugc_video_script_intelligence: extractSection(rawText, 'VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE'),
-    media_buying_strategy_report: extractSection(rawText, 'MEDIA_BUYING_STRATEGY_REPORT'),
-    traffic_funnel_alignment: extractSection(rawText, 'TRAFFIC_FUNNEL_ALIGNMENT'),
-    competitive_acquisition_intelligence: extractSection(rawText, 'COMPETITIVE_ACQUISITION_INTELLIGENCE'),
-    launch_sequence_recommendation: extractSection(rawText, 'LAUNCH_SEQUENCE_RECOMMENDATION'),
+    platform_priority_narrative: parsedMap['PLATFORM_PRIORITY_NARRATIVE'] || extractSection(rawText, 'PLATFORM_PRIORITY_NARRATIVE'),
+    omnichannel_ad_copy_matrix: parsedMap['OMNICHANNEL_AD_COPY_MATRIX'] || extractSection(rawText, 'OMNICHANNEL_AD_COPY_MATRIX'),
+    google_ads_copy_matrix: parsedMap['GOOGLE_ADS_COPY_MATRIX'] || extractSection(rawText, 'GOOGLE_ADS_COPY_MATRIX'),
+    vsl_ugc_video_script_intelligence: parsedMap['VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE'] || extractSection(rawText, 'VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE'),
+    media_buying_strategy_report: parsedMap['MEDIA_BUYING_STRATEGY_REPORT'] || extractSection(rawText, 'MEDIA_BUYING_STRATEGY_REPORT'),
+    traffic_funnel_alignment: parsedMap['TRAFFIC_FUNNEL_ALIGNMENT'] || extractSection(rawText, 'TRAFFIC_FUNNEL_ALIGNMENT'),
+    competitive_acquisition_intelligence: parsedMap['COMPETITIVE_ACQUISITION_INTELLIGENCE'] || extractSection(rawText, 'COMPETITIVE_ACQUISITION_INTELLIGENCE'),
+    launch_sequence_recommendation: parsedMap['LAUNCH_SEQUENCE_RECOMMENDATION'] || extractSection(rawText, 'LAUNCH_SEQUENCE_RECOMMENDATION'),
   };
 }
