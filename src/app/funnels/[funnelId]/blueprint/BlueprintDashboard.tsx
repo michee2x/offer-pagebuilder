@@ -115,6 +115,18 @@ export function BlueprintDashboard({
 
   const hasChatStarted = messages.length > 0;
 
+  const getMessageText = (message: any) =>
+    (message?.parts ?? [])
+      .filter((part: any) => part.type === "text")
+      .map((part: any) => part.text)
+      .join("")
+      .trim();
+
+  const lastUserMessage = [...messages]
+    .reverse()
+    .find((message: any) => message.role === "user");
+  const lastUserText = getMessageText(lastUserMessage) || "Blueprint Topic";
+
   // Render the Generated PDF View
   if (blueprintUrl) {
     return (
@@ -182,12 +194,7 @@ export function BlueprintDashboard({
               </div>
               {messages.length > 1 && (
                 <Button
-                  onClick={() =>
-                    handleGeneratePdf(
-                      messages[messages.length - 1]?.content ||
-                        "Blueprint Topic",
-                    )
-                  }
+                  onClick={() => handleGeneratePdf(lastUserText)}
                   disabled={isGeneratingPdf}
                   className="bg-white hover:bg-white/90 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all"
                 >
