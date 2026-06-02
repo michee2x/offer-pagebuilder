@@ -66,7 +66,7 @@ INSTRUCTIONS:
       args: chromium.args,
       defaultViewport: { width: 1920, height: 1080 },
       executablePath: executablePath || undefined, // undefined falls back to local installed chromium if not in serverless
-      headless: chromium.headless,
+      headless: true,
     });
 
     const page = await browser.newPage();
