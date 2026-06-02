@@ -64,6 +64,13 @@ export function BlueprintDashboard({
 
   const isLoading = status === "streaming" || status === "submitted";
 
+  const getMessageText = (message: any) =>
+    (message?.parts ?? [])
+      .filter((part: any) => part.type === "text")
+      .map((part: any) => part.text)
+      .join("")
+      .trim();
+
   // Auto-scroll chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -217,7 +224,7 @@ export function BlueprintDashboard({
                   className={`max-w-[85%] rounded-3xl p-5 ${m.role === "user" ? "bg-brand-indigo text-white shadow-[0_10px_40px_-10px_rgba(99,102,241,0.5)]" : "bg-white/5 text-white/90 border border-white/10 shadow-2xl backdrop-blur-sm"}`}
                 >
                   <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
-                    {m.content}
+                    {getMessageText(m)}
                   </p>
                 </div>
               </div>
@@ -244,7 +251,7 @@ export function BlueprintDashboard({
               Design a Lead Magnet
             </h1>
             <p className="text-lg text-white/50 mb-12 max-w-xl font-medium">
-              I can analyze your funnel's sales intelligence to suggest
+              I can analyze your funnel&apos;s sales intelligence to suggest
               highly-converting topics, or you can tell me exactly what you want
               to build.
             </p>
