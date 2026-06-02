@@ -122,13 +122,6 @@ export function BlueprintDashboard({
 
   const hasChatStarted = messages.length > 0;
 
-  const getMessageText = (message: any) =>
-    (message?.parts ?? [])
-      .filter((part: any) => part.type === "text")
-      .map((part: any) => part.text)
-      .join("")
-      .trim();
-
   const lastUserMessage = [...messages]
     .reverse()
     .find((message: any) => message.role === "user");
