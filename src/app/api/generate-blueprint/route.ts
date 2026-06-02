@@ -64,7 +64,7 @@ INSTRUCTIONS:
     const executablePath = await chromium.executablePath();
     const browser = await puppeteer.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
+      defaultViewport: { width: 1920, height: 1080 },
       executablePath: executablePath || undefined, // undefined falls back to local installed chromium if not in serverless
       headless: chromium.headless,
     });
