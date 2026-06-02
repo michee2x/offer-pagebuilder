@@ -26,10 +26,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const converted = (messages || []).map((m: any) => ({
-    role: m.role,
-    content: m.content
-  }));
+    const converted = convertToModelMessages(messages || []);
 
     let systemPrompt = '';
 
