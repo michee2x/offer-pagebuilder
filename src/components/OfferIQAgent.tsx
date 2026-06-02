@@ -28,7 +28,7 @@ import type {
 import { toast } from "sonner";
 
 interface OfferIQAgentProps {
-  ability: "email-sequence" | "copy" | "builder";
+  ability: "email-sequence" | "copy" | "builder" | "intelligence";
   funnelId: string;
   funnelName: string;
   // Email context (for email-sequence ability)
@@ -44,6 +44,10 @@ interface OfferIQAgentProps {
   onAddEmail?: (newEmail: EmailCopy) => void;
   onDeleteActiveEmail?: () => void;
   onUpdateCopyPage?: (page: FunnelPageKey, html: string) => void;
+  // Intelligence context
+  activeSectionId?: string | null;
+  activeSectionContent?: string | null;
+  onUpdateIntelligenceSection?: (sectionId: string, content: string) => void;
   // Builder context
   builderPages?: Record<string, any> | null;
   activeBuilderPagePath?: string | null;
@@ -69,6 +73,11 @@ const TRYOUT_RECOMMENDATIONS = {
     "🔧 Refactor hero component to accept dynamic props",
     "🎨 Update CTA styles across the page",
     "⚡️ Convert this section to responsive grid layout",
+  ],
+  intelligence: [
+    "✍️ Rewrite this section to sound punchier",
+    "📊 Add a dynamic chart visualizing this data",
+    "🔍 Make this section more digestible",
   ],
 };
 
@@ -162,6 +171,9 @@ export function OfferIQAgent({
   onAddEmail,
   onDeleteActiveEmail,
   onUpdateCopyPage,
+  activeSectionId = null,
+  activeSectionContent = null,
+  onUpdateIntelligenceSection,
   builderPages = null,
   activeBuilderPagePath = null,
   onUpdateBuilderCode,
@@ -178,7 +190,9 @@ export function OfferIQAgent({
       ? { copy, activeCopyPage }
       : ability === "builder"
         ? { builderPages, activeBuilderPagePath }
-        : { activeEmail, activePage, activeEmailIndex, emailSequence };
+        : ability === "intelligence"
+          ? { activeSectionId, activeSectionContent }
+          : { activeEmail, activePage, activeEmailIndex, emailSequence };
 
   // Set up V3 useChat with custom transport matching project patterns
   const { messages, sendMessage, status, setMessages } = useChat({
@@ -194,13 +208,15 @@ export function OfferIQAgent({
               ? { copy, activeCopyPage, funnelName }
               : ability === "builder"
                 ? { builderPages, activeBuilderPagePath, funnelName }
-                : {
-                    activeEmail,
-                    activePage,
-                    activeEmailIndex,
-                    emailSequence,
-                    funnelName,
-                  },
+                : ability === "intelligence"
+                  ? { activeSectionId, activeSectionContent, funnelName }
+                  : {
+                      activeEmail,
+                      activePage,
+                      activeEmailIndex,
+                      emailSequence,
+                      funnelName,
+                    },
         },
       }),
     }),
@@ -244,6 +260,14 @@ export function OfferIQAgent({
               activeCopyPage
             ) {
               onUpdateCopyPage(activeCopyPage, data?.html || "");
+            }
+          } else if (ability === "intelligence") {
+            if (
+              action === "edit_intelligence" &&
+              onUpdateIntelligenceSection &&
+              activeSectionId
+            ) {
+              onUpdateIntelligenceSection(activeSectionId, data?.content || "");
             }
           } else if (ability === "builder") {
             // Builder-specific skill executions
@@ -430,6 +454,12 @@ export function OfferIQAgent({
                     scope. Cannot build or modify landing pages, change layouts,
                     or edit page builders.
                   </>
+                ) : ability === "intelligence" ? (
+                  <>
+                    Operating strictly within the{" "}
+                    <strong>Sales Intelligence</strong> scope. Cannot build landing
+                    pages or edit email campaigns.
+                  </>
                 ) : (
                   <>
                     Operating strictly within the{" "}
@@ -480,6 +510,13 @@ export function OfferIQAgent({
                             rewrite headlines, improve CTAs, audit copy for
                             objections, and optimize your page copy for
                             conversions.
+                          </>
+                        ) : ability === "intelligence" ? (
+                          <>
+                            I am your dedicated OfferIQ agent operating under
+                            the <strong>Sales Intelligence Ability</strong>. I can
+                            rewrite report sections, generate beautiful data charts, 
+                            embed relevant videos, and optimize your intelligence readouts.
                           </>
                         ) : (
                           <>

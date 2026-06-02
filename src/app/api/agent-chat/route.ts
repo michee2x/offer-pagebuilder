@@ -4,43 +4,47 @@ import { streamText, jsonSchema, convertToModelMessages } from 'ai';
 export const maxDuration = 45;
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response(
-      JSON.stringify({ error: 'Missing ANTHROPIC_API_KEY in .env.local' }),
-      { status: 500 }
-    );
-  }
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: 'Missing ANTHROPIC_API_KEY in .env.local' }),
+        { status: 500 }
+      );
+    }
 
-  const body = await req.json();
-  const { messages, ability, abilityContext } = body;
+    const body = await req.json();
+    const { messages, ability, abilityContext } = body;
 
-  console.log('=== /api/agent-chat ===');
-  console.log('ability:', ability);
-  console.log('messages count:', messages?.length);
-  
-  if (!['email-sequence', 'copy'].includes(ability)) {
-    return new Response(
-      JSON.stringify({ error: `Unsupported ability: ${ability}` }),
-      { status: 400 }
-    );
-  }
+    console.log('=== /api/agent-chat ===');
+    console.log('ability:', ability);
+    console.log('messages count:', messages?.length);
+    
+    if (!['email-sequence', 'copy', 'intelligence', 'blueprint-ideation'].includes(ability)) {
+      return new Response(
+        JSON.stringify({ error: `Unsupported ability: ${ability}` }),
+        { status: 400 }
+      );
+    }
 
-  const converted = await convertToModelMessages(messages);
+    const converted = (messages || []).map((m: any) => ({
+    role: m.role,
+    content: m.content
+  }));
 
-  let systemPrompt = '';
+    let systemPrompt = '';
 
-  if (ability === 'email-sequence') {
-    const { activeEmail, activePage, activeEmailIndex, emailSequence, funnelName } = abilityContext || {};
-    const currentSequenceSummary = emailSequence
-      ? Object.keys(emailSequence)
-          .map((pageKey) => {
-            const emails = emailSequence[pageKey] || [];
-            return `- ${pageKey} (${emails.length} emails): ${emails.map((e: any, idx: number) => `Email ${idx + 1} (Day ${e.day})`).join(', ')}`;
-          })
-          .join('\n')
-      : 'No active email sequence';
+    if (ability === 'email-sequence') {
+      const { activeEmail, activePage, activeEmailIndex, emailSequence, funnelName } = abilityContext || {};
+      const currentSequenceSummary = emailSequence
+        ? Object.keys(emailSequence)
+            .map((pageKey) => {
+              const emails = emailSequence[pageKey] || [];
+              return `- ${pageKey} (${emails.length} emails): ${emails.map((e: any, idx: number) => `Email ${idx + 1} (Day ${e.day})`).join(', ')}`;
+            })
+            .join('\n')
+        : 'No active email sequence';
 
-    systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
+      systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
 You are currently running with the **"email-sequence"** ability in the funnel "${funnelName || 'Your Funnel'}".
 
 CRITICAL SCOPE BOUNDARY RULES:
@@ -68,11 +72,11 @@ INSTRUCTIONS FOR SKILL CALLS:
 - If the user asks to delete the current email, CALL the \`delete_active_email\` tool.
 - If the user asks for copy advice, critique, or spam word audits, CALL the \`suggest_email_improvements\` tool to give them high-value feedback.
 - ALWAYS explain and summarize exactly what you have changed in your chat text response, so the user knows what updates occurred. Keep conversational text responses extremely brief, clean, and professional. Avoid raw JSON or technical jargon in the message bubble.`;
-  } else if (ability === 'copy') {
-    const { copy, activeCopyPage, funnelName } = abilityContext || {};
-    const activePageContent = activeCopyPage && copy?.pages ? copy.pages[activeCopyPage] : null;
+    } else if (ability === 'copy') {
+      const { copy, activeCopyPage, funnelName } = abilityContext || {};
+      const activePageContent = activeCopyPage && copy?.pages ? copy.pages[activeCopyPage] : null;
 
-    systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
+      systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
 You are currently running with the **"copy"** ability in the funnel "${funnelName || 'Your Funnel'}".
 
 CRITICAL SCOPE BOUNDARY RULES:
@@ -94,120 +98,176 @@ INSTRUCTIONS FOR SKILL CALLS:
 - If the user asks to rewrite, rephrase, or optimize the page copy, CALL the \`edit_page_copy\` tool. Always generate clean, production-ready, beautiful HTML maintaining the existing structure and styling.
 - If the user asks for copy critique, suggestions, or objection analysis, CALL the \`suggest_copy_improvements\` tool to give them high-value feedback.
 - ALWAYS explain and summarize exactly what you have changed in your chat text response, so the user knows what updates occurred. Keep conversational text responses extremely brief, clean, and professional. Avoid raw JSON or technical jargon in the message bubble.`;
+    } else if (ability === 'intelligence') {
+      const { activeSectionId, activeSectionContent, funnelName } = abilityContext || {};
+
+      systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
+You are currently running with the **"Sales Intelligence"** ability in the funnel "${funnelName || 'Your Funnel'}".
+
+CRITICAL SCOPE BOUNDARY RULES:
+1. You have access ONLY to sales intelligence editing skills. You can rewrite, expand, or adjust the current section of the Sales Intelligence Report.
+2. You can embed dynamic charts and YouTube videos, or add reference links.
+3. If the user asks for anything OUTSIDE this scope, decline immediately.
+
+CONTEXT OF CURRENT REPORT SECTION:
+- Funnel Name: ${funnelName || 'Your Funnel'}
+- Active Section ID: ${activeSectionId || 'None'}
+- Current Content (Markdown/HTML):
+${activeSectionContent || 'No content'}
+
+INSTRUCTIONS FOR SKILL CALLS:
+- If the user asks to rewrite, restructure, or add elements (like charts/videos) to this section, CALL the \`edit_intelligence_section\` tool.
+- You must output the entire replacement markdown/HTML content for this section, maintaining any high-level data storytelling structures.
+- IMPORTANT: Write in a highly digestible, simple, and punchy tone. Speak like an encouraging business coach. NO "BIG GRAMMAR" or corporate fluff.
+- ALWAYS explain exactly what you changed in your chat response. Keep conversational text brief.`;
+    } else if (ability === 'blueprint-ideation') {
+      const { funnelName, intelligenceData } = abilityContext || {};
+      systemPrompt = `You are the OfferIQ Blueprint Architect. Your goal is to help the user brainstorm and refine the TOPIC and OUTLINE for a highly-converting Lead Magnet PDF for their funnel: "${funnelName || 'Your Funnel'}".
+
+CRITICAL RULES:
+1. Act as a direct response marketer. Suggest 3 highly valuable, actionable PDF topics (e.g., checklists, scripts, cheat sheets).
+2. Use the provided Sales Intelligence context to make your suggestions extremely relevant to their target audience, pain points, and offer positioning.
+3. Keep responses concise, punchy, and helpful.
+4. Once the user agrees on a topic, tell them to click the "Generate PDF Now" button to officially generate it.
+
+SALES INTELLIGENCE CONTEXT:
+${intelligenceData ? JSON.stringify(intelligenceData, null, 2) : 'No intelligence data provided.'}`;
+    }
+
+    const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-20241022';
+
+    // Define tools based on ability
+    const toolsConfig = ability === 'email-sequence' ? {
+      edit_email_content: {
+        description: 'Updates and edits the copy of the currently active email in the sequence.',
+        inputSchema: jsonSchema({
+          type: 'object',
+          properties: {
+            subject: { type: 'string', description: 'The new compelling subject line for the email.' },
+            preview: { type: 'string', description: 'The new preheader preview text.' },
+            body: { type: 'string', description: 'The plain text body content.' },
+            html: { type: 'string', description: 'The complete, fully-styled inline-CSS responsive HTML email code.' },
+          },
+        }),
+        execute: async (data: any) => {
+          console.log('=== Tool execute: edit_email_content ===', data);
+          return { success: true, action: 'edit_email', data };
+        },
+      },
+      add_new_email: {
+        description: 'Appends a new email copy into the sequence for the current active page.',
+        inputSchema: jsonSchema({
+          type: 'object',
+          properties: {
+            subject: { type: 'string', description: 'The subject line for the new email.' },
+            preview: { type: 'string', description: 'The preview text for the new email.' },
+            body: { type: 'string', description: 'The plain text body paragraphs.' },
+            html: { type: 'string', description: 'The complete inline-CSS responsive HTML template code.' },
+            day: { type: 'number', description: 'The sequence day number (e.g. Day 4 or Day 7).' },
+          },
+          required: ['subject', 'preview', 'body', 'html', 'day'],
+        }),
+        execute: async (data: any) => {
+          console.log('=== Tool execute: add_new_email ===', data);
+          return { success: true, action: 'add_email', data };
+        },
+      },
+      delete_active_email: {
+        description: 'Deletes the currently active email from the page sequence.',
+        inputSchema: jsonSchema({
+          type: 'object',
+          properties: {},
+        }),
+        execute: async () => {
+          console.log('=== Tool execute: delete_active_email ===');
+          return { success: true, action: 'delete_email' };
+        },
+      },
+      suggest_email_improvements: {
+        description: 'Analyzes copy and outputs a detailed critique with actionable suggestions.',
+        inputSchema: jsonSchema({
+          type: 'object',
+          properties: {
+            analysis: { type: 'string', description: 'A brief text critique summarizing readability, spam words, and tone.' },
+            toneScore: { type: 'number', description: 'Estimated persuasion/friendliness score from 1-100.' },
+            suggestions: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'A list of 3-4 bullet-point suggestions to improve click rates.',
+            },
+          },
+          required: ['analysis', 'toneScore', 'suggestions'],
+        }),
+        execute: async (data: any) => {
+          console.log('=== Tool execute: suggest_email_improvements ===', data);
+          return { success: true, action: 'suggest_email', data };
+        },
+      },
+    } : ability === 'copy' ? {
+      edit_page_copy: {
+        description: 'Updates and edits the copy of the currently active page.',
+        inputSchema: jsonSchema({
+          type: 'object',
+          properties: {
+            html: { type: 'string', description: 'The complete, fully-styled inline-CSS responsive HTML page code with updated copy.' },
+          },
+          required: ['html'],
+        }),
+        execute: async (data: any) => {
+          console.log('=== Tool execute: edit_page_copy ===', data);
+          return { success: true, action: 'edit_page_copy', data };
+        },
+      },
+      suggest_copy_improvements: {
+        description: 'Analyzes page copy and outputs a detailed critique with actionable suggestions.',
+        inputSchema: jsonSchema({
+          type: 'object',
+          properties: {
+            analysis: { type: 'string', description: 'A brief text critique summarizing headline strength, value proposition clarity, objection handling, and CTA effectiveness.' },
+            conversionScore: { type: 'number', description: 'Estimated conversion potential score from 1-100.' },
+            suggestions: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'A list of 3-5 bullet-point suggestions to improve conversion rate.',
+            },
+          },
+          required: ['analysis', 'conversionScore', 'suggestions'],
+        }),
+        execute: async (data: any) => {
+          console.log('=== Tool execute: suggest_copy_improvements ===', data);
+          return { success: true, action: 'suggest_copy', data };
+        },
+      },
+    } : ability === 'intelligence' ? {
+      edit_intelligence_section: {
+        description: 'Rewrites or updates the currently active Sales Intelligence section.',
+        inputSchema: jsonSchema({
+          type: 'object',
+          properties: {
+            content: { type: 'string', description: 'The complete rewritten markdown/HTML content for this section, including any <chart> or <iframe> embeds.' },
+          },
+          required: ['content'],
+        }),
+        execute: async (data: any) => {
+          console.log('=== Tool execute: edit_intelligence_section ===', data);
+          return { success: true, action: 'edit_intelligence', data };
+        },
+      },
+    } : {};
+
+    const result = streamText({
+      model: anthropic(model),
+      system: systemPrompt,
+      messages: converted,
+      ...(Object.keys(toolsConfig).length > 0 && { tools: toolsConfig as any }),
+    });
+
+    return result.toUIMessageStreamResponse();
+  } catch (error: any) {
+    console.error('=== API ERROR ===', error);
+    return new Response(
+      JSON.stringify({ error: error.message || 'Unknown error', stack: error.stack }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
-
-  const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-20241022';
-
-  // Define tools based on ability
-  const toolsConfig = ability === 'email-sequence' ? {
-    edit_email_content: {
-      description: 'Updates and edits the copy of the currently active email in the sequence.',
-      inputSchema: jsonSchema({
-        type: 'object',
-        properties: {
-          subject: { type: 'string', description: 'The new compelling subject line for the email.' },
-          preview: { type: 'string', description: 'The new preheader preview text.' },
-          body: { type: 'string', description: 'The plain text body content.' },
-          html: { type: 'string', description: 'The complete, fully-styled inline-CSS responsive HTML email code.' },
-        },
-      }),
-      execute: async (data: any) => {
-        console.log('=== Tool execute: edit_email_content ===', data);
-        return { success: true, action: 'edit_email', data };
-      },
-    },
-    add_new_email: {
-      description: 'Appends a new email copy into the sequence for the current active page.',
-      inputSchema: jsonSchema({
-        type: 'object',
-        properties: {
-          subject: { type: 'string', description: 'The subject line for the new email.' },
-          preview: { type: 'string', description: 'The preview text for the new email.' },
-          body: { type: 'string', description: 'The plain text body paragraphs.' },
-          html: { type: 'string', description: 'The complete inline-CSS responsive HTML template code.' },
-          day: { type: 'number', description: 'The sequence day number (e.g. Day 4 or Day 7).' },
-        },
-        required: ['subject', 'preview', 'body', 'html', 'day'],
-      }),
-      execute: async (data: any) => {
-        console.log('=== Tool execute: add_new_email ===', data);
-        return { success: true, action: 'add_email', data };
-      },
-    },
-    delete_active_email: {
-      description: 'Deletes the currently active email from the page sequence.',
-      inputSchema: jsonSchema({
-        type: 'object',
-        properties: {},
-      }),
-      execute: async () => {
-        console.log('=== Tool execute: delete_active_email ===');
-        return { success: true, action: 'delete_email' };
-      },
-    },
-    suggest_email_improvements: {
-      description: 'Analyzes copy and outputs a detailed critique with actionable suggestions.',
-      inputSchema: jsonSchema({
-        type: 'object',
-        properties: {
-          analysis: { type: 'string', description: 'A brief text critique summarizing readability, spam words, and tone.' },
-          toneScore: { type: 'number', description: 'Estimated persuasion/friendliness score from 1-100.' },
-          suggestions: {
-            type: 'array',
-            items: { type: 'string' },
-            description: 'A list of 3-4 bullet-point suggestions to improve click rates.',
-          },
-        },
-        required: ['analysis', 'toneScore', 'suggestions'],
-      }),
-      execute: async (data: any) => {
-        console.log('=== Tool execute: suggest_email_improvements ===', data);
-        return { success: true, action: 'suggest_email', data };
-      },
-    },
-  } : {
-    edit_page_copy: {
-      description: 'Updates and edits the copy of the currently active page.',
-      inputSchema: jsonSchema({
-        type: 'object',
-        properties: {
-          html: { type: 'string', description: 'The complete, fully-styled inline-CSS responsive HTML page code with updated copy.' },
-        },
-        required: ['html'],
-      }),
-      execute: async (data: any) => {
-        console.log('=== Tool execute: edit_page_copy ===', data);
-        return { success: true, action: 'edit_page_copy', data };
-      },
-    },
-    suggest_copy_improvements: {
-      description: 'Analyzes page copy and outputs a detailed critique with actionable suggestions.',
-      inputSchema: jsonSchema({
-        type: 'object',
-        properties: {
-          analysis: { type: 'string', description: 'A brief text critique summarizing headline strength, value proposition clarity, objection handling, and CTA effectiveness.' },
-          conversionScore: { type: 'number', description: 'Estimated conversion potential score from 1-100.' },
-          suggestions: {
-            type: 'array',
-            items: { type: 'string' },
-            description: 'A list of 3-5 bullet-point suggestions to improve conversion rate.',
-          },
-        },
-        required: ['analysis', 'conversionScore', 'suggestions'],
-      }),
-      execute: async (data: any) => {
-        console.log('=== Tool execute: suggest_copy_improvements ===', data);
-        return { success: true, action: 'suggest_copy', data };
-      },
-    },
-  };
-
-  const result = streamText({
-    model: anthropic(model),
-    system: systemPrompt,
-    messages: converted,
-    tools: toolsConfig as any,
-  });
-
-  return result.toUIMessageStreamResponse();
 }

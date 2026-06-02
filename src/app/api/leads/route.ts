@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 
 // ─── Blueprint email template ─────────────────────────────────────────────────
 
-function buildBlueprintEmail(firstName: string, offerName: string): string {
+function buildBlueprintEmail(firstName: string, offerName: string, blueprintUrl: string | null): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,9 +68,15 @@ function buildBlueprintEmail(firstName: string, offerName: string): string {
             <table cellpadding="0" cellspacing="0">
               <tr>
                 <td style="background:linear-gradient(135deg,#6d28d9,#4f46e5);border-radius:10px;">
-                  <a href="#" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
-                    Access Your Dashboard →
-                  </a>
+                  ${blueprintUrl ? `
+                    <a href="${blueprintUrl}" target="_blank" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
+                      Download Your Blueprint →
+                    </a>
+                  ` : `
+                    <a href="#" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
+                      Access Your Dashboard →
+                    </a>
+                  `}
                 </td>
               </tr>
             </table>
@@ -177,6 +183,8 @@ export async function POST(req: Request) {
       page?.name ||
       'your blueprint';
 
+    const blueprintUrl = page?.blocks?.blueprintUrl || null;
+
     fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -187,7 +195,7 @@ export async function POST(req: Request) {
         from:    process.env.RESEND_FROM ?? 'OfferIQ <onboarding@resend.dev>',
         to:      [email.trim()],
         subject: `Your Blueprint is Here, ${name.trim().split(' ')[0]}!`,
-        html:    buildBlueprintEmail(name.trim().split(' ')[0], offerName),
+        html:    buildBlueprintEmail(name.trim().split(' ')[0], offerName, blueprintUrl),
       }),
     }).catch(e => console.error('[leads] email send failed:', e));
   }

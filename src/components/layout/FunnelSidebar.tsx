@@ -13,6 +13,7 @@ import {
   Hammer,
   ArrowLeft,
   Globe,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +41,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
     { label: "Sales Intelligence", href: `/funnels/${funnelId}/report`, icon: Brain },
     { label: "Sales Copy", href: `/funnels/${funnelId}/copy`, icon: FileText },
     { label: "Email Sequence", href: `/funnels/${funnelId}/email`, icon: Mail },
+    { label: "Blueprint", href: `/funnels/${funnelId}/blueprint`, icon: BookOpen },
     { label: "Leads", href: `/funnels/${funnelId}/leads`, icon: Users },
     { label: "Traffic Intelligence", href: `/funnels/${funnelId}/traffic`, icon: TrendingUp },
     { label: "Publish", href: `/builder/publish?id=${funnelId}`, icon: Globe },
