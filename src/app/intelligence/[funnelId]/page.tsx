@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { IntelligenceEditor } from "@/components/ui/intelligence-editor";
+import { ThemeGroundUI } from "@/components/intelligence/ThemeGroundUI";
 import { OfferIQAgent } from "@/components/OfferIQAgent";
 import {
   Zap,
@@ -848,7 +849,7 @@ export default function IntelligencePage({
                  </Card>
                </div>
              ) : (
-                <div className="max-w-4xl mx-auto px-6 lg:px-12 py-10 pb-32 relative z-10">
+                <div className={cn("mx-auto px-6 lg:px-12 py-10 pb-32 relative z-10", activeSectionId === 'DESIGN_INTELLIGENCE_RECOMMENDATION' ? 'max-w-7xl' : 'max-w-4xl')}>
                    
                    {/* Premium Glassmorphic Container for the Content */}
                    <div className="relative rounded-[2.5rem] bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all p-8 md:p-12 shadow-2xl">
@@ -873,21 +874,30 @@ export default function IntelligencePage({
                              — {activeConfig.subheader}
                            </p>
                         </div>
-                        <Button variant="outline" size="sm" onClick={() => copyToClipboard(activeContent)} className="text-white hover:text-cyan-300 hover:bg-white/10 border-white/10 gap-2 shrink-0 rounded-xl transition-colors">
-                          <Copy className="w-4 h-4" />
-                          <span className="hidden lg:inline">Copy Text</span>
-                        </Button>
+                         {activeSectionId !== 'DESIGN_INTELLIGENCE_RECOMMENDATION' && (
+                           <Button variant="outline" size="sm" onClick={() => copyToClipboard(activeContent)} className="text-white hover:text-cyan-300 hover:bg-white/10 border-white/10 gap-2 shrink-0 rounded-xl transition-colors">
+                             <Copy className="w-4 h-4" />
+                             <span className="hidden lg:inline">Copy Text</span>
+                           </Button>
+                         )}
                      </div>
 
 
 
-                   {/* Editable Markdown Body */}
+                   {/* Editable Content — Theme Ground or Markdown Body */}
                    <div className="min-h-[250px] mb-12 relative z-10">
-                      <IntelligenceEditor 
-                        content={activeContent} 
-                        onChange={(newText) => updateSectionContent(activeSectionId, newText)} 
-                        isStreaming={phase === "call1" || phase === "call2"}
-                      />
+                      {activeSectionId === 'DESIGN_INTELLIGENCE_RECOMMENDATION' ? (
+                        <ThemeGroundUI
+                          content={activeContent}
+                          onChange={(newText) => updateSectionContent(activeSectionId, newText)}
+                        />
+                      ) : (
+                        <IntelligenceEditor 
+                          content={activeContent} 
+                          onChange={(newText) => updateSectionContent(activeSectionId, newText)} 
+                          isStreaming={phase === "call1" || phase === "call2"}
+                        />
+                      )}
                    </div>
 
                    {/* Shadcn-style Footer Navigation */}

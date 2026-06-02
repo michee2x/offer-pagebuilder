@@ -35,7 +35,7 @@ RULES:
 5. PAIN_POINT_MAPPING: Write a deep-dive narrative identifying 3 primary pain points in order of severity.
 6. FUNNEL_STRUCTURE_BLUEPRINT: List exact page sequence. Detail the exact psychological purpose of each page.
 7. PRICING_STRATEGY: Define 3 tiers. Calculate exact price, currency, and what is included. Visualize it: <chart type="bar" data='[{"name": "Lite", "value": 99}, {"name": "Pro", "value": 199}, {"name": "VIP", "value": 499}]' title="Pricing Architecture" />
-8. UPSELL_DOWNSELL_PATHS: Structure 1 upsell and 1 downsell. State exact pricing and how they capture value left on the table.
+8. UPSELL_DOWNSELL_PATHS: Evaluate whether this offer warrants an upsell page, a downsell page, or both. If the offer is simple, low-ticket, or the funnel structure doesn't benefit from it, recommend SKIPPING the upsell and/or downsell. If warranted, structure them with exact pricing and explain how they capture value left on the table. Be explicit: "This offer DOES / DOES NOT warrant an upsell page because..." and "This offer DOES / DOES NOT warrant a downsell page because..."
 9. STRATEGIC_BONUS_RECOMMENDATIONS: Recommend 3 bonuses. Explain how each acts as an objection-killer.
 10. FUNNEL_HEALTH_SCORE: Evaluate funnel health. Use <chart type="bar" data='[{"name": "Score", "value": 85}]' title="Health Diagnostic" /> (Note: gauge chart is no longer supported, use bar).
 11. PLATFORM_PRIORITY_MATRIX: Use the <chart> tag to render a pie chart embedded in your analysis. E.g., <chart type="pie" data='[{"name": "Facebook", "value": 60}, {"name": "Google Ads", "value": 40}]' title="Platform Budget Allocation" />
@@ -352,9 +352,9 @@ brand   — brand accent (1–2 per page max)
 PAGE STRATEGY
 ═══════════════════════════════════════
 
-lead_capture
-FULL persuasion page. Not just a form. Minimum 7–10 sections:
-lead_capture — Full persuasion page. Minimum 7–10 blocks in this order:
+COMPULSORY PAGES (always include these):
+
+lead_capture — Full persuasion page. Not just a form. Minimum 7–10 blocks in this order:
 <h2> opener → <h1> headline → <p> vivid scene subheadline → [image/video placeholder] →
 <p> value statement → <ul> outcome bullets → <blockquote> social proof → <hr> →
 [form placeholder] → [button placeholder] → <p> trust / guarantee micro-copy
@@ -371,15 +371,19 @@ sales_page — The long page. 12–18 blocks in this order:
 <h3> price intro → <p> anchor / framing → [button placeholder] →
 [countdown placeholder] → <blockquote> final urgency statement
 
-upsell — Fast and momentum. 4–6 blocks:
+OPTIONAL PAGES (include ONLY if the intelligence data supports them):
+
+upsell — Include ONLY if the UPSELL_DOWNSELL_PATHS intelligence recommends an upsell. Fast and momentum. 4–6 blocks:
 <h2> bridge from what they just got → <h1> what this adds → <p> gap copy →
 <blockquote> fast proof → <p> price frame → [button placeholder]
 
-downsell — Genuine alternative. 3–5 blocks:
+downsell — Include ONLY if the UPSELL_DOWNSELL_PATHS intelligence recommends a downsell. Genuine alternative. 3–5 blocks:
 <h2> respectful bridge → <h3> alternative offer → <p> copy → [button placeholder]
 
-thankyou — Short. 3–4 blocks:
+thankyou — Include if appropriate. Short. 3–4 blocks:
 <h1> confirmation + celebration → <p> what happens next → <ol> next steps → <p> support note
+
+IMPORTANT: Do NOT automatically include upsell or downsell pages. Read the UPSELL_DOWNSELL_PATHS from the intelligence and decide. If the intelligence says to skip them, skip them. Only lead_capture and sales_page are mandatory.
 
 ═══════════════════════════════════════
 OUTPUT FORMAT — CRITICAL
@@ -390,8 +394,8 @@ Output a single valid JSON object and NOTHING ELSE. No prose. No markdown fences
 Structure:
 {
   "declaration": {
-    "pages": ["lead_capture", "sales_page"],
-    "rationale": "One sentence explaining the funnel architecture choice."
+    "pages": ["lead_capture", "sales_page", "thankyou"],
+    "rationale": "One sentence explaining the funnel architecture choice and WHY upsell/downsell pages were included or excluded based on the intelligence data."
   },
   "pages": {
     "lead_capture": {
@@ -466,7 +470,7 @@ Before finalizing each page, verify:
 [ ] Buyer's exact vocabulary from the persona intelligence is used throughout — not paraphrased
 
 === YOUR TASK ===
-1. Decide which pages this funnel needs based on the intelligence above.
+1. Decide which pages this funnel needs based on the intelligence above. lead_capture and sales_page are ALWAYS required. upsell, downsell, and thankyou are OPTIONAL — include them ONLY if the UPSELL_DOWNSELL_PATHS intelligence recommends them. Do NOT blindly add upsell/downsell pages.
 
 2. Build the full section and element tree for each page. Layout and copy are one decision — choose sections, layouts, spacing, and backgrounds that serve the conversion goal of that point in the funnel.
 
