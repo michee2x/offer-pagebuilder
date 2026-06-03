@@ -6,20 +6,26 @@ import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
 import crypto from "crypto";
 
-export const maxDuration = 60; // Allow 60s for PDF generation
+export const maxDuration = 300; // Allow 300s (5 minutes) for PDF generation - includes Claude text gen + Puppeteer + PDF render + upload
 export const runtime = "nodejs"; // Puppeteer requires nodejs runtime
 
 export async function POST(req: Request) {
   try {
+    const startTime = Date.now();
+    console.log("[generate-blueprint] Request started");
+    
     const { funnelId, topic } = await req.json();
 
     if (!funnelId || !topic) {
       return NextResponse.json({ error: "Missing funnelId or topic" }, { status: 400 });
     }
 
+    console.log(`[generate-blueprint] Generating blueprint for funnelId=${funnelId}, topic=${topic}`);
+    
     const supabase = createAdminClient();
 
     // 1. Fetch Funnel Data
+    console.log("[generate-blueprint] Fetching funnel data from database...");
     const { data: funnel } = await supabase
       .from("builder_pages")
       .select("id, name, blocks")
@@ -34,6 +40,7 @@ export async function POST(req: Request) {
     const copyBlocks = funnel.blocks?.copy || {};
 
     // 2. Generate HTML Content via Claude
+    console.log("[generate-blueprint] Generating HTML content via Claude...");
     const prompt = `You are a world-class copywriter and direct response marketer.
 Generate a complete, high-value Lead Magnet PDF for a funnel named "${funnel.name}".
 
@@ -56,36 +63,53 @@ INSTRUCTIONS:
       model: anthropic(model),
       prompt,
     });
+    
+    const textGenTime = Date.now() - startTime;
+    console.log(`[generate-blueprint] HTML generation complete (${textGenTime}ms)`);
 
     // Clean up if the model still wrapped in markdown
     const cleanHtml = htmlContent.replace(/^```html\n?/, "").replace(/\n?```$/, "");
 
     // 3. Generate PDF via Puppeteer
+    console.log("[generate-blueprint] Starting Puppeteer launch...");
     const executablePath = await chromium.executablePath();
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: { width: 1920, height: 1080 },
       executablePath: executablePath || undefined, // undefined falls back to local installed chromium if not in serverless
       headless: true,
+      timeout: 30000, // 30s timeout for browser launch
     });
 
+    console.log("[generate-blueprint] Browser launched. Creating new page...");
     const page = await browser.newPage();
-    await page.setContent(cleanHtml, { waitUntil: "networkidle0" });
+    
+    console.log("[generate-blueprint] Setting page content...");
+    await page.setContent(cleanHtml, { waitUntil: "networkidle0", timeout: 60000 });
+    
+    console.log("[generate-blueprint] Generating PDF...");
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: { top: "40px", bottom: "40px", left: "40px", right: "40px" },
+      timeout: 30000,
     });
+    
+    console.log("[generate-blueprint] Closing browser...");
     await browser.close();
+    console.log("[generate-blueprint] PDF generation complete");
 
     // 4. Ensure Supabase Bucket exists
     const bucketName = "blueprints";
+    console.log("[generate-blueprint] Checking Supabase bucket...");
     const { data: buckets } = await supabase.storage.listBuckets();
     if (!buckets?.some((b) => b.name === bucketName)) {
+      console.log("[generate-blueprint] Creating bucket...");
       await supabase.storage.createBucket(bucketName, { public: true });
     }
 
     // 5. Upload PDF
+    console.log("[generate-blueprint] Uploading PDF to Supabase...");
     const fileName = `${funnelId}_${crypto.randomBytes(6).toString("hex")}.pdf`;
     
     const { error: uploadError } = await supabase.storage
@@ -99,6 +123,7 @@ INSTRUCTIONS:
       throw new Error(`Failed to upload PDF: ${uploadError.message}`);
     }
 
+    console.log("[generate-blueprint] Getting public URL...");
     const { data: publicUrlData } = supabase.storage
       .from(bucketName)
       .getPublicUrl(fileName);
@@ -106,6 +131,7 @@ INSTRUCTIONS:
     const pdfUrl = publicUrlData.publicUrl;
 
     // 6. Save URL to Funnel Blocks
+    console.log("[generate-blueprint] Updating database with blueprint URL...");
     const updatedBlocks = {
       ...funnel.blocks,
       blueprintUrl: pdfUrl,
@@ -116,6 +142,9 @@ INSTRUCTIONS:
       .update({ blocks: updatedBlocks })
       .eq("id", funnelId);
 
+    const totalTime = Date.now() - startTime;
+    console.log(`[generate-blueprint] Success! Total time: ${totalTime}ms`);
+    
     return NextResponse.json({ success: true, pdfUrl });
   } catch (error: any) {
     console.error("[generate-blueprint] Error:", error);
