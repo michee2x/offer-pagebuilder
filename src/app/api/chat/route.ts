@@ -118,14 +118,20 @@ Instructions:
           }),
           execute: async ({ props }: { props: Record<string, any> }) => {
             console.log('=== Tool execute: update_component_props ===');
-          console.log('props to update:', JSON.stringify(props, null, 2));
-          return { success: true, updatedProps: props };
+            console.log('props to update:', JSON.stringify(props, null, 2));
+            return { success: true, updatedProps: props };
+          },
         },
       },
-    },
-  });
+    });
 
-  // toUIMessageStreamResponse streams the full UI-compatible stream including tool calls
-  // This is required for DefaultChatTransport on the client to receive tool data
-  return result.toUIMessageStreamResponse();
-}
+    // toUIMessageStreamResponse streams the full UI-compatible stream including tool calls
+    // This is required for DefaultChatTransport on the client to receive tool data
+    return result.toUIMessageStreamResponse();
+  } catch (streamError: any) {
+    console.error('=== streamText ERROR ===', streamError);
+    return new Response(
+      JSON.stringify({ error: streamError.message || 'StreamText error' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
