@@ -18,6 +18,31 @@ import { toast } from "sonner";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 
+function parseSuggestedTopics(text: string) {
+  if (!text) return [];
+
+  const topicsMatch = text.match(/<topics>([\s\S]*?)<\/topics>/);
+  if (!topicsMatch) return [];
+
+  const topicsText = topicsMatch[1];
+  const topics: string[] = [];
+
+  for (const line of topicsText.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const match = trimmed.match(/^\d+\.\s+(.+)$/);
+    if (match) {
+      const topic = match[1].trim();
+      if (topic && !topics.includes(topic)) {
+        topics.push(topic);
+      }
+    }
+  }
+
+  return topics;
+}
+
 export function BlueprintDashboard({
   funnelId,
   funnelName,
@@ -32,6 +57,7 @@ export function BlueprintDashboard({
   );
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [selectedTopic, setSelectedTopic] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Extract intelligence data to send to the AI
@@ -64,12 +90,20 @@ export function BlueprintDashboard({
 
   const isLoading = status === "streaming" || status === "submitted";
 
-  const getMessageText = (message: any) =>
-    (message?.parts ?? [])
+  const getRawMessageText = (message: any) => {
+    return (message?.parts ?? [])
       .filter((part: any) => part.type === "text")
       .map((part: any) => part.text)
       .join("")
       .trim();
+  };
+
+  const getMessageText = (message: any) => {
+    const raw = getRawMessageText(message);
+
+    // Strip <topics> tags from display
+    return raw.replace(/<\/?topics>/g, "").trim();
+  };
 
   // Auto-scroll chat
   useEffect(() => {
@@ -122,10 +156,25 @@ export function BlueprintDashboard({
 
   const hasChatStarted = messages.length > 0;
 
-  const lastUserMessage = [...messages]
+  const lastAssistantMessage = [...messages]
     .reverse()
-    .find((message: any) => message.role === "user");
-  const lastUserText = getMessageText(lastUserMessage) || "Blueprint Topic";
+    .find((message: any) => message.role === "assistant");
+  const lastAssistantRawText = getRawMessageText(lastAssistantMessage);
+  const suggestedTopics = parseSuggestedTopics(lastAssistantRawText);
+
+  // Auto-select first topic when topics are parsed and none selected yet
+  useEffect(() => {
+    if (suggestedTopics.length > 0 && !selectedTopic) {
+      setSelectedTopic(suggestedTopics[0]);
+    }
+  }, [suggestedTopics, selectedTopic]);
+
+  const showTopicSuggestions = hasChatStarted && suggestedTopics.length > 0;
+
+  const handleTopicSelect = (topic: string) => {
+    setSelectedTopic(topic);
+    setInputValue("");
+  };
 
   // Render the Generated PDF View
   if (blueprintUrl) {
@@ -174,70 +223,104 @@ export function BlueprintDashboard({
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-brand-blue/10 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-3xl flex flex-col h-full relative z-10 p-4 md:p-8">
-        {/* Chat History View */}
         {hasChatStarted ? (
-          <div className="flex-1 overflow-y-auto mb-6 pr-2 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-            {/* Header in chat view */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6 sticky top-0 bg-[#0a0d14]/80 backdrop-blur-xl z-20">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-indigo to-brand-blue flex items-center justify-center shadow-lg">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-white tracking-tight">
-                    Blueprint Architect
-                  </h1>
-                  <p className="text-xs text-white/50 font-medium">
-                    Powered by AI & Sales Intelligence
-                  </p>
-                </div>
-              </div>
-              {messages.length > 1 && (
-                <Button
-                  onClick={() => handleGeneratePdf(lastUserText)}
-                  disabled={isGeneratingPdf}
-                  className="bg-white hover:bg-white/90 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all"
-                >
-                  {isGeneratingPdf ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 mr-2" />
-                  )}
-                  Generate PDF
-                </Button>
-              )}
-            </div>
-
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-3xl p-5 ${m.role === "user" ? "bg-brand-indigo text-white shadow-[0_10px_40px_-10px_rgba(99,102,241,0.5)]" : "bg-white/5 text-white/90 border border-white/10 shadow-2xl backdrop-blur-sm"}`}
-                >
-                  <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
-                    {getMessageText(m)}
-                  </p>
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 flex items-center gap-3 backdrop-blur-sm">
-                  <div className="flex space-x-1.5">
-                    <div className="w-2 h-2 rounded-full bg-brand-indigo animate-bounce [animation-delay:-0.3s]" />
-                    <div className="w-2 h-2 rounded-full bg-brand-indigo animate-bounce [animation-delay:-0.15s]" />
-                    <div className="w-2 h-2 rounded-full bg-brand-indigo animate-bounce" />
+          <>
+            <div className="flex-1 overflow-y-auto mb-6 pr-2 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+              {/* Header in chat view */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6 sticky top-0 bg-[#0a0d14]/80 backdrop-blur-xl z-20">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-indigo to-brand-blue flex items-center justify-center shadow-lg">
+                    <Bot className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-sm font-medium text-white/50">
-                    Architect is typing...
-                  </span>
+                  <div>
+                    <h1 className="text-xl font-bold text-white tracking-tight">
+                      Blueprint Architect
+                    </h1>
+                    <p className="text-xs text-white/50 font-medium">
+                      Powered by AI & Sales Intelligence
+                    </p>
+                  </div>
                 </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+
+              {messages.map((m) => (
+                <div
+                  key={m.id}
+                  className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-3xl p-5 ${m.role === "user" ? "bg-brand-indigo text-white shadow-[0_10px_40px_-10px_rgba(99,102,241,0.5)]" : "bg-white/5 text-white/90 border border-white/10 shadow-2xl backdrop-blur-sm"}`}
+                  >
+                    <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
+                      {getMessageText(m)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+
+              {showTopicSuggestions && (
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-xl backdrop-blur-sm">
+                  <p className="text-sm text-white/60">
+                    The architect has suggested these lead magnet ideas. Tap one
+                    to select it for generation.
+                  </p>
+                  <div className="grid gap-3">
+                    {suggestedTopics.map((topic) => (
+                      <button
+                        key={topic}
+                        type="button"
+                        onClick={() => handleTopicSelect(topic)}
+                        className={`w-full text-left rounded-3xl border px-4 py-3 transition-all ${
+                          selectedTopic === topic
+                            ? "border-brand-indigo bg-brand-indigo/10 text-white shadow-[0_0_0_1px_rgba(99,102,241,0.4)]"
+                            : "border-white/10 bg-white/5 text-white/80 hover:border-white/20 hover:bg-white/10"
+                        }`}
+                      >
+                        <span className="block text-sm font-semibold truncate">
+                          {topic}
+                        </span>
+                        {selectedTopic === topic && (
+                          <span className="mt-1 inline-block text-[11px] uppercase tracking-[0.18em] text-brand-indigo">
+                            Selected
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={() => handleGeneratePdf(selectedTopic)}
+                      disabled={isGeneratingPdf || !selectedTopic}
+                      className="bg-brand-indigo hover:bg-brand-indigo/90 text-white font-bold px-6 py-3 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingPdf ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Sparkles className="w-4 h-4 mr-2" />
+                      )}
+                      Generate PDF
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white/5 border border-white/10 rounded-3xl p-5 flex items-center gap-3 backdrop-blur-sm">
+                    <div className="flex space-x-1.5">
+                      <div className="w-2 h-2 rounded-full bg-brand-indigo animate-bounce [animation-delay:-0.3s]" />
+                      <div className="w-2 h-2 rounded-full bg-brand-indigo animate-bounce [animation-delay:-0.15s]" />
+                      <div className="w-2 h-2 rounded-full bg-brand-indigo animate-bounce" />
+                    </div>
+                    <span className="text-sm font-medium text-white/50">
+                      Architect is typing...
+                    </span>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-sm">
