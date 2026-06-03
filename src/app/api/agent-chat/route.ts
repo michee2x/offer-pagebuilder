@@ -1,5 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic';
-import { streamText, jsonSchema, convertToModelMessages } from 'ai';
+import { streamText, jsonSchema } from 'ai';
 
 export const maxDuration = 45;
 
@@ -18,6 +18,22 @@ export async function POST(req: Request) {
     console.log('=== /api/agent-chat ===');
     console.log('ability:', ability);
     console.log('messages count:', messages?.length);
+    console.log('raw messages:', JSON.stringify(messages?.slice(-1), null, 2));
+    
+    // Normalize messages from parts format to content format
+    const normalizedMessages = (messages || []).map((msg: any) => {
+      if (msg.parts && Array.isArray(msg.parts)) {
+        // Extract text content from parts
+        const textContent = msg.parts
+          .filter((p: any) => p.type === 'text')
+          .map((p: any) => p.text)
+          .join('');
+        return { role: msg.role, content: textContent };
+      }
+      return msg; // Already in content format
+    });
+    
+    console.log('normalized messages:', JSON.stringify(normalizedMessages?.slice(-1), null, 2));
     
     if (!['email-sequence', 'copy', 'intelligence', 'blueprint-ideation'].includes(ability)) {
       return new Response(
@@ -26,7 +42,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const converted = convertToModelMessages(messages || []);
+    // Pass normalized messages directly as ModelMessage[].
+    // convertToModelMessages is for chat history conversion; streamText expects { role, content } format directly.
+    const modelMessages = Array.isArray(normalizedMessages) ? normalizedMessages : [];
+    console.log('messages ready for streamText:', JSON.stringify(modelMessages.slice(-1), null, 2));
 
     let systemPrompt = '';
 
@@ -252,14 +271,19 @@ ${intelligenceData ? JSON.stringify(intelligenceData, null, 2) : 'No intelligenc
       },
     } : {};
 
-    const result = streamText({
-      model: anthropic(model),
-      system: systemPrompt,
-      messages: converted,
-      ...(Object.keys(toolsConfig).length > 0 && { tools: toolsConfig as any }),
-    });
+    try {
+      const result = streamText({
+        model: anthropic(model),
+        system: systemPrompt,
+        messages: modelMessages,
+        ...(Object.keys(toolsConfig).length > 0 && { tools: toolsConfig as any }),
+      });
 
-    return result.toUIMessageStreamResponse();
+      return result.toUIMessageStreamResponse();
+    } catch (streamError: any) {
+      console.error('=== streamText ERROR ===', streamError);
+      throw streamError;
+    }
   } catch (error: any) {
     console.error('=== API ERROR ===', error);
     return new Response(

@@ -458,36 +458,31 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder();
 
   try {
-    // 7. Construct user message content: text instructions + image attachment (if loaded)
-    const userMessageContent: any[] = [
-      {
-        type: 'text',
-        text: contentPrompt,
-      },
-    ];
-
+    // 7. Construct a single prompt string for the model. The `messages`
+    // parameter expects ModelMessage[] (content strings). Passing a mixed
+    // array of {type:'text'|'image'} objects violates the schema and
+    // triggers the "messages do not match the ModelMessage[] schema" error.
+    // Embed the screenshot as a base64 block only when available.
+    let screenshotBase64: string | null = null;
     if (screenshot.data) {
-      userMessageContent.push({
-        type: 'image',
-        image: screenshot.data,
-        mimeType: screenshot.mimeType,
-      });
+      screenshotBase64 = Buffer.isBuffer(screenshot.data)
+        ? screenshot.data.toString('base64')
+        : Buffer.from(screenshot.data).toString('base64');
       console.log(
-        `[generate] Appending screenshot file "${screenshot.fileName}" (size: ${screenshot.data.length} bytes) to Anthropic messages stream.`
+        `[generate] Prepared screenshot file "${screenshot.fileName}" (size: ${screenshot.data.length} bytes) for embedding.`
       );
     } else {
       console.log('[generate] No screenshot reference available. Running text-only page builder fallback.');
     }
 
+    const promptString = screenshotBase64
+      ? contentPrompt + '\n\n[IMAGE_BASE64_BEGIN]\n' + screenshotBase64 + '\n[IMAGE_BASE64_END]'
+      : contentPrompt;
+
     const result = streamText({
       model: anthropic(MODEL),
       system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: userMessageContent,
-        },
-      ],
+      prompt: promptString,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       headers: {
         'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15,output-128k-2025-02-19',

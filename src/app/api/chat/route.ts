@@ -1,5 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic';
-import { streamText, jsonSchema, convertToModelMessages } from 'ai';
+import { streamText, jsonSchema } from 'ai';
 
 export const maxDuration = 30;
 
@@ -19,8 +19,36 @@ export async function POST(req: Request) {
   console.log('messages count:', messages?.length);
   console.log('last message:', JSON.stringify(messages?.[messages.length - 1], null, 2));
 
-  const converted = await convertToModelMessages(messages);
-  console.log('converted messages:', JSON.stringify(converted, null, 2));
+  // Normalize messages from parts format to content format and ensure
+  // each message has a string `content` and a valid `role`.
+  const normalizedMessages = (messages || []).map((msg: any) => {
+    try {
+      let role = msg.role || 'user';
+      if (role !== 'user' && role !== 'assistant' && role !== 'system') {
+        role = 'user';
+      }
+
+      if (msg.parts && Array.isArray(msg.parts)) {
+        const textContent = msg.parts
+          .filter((p: any) => p && p.type === 'text')
+          .map((p: any) => String(p.text || ''))
+          .join('');
+        return { role, content: textContent };
+      }
+
+      // If content is an object, stringify it to avoid schema violations
+      const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content ?? '');
+      return { role, content };
+    } catch (e) {
+      return { role: 'user', content: String(msg?.content ?? '') };
+    }
+  });
+
+  // Pass normalized messages directly as ModelMessage[].
+  // convertToModelMessages is for chat history conversion; streamText expects { role, content } format directly.
+  const modelMessages = Array.isArray(normalizedMessages) ? normalizedMessages : [];
+
+  console.log('messages ready for streamText:', JSON.stringify(modelMessages.slice(-1), null, 2));
 
   const systemPrompt = `You are an elite UX Copywriter and Design AI integrated into a Next.js page builder.
 Your job is to help non-technical users optimize high-converting text content and visually tune specific elements for their landing pages.
@@ -58,33 +86,38 @@ Instructions:
 
   const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-20241022';
 
-  const result = streamText({
-    model: anthropic(model),
-    system: systemPrompt,
-    messages: converted,
-    onFinish: ({ text, toolCalls, toolResults, finishReason }) => {
-      console.log('=== streamText onFinish ===');
-      console.log('finishReason:', finishReason);
-      console.log('text:', text);
-      console.log('toolCalls:', JSON.stringify(toolCalls, null, 2));
-      console.log('toolResults:', JSON.stringify(toolResults, null, 2));
-    },
-    tools: {
-      update_component_props: {
-        description: 'Updates specific properties of the currently selected component on the page.',
-        inputSchema: jsonSchema({
-          type: 'object',
-          properties: {
-            props: {
-              type: 'object',
-              description: 'A partial record of only the changed prop keys and their new values.',
-              additionalProperties: true,
+  console.log('=== Before streamText ===');
+  console.log('messages count:', modelMessages.length);
+  console.log('last message:', JSON.stringify(modelMessages?.[modelMessages.length - 1], null, 2));
+
+  try {
+    const result = streamText({
+      model: anthropic(model),
+      system: systemPrompt,
+      messages: modelMessages,
+      onFinish: ({ text, toolCalls, toolResults, finishReason }) => {
+        console.log('=== streamText onFinish ===');
+        console.log('finishReason:', finishReason);
+        console.log('text:', text);
+        console.log('toolCalls:', JSON.stringify(toolCalls, null, 2));
+        console.log('toolResults:', JSON.stringify(toolResults, null, 2));
+      },
+      tools: {
+        update_component_props: {
+          description: 'Updates specific properties of the currently selected component on the page.',
+          inputSchema: jsonSchema({
+            type: 'object',
+            properties: {
+              props: {
+                type: 'object',
+                description: 'A partial record of only the changed prop keys and their new values.',
+                additionalProperties: true,
+              },
             },
-          },
-          required: ['props'],
-        }),
-        execute: async ({ props }: { props: Record<string, any> }) => {
-          console.log('=== Tool execute: update_component_props ===');
+            required: ['props'],
+          }),
+          execute: async ({ props }: { props: Record<string, any> }) => {
+            console.log('=== Tool execute: update_component_props ===');
           console.log('props to update:', JSON.stringify(props, null, 2));
           return { success: true, updatedProps: props };
         },
