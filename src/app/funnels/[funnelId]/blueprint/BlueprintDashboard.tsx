@@ -63,6 +63,7 @@ export function BlueprintDashboard({
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [topicMode, setTopicMode] = useState<"lead" | "bonus" | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Extract intelligence data to send to the AI
   const intelligenceData = {
