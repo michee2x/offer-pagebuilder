@@ -31,6 +31,33 @@ function SalesIntelligenceContent() {
     checkAuth();
   }, [router, supabase, workspaceId, offerSlug]);
 
+  // Attempt to resolve funnelId and redirect to canonical funnel intelligence route
+  useEffect(() => {
+    const tryRedirect = async () => {
+      if (!workspaceId || !offerSlug) return;
+      try {
+        const res = await fetch(
+          `/api/find-funnel?workspace=${workspaceId}&offer=${encodeURIComponent(
+            offerSlug,
+          )}`,
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.found && data?.funnelId) {
+          // Preserve existing query params when redirecting
+          const qs = new URLSearchParams({
+            workspace: workspaceId,
+            offer: offerSlug,
+          }).toString();
+          router.replace(`/funnels/${data.funnelId}/report?${qs}`);
+        }
+      } catch (e) {
+        // silence errors and keep rendering the summary page
+      }
+    };
+    tryRedirect();
+  }, [workspaceId, offerSlug, router]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#07080F] text-white flex items-center justify-center">
@@ -149,11 +176,13 @@ function SalesIntelligenceContent() {
 
 export default function SalesIntelligencePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#07080F] text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#07080F] text-white flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+        </div>
+      }
+    >
       <SalesIntelligenceContent />
     </Suspense>
   );

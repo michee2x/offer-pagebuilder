@@ -196,7 +196,13 @@ export function BlueprintDashboard({
               size="lg"
               className="h-14 bg-brand-indigo hover:bg-brand-indigo/90 text-white font-bold px-10 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] text-base"
             >
-              <a href={blueprintUrl} target="_blank" rel="noopener noreferrer">
+              <a
+                href={`/api/blueprints/download?funnelId=${encodeURIComponent(
+                  funnelId,
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Download className="w-5 h-5 mr-2" />
                 Download PDF
               </a>
