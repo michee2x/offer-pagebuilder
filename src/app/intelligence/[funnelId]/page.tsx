@@ -947,18 +947,16 @@ export default function IntelligencePage({
 
       <GenerationOverlay visible={phase === "call1" || phase === "call2"} step={genStep} />
 
-      {phase === "done" && (
-        <OfferIQAgent
-          ability="intelligence"
-          funnelId={funnelId}
-          funnelName={funnelName || "Your Funnel"}
-          activeSectionId={activeSectionId}
-          activeSectionContent={activeContent}
-          onUpdateIntelligenceSection={(sectionId, content) => {
-            updateSectionContent(sectionId, content);
-          }}
-        />
-      )}
+      <OfferIQAgent
+        ability="intelligence"
+        funnelId={funnelId}
+        funnelName={funnelName || "Your Funnel"}
+        activeSectionId={activeSectionId}
+        activeSectionContent={activeContent}
+        onUpdateIntelligenceSection={(sectionId, content) => {
+          updateSectionContent(sectionId, content);
+        }}
+      />
     </div>
   );
 }
