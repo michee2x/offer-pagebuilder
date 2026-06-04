@@ -216,11 +216,12 @@ function EmptyState({
         <Mail className="w-7 h-7 text-brand-blue" />
       </div>
       <h2 className="text-xl font-bold text-foreground mb-2">
-        No email sequences yet
+        Ready to convert your leads into buyers?
       </h2>
       <p className="text-sm text-muted-foreground text-center max-w-sm mb-8 leading-relaxed">
-        Generate personalised email sequences for each page in your funnel —
-        from lead nurture to post-purchase onboarding.
+        OfferIQ writes your complete email sequences from your offer's
+        intelligence report. Every email matches the right moment in your
+        buyer's journey.
       </p>
       <Button
         size="lg"
@@ -233,7 +234,7 @@ function EmptyState({
         ) : (
           <Sparkles className="w-4 h-4" />
         )}
-        Generate Email Sequences
+        Build My Email Sequences →
       </Button>
     </div>
   );
@@ -1387,7 +1388,7 @@ export default function EmailSequencePage({
           <div className="w-[240px] border-r border-white/10 bg-[#131826] flex flex-col overflow-hidden flex-shrink-0">
             <div className="px-4 py-3 border-b border-white/10">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
-                Email Sequences
+                ACTIVE OFFER
               </p>
               <div className="flex items-center gap-1.5 bg-muted/40 border border-border rounded-lg px-2.5 py-2">
                 <Send className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
@@ -1416,7 +1417,8 @@ export default function EmailSequencePage({
             ) : (
               <div className="flex-1 flex items-center justify-center px-4">
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  Generate your sequences to see the flow
+                  Your email sequences will appear here once generated —
+                  organised by funnel stage.
                 </p>
               </div>
             )}

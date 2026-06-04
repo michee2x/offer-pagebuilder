@@ -59,39 +59,44 @@ export default async function DashboardPage(props: {
         <div
           className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)',
-            transform: 'rotate(-30deg)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)",
+            transform: "rotate(-30deg)",
           }}
         />
         {/* Radial - Blue */}
         <div
           className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)',
-            transform: 'rotate(30deg)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)",
+            transform: "rotate(30deg)",
           }}
         />
         {/* Radial - Purple */}
         <div
           className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]"
           style={{
-            background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)'
+            background:
+              "radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)",
           }}
         />
         {/* Bottom Gradient Overlay */}
         <div
           className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100"
           style={{
-            background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)'
+            background:
+              "linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)",
           }}
         />
         {/* Noise Overlay */}
         <div
           className="absolute inset-0 opacity-10 pointer-events-none z-[1]"
           style={{
-            backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)',
-            backgroundRepeat: 'repeat',
-            backgroundSize: '128px auto'
+            backgroundImage:
+              "url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)",
+            backgroundRepeat: "repeat",
+            backgroundSize: "128px auto",
           }}
         />
       </div>
@@ -109,17 +114,18 @@ export default async function DashboardPage(props: {
           {/* Gallereee Hero Section */}
           <div className="max-w-[1200px] mx-auto text-center mb-24">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/10 mb-8">
-              <span className="bg-blue-500 text-[10px] font-bold px-1.5 py-0.5 rounded text-white uppercase tracking-wider">New</span>
-              <span className="text-[13px] text-white/70">Campaign Intelligence module</span>
+              <span className="bg-blue-500 text-[10px] font-bold px-1.5 py-0.5 rounded text-white uppercase tracking-wider">
+                NEW · Traffic Intelligence™ — Now Live
+              </span>
             </div>
 
             <h1 className="text-[56px] md:text-[72px] font-bold text-white tracking-tight mb-6 leading-[1.1]">
-              The directory & <br />curation template
+              Your Offers, <br />
+              All In One Place
             </h1>
 
             <p className="text-[18px] md:text-[20px] text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-              Build your own curation website with this Framer template.
-              Manage your campaigns and intelligence reports from one central dashboard.
+              Create a new Offer or pick up where you left off.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -128,15 +134,17 @@ export default async function DashboardPage(props: {
                   href={"/analyze?workspace=" + activeWorkspace.id}
                   className="h-14 px-8 rounded-full bg-white text-black font-bold flex items-center justify-center gap-2 transition-all hover:bg-white/90 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
                 >
-                  Launch campaign <span className="text-xl">↗</span>
+                  Create New Offer <span className="text-xl">→</span>
                 </a>
               ) : (
                 <Link href="/onboard">
-                  <Button className="h-14 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90">Create workspace</Button>
+                  <Button className="h-14 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90">
+                    Create New Workspace →
+                  </Button>
                 </Link>
               )}
               <button className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all">
-                Submit website
+                Create New Workspace →
               </button>
             </div>
           </div>
@@ -144,27 +152,36 @@ export default async function DashboardPage(props: {
           <div className="max-w-[1200px] mx-auto">
             {error && (
               <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400 mb-12">
-                Failed to load workspaces. {error.message || "Please refresh the page."}
+                Failed to load workspaces.{" "}
+                {error.message || "Please refresh the page."}
               </div>
             )}
 
             {!activeWorkspace ? (
               <div className="flex flex-col items-center justify-center border border-white/10 rounded-2xl p-16 text-center bg-white/[0.02] backdrop-blur-sm">
                 <Folder className="w-10 h-10 text-white/20 mb-4" />
-                <h3 className="text-xl font-bold text-white">No workspaces yet</h3>
-                <p className="text-white/50 mt-1 mb-8">Create your first workspace to start managing campaigns.</p>
+                <h3 className="text-xl font-bold text-white">
+                  No workspaces yet
+                </h3>
+                <p className="text-white/50 mt-1 mb-8">
+                  Create your first workspace to start managing campaigns.
+                </p>
                 <Link href="/onboard">
-                  <Button size="lg" className="h-12 px-8 rounded-full">Create workspace</Button>
+                  <Button size="lg" className="h-12 px-8 rounded-full">
+                    Create New Workspace →
+                  </Button>
                 </Link>
               </div>
             ) : (
               <div className="space-y-12">
                 <div className="flex items-center justify-between border-b border-white/5 pb-6">
-                  <h2 className="text-3xl font-bold text-white tracking-tight">Latest</h2>
+                  <h2 className="text-3xl font-bold text-white tracking-tight">
+                    Recent Offers
+                  </h2>
                 </div>
 
                 {activeWorkspace.builder_pages &&
-                  activeWorkspace.builder_pages.length > 0 ? (
+                activeWorkspace.builder_pages.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
                     {activeWorkspace.builder_pages.map((funnel: any) => (
                       <CampaignCard key={funnel.id} funnel={funnel} />
@@ -177,7 +194,9 @@ export default async function DashboardPage(props: {
                       className="w-48 h-48 object-cover rounded-2xl opacity-20 mb-6 grayscale"
                       alt="No campaigns"
                     />
-                    <p className="text-white/40 text-[15px]">No campaigns in this workspace yet.</p>
+                    <p className="text-white/40 text-[15px]">
+                      No campaigns in this workspace yet.
+                    </p>
                     <a
                       href={"/analyze?workspace=" + activeWorkspace.id}
                       className="text-white font-semibold mt-4 hover:underline transition-all"

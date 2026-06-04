@@ -89,9 +89,11 @@ export function SignupForm() {
 
   return (
     <div className="w-full max-w-md rounded-none bg-black border border-white/10 p-4 md:rounded-2xl md:p-8 text-white shadow-input">
-      <h2 className="text-xl font-bold text-white">Join OfferIQ</h2>
+      <h2 className="text-xl font-bold text-white">
+        Create Your OfferIQ Account
+      </h2>
       <p className="mt-2 max-w-sm text-sm text-neutral-300">
-        Create your account and start building AI-powered pages
+        Start with Intelligence - Turn your offer into converting funnel.
       </p>
 
       <form className="my-8" onSubmit={handleSignup}>
@@ -99,7 +101,7 @@ export function SignupForm() {
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
-            placeholder="John Doe"
+            placeholder="l Name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -155,7 +157,7 @@ export function SignupForm() {
           type="submit"
           disabled={isLoading || (!!recaptchaSiteKey && !captchaToken)}
         >
-          {isLoading ? "Creating account..." : "Start 7-Day Free Trial →"}
+          {isLoading ? "Creating account..." : "Get Started Now →"}
           <BottomGradient />
         </button>
 

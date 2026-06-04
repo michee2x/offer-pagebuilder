@@ -32,19 +32,39 @@ interface FunnelSidebarProps {
 const COLLAPSED = 56;
 const EXPANDED = 220;
 
-export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: FunnelSidebarProps) {
+export function FunnelSidebar({
+  funnelId,
+  funnelName,
+  collapsible = false,
+}: FunnelSidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   const navItems: FunnelNavItem[] = [
     { label: "Overview", href: `/funnels/${funnelId}`, icon: BarChart2 },
-    { label: "Sales Intelligence", href: `/funnels/${funnelId}/report`, icon: Brain },
-    { label: "Sales Copy", href: `/funnels/${funnelId}/copy`, icon: FileText },
+    {
+      label: "Offer Intelligence",
+      href: `/funnels/${funnelId}/report`,
+      icon: Brain,
+    },
+    { label: "Copy Engine", href: `/funnels/${funnelId}/copy`, icon: FileText },
     { label: "Email Sequence", href: `/funnels/${funnelId}/email`, icon: Mail },
-    { label: "Blueprint", href: `/funnels/${funnelId}/blueprint`, icon: BookOpen },
+    {
+      label: "Blueprint",
+      href: `/funnels/${funnelId}/blueprint`,
+      icon: BookOpen,
+    },
     { label: "Leads", href: `/funnels/${funnelId}/leads`, icon: Users },
-    { label: "Traffic Intelligence", href: `/funnels/${funnelId}/traffic`, icon: TrendingUp },
-    { label: "Publish", href: `/builder/publish?id=${funnelId}`, icon: Globe },
+    {
+      label: "Traffic Intelligence",
+      href: `/funnels/${funnelId}/traffic`,
+      icon: TrendingUp,
+    },
+    {
+      label: "Funnel Builder",
+      href: `/builder/publish?id=${funnelId}`,
+      icon: Globe,
+    },
   ];
 
   if (collapsible) {
@@ -82,7 +102,10 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
               title={funnelName}
               className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg p-1.5 hover:bg-muted"
             >
-              <div style={{ width: 32, height: 32, flexShrink: 0 }} className="flex items-center justify-center">
+              <div
+                style={{ width: 32, height: 32, flexShrink: 0 }}
+                className="flex items-center justify-center"
+              >
                 <ArrowLeft className="w-3.5 h-3.5" />
               </div>
               <span
@@ -100,14 +123,17 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 overflow-y-auto py-2 space-y-0.5" style={{ padding: "8px 8px" }}>
+          <nav
+            className="flex-1 overflow-y-auto py-2 space-y-0.5"
+            style={{ padding: "8px 8px" }}
+          >
             {navItems.map((item) => {
-              const itemPath = item.href.split('?')[0];
+              const itemPath = item.href.split("?")[0];
               const isActive =
                 item.href === `/funnels/${funnelId}`
                   ? pathname === `/funnels/${funnelId}`
-                  : itemPath === '/builder/publish'
-                    ? pathname === '/builder/publish'
+                  : itemPath === "/builder/publish"
+                    ? pathname === "/builder/publish"
                     : pathname.startsWith(itemPath);
               const Icon = item.icon;
 
@@ -120,14 +146,14 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
                     "flex items-center gap-2.5 rounded-lg transition-all duration-300 overflow-hidden relative group",
                     isActive
                       ? "bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-lg shadow-indigo-500/25"
-                      : "border border-transparent text-muted-foreground hover:text-white hover:bg-white/5"
+                      : "border border-transparent text-muted-foreground hover:text-white hover:bg-white/5",
                   )}
                   style={{ padding: "6px" }}
                 >
                   <div
                     className={cn(
                       "rounded-md flex items-center justify-center transition-colors z-10",
-                      isActive ? "text-white" : ""
+                      isActive ? "text-white" : "",
                     )}
                     style={{ width: 32, height: 32, flexShrink: 0 }}
                   >
@@ -150,10 +176,13 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
           </nav>
 
           {/* Builder CTA */}
-          <div className="flex-shrink-0 border-t border-border" style={{ padding: 6 }}>
+          <div
+            className="flex-shrink-0 border-t border-border"
+            style={{ padding: 6 }}
+          >
             <Link
               href={`/builder?id=${funnelId}`}
-              title="Open Builder"
+              title="Leads"
               className="flex items-center gap-2.5 rounded-lg bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all overflow-hidden"
               style={{ height: 36, padding: "0 6px" }}
             >
@@ -172,7 +201,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
                   fontWeight: 700,
                 }}
               >
-                Open Builder
+                Leads
               </span>
             </Link>
           </div>
@@ -206,12 +235,12 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
 
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
         {navItems.map((item) => {
-          const itemPath = item.href.split('?')[0];
+          const itemPath = item.href.split("?")[0];
           const isActive =
             item.href === `/funnels/${funnelId}`
               ? pathname === `/funnels/${funnelId}`
-              : itemPath === '/builder/publish'
-                ? pathname === '/builder/publish'
+              : itemPath === "/builder/publish"
+                ? pathname === "/builder/publish"
                 : pathname.startsWith(itemPath);
           const Icon = item.icon;
           return (
@@ -222,7 +251,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
                 "flex items-center gap-2.5 rounded-xl px-3 py-2.5 transition-all duration-300 group/item relative overflow-hidden",
                 isActive
                   ? "bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-lg shadow-indigo-500/25"
-                  : "border border-transparent text-muted-foreground hover:text-white hover:bg-white/5"
+                  : "border border-transparent text-muted-foreground hover:text-white hover:bg-white/5",
               )}
             >
               <div
@@ -230,7 +259,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
                   "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors z-10",
                   isActive
                     ? "text-white"
-                    : "bg-white/5 text-muted-foreground group-hover/item:text-white group-hover/item:bg-white/10"
+                    : "bg-white/5 text-muted-foreground group-hover/item:text-white group-hover/item:bg-white/10",
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -247,7 +276,7 @@ export function FunnelSidebar({ funnelId, funnelName, collapsible = false }: Fun
           className="w-full h-9 bg-gradient-to-r from-brand-blue to-brand-indigo text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all"
         >
           <Hammer className="w-3.5 h-3.5" />
-          Open Builder
+          Leads
         </Link>
       </div>
     </div>
