@@ -30,6 +30,10 @@ const parentPaths = [
     icon: Compass,
     title: "Build an Offer for Me →",
     description: "I don't have an offer yet — show me validated ideas I can deploy and start selling immediately.",
+    image: "https://framerusercontent.com/images/JHKo9Ag0unotBN7sVIks5pWsQg.webp?width=1600&height=1200",
+    gradient: "from-violet-500 via-purple-500 to-pink-500",
+    shadow: "shadow-[0_0_50px_rgba(168,85,247,0.15)]",
+  },
 ];
 
 const subPaths = [
