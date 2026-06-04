@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Loader2,
@@ -22,19 +23,24 @@ function parseSuggestedTopics(text: string) {
   if (!text) return [];
 
   const topicsMatch = text.match(/<topics>([\s\S]*?)<\/topics>/);
-  if (!topicsMatch) return [];
-
-  const topicsText = topicsMatch[1];
+  const topicsText = topicsMatch ? topicsMatch[1] : text;
   const topics: string[] = [];
 
   for (const line of topicsText.split(/\r?\n/)) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    const match = trimmed.match(/^\d+\.\s+(.+)$/);
+    let match = trimmed.match(/^\d+\.\s+(.+)$/);
+    if (!match) {
+      match = trimmed.match(/^[-*]\s+(.+)$/);
+    }
+    if (!match) {
+      match = trimmed.match(/^(.+?)$/);
+    }
+
     if (match) {
       const topic = match[1].trim();
-      if (topic && !topics.includes(topic)) {
+      if (topic && !topics.includes(topic) && topic.length > 3) {
         topics.push(topic);
       }
     }
@@ -52,18 +58,16 @@ export function BlueprintDashboard({
   funnelName: string;
   initialBlocks: any;
 }) {
-  const [blueprintUrl, setBlueprintUrl] = useState<string | null>(
-    initialBlocks?.blueprintUrl || null,
-  );
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
+  const [topicMode, setTopicMode] = useState<"lead" | "bonus" | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Extract intelligence data to send to the AI
   const intelligenceData = {
-    call1: initialBlocks?.call1,
-    call2: initialBlocks?.call2,
+    call1: initialBlocks?.intelligence?.call1 || initialBlocks?.call1 || {},
+    call2: initialBlocks?.intelligence?.call2 || initialBlocks?.call2 || {},
   };
 
   const { messages, status, sendMessage } = useChat({
@@ -78,6 +82,7 @@ export function BlueprintDashboard({
           abilityContext: {
             funnelName,
             intelligenceData,
+            topicMode,
           },
         },
       }),
@@ -116,25 +121,38 @@ export function BlueprintDashboard({
       return;
     }
 
+    if (!topicMode) {
+      toast.error("Please select lead or bonus generation first.");
+      return;
+    }
+
     setIsGeneratingPdf(true);
     const generationToast = toast.loading(
-      "Generating your Lead Magnet PDF... This might take a minute.",
+      "Generating your PDF... This might take a minute.",
     );
 
     try {
       const res = await fetch(`/api/generate-blueprint`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ funnelId, topic }),
+        body: JSON.stringify({ funnelId, topic, type: topicMode }),
       });
 
       if (!res.ok) throw new Error("Failed to generate PDF");
       const data = await res.json();
 
-      setBlueprintUrl(data.pdfUrl);
+      if (!data.fileId) {
+        throw new Error("Missing file ID from generation response");
+      }
+
       toast.success("Blueprint PDF generated successfully!", {
         id: generationToast,
       });
+      router.push(
+        `/funnels/${funnelId}/blueprint/download?funnelId=${encodeURIComponent(
+          funnelId,
+        )}&fileId=${encodeURIComponent(data.fileId)}`,
+      );
     } catch (err) {
       console.error(err);
       toast.error("Error generating PDF. Please try again.", {
@@ -151,6 +169,9 @@ export function BlueprintDashboard({
 
     const content = inputValue.trim();
     setInputValue("");
+    if (topicMode) {
+      setSelectedTopic(content);
+    }
     sendMessage({ role: "user", parts: [{ type: "text", text: content }] });
   };
 
@@ -176,51 +197,33 @@ export function BlueprintDashboard({
     setInputValue("");
   };
 
-  // Render the Generated PDF View
-  if (blueprintUrl) {
-    return (
-      <main className="flex-1 overflow-hidden p-4 md:p-8 relative z-10 flex flex-col items-center justify-center bg-gradient-to-br from-[#0a0d14] to-[#131826]">
-        <div className="w-full max-w-4xl flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-3xl p-12 text-center shadow-2xl backdrop-blur-md relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-indigo/10 to-transparent pointer-events-none" />
-          <FileText className="w-24 h-24 text-brand-indigo mb-6 drop-shadow-2xl" />
-          <h2 className="text-4xl font-black text-white mb-4 tracking-tight">
-            Your Blueprint is Ready
-          </h2>
-          <p className="text-white/60 mb-10 max-w-lg text-lg leading-relaxed">
-            This PDF will be automatically emailed to any leads who fill out the
-            form on your published funnel.
-          </p>
-          <div className="flex gap-4">
-            <Button
-              asChild
-              size="lg"
-              className="h-14 bg-brand-indigo hover:bg-brand-indigo/90 text-white font-bold px-10 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.4)] text-base"
-            >
-              <a
-                href={`/api/blueprints/download?funnelId=${encodeURIComponent(
-                  funnelId,
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Download className="w-5 h-5 mr-2" />
-                Download PDF
-              </a>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setBlueprintUrl(null)}
-              className="h-14 bg-white/5 hover:bg-white/10 border-white/10 text-white font-bold px-10 rounded-2xl text-base"
-            >
-              <RefreshCw className="w-5 h-5 mr-2" />
-              Create New
-            </Button>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const handleExtractLeadTopic = () => {
+    setTopicMode("lead");
+    setSelectedTopic("");
+    sendMessage({
+      role: "user",
+      parts: [
+        {
+          type: "text",
+          text: "Extract the best lead magnet topic from the Funnel Blueprint section of the report. Use only the Funnel Blueprint content, then return it in the exact <topics> format and start by telling me you are finding the best lead magnet idea.",
+        },
+      ],
+    });
+  };
+
+  const handleExtractBonusTopics = () => {
+    setTopicMode("bonus");
+    setSelectedTopic("");
+    sendMessage({
+      role: "user",
+      parts: [
+        {
+          type: "text",
+          text: "Extract the bonus topic suggestions from the Bonus Stack section of the report. Use only the Bonus Stack content, then return the suggestions in the exact <topics> format and start by telling me you are finding the best bonus ideas.",
+        },
+      ],
+    });
+  };
 
   return (
     <main className="flex-1 overflow-hidden relative z-10 flex flex-col items-center justify-center bg-[#0a0d14]">
@@ -267,8 +270,19 @@ export function BlueprintDashboard({
               {showTopicSuggestions && (
                 <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-4 shadow-xl backdrop-blur-sm">
                   <p className="text-sm text-white/60">
-                    The architect has suggested these lead magnet ideas. Tap one
-                    to select it for generation.
+                    These ideas are based on your funnel report sections. Pick a
+                    topic below, or keep refining the architect’s guidance.
+                  </p>
+                  <p className="text-sm text-white/50">
+                    Use{" "}
+                    <span className="font-semibold text-white">
+                      Generate Lead
+                    </span>{" "}
+                    or{" "}
+                    <span className="font-semibold text-white">
+                      Generate Bonus
+                    </span>{" "}
+                    first to align output with the right blueprint type.
                   </p>
                   <div className="grid gap-3">
                     {suggestedTopics.map((topic) => (
@@ -304,7 +318,9 @@ export function BlueprintDashboard({
                       ) : (
                         <Sparkles className="w-4 h-4 mr-2" />
                       )}
-                      Generate PDF
+                      {topicMode === "bonus"
+                        ? "Generate Bonus PDF"
+                        : "Generate PDF"}
                     </Button>
                   </div>
                 </div>
@@ -370,51 +386,37 @@ export function BlueprintDashboard({
           {/* Quick Starts - Only show initially */}
           {!hasChatStarted && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-              {[
-                {
-                  icon: Lightbulb,
-                  title: "Suggest topics",
-                  desc: "Based on my funnel intelligence",
-                },
-                {
-                  icon: PenTool,
-                  title: "Checklist",
-                  desc: "Create a step-by-step checklist",
-                },
-                {
-                  icon: Target,
-                  title: "Action Plan",
-                  desc: "Write a 30-day action plan",
-                },
-                {
-                  icon: FileText,
-                  title: "Resource Guide",
-                  desc: "Curate a list of top tools",
-                },
-              ].map((card, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    const content = `${card.title}. ${card.desc}.`;
-                    setInputValue(card.title);
-                    sendMessage({
-                      role: "user",
-                      parts: [{ type: "text", text: content }],
-                    });
-                  }}
-                  className="flex flex-col text-left p-5 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/10 transition-all group"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <card.icon className="w-5 h-5 text-white/50 group-hover:text-brand-indigo transition-colors" />
-                    <span className="font-bold text-white/90">
-                      {card.title}
-                    </span>
-                  </div>
-                  <span className="text-sm text-white/40 font-medium">
-                    {card.desc}
+              <button
+                type="button"
+                onClick={handleExtractLeadTopic}
+                className="flex flex-col text-left p-6 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/10 transition-all group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <Lightbulb className="w-5 h-5 text-white/50 group-hover:text-brand-indigo transition-colors" />
+                  <span className="font-bold text-white/90 text-lg">
+                    Generate Lead
                   </span>
-                </button>
-              ))}
+                </div>
+                <span className="text-sm text-white/40 font-medium">
+                  Extract the best lead magnet topic from your Funnel Blueprint
+                  section.
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={handleExtractBonusTopics}
+                className="flex flex-col text-left p-6 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/10 transition-all group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <Target className="w-5 h-5 text-white/50 group-hover:text-brand-indigo transition-colors" />
+                  <span className="font-bold text-white/90 text-lg">
+                    Generate Bonus
+                  </span>
+                </div>
+                <span className="text-sm text-white/40 font-medium">
+                  Extract bonus topic ideas from your Bonus Stack section.
+                </span>
+              </button>
             </div>
           )}
         </div>

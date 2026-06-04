@@ -13,13 +13,15 @@ export async function POST(req: Request) {
     const startTime = Date.now();
     console.log("[generate-blueprint] Request started");
     
-    const { funnelId, topic } = await req.json();
+    const { funnelId, topic, type } = await req.json();
 
     if (!funnelId || !topic) {
       return NextResponse.json({ error: "Missing funnelId or topic" }, { status: 400 });
     }
 
-    console.log(`[generate-blueprint] Generating blueprint for funnelId=${funnelId}, topic=${topic}`);
+    const blueprintType = type === "bonus" ? "bonus" : "lead";
+
+    console.log(`[generate-blueprint] Generating blueprint for funnelId=${funnelId}, topic=${topic}, type=${blueprintType}`);
     
     const supabase = createAdminClient();
 
@@ -120,11 +122,11 @@ INSTRUCTIONS:
 
     // 5. Upload PDF
     console.log("[generate-blueprint] Uploading PDF to Supabase...");
-    const fileName = `${funnelId}_${crypto.randomBytes(6).toString("hex")}.pdf`;
+    const generatedFileName = `${funnelId}_${blueprintType}_${crypto.randomBytes(6).toString("hex")}.pdf`;
     
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
-      .upload(fileName, pdfBuffer, {
+      .upload(generatedFileName, pdfBuffer, {
         contentType: "application/pdf",
         upsert: false,
       });
@@ -136,15 +138,29 @@ INSTRUCTIONS:
     console.log("[generate-blueprint] Getting public URL...");
     const { data: publicUrlData } = supabase.storage
       .from(bucketName)
-      .getPublicUrl(fileName);
+      .getPublicUrl(generatedFileName);
 
     const pdfUrl = publicUrlData.publicUrl;
 
-    // 6. Save URL to Funnel Blocks
-    console.log("[generate-blueprint] Updating database with blueprint URL...");
+    // 6. Save file metadata to Funnel Blocks
+    console.log("[generate-blueprint] Updating database with blueprint file metadata...");
+    const currentFiles = Array.isArray(funnel.blocks?.blueprintFiles)
+      ? funnel.blocks.blueprintFiles
+      : [];
+    const fileId = crypto.randomUUID();
+    const newFile = {
+      id: fileId,
+      topic,
+      type: blueprintType,
+      fileType: "pdf",
+      url: pdfUrl,
+      fileName: generatedFileName,
+      createdAt: new Date().toISOString(),
+    };
     const updatedBlocks = {
       ...funnel.blocks,
       blueprintUrl: pdfUrl,
+      blueprintFiles: [...currentFiles, newFile],
     };
 
     await supabase
@@ -155,7 +171,7 @@ INSTRUCTIONS:
     const totalTime = Date.now() - startTime;
     console.log(`[generate-blueprint] Success! Total time: ${totalTime}ms`);
     
-    return NextResponse.json({ success: true, pdfUrl });
+    return NextResponse.json({ success: true, pdfUrl, fileId, type: blueprintType });
   } catch (error: any) {
     console.error("[generate-blueprint] Error:", error);
     return NextResponse.json({ error: error.message || "Failed to generate blueprint" }, { status: 500 });

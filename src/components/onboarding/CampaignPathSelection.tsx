@@ -2,12 +2,25 @@
 
 import React from "react";
 import { motion, Variants } from "framer-motion";
-import { FileText, Lightbulb, Sparkles, Globe, Compass, ArrowRight } from "lucide-react";
+import {
+  FileText,
+  Lightbulb,
+  Sparkles,
+  Globe,
+  Compass,
+  ArrowRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Highlighter } from "@/components/ui/highlighter";
 
-export type CampaignPathType = "idea" | "scratch" | "pdf" | "website" | "parent_has_idea" | null;
+export type CampaignPathType =
+  | "idea"
+  | "scratch"
+  | "pdf"
+  | "website"
+  | "parent_has_idea"
+  | null;
 
 interface CampaignPathSelectionProps {
   step: "path" | "idea_subpath";
@@ -20,8 +33,10 @@ const parentPaths = [
     id: "parent_has_idea" as CampaignPathType,
     icon: Lightbulb,
     title: "Analyse & Build My Offer →",
-    description: "I have an offer or idea — build me the complete intelligence report, copy, and funnel.",
-    image: "https://framerusercontent.com/images/ocTUXzjdGN7azeFQ4br4ScyHbYA.jpg?scale-down-to=1024&width=1440&height=1080",
+    description:
+      "I have an offer or idea — build me the complete intelligence report, copy, and funnel.",
+    image:
+      "https://framerusercontent.com/images/ocTUXzjdGN7azeFQ4br4ScyHbYA.jpg?scale-down-to=1024&width=1440&height=1080",
     gradient: "from-blue-500 via-indigo-500 to-violet-500",
     shadow: "shadow-[0_0_50px_rgba(59,130,246,0.15)]",
   },
@@ -29,8 +44,10 @@ const parentPaths = [
     id: "scratch" as CampaignPathType,
     icon: Compass,
     title: "Build an Offer for Me →",
-    description: "I don't have an offer yet — show me validated ideas I can deploy and start selling immediately.",
-    image: "https://framerusercontent.com/images/JHKo9Ag0unotBN7sVIks5pWsQg.webp?width=1600&height=1200",
+    description:
+      "I don't have an offer yet — show me validated ideas I can deploy and start selling immediately.",
+    image:
+      "https://framerusercontent.com/images/JHKo9Ag0unotBN7sVIks5pWsQg.webp?width=1600&height=1200",
     gradient: "from-violet-500 via-purple-500 to-pink-500",
     shadow: "shadow-[0_0_50px_rgba(168,85,247,0.15)]",
   },
@@ -41,8 +58,10 @@ const subPaths = [
     id: "idea" as CampaignPathType,
     icon: Lightbulb,
     title: "Describe Your Offer",
-    description: "Answer a few questions. OfferIQ uses your answers to build the complete intelligence report — no technical knowledge needed.",
-    image: "https://framerusercontent.com/images/ocTUXzjdGN7azeFQ4br4ScyHbYA.jpg?scale-down-to=1024&width=1440&height=1080",
+    description:
+      "Answer a few questions. OfferIQ uses your answers to build the complete intelligence report — no technical knowledge needed.",
+    image:
+      "https://framerusercontent.com/images/ocTUXzjdGN7azeFQ4br4ScyHbYA.jpg?scale-down-to=1024&width=1440&height=1080",
     gradient: "from-blue-500 to-indigo-500",
     shadow: "shadow-[0_0_30px_rgba(59,130,246,0.1)]",
   },
@@ -50,8 +69,10 @@ const subPaths = [
     id: "website" as CampaignPathType,
     icon: Globe,
     title: "From a Website",
-    description: "Paste any live URL - your own sales page or a competitor's offer. OfferIQ reads it and builds your intelligence report from what it finds.",
-    image: "https://framerusercontent.com/images/5RoHhzBwXKlzmqGgZlmjqnERe5s.jpeg?scale-down-to=1024&width=1600&height=1200",
+    description:
+      "Paste any live URL - your own sales page or a competitor's offer. OfferIQ reads it and builds your intelligence report from what it finds.",
+    image:
+      "https://framerusercontent.com/images/5RoHhzBwXKlzmqGgZlmjqnERe5s.jpeg?scale-down-to=1024&width=1600&height=1200",
     gradient: "from-indigo-500 to-cyan-500",
     shadow: "shadow-[0_0_30px_rgba(99,102,241,0.1)]",
   },
@@ -59,8 +80,10 @@ const subPaths = [
     id: "pdf" as CampaignPathType,
     icon: FileText,
     title: "Upload a DOC/PDF",
-    description: "Upload a pitch doc, offer summary or any file that describes your offer. OfferIQ extracts what it needs and builds from there.",
-    image: "https://framerusercontent.com/images/Gs177VTHhuZMszsLfkXbl7X30Cg.jpg?scale-down-to=1024&width=1440&height=1080",
+    description:
+      "Upload a pitch doc, offer summary or any file that describes your offer. OfferIQ extracts what it needs and builds from there.",
+    image:
+      "https://framerusercontent.com/images/Gs177VTHhuZMszsLfkXbl7X30Cg.jpg?scale-down-to=1024&width=1440&height=1080",
     gradient: "from-violet-500 to-pink-500",
     shadow: "shadow-[0_0_30px_rgba(168,85,247,0.1)]",
   },
@@ -113,11 +136,9 @@ export function CampaignPathSelection({
           )}
         </h1>
         <p className="text-[17px] md:text-[18px] text-white/50 font-light max-w-xl mx-auto leading-relaxed">
-          {step === "path" ? (
-            "Tell us where you're starting from. OfferIQ does the rest."
-          ) : (
-            "Choose how you want to share your offer with OfferIQ. We'll do the rest."
-          )}
+          {step === "path"
+            ? "Tell us where you're starting from. OfferIQ does the rest."
+            : "Choose how you want to share your offer with OfferIQ. We'll do the rest."}
         </p>
       </motion.div>
 
@@ -128,7 +149,9 @@ export function CampaignPathSelection({
         animate="show"
         className={cn(
           "grid gap-x-8 gap-y-12",
-          step === "path" ? "grid-cols-1 sm:grid-cols-2 max-w-[760px] mx-auto" : "grid-cols-1 sm:grid-cols-3"
+          step === "path"
+            ? "grid-cols-1 sm:grid-cols-2 max-w-[760px] mx-auto"
+            : "grid-cols-1 sm:grid-cols-3",
         )}
       >
         {currentPaths.map((path) => {
@@ -147,8 +170,12 @@ export function CampaignPathSelection({
                 className={cn(
                   "relative p-[1px] w-full aspect-[5/4] rounded-2xl bg-gradient-to-br transition-all duration-500",
                   isSelected
-                    ? cn("bg-gradient-to-br scale-[1.02]", path.gradient, path.shadow)
-                    : "from-white/10 via-white/5 to-transparent group-hover:from-white/20"
+                    ? cn(
+                        "bg-gradient-to-br scale-[1.02]",
+                        path.gradient,
+                        path.shadow,
+                      )
+                    : "from-white/10 via-white/5 to-transparent group-hover:from-white/20",
                 )}
               >
                 {/* Content Container */}
@@ -171,13 +198,15 @@ export function CampaignPathSelection({
                     "absolute -bottom-[20px] right-[16px] z-20 p-[10px] rounded-[12px] flex items-center justify-center transition-all duration-500 group-hover:-translate-y-1 shadow-2xl",
                     isSelected
                       ? "bg-white border-white"
-                      : "bg-[#0b0f19]/90 backdrop-blur-xl border border-white/10"
+                      : "bg-[#0b0f19]/90 backdrop-blur-xl border border-white/10",
                   )}
                 >
                   <div
                     className={cn(
                       "flex p-1.5 rounded-md items-center justify-center transition-all",
-                      isSelected ? cn("bg-gradient-to-b text-white", path.gradient) : "bg-white/5 text-white/40"
+                      isSelected
+                        ? cn("bg-gradient-to-b text-white", path.gradient)
+                        : "bg-white/5 text-white/40",
                     )}
                   >
                     <Icon className="w-4.5 h-4.5" />
@@ -191,7 +220,9 @@ export function CampaignPathSelection({
                   <h3
                     className={cn(
                       "text-[16px] font-semibold tracking-wide transition-colors",
-                      isSelected ? "text-white" : "text-white/90 group-hover:text-white"
+                      isSelected
+                        ? "text-white"
+                        : "text-white/90 group-hover:text-white",
                     )}
                   >
                     {path.title}

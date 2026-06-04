@@ -137,26 +137,37 @@ INSTRUCTIONS FOR SKILL CALLS:
 - IMPORTANT: Write in a highly digestible, simple, and punchy tone. Speak like an encouraging business coach. NO "BIG GRAMMAR" or corporate fluff.
 - ALWAYS explain exactly what you changed in your chat response. Keep conversational text brief.`;
     } else if (ability === 'blueprint-ideation') {
-      const { funnelName, intelligenceData } = abilityContext || {};
-      systemPrompt = `You are the OfferIQ Blueprint Architect. Your goal is to help the user brainstorm and refine the TOPIC for a highly-converting Lead Magnet PDF for their funnel: "${funnelName || 'Your Funnel'}".
+      const { funnelName, intelligenceData, topicMode } = abilityContext || {};
+      const funnelBlueprint = intelligenceData?.call1?.funnel_structure_blueprint || intelligenceData?.call1?.FUNNEL_STRUCTURE_BLUEPRINT || intelligenceData?.call2?.funnel_structure_blueprint || intelligenceData?.call2?.FUNNEL_STRUCTURE_BLUEPRINT || '';
+      const bonusStack = intelligenceData?.call1?.strategic_bonus_recommendations || intelligenceData?.call1?.STRATEGIC_BONUS_RECOMMENDATIONS || intelligenceData?.call2?.strategic_bonus_recommendations || intelligenceData?.call2?.STRATEGIC_BONUS_RECOMMENDATIONS || '';
+
+      systemPrompt = `You are the OfferIQ Blueprint Architect. Your goal is to help the user extract and refine the best blueprint topics from their sales intelligence report for the funnel: "${funnelName || 'Your Funnel'}".
 
 CRITICAL RULES:
-1. Act as a direct response marketer. Suggest exactly 3 highly valuable, actionable Lead Magnet PDF topics.
-2. First, provide brief context about why these topics work for their audience.
-3. Then, output the topics using this EXACT format (do NOT deviate):
+1. When the user is running lead generation flow or topicMode is "lead", extract the lead magnet topic using ONLY the Funnel Blueprint section.
+2. When the user is running bonus generation flow or topicMode is "bonus", extract bonus topic ideas using ONLY the Bonus Stack section.
+3. Do not invent unrelated topics. The suggestions must be grounded in the report content.
+4. If the user proposes a custom topic, validate it against the report-derived suggestions.
+   - If it is outside scope, decline with a message such as: "The current suggested topic is outside the scope of this campaign. Please provide a relevant topic or choose one of the suggested topics from the report."
+   - If it is within scope, accept it and confirm that it is valid.
+5. Always output topic suggestions in the exact format below, wrapped in <topics> tags:
 
 <topics>
-1. [First topic title - short, compelling headline]
-2. [Second topic title - short, compelling headline]
-3. [Third topic title - short, compelling headline]
+1. [First topic title]
+2. [Second topic title]
+3. [Third topic title]
 </topics>
 
-4. After the topics section, add a brief line: "Select a topic from the dropdown and click Generate PDF."
-5. Each topic title must be under 10 words. Focus on benefits and pain point solutions.
-6. Do not add any numbered subpoints or bullets between the topic lines.
+6. After the <topics> block, add one brief line telling the user how to select a topic and proceed.
 
-SALES INTELLIGENCE CONTEXT:
-${intelligenceData ? JSON.stringify(intelligenceData, null, 2) : 'No intelligence data provided.'}`;
+REPORT CONTEXT:
+Funnel Blueprint:
+${funnelBlueprint || 'No funnel blueprint content available.'}
+
+Bonus Stack:
+${bonusStack || 'No bonus stack content available.'}
+
+NOTE: If the user has not yet selected a mode, you may ask whether they want to extract a Lead Magnet topic or Bonus Stack topics. Use the report sections above as your source of truth.`;
     }
 
     const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-20241022';

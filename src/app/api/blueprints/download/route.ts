@@ -5,8 +5,9 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const funnelId = url.searchParams.get("funnelId");
-    if (!funnelId) {
-      return NextResponse.json({ error: "Missing funnelId" }, { status: 400 });
+    const fileId = url.searchParams.get("fileId");
+    if (!funnelId || !fileId) {
+      return NextResponse.json({ error: "Missing funnelId or fileId" }, { status: 400 });
     }
 
     const supabase = createAdminClient();
@@ -20,10 +21,14 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Funnel not found" }, { status: 404 });
     }
 
-    const blueprintUrl = data.blocks?.blueprintUrl;
-    if (!blueprintUrl) {
-      return NextResponse.json({ error: "No blueprint available" }, { status: 404 });
+    const blueprintFiles = Array.isArray(data.blocks?.blueprintFiles)
+      ? data.blocks.blueprintFiles
+      : [];
+    const file = blueprintFiles.find((item: any) => item.id === fileId);
+    if (!file?.url) {
+      return NextResponse.json({ error: "Blueprint file not found" }, { status: 404 });
     }
+    const blueprintUrl = file.url;
 
     // Fetch the file from the storage URL and stream it back with attachment headers
     const upstream = await fetch(blueprintUrl);
