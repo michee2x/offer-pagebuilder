@@ -3,7 +3,6 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
 import crypto from "crypto";
 
 export const maxDuration = 300; // Allow 300s (5 minutes) for PDF generation - includes Claude text gen + Puppeteer + PDF render + upload
@@ -72,14 +71,25 @@ INSTRUCTIONS:
 
     // 3. Generate PDF via Puppeteer
     console.log("[generate-blueprint] Starting Puppeteer launch...");
-    const executablePath = await chromium.executablePath();
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: { width: 1920, height: 1080 },
-      executablePath: executablePath || undefined, // undefined falls back to local installed chromium if not in serverless
-      headless: true,
-      timeout: 30000, // 30s timeout for browser launch
-    });
+    let browser;
+    try {
+      const sparticuz = require("@sparticuz/chromium");
+      const chromium = sparticuz.default || sparticuz;
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: { width: 1920, height: 1080 },
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        timeout: 30000, // 30s timeout for browser launch
+      });
+    } catch (chromiumError) {
+      console.warn("[generate-blueprint] serverless Chromium launch failed, falling back to local Puppeteer:", chromiumError);
+      const localPuppeteer = require("puppeteer");
+      browser = await localPuppeteer.launch({
+        headless: true,
+        defaultViewport: { width: 1920, height: 1080 },
+      });
+    }
 
     console.log("[generate-blueprint] Browser launched. Creating new page...");
     const page = await browser.newPage();
