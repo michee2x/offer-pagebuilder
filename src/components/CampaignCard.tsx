@@ -20,7 +20,7 @@ export function CampaignCard({ funnel }: { funnel: any }) {
     
     if (confirm("Are you sure you want to delete this campaign?")) {
       try {
-        const response = await fetch(`/api/builder/pages/${funnel.id}`, {
+        const response = await fetch(`/api/funnels/${funnel.id}`, {
           method: "DELETE",
         });
         
@@ -40,9 +40,21 @@ export function CampaignCard({ funnel }: { funnel: any }) {
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    const url = `${window.location.origin}/funnels/${funnel.id}`;
+    
+    let url = "";
+    if (funnel.custom_domain) {
+      url = `https://${funnel.custom_domain}`;
+    } else if (funnel.subdomain) {
+      const isLocal = window.location.hostname.includes("localhost");
+      const protocol = isLocal ? "http://" : "https://";
+      const base = isLocal ? "localhost:3000" : "ofiq.app";
+      url = `${protocol}${funnel.subdomain}.${base}`;
+    } else {
+      url = `${window.location.origin}/funnels/${funnel.id}`;
+    }
+
     navigator.clipboard.writeText(url);
-    toast.success("Link copied to clipboard");
+    toast.success("Deployed link copied to clipboard");
   };
 
   return (
