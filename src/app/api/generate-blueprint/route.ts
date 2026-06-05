@@ -71,26 +71,46 @@ INSTRUCTIONS:
     // Clean up if the model still wrapped in markdown
     const cleanHtml = htmlContent.replace(/^```html\n?/, "").replace(/\n?```$/, "");
 
-    // 3. Generate PDF via Puppeteer
-    console.log("[generate-blueprint] Starting Puppeteer launch...");
+    // 3. Generate PDF via Puppeteer (serverless Chromium preferred)
+    console.log("[generate-blueprint] Starting Puppeteer launch (serverless preferred)...");
     let browser;
     try {
       const sparticuz = require("@sparticuz/chromium");
       const chromium = sparticuz.default || sparticuz;
+      console.log("[generate-blueprint] Launching puppeteer-core with @sparticuz/chromium executablePath");
       browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: { width: 1920, height: 1080 },
         executablePath: await chromium.executablePath(),
         headless: chromium.headless,
-        timeout: 30000, // 30s timeout for browser launch
+        timeout: 30000,
       });
     } catch (chromiumError) {
-      console.warn("[generate-blueprint] serverless Chromium launch failed, falling back to local Puppeteer:", chromiumError);
-      const localPuppeteer = require("puppeteer");
-      browser = await localPuppeteer.launch({
-        headless: true,
-        defaultViewport: { width: 1920, height: 1080 },
-      });
+      console.error("[generate-blueprint] Serverless Chromium launch failed:", chromiumError);
+
+      // Try system Chrome if the developer has it installed and provided via CHROME_PATH/CHROME_BIN
+      const chromePath = process.env.CHROME_PATH || process.env.CHROME_BIN;
+      if (chromePath) {
+        try {
+          console.log(`[generate-blueprint] Attempting to launch system Chrome at ${chromePath}`);
+          browser = await puppeteer.launch({
+            executablePath: chromePath,
+            headless: true,
+            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+            defaultViewport: { width: 1920, height: 1080 },
+            timeout: 30000,
+          });
+        } catch (sysErr) {
+          console.error("[generate-blueprint] System Chrome launch failed:", sysErr);
+          throw new Error(
+            "Failed to launch a browser. For local development run: `pnpm dlx puppeteer browsers install chrome` or set CHROME_PATH to your Chrome executable."
+          );
+        }
+      } else {
+        throw new Error(
+          "Serverless Chromium is unavailable. For local development run: `pnpm dlx puppeteer browsers install chrome` or set CHROME_PATH to your Chrome executable."
+        );
+      }
     }
 
     console.log("[generate-blueprint] Browser launched. Creating new page...");
