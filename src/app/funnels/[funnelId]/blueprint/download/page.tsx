@@ -15,8 +15,9 @@ export default async function BlueprintDownloadPage({
   const sp = await searchParams;
 
   // Accept multiple query names for backwards compatibility
-  const fileId =
+  const fileIdValue =
     sp?.fileId || sp?.id || sp?.file || null;
+  const fileId = Array.isArray(fileIdValue) ? fileIdValue[0] : fileIdValue;
 
   if (fileId) {
     redirect(
