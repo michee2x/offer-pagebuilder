@@ -5,7 +5,6 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles,
   Bot,
   Send,
   User,
@@ -16,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { SparklesCore } from "@/components/ui/sparkles";
+import { SparkleAura } from "@/components/ui/sparkle-aura";
 
 import { cn } from "@/lib/utils";
 import type {
@@ -60,24 +59,24 @@ interface OfferIQAgentProps {
 
 const TRYOUT_RECOMMENDATIONS = {
   "email-sequence": [
-    "✍️ Persuade active email tone",
-    "📧 Add a follow-up nurture email",
-    "🔍 Check spam words & objections",
+    "Persuade active email tone",
+    "Add a follow-up nurture email",
+    "Check spam words & objections",
   ],
   copy: [
-    "✍️ Rewrite the main headline",
-    "🎯 Make CTA more persuasive",
-    "🔍 Audit copy for objections",
+    "Rewrite the main headline",
+    "Make CTA more persuasive",
+    "Audit copy for objections",
   ],
   builder: [
-    "🔧 Refactor hero component to accept dynamic props",
-    "🎨 Update CTA styles across the page",
-    "⚡️ Convert this section to responsive grid layout",
+    "Refactor hero component to accept dynamic props",
+    "Update CTA styles across the page",
+    "Convert this section to responsive grid layout",
   ],
   intelligence: [
-    "✍️ Rewrite this section to sound punchier",
-    "📊 Add a dynamic chart visualizing this data",
-    "🔍 Make this section more digestible",
+    "Rewrite this section to sound punchier",
+    "Add a dynamic chart visualizing this data",
+    "Make this section more digestible",
   ],
 };
 
@@ -343,7 +342,7 @@ export function OfferIQAgent({
 
   return (
     <>
-      {/* Floating interactive ball widget */}
+      {/* Floating interactive ball widget with radiating sparkle aura */}
       <motion.div
         drag
         dragMomentum={false}
@@ -365,26 +364,47 @@ export function OfferIQAgent({
         style={{ touchAction: "none" }}
         className="fixed bottom-6 right-6 z-50 w-24 h-24 flex items-center justify-center cursor-grab active:cursor-grabbing"
       >
-        <div className="absolute inset-0 rounded-full overflow-hidden">
-          <SparklesCore
-            background="transparent"
+        {/* Radiating sparkle aura – extends well beyond the ball so particles emanate outward */}
+        <div
+          className="absolute flex items-center justify-center pointer-events-none"
+          style={{
+            width: "280px",
+            height: "280px",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            maskImage: "radial-gradient(circle, white 15%, transparent 70%)",
+            WebkitMaskImage: "radial-gradient(circle, white 15%, transparent 70%)",
+          }}
+        >
+          <SparkleAura
+            particleColor="#67e8f9"
+            particleDensity={50}
             minSize={0.4}
-            maxSize={1}
-            particleDensity={1200}
+            maxSize={1.6}
+            speed={3}
             className="w-full h-full"
-            particleColor="#FFFFFF"
           />
         </div>
 
+        {/* Rotating orbital ring */}
         <motion.div
           animate={{ rotate: [0, 360] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
-          <div className="w-24 h-24 rounded-full border border-cyan-500/30 shadow-[0_0_30px_rgba(56,189,248,0.18)]" />
+          <div className="w-[88px] h-[88px] rounded-full border border-cyan-500/20 shadow-[0_0_20px_rgba(56,189,248,0.12)]" />
         </motion.div>
 
-        <div className="relative w-16 h-16 rounded-full bg-[#0a0d18] border border-white/10 flex items-center justify-center shadow-[0_4px_24px_rgba(0,0,0,0.6)] overflow-hidden z-10">
+        {/* Pulsing glow ring */}
+        <motion.div
+          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.12, 0.3] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-[-4px] rounded-full bg-cyan-400/10 blur-md pointer-events-none"
+        />
+
+        {/* Core ball */}
+        <div className="relative w-16 h-16 rounded-full bg-[#0a0d18] border border-white/10 flex items-center justify-center shadow-[0_4px_24px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.15)] overflow-hidden z-10">
           <div className="absolute inset-0 rounded-full border border-cyan-500/25" />
           <Image
             src="/bot-floating-ball-image.png"
@@ -394,7 +414,7 @@ export function OfferIQAgent({
             className="w-14 h-14 rounded-full object-cover"
             priority
           />
-        </div>
+      </div>
       </motion.div>
 
       {/* Slide-out Panel Drawer (No dark background backdrop overlay) */}
@@ -408,36 +428,36 @@ export function OfferIQAgent({
             className="fixed right-0 top-0 bottom-0 z-50 w-[380px] h-screen bg-[#080b14] border-l border-white/10 shadow-[-15px_0_40px_rgba(0,0,0,0.7)] flex flex-col pointer-events-auto"
           >
             {/* Panel Top header */}
-            <div className="px-4 py-3 bg-[#0d111e]/90 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                  <Brain className="w-4.5 h-4.5 text-cyan-400" />
+            <div className="px-5 py-4 bg-gradient-to-r from-[#0d111e] to-[#101729] border-b border-white/[0.06] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/15 flex items-center justify-center shadow-[0_0_12px_rgba(6,182,212,0.1)]">
+                  <Brain className="w-[18px] h-[18px] text-cyan-400" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-white">
+                  <h3 className="text-[13px] font-bold text-white tracking-tight">
                     OfferIQ Agent
                   </h3>
-                  <div className="flex items-center gap-1 mt-0.5">
+                  <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[9px] font-semibold text-emerald-400 capitalize">
-                      {ability.replace("-", " ")} ability
+                    <span className="text-[10px] font-medium text-emerald-400/80 capitalize">
+                      {ability.replace("-", " ")}
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 {messages.length > 0 && (
                   <button
                     onClick={handleClearHistory}
                     title="Clear Chat History"
-                    className="h-7 px-2 rounded-lg hover:bg-red-500/10 hover:text-red-400 flex items-center justify-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-all duration-300 cursor-pointer"
+                    className="h-7 px-2.5 rounded-lg hover:bg-red-500/10 hover:text-red-400 flex items-center justify-center text-[10px] font-semibold text-slate-500 transition-all duration-200 cursor-pointer"
                   >
                     Clear
                   </button>
                 )}
                 <button
                   onClick={() => setIsPanelOpen(false)}
-                  className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-muted-foreground hover:text-white transition-colors"
+                  className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-slate-500 hover:text-white transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -470,18 +490,18 @@ export function OfferIQAgent({
               </p>
             </div>
 
-            {/* Tryout Chips container */}
-            <div className="px-4 py-3 bg-[#0a0e1c] border-b border-white/5 flex flex-col gap-1.5">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                Ask OfferIQ to try out
+            {/* Quick Action Chips */}
+            <div className="px-5 py-3 bg-[#080c18] border-b border-white/[0.04] flex flex-col gap-2">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Quick actions
               </span>
-              <div className="flex flex-wrap gap-1.5 mt-1">
+              <div className="flex flex-wrap gap-1.5">
                 {tryouts.map((t) => (
                   <button
                     key={t}
                     disabled={isLoading}
                     onClick={() => handleTryoutClick(t)}
-                    className="px-2.5 py-1.5 rounded-xl border border-white/5 hover:border-cyan-500/40 bg-white/[0.02] hover:bg-cyan-500/5 text-[10px] font-semibold text-slate-300 hover:text-white transition-all text-left shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 rounded-full border border-white/[0.06] hover:border-cyan-500/30 bg-white/[0.02] hover:bg-cyan-500/[0.06] text-[10px] font-medium text-slate-400 hover:text-cyan-300 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {t}
                   </button>
@@ -490,46 +510,41 @@ export function OfferIQAgent({
             </div>
 
             {/* Scrollable Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 bg-[#06080e] custom-scrollbar scroll-smooth">
+            <div className="flex-1 overflow-y-auto p-4 bg-[#060810] custom-scrollbar scroll-smooth">
               <div className="flex flex-col gap-4">
                 {/* Initial welcome message if empty */}
                 {messages.length === 0 && (
-                  <div className="flex gap-2.5 items-start mt-2">
-                    <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="flex gap-3 items-start mt-2">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500/15 to-blue-600/15 border border-cyan-500/15 flex items-center justify-center shrink-0 mt-0.5">
                       <Bot className="w-4 h-4 text-cyan-400" />
                     </div>
-                    <div className="bg-[#0f1425] border border-white/5 rounded-2xl rounded-tl-none px-3.5 py-3 max-w-[85%]">
-                      <p className="text-xs font-bold text-white mb-1.5">
-                        Hey there! 👋
+                    <div className="bg-[#0e1322] border border-white/[0.05] rounded-2xl rounded-tl-sm px-4 py-3.5 max-w-[85%]">
+                      <p className="text-xs font-semibold text-white mb-2">
+                        Welcome to OfferIQ
                       </p>
-                      <p className="text-xs text-slate-300 leading-relaxed">
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
                         {ability === "copy" ? (
                           <>
-                            I am your dedicated OfferIQ agent operating under
-                            the <strong>Copy Editing Ability</strong>. I can
-                            rewrite headlines, improve CTAs, audit copy for
-                            objections, and optimize your page copy for
-                            conversions.
+                            Operating under the <strong className="text-slate-200">Copy Editing</strong> ability.
+                            I can rewrite headlines, improve CTAs, audit copy for objections,
+                            and optimize your page copy for conversions.
                           </>
                         ) : ability === "intelligence" ? (
                           <>
-                            I am your dedicated OfferIQ agent operating under
-                            the <strong>Sales Intelligence Ability</strong>. I can
-                            rewrite report sections, generate beautiful data charts, 
+                            Operating under the <strong className="text-slate-200">Sales Intelligence</strong> ability.
+                            I can rewrite report sections, generate data charts,
                             embed relevant videos, and optimize your intelligence readouts.
                           </>
                         ) : (
                           <>
-                            I am your dedicated OfferIQ agent operating under
-                            the <strong>Email Sequence Ability</strong>. I can
-                            edit this email copy, draft follow-ups, optimize
-                            tone, or run readability analysis.
+                            Operating under the <strong className="text-slate-200">Email Sequence</strong> ability.
+                            I can edit email copy, draft follow-ups, optimize tone,
+                            or run readability analysis.
                           </>
                         )}
                       </p>
-                      <p className="text-[10px] text-slate-400 mt-2 font-medium">
-                        Click any of the suggestions above or type your request
-                        below to begin.
+                      <p className="text-[10px] text-slate-500 mt-2.5 font-medium">
+                        Select a quick action above or type your request below.
                       </p>
                     </div>
                   </div>
@@ -577,22 +592,22 @@ export function OfferIQAgent({
                     <div
                       key={m.id}
                       className={cn(
-                        "flex gap-2.5 items-start w-full",
+                        "flex gap-3 items-start w-full",
                         isUser ? "justify-end" : "justify-start",
                       )}
                     >
                       {!isUser && (
-                        <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500/15 to-blue-600/15 border border-cyan-500/15 flex items-center justify-center shrink-0 mt-0.5">
                           <Bot className="w-4 h-4 text-cyan-400" />
                         </div>
                       )}
 
                       <div
                         className={cn(
-                          "rounded-2xl px-3.5 py-2.5 max-w-[85%] text-xs flex flex-col gap-1 shadow-sm",
+                          "rounded-2xl px-4 py-3 max-w-[85%] text-xs flex flex-col gap-1",
                           isUser
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-tr-none border-0"
-                            : "bg-[#0f1425] border border-white/5 text-slate-200 rounded-tl-none",
+                            ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-tr-sm shadow-[0_4px_16px_rgba(79,70,229,0.2)]"
+                            : "bg-[#0e1322] border border-white/[0.05] text-slate-300 rounded-tl-sm",
                         )}
                       >
                         {parseMessageText(
@@ -785,8 +800,8 @@ export function OfferIQAgent({
                       </div>
 
                       {isUser && (
-                        <div className="w-8 h-8 rounded-lg bg-[#1a2138] border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <User className="w-4 h-4 text-slate-300" />
+                        <div className="w-8 h-8 rounded-xl bg-[#171e33] border border-white/[0.06] flex items-center justify-center shrink-0 mt-0.5">
+                          <User className="w-4 h-4 text-slate-400" />
                         </div>
                       )}
                     </div>
@@ -797,14 +812,14 @@ export function OfferIQAgent({
                 {isLoading &&
                   messages.length > 0 &&
                   messages[messages.length - 1].role === "user" && (
-                    <div className="flex gap-2.5 items-start">
-                      <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="flex gap-3 items-start">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500/15 to-blue-600/15 border border-cyan-500/15 flex items-center justify-center shrink-0 mt-0.5">
                         <Bot className="w-4 h-4 text-cyan-400" />
                       </div>
-                      <div className="bg-[#0f1425] border border-white/5 px-4 py-3 rounded-2xl rounded-tl-none flex items-center space-x-1.5 shadow-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce delay-75" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce delay-150" />
+                      <div className="bg-[#0e1322] border border-white/[0.05] px-4 py-3 rounded-2xl rounded-tl-sm flex items-center space-x-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400/70 animate-bounce" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400/70 animate-bounce delay-75" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400/70 animate-bounce delay-150" />
                       </div>
                     </div>
                   )}
@@ -814,7 +829,7 @@ export function OfferIQAgent({
             </div>
 
             {/* Input area */}
-            <div className="p-4 bg-[#0d111e]/90 border-t border-white/10 shrink-0">
+            <div className="p-4 bg-gradient-to-t from-[#0a0e1c] to-[#0d111e] border-t border-white/[0.05] shrink-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -825,14 +840,14 @@ export function OfferIQAgent({
                   });
                   setInputValue("");
                 }}
-                className="flex items-center space-x-2 bg-[#06080e] border border-white/10 focus-within:border-cyan-500/40 rounded-xl px-3 py-1.5 transition-all"
+                className="flex items-center gap-2 bg-[#060810] border border-white/[0.06] focus-within:border-cyan-500/30 rounded-xl px-3.5 py-2 transition-all duration-200"
               >
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="e.g. rewrite subject line to be emotional"
-                  className="flex-1 bg-transparent border-0 text-slate-200 outline-none text-xs placeholder:text-slate-500 focus:ring-0 focus:outline-none"
+                  placeholder="Type your request..."
+                  className="flex-1 bg-transparent border-0 text-slate-200 outline-none text-[12px] placeholder:text-slate-600 focus:ring-0 focus:outline-none"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -848,7 +863,7 @@ export function OfferIQAgent({
                 <Button
                   type="submit"
                   size="icon"
-                  className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shrink-0 cursor-pointer shadow-sm border-0"
+                  className="h-8 w-8 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white shrink-0 cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.15)] border-0 transition-all duration-200 disabled:opacity-30 disabled:shadow-none"
                   disabled={isLoading || !inputValue.trim()}
                 >
                   {isLoading ? (
