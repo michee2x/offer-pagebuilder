@@ -117,23 +117,45 @@ export function BlueprintDashboard({
 
     setIsGeneratingPdf(true);
     const generationToast = toast.loading(
-      "Generating your Lead Magnet PDF...",
+      setGenerationStatus("Writing blueprint content (this takes a few minutes)...")
     );
 
     try {
-      const res = await fetch(`/api/generate-blueprint`, {
+      const htmlRes = await fetch(`/api/generate-blueprint/html`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ funnelId, topic }),
+        body: JSON.stringify({ funnelId, topic, type: topicMode }),
       });
 
-      if (!res.ok) throw new Error("Failed to generate PDF");
-      const data = await res.json();
+      if (!htmlRes.ok) throw new Error("Failed to write blueprint HTML content");
+      const htmlData = await htmlRes.json();
+      
+      setGenerationStatus("Rendering PDF document and saving...");
+      const pdfRes = await fetch(`/api/generate-blueprint/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ funnelId, html: htmlData.html, topic, type: topicMode }),
+      });
 
-      setBlueprintUrl(data.pdfUrl);
-      toast.success("Blueprint PDF generated!", {
+      if (!pdfRes.ok) throw new Error("Failed to generate PDF from HTML");
+      const data = await pdfRes.json();
+
+      if (!data.fileId) {
+        throw new Error("Missing file ID from generation response");
+      }
+
+      toast.success("Blueprint PDF generated successfully!", {
         id: generationToast,
       });
+      setGenerationStatus(
+        "Blueprint generated successfully. Redirecting to download...",
+      );
+      console.info("[blueprint] Generation response", data);
+      router.push(
+        `/funnels/${funnelId}/blueprint/download?funnelId=${encodeURIComponent(
+          funnelId,
+        )}&fileId=${encodeURIComponent(data.fileId)}`,
+      );
     } catch (err) {
       console.error(err);
       toast.error("Error generating PDF.", {

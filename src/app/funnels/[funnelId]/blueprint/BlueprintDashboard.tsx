@@ -140,15 +140,25 @@ export function BlueprintDashboard({
     });
 
     try {
-      setGenerationStatus("Sending generation request to server...");
-      const res = await fetch(`/api/generate-blueprint`, {
+      setGenerationStatus("Writing blueprint content (this takes a few minutes)...");
+      const htmlRes = await fetch(`/api/generate-blueprint/html`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ funnelId, topic, type: topicMode }),
       });
 
-      if (!res.ok) throw new Error("Failed to generate PDF");
-      const data = await res.json();
+      if (!htmlRes.ok) throw new Error("Failed to write blueprint HTML content");
+      const htmlData = await htmlRes.json();
+      
+      setGenerationStatus("Rendering PDF document and saving...");
+      const pdfRes = await fetch(`/api/generate-blueprint/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ funnelId, html: htmlData.html, topic, type: topicMode }),
+      });
+
+      if (!pdfRes.ok) throw new Error("Failed to generate PDF from HTML");
+      const data = await pdfRes.json();
 
       if (!data.fileId) {
         throw new Error("Missing file ID from generation response");
