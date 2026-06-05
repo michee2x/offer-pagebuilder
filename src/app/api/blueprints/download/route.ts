@@ -24,7 +24,9 @@ export async function GET(req: Request) {
     const blueprintFiles = Array.isArray(data.blocks?.blueprintFiles)
       ? data.blocks.blueprintFiles
       : [];
-    const file = blueprintFiles.find((item: any) => item.id === fileId);
+    const file = blueprintFiles.find(
+      (item: any) => item.id === fileId || item.fileName === fileId,
+    );
     if (!file?.url) {
       return NextResponse.json({ error: "Blueprint file not found" }, { status: 404 });
     }

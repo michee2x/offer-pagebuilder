@@ -143,6 +143,7 @@ INSTRUCTIONS:
     // 5. Upload PDF
     console.log("[generate-blueprint] Uploading PDF to Supabase...");
     const generatedFileName = `${funnelId}_${blueprintType}_${crypto.randomBytes(6).toString("hex")}.pdf`;
+    console.log(`[generate-blueprint] Generated filename: ${generatedFileName}`);
     
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
@@ -177,16 +178,21 @@ INSTRUCTIONS:
       fileName: generatedFileName,
       createdAt: new Date().toISOString(),
     };
+    console.log("[generate-blueprint] New file metadata to save:", JSON.stringify(newFile, null, 2));
     const updatedBlocks = {
       ...funnel.blocks,
       blueprintUrl: pdfUrl,
       blueprintFiles: [...currentFiles, newFile],
     };
 
+    console.log("[generate-blueprint] Updated blocks blueprintFiles count:", (updatedBlocks.blueprintFiles || []).length);
+
     await supabase
       .from("builder_pages")
       .update({ blocks: updatedBlocks })
       .eq("id", funnelId);
+
+    console.log("[generate-blueprint] Database updated with new blueprint file for funnelId=", funnelId, "fileId=", fileId);
 
     const totalTime = Date.now() - startTime;
     console.log(`[generate-blueprint] Success! Total time: ${totalTime}ms`);

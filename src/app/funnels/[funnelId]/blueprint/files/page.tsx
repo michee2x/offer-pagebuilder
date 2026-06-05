@@ -11,11 +11,15 @@ import { Download, ArrowLeft } from "lucide-react";
 export default async function BlueprintFilesPage({
   params,
 }: {
-  params: { funnelId: string };
+  params: Promise<{ funnelId: string }>;
 }) {
-  const { funnelId } = params;
+  const { funnelId } = await params;
   const session = await getSession();
-  if (!session?.user?.id) redirect("/login");
+  console.log("[blueprint/files] loading funnel files", { funnelId, userId: session?.user?.id });
+  if (!session?.user?.id) {
+    console.warn("[blueprint/files] no active session, redirecting to login");
+    redirect("/login");
+  }
 
   const supabase = createAdminClient();
   const { data: funnel } = await supabase
@@ -25,7 +29,31 @@ export default async function BlueprintFilesPage({
     .eq("user_id", session.user.id)
     .single();
 
-  if (!funnel) redirect("/");
+  if (!funnel) {
+    console.warn("[blueprint/files] funnel missing or access denied", {
+      funnelId,
+      userId: session.user.id,
+    });
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#030712] text-center px-6">
+        <div className="max-w-lg rounded-3xl border border-white/10 bg-white/5 p-10">
+          <h1 className="text-3xl font-black text-white mb-3">
+            Blueprint files not found
+          </h1>
+          <p className="text-sm text-white/70 mb-6">
+            We couldn&apos;t find this funnel or you don&apos;t have access to it.
+            Please return to your workspace and try again.
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-brand-indigo/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-indigo/20"
+          >
+            Back to workspace
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const blueprintFiles = Array.isArray(funnel.blocks?.blueprintFiles)
     ? funnel.blocks.blueprintFiles
@@ -116,11 +144,14 @@ export default async function BlueprintFilesPage({
                         </tr>
                       </thead>
                       <tbody>
-                        {blueprintFiles.map((file: any) => (
-                          <tr
-                            key={file.id}
-                            className="border-b border-white/10 last:border-none hover:bg-white/5"
-                          >
+                        {blueprintFiles.map((file: any, index: number) => {
+                          const fileKey = file.id || file.fileName || `blueprint-file-${index}`;
+                          const downloadId = file.id || file.fileName;
+                          return (
+                            <tr
+                              key={fileKey}
+                              className="border-b border-white/10 last:border-none hover:bg-white/5"
+                            >
                             <td className="px-5 py-4 align-top text-sm text-white">
                               {file.topic}
                             </td>
@@ -148,7 +179,7 @@ export default async function BlueprintFilesPage({
                               <Link
                                 href={`/api/blueprints/download?funnelId=${encodeURIComponent(
                                   funnelId,
-                                )}&fileId=${encodeURIComponent(file.id)}`}
+                                )}&fileId=${encodeURIComponent(downloadId)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center rounded-2xl border border-white/10 bg-brand-indigo/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-indigo/20"
@@ -158,7 +189,8 @@ export default async function BlueprintFilesPage({
                               </Link>
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

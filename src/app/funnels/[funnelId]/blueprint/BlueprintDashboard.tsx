@@ -59,6 +59,7 @@ export function BlueprintDashboard({
   initialBlocks: any;
 }) {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [generationStatus, setGenerationStatus] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [topicMode, setTopicMode] = useState<"lead" | "bonus" | null>(null);
@@ -127,12 +128,19 @@ export function BlueprintDashboard({
       return;
     }
 
+    setGenerationStatus("Starting blueprint generation...");
     setIsGeneratingPdf(true);
     const generationToast = toast.loading(
       "Generating your PDF... This might take a minute.",
     );
+    console.info("[blueprint] Starting PDF generation", {
+      funnelId,
+      topic,
+      type: topicMode,
+    });
 
     try {
+      setGenerationStatus("Sending generation request to server...");
       const res = await fetch(`/api/generate-blueprint`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -149,13 +157,18 @@ export function BlueprintDashboard({
       toast.success("Blueprint PDF generated successfully!", {
         id: generationToast,
       });
+      setGenerationStatus(
+        "Blueprint generated successfully. Redirecting to download...",
+      );
+      console.info("[blueprint] Generation response", data);
       router.push(
         `/funnels/${funnelId}/blueprint/download?funnelId=${encodeURIComponent(
           funnelId,
         )}&fileId=${encodeURIComponent(data.fileId)}`,
       );
     } catch (err) {
-      console.error(err);
+      console.error("[blueprint] PDF generation failed:", err);
+      setGenerationStatus("PDF generation failed. See console for details.");
       toast.error("Error generating PDF. Please try again.", {
         id: generationToast,
       });
@@ -206,7 +219,7 @@ export function BlueprintDashboard({
       parts: [
         {
           type: "text",
-          text: "Extract the best lead magnet topic from the Funnel Blueprint section of the report. Use only the Funnel Blueprint content, then return it in the exact <topics> format and start by telling me you are finding the best lead magnet idea.",
+          text: "Hi, I want to generate a Lead Magnet. Please extract the best lead topic from my report.",
         },
       ],
     });
@@ -220,7 +233,7 @@ export function BlueprintDashboard({
       parts: [
         {
           type: "text",
-          text: "Extract the bonus topic suggestions from the Bonus Stack section of the report. Use only the Bonus Stack content, then return the suggestions in the exact <topics> format and start by telling me you are finding the best bonus ideas.",
+          text: "Hi, I want to generate some bonuses. Please extract the best bonus topics from my report.",
         },
       ],
     });
@@ -275,15 +288,7 @@ export function BlueprintDashboard({
                     topic below, or keep refining the architect’s guidance.
                   </p>
                   <p className="text-sm text-white/50">
-                    Use{" "}
-                    <span className="font-semibold text-white">
-                      Generate Lead
-                    </span>{" "}
-                    or{" "}
-                    <span className="font-semibold text-white">
-                      Generate Bonus
-                    </span>{" "}
-                    first to align output with the right blueprint type.
+                    Use <span className="font-semibold text-white">Generate Lead</span> or <span className="font-semibold text-white">Generate Bonus</span> first to align output with the right blueprint type. Or, if you provided your own topic in the chat and the AI approved it, it should be selected below.
                   </p>
                   <div className="grid gap-3">
                     {suggestedTopics.map((topic) => (
@@ -308,21 +313,28 @@ export function BlueprintDashboard({
                       </button>
                     ))}
                   </div>
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={() => handleGeneratePdf(selectedTopic)}
-                      disabled={isGeneratingPdf || !selectedTopic}
-                      className="bg-brand-indigo hover:bg-brand-indigo/90 text-white font-bold px-6 py-3 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isGeneratingPdf ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Sparkles className="w-4 h-4 mr-2" />
-                      )}
-                      {topicMode === "bonus"
-                        ? "Generate Bonus PDF"
-                        : "Generate PDF"}
-                    </Button>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-end">
+                      <Button
+                        onClick={() => handleGeneratePdf(selectedTopic)}
+                        disabled={isGeneratingPdf || !selectedTopic}
+                        className="bg-brand-indigo hover:bg-brand-indigo/90 text-white font-bold px-6 py-3 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isGeneratingPdf ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <Sparkles className="w-4 h-4 mr-2" />
+                        )}
+                        {topicMode === "bonus"
+                          ? "Generate Bonus PDF"
+                          : "Generate PDF"}
+                      </Button>
+                    </div>
+                    {generationStatus ? (
+                      <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
+                        {generationStatus}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )}

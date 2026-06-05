@@ -1,20 +1,22 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/auth";
 import { createAdminClient } from "@/utils/supabase/admin";
+import ClientDownloadRedirect from "@/components/blueprint/ClientDownloadRedirect";
 
 interface BlueprintDownloadPageProps {
-  params: { funnelId: string };
-  searchParams: { [key: string]: any };
+  params: Promise<{ funnelId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function BlueprintDownloadPage({
   params,
   searchParams,
 }: BlueprintDownloadPageProps) {
-  const { funnelId } = params;
+  const { funnelId } = await params;
+  const sp = await searchParams;
 
   // Accept multiple query names for backwards compatibility
-  const fileId = searchParams?.fileId || searchParams?.id || searchParams?.file || null;
+  const fileId =
+    sp?.fileId || sp?.id || sp?.file || null;
 
   if (fileId) {
     redirect(
@@ -41,12 +43,15 @@ export default async function BlueprintDownloadPage({
         : [];
       if (blueprintFiles.length > 0) {
         const latest = blueprintFiles[blueprintFiles.length - 1];
-        redirect(
-          `/api/blueprints/download?funnelId=${encodeURIComponent(
-            funnelId,
-          )}&fileId=${encodeURIComponent(latest.id)}`,
-        );
-        return null;
+        const latestFileId = latest.id || latest.fileName;
+        if (latestFileId) {
+          redirect(
+            `/api/blueprints/download?funnelId=${encodeURIComponent(
+              funnelId,
+            )}&fileId=${encodeURIComponent(latestFileId)}`,
+          );
+          return null;
+        }
       }
     }
   } catch (e) {
@@ -56,6 +61,8 @@ export default async function BlueprintDownloadPage({
 
   return (
     <main className="min-h-screen bg-[#030712] text-white flex items-center justify-center p-8">
+      {/* Client-side redirect fallback (handles cases where server searchParams are missing) */}
+      <ClientDownloadRedirect funnelId={funnelId} />
       <div className="max-w-xl rounded-3xl border border-white/10 bg-white/5 p-10 text-center">
         <h1 className="text-2xl font-bold mb-4">Missing download file ID</h1>
         <p className="text-sm text-white/70">
