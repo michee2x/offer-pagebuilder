@@ -186,9 +186,18 @@ export async function POST(req: Request) {
 
   const supabase = createAdminClient();
 
-  // Resolve funnel from domain or pageId
+  // Resolve funnel from domain, pageId, or Referer URL
   let funnelId: string | null = body.pageId || null;
   const host = (domain ?? '').split(':')[0].toLowerCase();
+
+  // Try to extract funnelId from the Referer header (useful for testing on /p/[id] or /funnels/[id])
+  if (!funnelId) {
+    const referer = req.headers.get('referer') || '';
+    const match = referer.match(/\/p\/([^\/?#]+)/) || referer.match(/\/funnels\/([^\/?#]+)/);
+    if (match) {
+      funnelId = match[1];
+    }
+  }
 
   if (!funnelId && host && host !== 'localhost' && host !== '127.0.0.1') {
     const ofiqSuffix = '.ofiq.app';
