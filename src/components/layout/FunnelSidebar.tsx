@@ -50,7 +50,7 @@ export function FunnelSidebar({
     { label: "Copy Engine", href: `/funnels/${funnelId}/copy`, icon: FileText },
     { label: "Email Sequence", href: `/funnels/${funnelId}/email`, icon: Mail },
     {
-      label: "Blueprint",
+      label: "Asset Bank",
       href: `/funnels/${funnelId}/blueprint`,
       icon: BookOpen,
     },
