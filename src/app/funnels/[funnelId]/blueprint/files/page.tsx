@@ -6,7 +6,8 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 import { Button } from "@/components/ui/button";
-import { Download, ArrowLeft } from "lucide-react";
+import { Download, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { revalidatePath } from "next/cache";
 
 export default async function BlueprintFilesPage({
   params,
@@ -15,9 +16,7 @@ export default async function BlueprintFilesPage({
 }) {
   const { funnelId } = await params;
   const session = await getSession();
-  console.log("[blueprint/files] loading funnel files", { funnelId, userId: session?.user?.id });
   if (!session?.user?.id) {
-    console.warn("[blueprint/files] no active session, redirecting to login");
     redirect("/login");
   }
 
@@ -30,10 +29,6 @@ export default async function BlueprintFilesPage({
     .single();
 
   if (!funnel) {
-    console.warn("[blueprint/files] funnel missing or access denied", {
-      funnelId,
-      userId: session.user.id,
-    });
     return (
       <div className="flex h-screen items-center justify-center bg-[#030712] text-center px-6">
         <div className="max-w-lg rounded-3xl border border-white/10 bg-white/5 p-10">
@@ -58,6 +53,27 @@ export default async function BlueprintFilesPage({
   const blueprintFiles = Array.isArray(funnel.blocks?.blueprintFiles)
     ? funnel.blocks.blueprintFiles
     : [];
+    
+  const activeLeadMagnetFileId = funnel.blocks?.activeLeadMagnetFileId || null;
+
+  async function setActiveLeadMagnet(formData: FormData) {
+    "use server";
+    const fileId = formData.get("fileId") as string;
+    if (!fileId) return;
+    
+    const adminSupabase = createAdminClient();
+    const { data: currentFunnel } = await adminSupabase
+      .from("builder_pages")
+      .select("blocks")
+      .eq("id", funnelId)
+      .single();
+      
+    if (currentFunnel?.blocks) {
+      const newBlocks = { ...currentFunnel.blocks, activeLeadMagnetFileId: fileId };
+      await adminSupabase.from("builder_pages").update({ blocks: newBlocks }).eq("id", funnelId);
+      revalidatePath(`/funnels/${funnelId}/blueprint/files`);
+    }
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
@@ -92,9 +108,8 @@ export default async function BlueprintFilesPage({
                     Blueprint Files
                   </h1>
                   <p className="mt-2 text-sm text-white/60 max-w-2xl">
-                    All generated Lead Magnet and Bonus Stack blueprints are
-                    stored here. Download any file or create a new blueprint
-                    from the main screen.
+                    Select a blueprint below to act as the Active Lead Magnet for this funnel. 
+                    When a user submits the Lead Capture Form, they will be emailed the active blueprint.
                   </p>
                 </div>
                 <Link href={`/funnels/${funnelId}/blueprint`}>
@@ -130,13 +145,10 @@ export default async function BlueprintFilesPage({
                             Topic
                           </th>
                           <th className="px-5 py-4 text-sm font-semibold text-white/60">
-                            Type
-                          </th>
-                          <th className="px-5 py-4 text-sm font-semibold text-white/60">
                             Created
                           </th>
                           <th className="px-5 py-4 text-sm font-semibold text-white/60">
-                            File
+                            Status
                           </th>
                           <th className="px-5 py-4 text-sm font-semibold text-white/60">
                             Action
@@ -147,42 +159,47 @@ export default async function BlueprintFilesPage({
                         {blueprintFiles.map((file: any, index: number) => {
                           const fileKey = file.id || file.fileName || `blueprint-file-${index}`;
                           const downloadId = file.id || file.fileName;
+                          const isActive = activeLeadMagnetFileId === downloadId;
+                          
                           return (
                             <tr
                               key={fileKey}
-                              className="border-b border-white/10 last:border-none hover:bg-white/5"
+                              className={`border-b border-white/10 last:border-none hover:bg-white/5 transition-colors ${isActive ? 'bg-brand-indigo/5' : ''}`}
                             >
-                            <td className="px-5 py-4 align-top text-sm text-white">
+                            <td className="px-5 py-4 align-middle text-sm text-white">
                               {file.topic}
                             </td>
-                            <td className="px-5 py-4 align-top text-sm text-white/80 capitalize">
-                              {file.type || "lead"}
-                            </td>
-                            <td className="px-5 py-4 align-top text-sm text-white/70">
+                            <td className="px-5 py-4 align-middle text-sm text-white/70">
                               {file.createdAt
                                 ? new Date(file.createdAt).toLocaleString(
                                     "en-US",
-                                    {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                      hour: "numeric",
-                                      minute: "2-digit",
-                                    },
+                                    { month: "short", day: "numeric", year: "numeric" }
                                   )
                                 : "—"}
                             </td>
-                            <td className="px-5 py-4 align-top text-sm text-white/70">
-                              {file.fileName || "blueprint.pdf"}
+                            <td className="px-5 py-4 align-middle text-sm">
+                              {isActive ? (
+                                <div className="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-1 text-xs font-semibold text-green-400">
+                                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                                  Active Lead Magnet
+                                </div>
+                              ) : (
+                                <form action={setActiveLeadMagnet}>
+                                  <input type="hidden" name="fileId" value={downloadId} />
+                                  <button type="submit" className="text-xs font-semibold text-white/50 hover:text-white transition underline decoration-white/20 underline-offset-4">
+                                    Set as Active
+                                  </button>
+                                </form>
+                              )}
                             </td>
-                            <td className="px-5 py-4 align-top text-sm">
+                            <td className="px-5 py-4 align-middle text-sm">
                               <Link
                                 href={`/api/blueprints/download?funnelId=${encodeURIComponent(
                                   funnelId,
                                 )}&fileId=${encodeURIComponent(downloadId)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center rounded-2xl border border-white/10 bg-brand-indigo/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-indigo/20"
+                                className="inline-flex items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
                               >
                                 <Download className="w-4 h-4 mr-2" />
                                 Download

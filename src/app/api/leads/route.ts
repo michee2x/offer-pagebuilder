@@ -5,7 +5,56 @@ export const runtime = 'nodejs';
 
 // ─── Blueprint email template ─────────────────────────────────────────────────
 
-function buildBlueprintEmail(firstName: string, offerName: string, blueprintUrl: string | null): string {
+interface EmailContext {
+  firstName: string;
+  offerName: string;
+  blueprintUrl: string | null;
+  blueprintTopic: string;
+  upsellHook: string;      // e.g. "Master Digital Marketing in 30 Days"
+  upsellUrl: string | null; // link back to funnel upsell page
+  niche: string;            // e.g. "digital marketing"
+}
+
+function buildBlueprintEmail(ctx: EmailContext): string {
+  const { firstName, offerName, blueprintUrl, blueprintTopic, upsellHook, upsellUrl, niche } = ctx;
+
+  const ctaBlock = blueprintUrl
+    ? `<a href="${blueprintUrl}" target="_blank" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
+        Download Your Blueprint →
+      </a>`
+    : `<a href="#" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
+        Access Your Dashboard →
+      </a>`;
+
+  const upsellBlock = upsellUrl
+    ? `
+      <!-- Upsell Pivot -->
+      <tr>
+        <td style="background:#141420;padding:0 40px 40px;border-left:1px solid rgba(255,255,255,0.06);border-right:1px solid rgba(255,255,255,0.06);">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,rgba(109,40,217,0.15),rgba(79,70,229,0.1));border:1px solid rgba(109,40,217,0.2);border-radius:12px;padding:24px;">
+            <tr><td style="padding:24px;">
+              <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(167,139,250,0.8);">Before You Go</p>
+              <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#ffffff;line-height:1.5;">
+                Thousands of people in the ${niche} space are already seeing results. If you're serious about taking this further, you'll want to see this:
+              </p>
+              <p style="margin:0 0 20px;font-size:20px;font-weight:900;color:#a78bfa;line-height:1.3;">
+                ${upsellHook}
+              </p>
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:8px;">
+                    <a href="${upsellUrl}" target="_blank" style="display:inline-block;padding:12px 28px;font-size:13px;font-weight:700;color:#ffffff;text-decoration:none;">
+                      Check It Out →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td></tr>
+          </table>
+        </td>
+      </tr>`
+    : '';
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,15 +79,15 @@ function buildBlueprintEmail(firstName: string, offerName: string, blueprintUrl:
         <tr>
           <td style="background:#141420;padding:40px;border-left:1px solid rgba(255,255,255,0.06);border-right:1px solid rgba(255,255,255,0.06);">
             <p style="margin:0 0 24px;font-size:16px;color:rgba(255,255,255,0.75);line-height:1.7;">
-              You requested access to the <strong style="color:#ffffff;">${offerName}</strong> blueprint — and here it is. Everything you need to get started is below.
+              You requested access to <strong style="color:#ffffff;">${offerName}</strong>${blueprintTopic !== offerName ? ` — specifically the <em>${blueprintTopic}</em> blueprint` : ''} — and here it is. Everything you need to get started is below.
             </p>
 
             <!-- Step list -->
             <table width="100%" cellpadding="0" cellspacing="0">
               ${[
-                ['1', 'Review Your Blueprint', 'Read through the full framework below and identify the 2-3 highest-leverage moves for your situation.'],
-                ['2', 'Implement One Thing', 'Pick the single most impactful action and execute it within 48 hours. Speed of implementation beats perfection.'],
-                ['3', 'Track Your Results', 'Measure the outcome. Real data beats theory every time — let the results guide your next move.'],
+                ['1', 'Review Your Blueprint', 'Read through the full framework and identify the 2-3 highest-leverage moves for your situation.'],
+                ['2', 'Implement One Thing', 'Pick the single most impactful action and execute it within 48 hours. Speed beats perfection.'],
+                ['3', 'Track Your Results', 'Measure the outcome. Real data beats theory — let the results guide your next move.'],
               ].map(([num, title, desc]) => `
               <tr>
                 <td style="padding:0 0 20px;">
@@ -68,20 +117,14 @@ function buildBlueprintEmail(firstName: string, offerName: string, blueprintUrl:
             <table cellpadding="0" cellspacing="0">
               <tr>
                 <td style="background:linear-gradient(135deg,#6d28d9,#4f46e5);border-radius:10px;">
-                  ${blueprintUrl ? `
-                    <a href="${blueprintUrl}" target="_blank" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
-                      Download Your Blueprint →
-                    </a>
-                  ` : `
-                    <a href="#" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
-                      Access Your Dashboard →
-                    </a>
-                  `}
+                  ${ctaBlock}
                 </td>
               </tr>
             </table>
           </td>
         </tr>
+
+        ${upsellBlock}
 
         <!-- Footer -->
         <tr>
@@ -100,6 +143,29 @@ function buildBlueprintEmail(firstName: string, offerName: string, blueprintUrl:
 </html>`;
 }
 
+// ─── Resolve the active lead magnet download URL ──────────────────────────────
+
+function resolveLeadMagnetUrl(blocks: any): { url: string | null; topic: string } {
+  const activeFileId = blocks?.activeLeadMagnetFileId;
+  const files = Array.isArray(blocks?.blueprintFiles) ? blocks.blueprintFiles : [];
+
+  // 1. If an active file is explicitly selected, use it
+  if (activeFileId && files.length > 0) {
+    const match = files.find((f: any) => (f.id || f.fileName) === activeFileId);
+    if (match?.url) {
+      return { url: match.url, topic: match.topic || 'your blueprint' };
+    }
+  }
+
+  // 2. Fallback: use the first file in the list
+  if (files.length > 0 && files[0]?.url) {
+    return { url: files[0].url, topic: files[0].topic || 'your blueprint' };
+  }
+
+  // 3. Legacy fallback: blocks.blueprintUrl (old format)
+  return { url: blocks?.blueprintUrl || null, topic: 'your blueprint' };
+}
+
 // ─── POST /api/leads — capture a lead from a published funnel ─────────────────
 
 export async function POST(req: Request) {
@@ -110,19 +176,21 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  const { name, email, phone, domain, sourcePage = '/' } = body;
+  // Accept any fields the AI form sends — only email is strictly required
+  const { email, domain, sourcePage = '/', ...extraFields } = body;
+  const name = body.name || body.fullName || body.firstName || 'Friend';
 
-  if (!name || !email) {
-    return Response.json({ error: 'name and email are required' }, { status: 400 });
+  if (!email) {
+    return Response.json({ error: 'email is required' }, { status: 400 });
   }
 
   const supabase = createAdminClient();
 
-  // Resolve funnel from domain
-  let funnelId: string | null = null;
-  const host = (domain ?? '').split(':')[0].toLowerCase(); // strip port
+  // Resolve funnel from domain or pageId
+  let funnelId: string | null = body.pageId || null;
+  const host = (domain ?? '').split(':')[0].toLowerCase();
 
-  if (host && host !== 'localhost' && host !== '127.0.0.1') {
+  if (!funnelId && host && host !== 'localhost' && host !== '127.0.0.1') {
     const ofiqSuffix = '.ofiq.app';
 
     if (host.endsWith(ofiqSuffix)) {
@@ -151,14 +219,14 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Funnel not found for this domain' }, { status: 404 });
   }
 
-  // Insert lead
+  // Insert lead — store all extra fields the form captured
   const { data: lead, error: insertErr } = await supabase
     .from('leads')
     .insert({
       funnel_id:   funnelId,
       name:        name.trim(),
       email:       email.trim().toLowerCase(),
-      phone:       phone?.trim() || null,
+      phone:       extraFields.phone?.trim() || null,
       source_page: sourcePage,
     })
     .select()
@@ -173,17 +241,46 @@ export async function POST(req: Request) {
   if (process.env.RESEND_API_KEY) {
     const { data: page } = await supabase
       .from('builder_pages')
-      .select('name, blocks')
+      .select('name, subdomain, custom_domain, blocks')
       .eq('id', funnelId)
       .single();
 
+    const blocks = page?.blocks || {};
+
     const offerName =
-      page?.blocks?.offerContext?.productType ||
-      page?.blocks?.copy?.productName ||
+      blocks.offerContext?.productType ||
+      blocks.copy?.productName ||
       page?.name ||
       'your blueprint';
 
-    const blueprintUrl = page?.blocks?.blueprintUrl || null;
+    // Resolve active lead magnet
+    const leadMagnet = resolveLeadMagnetUrl(blocks);
+
+    // Build niche & upsell context from offer intelligence
+    const niche =
+      blocks.offerContext?.niche ||
+      blocks.offerContext?.industry ||
+      blocks.copy?.niche ||
+      'your field';
+
+    const upsellHook =
+      blocks.offerContext?.headline ||
+      blocks.copy?.upsellHeadline ||
+      (blocks.copy?.productName ? `Get the full ${blocks.copy.productName}` : null) ||
+      `Take your ${niche} results to the next level`;
+
+    // Build upsell URL — link back to the funnel's upsell page
+    let upsellUrl: string | null = null;
+    const funnelDomain = page?.custom_domain || (page?.subdomain ? `${page.subdomain}.ofiq.app` : null);
+    if (funnelDomain) {
+      upsellUrl = `https://${funnelDomain}/upsell`;
+    } else {
+      // Fallback: use the /p/ route
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ofiq.app';
+      upsellUrl = `${siteUrl}/p/${funnelId}`;
+    }
+
+    const firstName = name.trim().split(' ')[0];
 
     fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -194,8 +291,16 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         from:    process.env.RESEND_FROM ?? 'OfferIQ <onboarding@resend.dev>',
         to:      [email.trim()],
-        subject: `Your Blueprint is Here, ${name.trim().split(' ')[0]}!`,
-        html:    buildBlueprintEmail(name.trim().split(' ')[0], offerName, blueprintUrl),
+        subject: `Your Blueprint is Here, ${firstName}!`,
+        html:    buildBlueprintEmail({
+          firstName,
+          offerName,
+          blueprintUrl: leadMagnet.url,
+          blueprintTopic: leadMagnet.topic,
+          upsellHook,
+          upsellUrl,
+          niche,
+        }),
       }),
     }).catch(e => console.error('[leads] email send failed:', e));
   }

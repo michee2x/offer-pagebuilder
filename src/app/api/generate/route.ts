@@ -94,88 +94,83 @@ Max 4 feature cards, max 4 FAQs. Avoid verbose nested markup.
 
 ---
 
-## ━━━ SECTION 1: VISUAL DESIGN ━━━
+## ━━━ SECTION 1: VISUAL DESIGN & ARCHITECTURE ━━━
 
-${screenshotFileName ? `Use the attached screenshot "${screenshotFileName}" as structural blueprint. Reproduce section order, grid counts, and spatial rhythm exactly. 40% creative freedom allowed: modernize flat cards to glassmorphism, improve typography hierarchy, add micro-interactions. NEVER change core layout anatomy.` : `No screenshot provided. Follow elite SaaS conventions: hero → logos → features → social proof → pricing → FAQ → CTA → footer. Choose a bold aesthetic and commit fully.`}
+${screenshotFileName ? `Use the attached screenshot "${screenshotFileName}" as structural inspiration, but DO NOT hardcode its exact layout if it doesn't fit the copy. Adapt it intelligently.` : `No screenshot provided. You have full creative freedom to design a layout that best serves the copy and offer.`}
 
-**MANDATORY VISUAL RULES:**
-- Colors: Deep navy/violet base (#030612 or #060b18). Enrich with indigo, violet, fuchsia, teal gradients. Never monochrome.
-- Cards: Glassmorphism — bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] hover:border-indigo-500/30
-- Glow effects: absolute + pointer-events-none inside relative overflow-hidden parent. Max 2 per section. blur-[80px] to blur-[140px].
-- Text gradients on T1 headlines only: bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent
-- Fonts: Always TWO families. Display (T1/T2): Fraunces, Sora, DM Serif Display. Body: DM Sans, Plus Jakarta Sans, Figtree. Never Inter/Roboto/Arial.
-- Eyebrow label on every section (pill badge style preferred).
-- Unsplash images everywhere — never placeholder shapes or empty divs.
-
-**TYPOGRAPHY SCALE:**
-- T1 Hero: text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[0.95]
-- T2 Section: text-3xl md:text-4xl font-bold tracking-tight
-- T3 Card: text-xl font-semibold leading-snug
-- T4 Body: text-base font-normal leading-relaxed
-- T5 Caption: text-xs font-semibold tracking-widest uppercase
-
-**SPACING:**
-- Hero: pt-36 md:pt-44 pb-24 md:pb-32
-- Sections: py-24 md:py-32
-- Containers: max-w-6xl mx-auto px-6 lg:px-8
-- Card grids: always gap-6
+**MANDATORY DESIGN EXCELLENCE RULES:**
+- **Dynamic Layouts:** NEVER use the exact same layout structure for different pages or offers. Be highly flexible. Mix and match grids, splits, asymmetric layouts, and varied section pacing.
+- **Colors:** Deep, premium palettes (e.g. navy/violet base #030612 or rich dark themes). Enrich with subtle indigo, violet, fuchsia, or teal gradients. Use glassmorphism heavily for cards (bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]).
+- **Glow effects:** Max 2 per section. absolute + pointer-events-none inside relative overflow-hidden parent. blur-[80px] to blur-[140px].
+- **Typography Hierarchy:** Always TWO families. Display: Fraunces, Sora, DM Serif Display, etc. Body: DM Sans, Plus Jakarta Sans, Figtree. Use text gradients (e.g., bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent) strategically for emphasis.
+- **Assets:** Use high-quality Unsplash images. Never leave empty divs or placeholder shapes.
 
 **MOTION (framer-motion):**
-- Import: import { motion, AnimatePresence } from "framer-motion" — do NOT import useInView
-- Scroll reveal: initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-- Stagger grids with containerVariants/itemVariants
-- Card hover: whileHover={{ y: -4, scale: 1.01 }} with spring transition
-- Always viewport={{ once: true }}
-
-**SCROLL-AWARE NAVBAR:**
-const navClass = "fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 " + (scrolled ? "bg-background/80 backdrop-blur-xl border-b border-white/[0.07]" : "bg-transparent");
-Add <div className="h-20 md:h-24" /> spacer immediately after nav.
+- Import: import { motion, AnimatePresence } from "framer-motion" (do NOT import useInView)
+- Add elegant scroll reveals: initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+- Use spring transitions for card hovers: whileHover={{ y: -4, scale: 1.01 }}
 
 **CODE ARCHITECTURE:**
 - import React from "react" mandatory on every file
-- All static data arrays (FEATURES, FAQS, STATS) declared at module level, never inside component
-- All sub-components (FeatureCard, TestimonialCard) defined at module level
-- Use [0,1,2,3,4].map not [...Array(5)].map for star ratings
+- All static data arrays declared at module level, never inside component
 - Key props always use stable id fields, never array index
 
 ---
 
 ## ━━━ SECTION 2: COPY RULES ━━━
 
-- Use COPY OBJECT verbatim — every word, price, bullet, testimonial
-- Never invent copy, never use Lorem Ipsum, never truncate
-- Map markdown headings → section headers, lists → feature cards, blockquotes → testimonial cards
-- Max 2 emojis per page, hero eyebrow or banner only
+- Use COPY OBJECT verbatim. Do not truncate, summarize, or invent copy.
+- Interpret the markdown naturally into the best UI components (e.g., lists into feature cards, quotes into testimonials).
+- Max 2 emojis per page.
 
 ---
 
 ## ━━━ SECTION 3: ICONS ━━━
 
 Import only icons you use. Approved list: ${icons}
-Sizing: navbar/cards w-5 h-5, buttons w-4 h-4, hero accent w-6 h-6.
 
 ---
 
-## ━━━ SECTION 4: FUNNEL PAGES ━━━
+## ━━━ SECTION 4: FUNNEL PAGES & FLEXIBLE UX ━━━
+
+You must generate the following 4 pages. However, DO NOT follow a rigid, hardcoded structure for each. Analyze the provided copy and construct the most persuasive, high-converting layout dynamically.
 
 ### PAGE 1 — LEAD CAPTURE (path: "/")
 export default function LeadCapturePage()
-Sections: style tag → fixed navbar → spacer → hero (T1 + gradient + image) → logos bar → stats bar → features grid (3-4 cards staggered) → how it works (3 steps) → testimonials (3 cards) → lead capture form (name+email, risk reversal above CTA) → FAQ accordion → footer
-Form submits → navigate("/upsell")
+Goal: Hook the user and capture their email. Must include a lead capture form.
+
+**LEAD FORM RULES (CRITICAL — DO NOT DEVIATE):**
+- The form MUST include an "email" field. You MAY also include name, phone, company, or any other field that makes sense for the offer — be creative and contextual.
+- The form's onSubmit handler MUST make a fetch POST request to "/api/leads" with a JSON body containing all form fields plus \`domain: window.location.hostname\`.
+- Example onSubmit pattern:
+  \`\`\`
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, phone, domain: window.location.hostname }),
+    });
+    navigate("/upsell");
+  };
+  \`\`\`
+- On successful submission, immediately call navigate("/upsell").
+- Do NOT write any email-sending logic, SMTP code, or backend logic inside the component. The backend handles delivery automatically.
+- Do NOT hardcode any API keys or secrets.
 
 ### PAGE 2 — UPSELL (path: "/upsell")
 export default function UpsellPage()
-Sections: style tag → countdown timer banner (amber, full-width) → hero headline → anchor pricing (struck-through original + offer price + savings badge) → value comparison stack → upsell features (3-4) → testimonials (1-2) → risk reversal row → accept CTA with pulse ring → /thankyou → decline link → /downsell
-
-Countdown: const [timeLeft, setTimeLeft] = React.useState(900); display as mm:ss
+Goal: Present a one-time offer. Must include pricing, strong value stack, and accept/decline actions.
+Accept CTA → navigate("/thankyou") | Decline link → navigate("/downsell")
 
 ### PAGE 3 — DOWNSELL (path: "/downsell")
 export default function DownsellPage()
-Sections: style tag → empathy banner → hero (reframed lower-commitment offer) → alternative anchor pricing → what's included list → testimonial (1) → risk reversal → accept CTA → /thankyou → decline link → /thankyou
+Goal: Present a lower-commitment alternative.
+Accept CTA → navigate("/thankyou") | Decline link → navigate("/thankyou")
 
 ### PAGE 4 — THANK YOU (path: "/thankyou")
 export default function ThankYouPage()
-Sections: style tag → success banner (animated check + "You're In!" headline) → purchase summary card → interactive next-steps checklist (useState toggles) → onboarding CTA → resource links → minimal footer
+Goal: Confirm purchase and provide onboarding/next steps.
 
 ---
 
@@ -183,14 +178,6 @@ Sections: style tag → success banner (animated check + "You're In!" headline) 
 
 All routing via react-router-dom only. Never next/navigation or window.location.href.
 import { Link, useNavigate } from "react-router-dom"
-
-| Page | Action | Destination |
-|------|--------|-------------|
-| Lead Capture | Form submit | /upsell |
-| Upsell | Accept | /thankyou |
-| Upsell | Decline | /downsell |
-| Downsell | Accept | /thankyou |
-| Downsell | Decline | /thankyou |
 
 ---
 
