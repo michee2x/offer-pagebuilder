@@ -184,24 +184,12 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
     );
   }
 
-  if (!babelLoaded) {
+  if (!babelLoaded || !comp) {
+    // Return a completely transparent, subtle loading state so the page doesn't flash ugly text.
+    // It will just be a blank background matching the theme, then instantly fade in the content.
     return (
-      <div className="flex flex-col items-center justify-center py-32 gap-4">
-        <div className="w-10 h-10 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-        <p className="text-sm font-medium opacity-60 animate-pulse">
-          Booting compiler engine...
-        </p>
-      </div>
-    );
-  }
-
-  if (!comp) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 gap-4">
-        <div className="w-10 h-10 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-        <p className="text-sm font-medium opacity-60 animate-pulse">
-          Rendering dynamic premium canvas...
-        </p>
+      <div className="w-full h-screen flex items-center justify-center opacity-0 animate-[fadeIn_1s_ease-in-out_1s_forwards]">
+        <div className="w-6 h-6 border-2 border-white/10 border-t-white/30 rounded-full animate-spin" />
       </div>
     );
   }
