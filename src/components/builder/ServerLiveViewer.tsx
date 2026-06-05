@@ -62,7 +62,7 @@ function buildThemeInlineVars(theme: any): React.CSSProperties {
 function ServerComponentNode({ id, components }: { id: string, components: Record<string, any> }) {
   const component = components[id];
   if (!component) return null;
-  const config = COMPONENT_REGISTRY[component.type];
+  const config = COMPONENT_REGISTRY[component.type as keyof typeof COMPONENT_REGISTRY];
   if (!config) return null;
 
   return config.render({
