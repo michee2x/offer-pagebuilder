@@ -84,36 +84,29 @@ export const SparkleAura = (props: SparkleAuraProps) => {
               },
               move: {
                 enable: true,
-                direction: "outside",
-                outModes: { default: "destroy" },
-                speed: { min: 0.3, max: 1.2 },
+                direction: "none",
+                outModes: { default: "out" },
+                speed: { min: 0.2, max: 1.5 },
                 random: true,
                 straight: false,
-                center: {
-                  x: 50,
-                  y: 50,
-                  mode: "percent",
-                  radius: 0,
-                },
               },
               number: {
                 density: {
                   enable: true,
-                  width: 200,
-                  height: 200,
+                  width: 400,
+                  height: 400,
                 },
                 value: particleDensity,
               },
               opacity: {
-                value: { min: 0.1, max: 0.9 },
+                value: { min: 0.1, max: 1 },
                 animation: {
                   enable: true,
                   speed: speed,
-                  decay: 0.05,
                   sync: false,
                   mode: "auto" as any,
                   startValue: "random" as any,
-                  destroy: "min" as any,
+                  destroy: "none" as any,
                 },
               },
               shape: {
@@ -127,24 +120,13 @@ export const SparkleAura = (props: SparkleAuraProps) => {
                   sync: false,
                   mode: "auto" as any,
                   startValue: "random" as any,
-                  destroy: "min" as any,
-                },
-              },
-              life: {
-                count: 0,
-                delay: {
-                  value: 0,
-                  sync: false,
-                },
-                duration: {
-                  value: { min: 1, max: 3 },
-                  sync: false,
+                  destroy: "none" as any,
                 },
               },
               twinkle: {
                 particles: {
                   enable: true,
-                  frequency: 0.08,
+                  frequency: 0.05,
                   opacity: 1,
                 },
               },
