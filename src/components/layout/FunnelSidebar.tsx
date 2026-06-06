@@ -61,7 +61,7 @@ export function FunnelSidebar({
       icon: TrendingUp,
     },
     {
-      label: "Funnel Builder",
+      label: "Publish",
       href: `/builder/publish?id=${funnelId}`,
       icon: Globe,
     },
@@ -182,7 +182,7 @@ export function FunnelSidebar({
           >
             <Link
               href={`/builder?id=${funnelId}`}
-              title="Leads"
+              title="Funnel Builder"
               className="flex items-center gap-2.5 rounded-lg bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all overflow-hidden"
               style={{ height: 36, padding: "0 6px" }}
             >
@@ -201,7 +201,7 @@ export function FunnelSidebar({
                   fontWeight: 700,
                 }}
               >
-                Leads
+                Funnel Builder
               </span>
             </Link>
           </div>
@@ -276,7 +276,7 @@ export function FunnelSidebar({
           className="w-full h-9 bg-gradient-to-r from-brand-blue to-brand-indigo text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all"
         >
           <Hammer className="w-3.5 h-3.5" />
-          Leads
+          Funnel Builder
         </Link>
       </div>
     </div>
