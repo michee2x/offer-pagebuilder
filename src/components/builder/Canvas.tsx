@@ -95,7 +95,7 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
 
   const maxWidthClass =
     deviceMode === 'desktop'
-      ? 'max-w-5xl'
+      ? 'w-full max-w-[1400px]'
       : deviceMode === 'tablet'
       ? 'max-w-[768px]'
       : 'max-w-[390px]';

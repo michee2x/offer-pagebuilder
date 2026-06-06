@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     
     console.log('normalized messages:', JSON.stringify(normalizedMessages?.slice(-1), null, 2));
     
-    if (!['email-sequence', 'copy', 'intelligence', 'blueprint-ideation'].includes(ability)) {
+    if (!['email-sequence', 'copy', 'intelligence', 'blueprint-ideation', 'builder'].includes(ability)) {
       return new Response(
         JSON.stringify({ error: `Unsupported ability: ${ability}` }),
         { status: 400 }
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     let systemPrompt = '';
 
     if (ability === 'email-sequence') {
-      const { activeEmail, activePage, activeEmailIndex, emailSequence, funnelName } = abilityContext || {};
+      const { activeEmail, activePage, activeEmailIndex, emailSequence, funnelName, funnelId } = abilityContext || {};
       const currentSequenceSummary = emailSequence
         ? Object.keys(emailSequence)
             .map((pageKey) => {
@@ -66,7 +66,7 @@ You are currently running with the **"email-sequence"** ability in the funnel "$
 CRITICAL SCOPE BOUNDARY RULES:
 1. You have access ONLY to email sequence skills. You can edit email contents (subject, preview text, body paragraphs, and HTML), add new emails to the sequence, delete emails, and provide email copywriting insights.
 2. If the user asks for anything OUTSIDE this scope—such as "build me a new landing page", "create a thank you page", "change the colors of the sales page", "edit the pricing block in the builder", "setup a domain", etc.—YOU MUST IMMEDIATELY DECLINE and explain that it is outside your current ability. 
-   - Example Response: "That is outside the scope of my ability. I am currently operating with the Email Sequence Ability, which is focused on editing, analyzing, and optimizing your funnel's email campaign. To build or edit landing pages, please open the Page Builder."
+   - Example Response: "That is outside the scope of my ability. I am currently operating with the Email Sequence Ability, which is focused on editing, analyzing, and optimizing your funnel's email campaign. To build or edit landing pages, please open the [Page Builder](/builder/${funnelId})."
    - Do NOT attempt to simulate page building or styling changes, and do NOT invoke any tools if the request is outside your ability scope.
 
 CONTEXT OF CURRENT EMAIL SEQUENCE:
@@ -89,7 +89,7 @@ INSTRUCTIONS FOR SKILL CALLS:
 - If the user asks for copy advice, critique, or spam word audits, CALL the \`suggest_email_improvements\` tool to give them high-value feedback.
 - ALWAYS explain and summarize exactly what you have changed in your chat text response, so the user knows what updates occurred. Keep conversational text responses extremely brief, clean, and professional. Avoid raw JSON or technical jargon in the message bubble.`;
     } else if (ability === 'copy') {
-      const { copy, activeCopyPage, funnelName } = abilityContext || {};
+      const { copy, activeCopyPage, funnelName, funnelId } = abilityContext || {};
       const activePageContent = activeCopyPage && copy?.pages ? copy.pages[activeCopyPage] : null;
 
       systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
@@ -98,7 +98,7 @@ You are currently running with the **"copy"** ability in the funnel "${funnelNam
 CRITICAL SCOPE BOUNDARY RULES:
 1. You have access ONLY to copy editing skills. You can edit page copy (headlines, body text, CTAs, testimonials, etc.), rewrite specific sections for better conversions, and provide copy critique and objection-handling suggestions.
 2. If the user asks for anything OUTSIDE this scope—such as "build me a landing page", "change the layout", "add new sections", "modify colors or design", "setup a domain", "edit the builder", etc.—YOU MUST IMMEDIATELY DECLINE and explain that it is outside your current ability. 
-   - Example Response: "That is outside the scope of my ability. I am currently operating with the Copy Editing Ability, which is focused on optimizing your page copy for conversions. To build pages or modify layouts, please open the Page Builder."
+   - Example Response: "That is outside the scope of my ability. I am currently operating with the Copy Editing Ability, which is focused on optimizing your page copy for conversions. To build pages or modify layouts, please open the [Page Builder](/builder/${funnelId})."
    - Do NOT attempt to simulate page building or layout changes, and do NOT invoke any tools if the request is outside your ability scope.
 
 CONTEXT OF CURRENT PAGE:
@@ -115,7 +115,7 @@ INSTRUCTIONS FOR SKILL CALLS:
 - If the user asks for copy critique, suggestions, or objection analysis, CALL the \`suggest_copy_improvements\` tool to give them high-value feedback.
 - ALWAYS explain and summarize exactly what you have changed in your chat text response, so the user knows what updates occurred. Keep conversational text responses extremely brief, clean, and professional. Avoid raw JSON or technical jargon in the message bubble.`;
     } else if (ability === 'intelligence') {
-      const { activeSectionId, activeSectionContent, funnelName } = abilityContext || {};
+      const { activeSectionId, activeSectionContent, funnelName, funnelId } = abilityContext || {};
 
       systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
 You are currently running with the **"Sales Intelligence"** ability in the funnel "${funnelName || 'Your Funnel'}".
@@ -123,7 +123,8 @@ You are currently running with the **"Sales Intelligence"** ability in the funne
 CRITICAL SCOPE BOUNDARY RULES:
 1. You have access ONLY to sales intelligence editing skills. You can rewrite, expand, or adjust the current section of the Sales Intelligence Report.
 2. You can embed dynamic charts and YouTube videos, or add reference links.
-3. If the user asks for anything OUTSIDE this scope, decline immediately.
+3. If the user asks for anything OUTSIDE this scope (like building a page or writing email sequences), decline immediately and provide a markdown link to the appropriate tool.
+   - Example Response: "That is outside the scope of my ability. I am currently operating with the Sales Intelligence Ability. To generate email sequences, please visit the [Email Campaigns](/funnels/${funnelId}/email) page. To edit landing pages, visit the [Page Builder](/builder/${funnelId})."
 
 CONTEXT OF CURRENT REPORT SECTION:
 - Funnel Name: ${funnelName || 'Your Funnel'}
@@ -165,6 +166,27 @@ ${funnelBlueprint || 'No funnel blueprint content available.'}
 
 Bonus Stack (For Bonuses):
 ${bonusStack || 'No bonus stack content available.'}`;
+    } else if (ability === 'builder') {
+      const { builderPages, activeBuilderPagePath, funnelName, funnelId } = abilityContext || {};
+      const activePageObject = activeBuilderPagePath && builderPages?.pages ? builderPages.pages[activeBuilderPagePath] : null;
+
+      systemPrompt = `You are the OfferIQ Builder Agent, an elite automated assistant integrated into the OfferIQ page builder.
+You are currently running with the **"builder"** ability in the funnel "${funnelName || 'Your Funnel'}".
+
+CRITICAL SCOPE BOUNDARY RULES:
+1. You have access ONLY to React/Tailwind builder code editing skills. You can modify the active page's components, layout, styling, and visual structure.
+2. If the user asks for anything OUTSIDE this scope—such as "generate an email sequence", "write my sales report", etc.—YOU MUST IMMEDIATELY DECLINE and provide a link to the right page.
+   - Example Response: "That is outside the scope of my ability. I am operating as the Builder Agent. To manage your email sequences, please visit the [Email Campaigns](/funnels/${funnelId}/email) page. To view sales intelligence, visit the [Intelligence Report](/funnels/${funnelId}/report) page."
+
+CONTEXT OF CURRENT BUILDER PAGE:
+- Funnel Name: ${funnelName || 'Your Funnel'}
+- Active Page Path: ${activeBuilderPagePath || 'None'}
+- Current Page Code (first 1000 chars):
+${activePageObject?.code?.substring(0, 1000) || 'No code available'}...
+
+INSTRUCTIONS FOR SKILL CALLS:
+- If the user asks to change the layout, add sections, modify colors, or edit the React code, CALL the \`edit_builder_page\` tool. You must provide the FULL updated React code for the active page. Ensure you follow Babel Standalone React/Tailwind rules (no backtick template literals in JSX, use standard string concatenation).
+- ALWAYS explain exactly what you changed in your chat response briefly.`;
     }
 
     const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-20241022';
@@ -284,6 +306,21 @@ ${bonusStack || 'No bonus stack content available.'}`;
         execute: async (data: any) => {
           console.log('=== Tool execute: edit_intelligence_section ===', data);
           return { success: true, action: 'edit_intelligence', data };
+        },
+      },
+    } : ability === 'builder' ? {
+      edit_builder_page: {
+        description: 'Updates and rewrites the complete React JSX/Tailwind code for the currently active builder page.',
+        inputSchema: jsonSchema({
+          type: 'object',
+          properties: {
+            code: { type: 'string', description: 'The complete, fully-functional React component code replacing the current page.' },
+          },
+          required: ['code'],
+        }),
+        execute: async (data: any) => {
+          console.log('=== Tool execute: edit_builder_page ===');
+          return { success: true, action: 'edit_builder_page', data };
         },
       },
     } : {};

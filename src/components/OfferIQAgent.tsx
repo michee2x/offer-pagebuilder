@@ -204,17 +204,18 @@ export function OfferIQAgent({
           ability,
           abilityContext:
             ability === "copy"
-              ? { copy, activeCopyPage, funnelName }
+              ? { copy, activeCopyPage, funnelName, funnelId }
               : ability === "builder"
-                ? { builderPages, activeBuilderPagePath, funnelName }
+                ? { builderPages, activeBuilderPagePath, funnelName, funnelId }
                 : ability === "intelligence"
-                  ? { activeSectionId, activeSectionContent, funnelName }
+                  ? { activeSectionId, activeSectionContent, funnelName, funnelId }
                   : {
                       activeEmail,
                       activePage,
                       activeEmailIndex,
                       emailSequence,
                       funnelName,
+                      funnelId,
                     },
         },
       }),
@@ -373,15 +374,15 @@ export function OfferIQAgent({
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            maskImage: "radial-gradient(circle, white 15%, transparent 70%)",
-            WebkitMaskImage: "radial-gradient(circle, white 15%, transparent 70%)",
+            maskImage: "radial-gradient(circle, white 35%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(circle, white 35%, transparent 80%)",
           }}
         >
           <SparkleAura
             particleColor="#67e8f9"
-            particleDensity={50}
-            minSize={0.4}
-            maxSize={1.6}
+            particleDensity={150}
+            minSize={0.6}
+            maxSize={2.0}
             speed={3}
             className="w-full h-full"
           />

@@ -83,6 +83,7 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
   
   const activePage = pages[activePagePath];
   const activeCode = activePage?.code;
+  const compiledCode = activePage?.compiledCode;
 
   const canvasRootStyle: React.CSSProperties = {
     ...(theme ? buildThemeInlineVars(theme) : {}),
@@ -119,7 +120,7 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
       >
         <div className="h-auto min-h-screen w-full p-0 flex flex-col transition-all">
           {activeCode ? (
-            <DynamicRunner code={activeCode} />
+            <DynamicRunner code={activeCode} compiledCode={compiledCode} />
           ) : (
             <div className="flex flex-col">
               {rootList.map((id: string) => (

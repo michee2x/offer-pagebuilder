@@ -1,21 +1,110 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import * as LucideIcons from "lucide-react";
 import * as FramerMotion from "framer-motion";
 import { useBuilderStore } from "@/store/builderStore";
 
 interface DynamicRunnerProps {
-  code: string;
+  code?: string;
+  compiledCode?: string;
 }
 
-export function DynamicRunner({ code }: DynamicRunnerProps) {
+// Global map to store AST node locations for the current rendered code
+const astMap = new Map<string, any>();
+
+export function DynamicRunner({ code, compiledCode }: DynamicRunnerProps) {
   const [babelLoaded, setBabelLoaded] = useState(false);
   const [comp, setComp] = useState<React.ComponentType | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const isBuilderMode = !compiledCode && !!code;
 
-  // 1. Load Babel Standalone from CDN asynchronously
+  // Sandbox dynamic loader imports
+  const requireMock = (modName: string) => {
+    if (modName === "react") return React;
+    if (modName === "lucide-react") return LucideIcons;
+    if (modName === "framer-motion" || modName === "motion") return FramerMotion;
+    if (modName === "react-router-dom") {
+      return {
+        useNavigate: () => (path: string) => {
+          if (
+            window.location.pathname.startsWith("/p/") ||
+            window.location.pathname.startsWith("/builder")
+          ) {
+            useBuilderStore.getState().switchPage(path);
+          } else {
+            window.location.pathname = path;
+          }
+        },
+        Link: ({ to, children, ...props }: any) => {
+          return React.createElement(
+            "a",
+            {
+              href: to,
+              onClick: (e: any) => {
+                e.preventDefault();
+                if (
+                  window.location.pathname.startsWith("/p/") ||
+                  window.location.pathname.startsWith("/builder")
+                ) {
+                  useBuilderStore.getState().switchPage(to);
+                } else {
+                  window.location.pathname = to;
+                }
+              },
+              ...props
+            },
+            children
+          );
+        }
+      };
+    }
+    return {};
+  };
+
+  const evaluateCode = (jsCode: string) => {
+    const exportsObj: Record<string, any> = {};
+    const moduleObj = { exports: exportsObj };
+    const evaluator = new Function("React", "require", "exports", "module", jsCode);
+    evaluator(React, requireMock, exportsObj, moduleObj);
+
+    let Renderable = exportsObj.default || moduleObj.exports.default;
+    if (!Renderable && typeof moduleObj.exports === "function") {
+      Renderable = moduleObj.exports;
+    }
+
+    if (Renderable && (typeof Renderable === "function" || typeof Renderable === "object")) {
+      return Renderable;
+    } else {
+      let foundFunc: any = null;
+      const targetObj = typeof moduleObj.exports === "object" ? moduleObj.exports : exportsObj;
+      for (const key of Object.keys(targetObj)) {
+        if (typeof targetObj[key] === "function") {
+          foundFunc = targetObj[key];
+          break;
+        }
+      }
+      if (foundFunc) return foundFunc;
+      throw new Error("No default export or renderable component function found.");
+    }
+  };
+
+  // 1. If compiledCode is provided, just run it instantly!
   useEffect(() => {
+    if (!compiledCode) return;
+    try {
+      setErr(null);
+      const Renderable = evaluateCode(compiledCode);
+      setComp(() => Renderable);
+    } catch (e: any) {
+      console.error("[DynamicRunner] Failed to evaluate compiledCode:", e);
+      setErr(e.message || "Failed to evaluate pre-compiled component.");
+    }
+  }, [compiledCode]);
+
+  // 2. Load Babel only if we are in builder mode (no compiledCode)
+  useEffect(() => {
+    if (!isBuilderMode) return;
     if ((window as any).Babel) {
       setBabelLoaded(true);
       return;
@@ -25,42 +114,25 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
     script.src = "https://unpkg.com/@babel/standalone@7.24.0/babel.min.js";
     script.async = true;
     script.onload = () => {
-      const Babel = (window as any).Babel;
-      if (Babel) {
-        setBabelLoaded(true);
-      } else {
-        setErr("Babel loaded but window.Babel is undefined.");
-      }
+      if ((window as any).Babel) setBabelLoaded(true);
+      else setErr("Babel loaded but window.Babel is undefined.");
     };
     script.onerror = () => setErr("Failed to load dynamic transpiler engine.");
     document.body.appendChild(script);
+  }, [isBuilderMode]);
 
-    return () => {
-      // Keep Babel loaded globally for subsequent compilation cycles
-    };
-  }, []);
-
-  // 2. Transpile and compile the TSX string whenever it changes
+  // 3. Transpile TSX if in builder mode
   useEffect(() => {
-    if (!babelLoaded || !code) return;
+    if (!isBuilderMode || !babelLoaded || !code) return;
 
     try {
       setErr(null);
-
-      // Ensure the JSX code exports a default or named function component
       let cleanedCode = code;
-
-      // Strip any leftover XML <page ...> wrapper tags that may have been
-      // accidentally stored in the DB alongside the code
       cleanedCode = cleanedCode.replace(/^<page\b[^>]*>\n?/i, '').replace(/\n?<\/page>$/i, '').trim();
-
-      // Strip rogue JSX string literal wrappers e.g. {` ... `}
       if (cleanedCode.startsWith("{`")) {
         cleanedCode = cleanedCode.replace(/^{`\n?/, '').replace(/\n?`}$/, '').trim();
       }
-
       if (!cleanedCode.includes("export default") && !cleanedCode.includes("module.exports")) {
-        // Fallback: Find the last function declaration name and append export default
         const funcMatches = [...cleanedCode.matchAll(/function\s+(\w+)\s*\(/g)];
         if (funcMatches.length > 0) {
           const lastFuncName = funcMatches[funcMatches.length - 1][1];
@@ -68,104 +140,138 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
         }
       }
 
-      // Transpile TSX to ES5 JavaScript
+      astMap.clear();
+
       const Babel = (window as any).Babel;
+      
+      const ofiqEditorPlugin = function(babel: any) {
+        const t = babel.types;
+        return {
+          visitor: {
+            JSXElement(path: any) {
+              const id = 'el_' + Math.random().toString(36).substring(2, 11);
+              
+              const info = {
+                openingEnd: path.node.openingElement.end,
+                closingStart: path.node.closingElement ? path.node.closingElement.start : null,
+                srcAttr: null as any,
+                hasOnlyTextChildren: true
+              };
+
+              path.node.openingElement.attributes.forEach((attr: any) => {
+                if (attr.type === 'JSXAttribute' && attr.name.name === 'src' && attr.value?.type === 'StringLiteral') {
+                  info.srcAttr = { start: attr.value.start, end: attr.value.end, value: attr.value.value };
+                }
+              });
+
+              path.node.children.forEach((child: any) => {
+                if (child.type === 'JSXElement') {
+                  info.hasOnlyTextChildren = false;
+                }
+              });
+
+              astMap.set(id, info);
+              
+              path.node.openingElement.attributes.push(
+                t.jSXAttribute(t.jSXIdentifier('data-ofiq-id'), t.stringLiteral(id))
+              );
+            }
+          }
+        };
+      };
+
       const transpiled = Babel.transform(cleanedCode, {
         presets: ["env", "react"],
         plugins: [
-          [Babel.availablePlugins["transform-typescript"], { isTSX: true, allExtensions: true }]
+          [Babel.availablePlugins["transform-typescript"], { isTSX: true, allExtensions: true }],
+          ofiqEditorPlugin
         ],
         filename: "generated-funnel.tsx",
       }).code;
 
-      // Sandbox dynamic loader imports
-      const requireMock = (modName: string) => {
-        if (modName === "react") return React;
-        if (modName === "lucide-react") return LucideIcons;
-        if (modName === "framer-motion") return FramerMotion;
-        if (modName === "motion") return FramerMotion;
-        if (modName === "react-router-dom") {
-          return {
-            useNavigate: () => (path: string) => {
-              if (
-                window.location.pathname.startsWith("/p/") ||
-                window.location.pathname.startsWith("/builder")
-              ) {
-                useBuilderStore.getState().switchPage(path);
-              } else {
-                window.location.pathname = path;
-              }
-            },
-            Link: ({ to, children, ...props }: any) => {
-              return React.createElement(
-                "a",
-                {
-                  href: to,
-                  onClick: (e: any) => {
-                    e.preventDefault();
-                    if (
-                      window.location.pathname.startsWith("/p/") ||
-                      window.location.pathname.startsWith("/builder")
-                    ) {
-                      useBuilderStore.getState().switchPage(to);
-                    } else {
-                      window.location.pathname = to;
-                    }
-                  },
-                  ...props
-                },
-                children
-              );
-            }
-          };
-        }
-        return {};
-      };
-
-      const exportsObj: Record<string, any> = {};
-      const moduleObj = { exports: exportsObj };
-
-      // Evaluate the transpiled script
-      const evaluator = new Function(
-        "React",
-        "require",
-        "exports",
-        "module",
-        transpiled
-      );
-      evaluator(React, requireMock, exportsObj, moduleObj);
-
-      // Extract the renderable component
-      let Renderable = exportsObj.default || moduleObj.exports.default;
-      if (!Renderable && typeof moduleObj.exports === "function") {
-        Renderable = moduleObj.exports;
+      const store = useBuilderStore.getState();
+      const activePagePath = store.activePagePath;
+      const currentCompiled = store.pages[activePagePath]?.compiledCode;
+      
+      if (currentCompiled !== transpiled) {
+        // Schedule update to avoid React render cycle warnings
+        setTimeout(() => {
+          useBuilderStore.getState().updateCode(code, transpiled);
+        }, 0);
       }
 
-      if (Renderable && (typeof Renderable === "function" || typeof Renderable === "object")) {
-        setComp(() => Renderable);
-      } else {
-        // Fallback: search for any exported function if default wasn't set properly
-        let foundFunc: any = null;
-        const targetObj = typeof moduleObj.exports === "object" ? moduleObj.exports : exportsObj;
-        for (const key of Object.keys(targetObj)) {
-          if (typeof targetObj[key] === "function") {
-            foundFunc = targetObj[key];
-            break;
-          }
-        }
-        if (foundFunc) {
-          setComp(() => foundFunc);
-        } else {
-          throw new Error(
-            "No default export or renderable component function found in page code."
-          );
-        }
-      }
+      const Renderable = evaluateCode(transpiled);
+      setComp(() => Renderable);
     } catch (compileError: any) {
       console.error("[DynamicRunner] Compilation failed:", compileError);
       setErr(compileError?.message || "Failed to transpile generated component.");
     }
-  }, [code, babelLoaded]);
+  }, [code, babelLoaded, isBuilderMode]);
+
+  const handleContainerClick = (e: React.MouseEvent) => {
+    if (!isBuilderMode || !code) return;
+    const target = e.target as HTMLElement;
+    const id = target.getAttribute('data-ofiq-id');
+    if (!id) return;
+    
+    const info = astMap.get(id);
+    if (!info) return;
+
+    if (target.tagName.toLowerCase() === 'img' || target.tagName.toLowerCase() === 'video' || target.tagName.toLowerCase() === 'iframe') {
+      e.preventDefault();
+      const currentSrc = target.getAttribute('src') || '';
+      const newSrc = window.prompt("Enter new source URL:", currentSrc);
+      if (newSrc !== null && info.srcAttr) {
+        // Replace src attribute. Note: info.srcAttr.start and end include the quotes.
+        // We replace inner content between the quotes.
+        const start = info.srcAttr.start + 1;
+        const end = info.srcAttr.end - 1;
+        const newCode = code.substring(0, start) + newSrc + code.substring(end);
+        useBuilderStore.getState().updateCode(newCode);
+      }
+    } else {
+      // It's a text container
+      if (info.hasOnlyTextChildren && info.closingStart && !target.isContentEditable) {
+        e.preventDefault();
+        target.contentEditable = "true";
+        target.focus();
+        
+        // Ensure cursor is placed properly
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(target);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }
+  };
+
+  const handleContainerBlur = (e: React.FocusEvent) => {
+    if (!isBuilderMode || !code) return;
+    const target = e.target as HTMLElement;
+    if (target.isContentEditable) {
+      target.contentEditable = "false";
+      const id = target.getAttribute('data-ofiq-id');
+      if (!id) return;
+      const info = astMap.get(id);
+      
+      if (info && info.hasOnlyTextChildren && info.closingStart) {
+        const newText = target.innerText;
+        const newCode = code.substring(0, info.openingEnd) + newText + code.substring(info.closingStart);
+        useBuilderStore.getState().updateCode(newCode);
+      }
+    }
+  };
+
+  const handleContainerKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && e.shiftKey === false) {
+      const target = e.target as HTMLElement;
+      if (target.isContentEditable) {
+        e.preventDefault();
+        target.blur();
+      }
+    }
+  };
 
   if (err) {
     return (
@@ -184,9 +290,7 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
     );
   }
 
-  if (!babelLoaded || !comp) {
-    // Return a completely transparent, subtle loading state so the page doesn't flash ugly text.
-    // It will just be a blank background matching the theme, then instantly fade in the content.
+  if ((isBuilderMode && !babelLoaded) || !comp) {
     return (
       <div className="w-full h-screen flex items-center justify-center opacity-0 animate-[fadeIn_1s_ease-in-out_1s_forwards]">
         <div className="w-6 h-6 border-2 border-white/10 border-t-white/30 rounded-full animate-spin" />
@@ -196,7 +300,12 @@ export function DynamicRunner({ code }: DynamicRunnerProps) {
 
   const PageComponent = comp;
   return (
-    <div className="w-full h-full min-h-screen">
+    <div 
+      className="w-full h-full min-h-screen" 
+      onClick={handleContainerClick}
+      onBlur={handleContainerBlur}
+      onKeyDown={handleContainerKeyDown}
+    >
       <PageComponent />
     </div>
   );

@@ -137,26 +137,14 @@ You must generate the following 4 pages. However, DO NOT follow a rigid, hardcod
 
 ### PAGE 1 — LEAD CAPTURE (path: "/")
 export default function LeadCapturePage()
-Goal: Hook the user and capture their email. Must include a lead capture form.
+Goal: Hook the user and capture their email. Must include a beautiful, highly-converting lead capture form.
 
-**LEAD FORM RULES (CRITICAL — DO NOT DEVIATE):**
-- The form MUST include an "email" field. You MAY also include name, phone, company, or any other field that makes sense for the offer — be creative and contextual.
-- The form's onSubmit handler MUST make a fetch POST request to "/api/leads" with a JSON body containing all form fields plus \`domain: window.location.hostname\`.
-- Example onSubmit pattern:
-  \`\`\`
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await fetch("/api/leads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone, domain: window.location.hostname }),
-    });
-    navigate("/upsell");
-  };
-  \`\`\`
-- On successful submission, immediately call navigate("/upsell").
-- Do NOT write any email-sending logic, SMTP code, or backend logic inside the component. The backend handles delivery automatically.
-- Do NOT hardcode any API keys or secrets.
+**LEAD FORM RULES (CRITICAL):**
+- The form MUST include an "email" field. Include other fields (name, phone, company) if it makes sense for the offer. Design the form to be stunning, using modern aesthetics, floating labels, or inline structures.
+- The form's onSubmit handler MUST prevent default and make a fetch POST request to "/api/leads" with a JSON body containing all form fields plus \`domain: window.location.hostname\`.
+- After successful submission, immediately call \`navigate("/upsell")\`.
+- Do NOT write any email-sending logic, SMTP code, or backend logic inside the component. Do NOT hardcode any API keys.
+- **Do NOT follow a rigid visual layout.** Make the hero section and form highly dynamic, unique, and engaging for each generation. Use creative splits, floating elements, or centered dramatic layouts.
 
 ### PAGE 2 — UPSELL (path: "/upsell")
 export default function UpsellPage()
@@ -221,10 +209,19 @@ ${copyContext}
 `;
   }
 
+  let designSection = '';
+  if (offerContext?.designIntelligence) {
+    designSection = `DESIGN INTELLIGENCE RECOMMENDATION (THEME & AESTHETICS):
+You MUST strictly follow this design intelligence for the page's UI theme, typography, color pacing, and overall visual mood:
+${offerContext.designIntelligence}
+`;
+  }
+
   return `
 === GENERATION INPUT ===
 ${offerSection}
 ${copySection}
+${designSection}
 === END GENERATION INPUT ===
 
 TASK: Generate a complete 4-page sales funnel (Lead Capture "/", Upsell "/upsell", Downsell "/downsell", Thank You "/thankyou").
@@ -424,6 +421,12 @@ export async function POST(req: Request) {
 
   // 4. Deduce category from context
   const category = offerContext.category ?? 'business';
+
+  // 4b. Extract Design Intelligence for Theming
+  const designIntelligence = existingBlocks?.intelligence?.call1?.DESIGN_INTELLIGENCE_RECOMMENDATION;
+  if (designIntelligence) {
+    offerContext.designIntelligence = designIntelligence;
+  }
 
   // 5. Select a Random Reference Screenshot
   const screenshot = selectRandomScreenshot();

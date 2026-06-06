@@ -2,8 +2,6 @@
 
 import React from "react";
 import { Canvas } from "@/components/builder/Canvas";
-import { RightPanel } from "@/components/builder/RightPanel";
-import { ThemeSwitcher } from "@/components/builder/ThemeSwitcher";
 import { SectionLibraryModal } from "@/components/builder/SectionLibraryModal";
 import { AiStreamBoard } from "@/components/builder/AiStreamBoard";
 import { OfferIQAgent } from '@/components/OfferIQAgent';
@@ -878,9 +876,6 @@ export default function BuilderPage() {
             {/* Separator */}
             <div className="w-px h-5 bg-border mx-1" />
 
-            {/* Theme Switcher */}
-            <ThemeSwitcher />
-
             {/* Preview */}
             <button
               type="button"
@@ -961,7 +956,6 @@ export default function BuilderPage() {
 
             <Canvas />
           </div>
-          {!isPreviewMode && <RightPanel />}
         </div>
 
         {/* Modals outside main flex flow */}

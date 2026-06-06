@@ -79,7 +79,7 @@ export async function POST(
   // Determine which funnel pages exist
   const declaredPages: FunnelPageKey[] =
     copyData?.declaration?.pages ??
-    ['lead_capture', 'sales_page'];
+    ['lead_capture', 'sales_page', 'thankyou'];
 
   // Case-insensitive property getter
   const getVal = (obj: any, key: string): string => {

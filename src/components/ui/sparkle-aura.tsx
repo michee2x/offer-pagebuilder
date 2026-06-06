@@ -44,22 +44,16 @@ export const SparkleAura = (props: SparkleAuraProps) => {
   }, []);
 
   const particlesLoaded = async (container?: Container) => {
-    if (container) {
-      controls.start({
-        opacity: 1,
-        transition: { duration: 1.2 },
-      });
-    }
+    // Optional: do something when loaded
   };
 
+  const safeId = generatedId.replace(/:/g, "a");
+
   return (
-    <motion.div
-      animate={controls}
-      className={cn("opacity-0 pointer-events-none", className)}
-    >
+    <div className={cn("pointer-events-none", className)}>
       {init && (
         <Particles
-          id={id || generatedId}
+          id={id || safeId}
           className="h-full w-full"
           particlesLoaded={particlesLoaded}
           options={{
@@ -139,6 +133,6 @@ export const SparkleAura = (props: SparkleAuraProps) => {
           }}
         />
       )}
-    </motion.div>
+    </div>
   );
 };
