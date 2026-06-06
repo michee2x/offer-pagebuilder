@@ -137,6 +137,12 @@ export default function BuilderPage() {
                   components: {},
                   rootList: [],
                 },
+                "/sales": {
+                  name: "Sales Page",
+                  path: "/sales",
+                  components: {},
+                  rootList: [],
+                },
                 "/upsell": {
                   name: "Upsell",
                   path: "/upsell",

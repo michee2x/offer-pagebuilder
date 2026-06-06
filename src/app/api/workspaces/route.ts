@@ -11,6 +11,8 @@ type WorkspaceWithPages = {
     name: any;
     updated_at: any;
     og_image_url: any;
+    subdomain: any;
+    custom_domain: any;
     blocks: any;
   }[];
 };
@@ -75,6 +77,8 @@ export async function GET() {
         name,
         updated_at,
         og_image_url,
+        subdomain,
+        custom_domain,
         blocks
       )
     `)
@@ -107,6 +111,8 @@ export async function GET() {
           name,
           updated_at,
           og_image_url,
+          subdomain,
+          custom_domain,
           blocks
         )
       )

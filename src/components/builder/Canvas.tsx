@@ -140,7 +140,7 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
           } flex flex-col transition-all`}
         >
           {activeCode ? (
-            <DynamicRunner code={activeCode} />
+            <DynamicRunner code={activeCode} editMode={!isPreviewMode} />
           ) : rootList.length === 0 ? (
             <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg border-muted p-12 text-center my-8 mx-8">
               <div>
