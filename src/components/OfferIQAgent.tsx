@@ -626,7 +626,9 @@ export function OfferIQAgent({
                                 ? "adding follow-up email"
                                 : toolName === "delete_active_email"
                                   ? "deleting email"
-                                  : "analyzing content";
+                                  : toolName === "edit_builder_page"
+                                    ? "generating layout code"
+                                    : "analyzing content";
 
                           const toolResult =
                             invocator.result ??
@@ -637,7 +639,8 @@ export function OfferIQAgent({
                           const isCompleted =
                             !!toolResult ||
                             invocator.state === "result" ||
-                            invocator.state === "output-available";
+                            invocator.state === "output-available" ||
+                            (status !== "streaming" && status !== "submitted");
 
                           // Use toolArgs as fallback if toolResult is empty (happens during stream or maxSteps=1 disconnect)
                           const rawData =
