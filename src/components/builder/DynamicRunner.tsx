@@ -13,81 +13,93 @@ interface DynamicRunnerProps {
 // Global map to store AST node locations for the current rendered code
 const astMap = new Map<string, any>();
 
+// Sandbox dynamic loader imports
+const requireMock = (modName: string) => {
+  if (modName === "react") return React;
+  if (modName === "lucide-react") return LucideIcons;
+  if (modName === "framer-motion" || modName === "motion") return FramerMotion;
+  if (modName === "react-router-dom") {
+    return {
+      useNavigate: () => (path: string) => {
+        if (
+          typeof window !== "undefined" &&
+          (window.location.pathname.startsWith("/p/") ||
+          window.location.pathname.startsWith("/builder"))
+        ) {
+          useBuilderStore.getState().switchPage(path);
+        } else if (typeof window !== "undefined") {
+          window.location.pathname = path;
+        }
+      },
+      Link: ({ to, children, ...props }: any) => {
+        return React.createElement(
+          "a",
+          {
+            href: to,
+            onClick: (e: any) => {
+              e.preventDefault();
+              if (
+                typeof window !== "undefined" &&
+                (window.location.pathname.startsWith("/p/") ||
+                window.location.pathname.startsWith("/builder"))
+              ) {
+                useBuilderStore.getState().switchPage(to);
+              } else if (typeof window !== "undefined") {
+                window.location.pathname = to;
+              }
+            },
+            ...props
+          },
+          children
+        );
+      }
+    };
+  }
+  return {};
+};
+
+const evaluateCode = (jsCode: string) => {
+  const exportsObj: Record<string, any> = {};
+  const moduleObj = { exports: exportsObj };
+  const evaluator = new Function("React", "require", "exports", "module", jsCode);
+  evaluator(React, requireMock, exportsObj, moduleObj);
+
+  let Renderable = exportsObj.default || moduleObj.exports.default;
+  if (!Renderable && typeof moduleObj.exports === "function") {
+    Renderable = moduleObj.exports;
+  }
+
+  if (Renderable && (typeof Renderable === "function" || typeof Renderable === "object")) {
+    return Renderable;
+  } else {
+    let foundFunc: any = null;
+    const targetObj = typeof moduleObj.exports === "object" ? moduleObj.exports : exportsObj;
+    for (const key of Object.keys(targetObj)) {
+      if (typeof targetObj[key] === "function") {
+        foundFunc = targetObj[key];
+        break;
+      }
+    }
+    if (foundFunc) return foundFunc;
+    throw new Error("No default export or renderable component function found.");
+  }
+};
+
 export function DynamicRunner({ code, compiledCode }: DynamicRunnerProps) {
   const [babelLoaded, setBabelLoaded] = useState(false);
-  const [comp, setComp] = useState<React.ComponentType | null>(null);
+  const [comp, setComp] = useState<React.ComponentType | null>(() => {
+    if (compiledCode) {
+      try {
+        return evaluateCode(compiledCode);
+      } catch (e: any) {
+        console.error("SSR evaluation failed:", e);
+        return null;
+      }
+    }
+    return null;
+  });
   const [err, setErr] = useState<string | null>(null);
   const isBuilderMode = !compiledCode && !!code;
-
-  // Sandbox dynamic loader imports
-  const requireMock = (modName: string) => {
-    if (modName === "react") return React;
-    if (modName === "lucide-react") return LucideIcons;
-    if (modName === "framer-motion" || modName === "motion") return FramerMotion;
-    if (modName === "react-router-dom") {
-      return {
-        useNavigate: () => (path: string) => {
-          if (
-            window.location.pathname.startsWith("/p/") ||
-            window.location.pathname.startsWith("/builder")
-          ) {
-            useBuilderStore.getState().switchPage(path);
-          } else {
-            window.location.pathname = path;
-          }
-        },
-        Link: ({ to, children, ...props }: any) => {
-          return React.createElement(
-            "a",
-            {
-              href: to,
-              onClick: (e: any) => {
-                e.preventDefault();
-                if (
-                  window.location.pathname.startsWith("/p/") ||
-                  window.location.pathname.startsWith("/builder")
-                ) {
-                  useBuilderStore.getState().switchPage(to);
-                } else {
-                  window.location.pathname = to;
-                }
-              },
-              ...props
-            },
-            children
-          );
-        }
-      };
-    }
-    return {};
-  };
-
-  const evaluateCode = (jsCode: string) => {
-    const exportsObj: Record<string, any> = {};
-    const moduleObj = { exports: exportsObj };
-    const evaluator = new Function("React", "require", "exports", "module", jsCode);
-    evaluator(React, requireMock, exportsObj, moduleObj);
-
-    let Renderable = exportsObj.default || moduleObj.exports.default;
-    if (!Renderable && typeof moduleObj.exports === "function") {
-      Renderable = moduleObj.exports;
-    }
-
-    if (Renderable && (typeof Renderable === "function" || typeof Renderable === "object")) {
-      return Renderable;
-    } else {
-      let foundFunc: any = null;
-      const targetObj = typeof moduleObj.exports === "object" ? moduleObj.exports : exportsObj;
-      for (const key of Object.keys(targetObj)) {
-        if (typeof targetObj[key] === "function") {
-          foundFunc = targetObj[key];
-          break;
-        }
-      }
-      if (foundFunc) return foundFunc;
-      throw new Error("No default export or renderable component function found.");
-    }
-  };
 
   // 1. If compiledCode is provided, just run it instantly!
   useEffect(() => {
