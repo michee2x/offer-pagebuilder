@@ -85,6 +85,10 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
   const activeCode = activePage?.code;
   const compiledCode = activePage?.compiledCode;
 
+  if (!compiledCode && activeCode) {
+    console.warn("⚠️ PERFORMANCE WARNING: `compiledCode` is missing for this page. The page will fall back to slow client-side Babel compilation, heavily delaying FCP. Please open this page in the Builder and click Save to generate the compiledCode.");
+  }
+
   const canvasRootStyle: React.CSSProperties = {
     ...(theme ? buildThemeInlineVars(theme) : {}),
     ...(blocks?.canvasStyle || {}),
@@ -109,7 +113,15 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
         }
       `}} />
       {theme?.googleFontsUrl && (
-        <link rel="stylesheet" href={theme.googleFontsUrl} />
+        <div dangerouslySetInnerHTML={{ __html: `
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+          <link rel="preload" as="style" href="${theme.googleFontsUrl}" />
+          <link rel="stylesheet" href="${theme.googleFontsUrl}" media="print" onload="this.media='all'" />
+          <noscript>
+            <link rel="stylesheet" href="${theme.googleFontsUrl}" />
+          </noscript>
+        `}} />
       )}
       
       <div

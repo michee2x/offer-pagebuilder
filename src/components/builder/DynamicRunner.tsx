@@ -17,7 +17,27 @@ const astMap = new Map<string, any>();
 const requireMock = (modName: string) => {
   if (modName === "react") return React;
   if (modName === "lucide-react") return LucideIcons;
-  if (modName === "framer-motion" || modName === "motion") return FramerMotion;
+  if (modName === "framer-motion" || modName === "motion") {
+    // Intercept motion components to fix FCP invisible DOM issues
+    const motionComponents = new Proxy(FramerMotion.motion, {
+      get: (target: any, prop: string) => {
+        const OriginalComponent = target[prop];
+        if (typeof OriginalComponent === 'object' || typeof OriginalComponent === 'function') {
+          return React.forwardRef((props: any, ref) => {
+            const newProps = { ...props };
+            if (newProps.initial && typeof newProps.initial === 'object') {
+              if ('opacity' in newProps.initial && (newProps.initial.opacity === 0 || newProps.initial.opacity === '0')) {
+                newProps.initial = { ...newProps.initial, opacity: 1 };
+              }
+            }
+            return React.createElement(OriginalComponent, { ...newProps, ref });
+          });
+        }
+        return OriginalComponent;
+      }
+    });
+    return { ...FramerMotion, motion: motionComponents };
+  }
   if (modName === "react-router-dom") {
     return {
       useNavigate: () => (path: string) => {
