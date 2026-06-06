@@ -84,11 +84,6 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
   const activePage = pages[activePagePath];
   const activeCode = activePage?.code;
   const compiledCode = activePage?.compiledCode;
-  const staticHtml = activePage?.html;
-
-  if (!staticHtml && !compiledCode && activeCode) {
-    console.warn("⚠️ PERFORMANCE WARNING: `staticHtml` is missing for this page. The page will fall back to slow client-side Babel compilation, heavily delaying FCP. Please open this page in the Builder and click Save to generate the pure HTML.");
-  }
 
   const canvasRootStyle: React.CSSProperties = {
     ...(theme ? buildThemeInlineVars(theme) : {}),
@@ -114,15 +109,7 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
         }
       `}} />
       {theme?.googleFontsUrl && (
-        <div dangerouslySetInnerHTML={{ __html: `
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-          <link rel="preload" as="style" href="${theme.googleFontsUrl}" />
-          <link rel="stylesheet" href="${theme.googleFontsUrl}" media="print" onload="this.media='all'" />
-          <noscript>
-            <link rel="stylesheet" href="${theme.googleFontsUrl}" />
-          </noscript>
-        `}} />
+        <link rel="stylesheet" href={theme.googleFontsUrl} />
       )}
       
       <div
@@ -132,9 +119,7 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
         style={canvasRootStyle}
       >
         <div className="h-auto min-h-screen w-full p-0 flex flex-col transition-all">
-          {staticHtml ? (
-            <div dangerouslySetInnerHTML={{ __html: staticHtml }} />
-          ) : activeCode ? (
+          {activeCode ? (
             <DynamicRunner code={activeCode} compiledCode={compiledCode} />
           ) : (
             <div className="flex flex-col">

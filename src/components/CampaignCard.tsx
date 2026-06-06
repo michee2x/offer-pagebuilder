@@ -50,7 +50,7 @@ export function CampaignCard({ funnel }: { funnel: any }) {
       const base = isLocal ? "localhost:3000" : "ofiq.app";
       url = `${protocol}${funnel.subdomain}.${base}`;
     } else {
-      url = `${window.location.origin}/funnels/${funnel.id}`;
+      url = `${window.location.origin}/p/${funnel.id}`;
     }
 
     navigator.clipboard.writeText(url);

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { renderToString } from "react-dom/server";
 import * as LucideIcons from "lucide-react";
 import * as FramerMotion from "framer-motion";
 import { useBuilderStore } from "@/store/builderStore";
@@ -18,27 +17,7 @@ const astMap = new Map<string, any>();
 const requireMock = (modName: string) => {
   if (modName === "react") return React;
   if (modName === "lucide-react") return LucideIcons;
-  if (modName === "framer-motion" || modName === "motion") {
-    // Intercept motion components to fix FCP invisible DOM issues
-    const motionComponents = new Proxy(FramerMotion.motion, {
-      get: (target: any, prop: string) => {
-        const OriginalComponent = target[prop];
-        if (typeof OriginalComponent === 'object' || typeof OriginalComponent === 'function') {
-          return React.forwardRef((props: any, ref) => {
-            const newProps = { ...props };
-            if (newProps.initial && typeof newProps.initial === 'object') {
-              if ('opacity' in newProps.initial && (newProps.initial.opacity === 0 || newProps.initial.opacity === '0')) {
-                newProps.initial = { ...newProps.initial, opacity: 1 };
-              }
-            }
-            return React.createElement(OriginalComponent, { ...newProps, ref });
-          });
-        }
-        return OriginalComponent;
-      }
-    });
-    return { ...FramerMotion, motion: motionComponents };
-  }
+  if (modName === "framer-motion" || modName === "motion") return FramerMotion;
   if (modName === "react-router-dom") {
     return {
       useNavigate: () => (path: string) => {
@@ -222,27 +201,18 @@ export function DynamicRunner({ code, compiledCode }: DynamicRunnerProps) {
         filename: "generated-funnel.tsx",
       }).code;
 
-      const Renderable = evaluateCode(transpiled);
-
       const store = useBuilderStore.getState();
       const activePagePath = store.activePagePath;
       const currentCompiled = store.pages[activePagePath]?.compiledCode;
-      const currentHtml = store.pages[activePagePath]?.html;
       
-      let extractedHtml = "";
-      try {
-        extractedHtml = renderToString(<Renderable />);
-      } catch (e) {
-        console.error("Failed to extract static HTML:", e);
-      }
-      
-      if (currentCompiled !== transpiled || currentHtml !== extractedHtml) {
+      if (currentCompiled !== transpiled) {
         // Schedule update to avoid React render cycle warnings
         setTimeout(() => {
-          useBuilderStore.getState().updateCode(code, transpiled, extractedHtml);
+          useBuilderStore.getState().updateCode(code, transpiled);
         }, 0);
       }
 
+      const Renderable = evaluateCode(transpiled);
       setComp(() => Renderable);
     } catch (compileError: any) {
       console.error("[DynamicRunner] Compilation failed:", compileError);
@@ -344,7 +314,7 @@ export function DynamicRunner({ code, compiledCode }: DynamicRunnerProps) {
   return (
     <div 
       className="w-full h-full min-h-screen" 
-      onClick={handleContainerClick} 
+      onClick={handleContainerClick}
       onBlur={handleContainerBlur}
       onKeyDown={handleContainerKeyDown}
     >

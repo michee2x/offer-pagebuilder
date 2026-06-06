@@ -143,9 +143,11 @@ export default async function DashboardPage(props: {
                   </Button>
                 </Link>
               )}
-              <button className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all">
-                Create New Workspace →
-              </button>
+              <Link href="/onboard">
+                <button className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all">
+                  Create New Workspace →
+                </button>
+              </Link>
             </div>
           </div>
 

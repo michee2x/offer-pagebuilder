@@ -168,7 +168,7 @@ Bonus Stack (For Bonuses):
 ${bonusStack || 'No bonus stack content available.'}`;
     } else if (ability === 'builder') {
       const { builderPages, activeBuilderPagePath, funnelName, funnelId } = abilityContext || {};
-      const activePageObject = activeBuilderPagePath && builderPages?.pages ? builderPages.pages[activeBuilderPagePath] : null;
+      const activePageObject = activeBuilderPagePath && builderPages ? builderPages[activeBuilderPagePath] : null;
 
       systemPrompt = `You are the OfferIQ Builder Agent, an elite automated assistant integrated into the OfferIQ page builder.
 You are currently running with the **"builder"** ability in the funnel "${funnelName || 'Your Funnel'}".
@@ -181,8 +181,9 @@ CRITICAL SCOPE BOUNDARY RULES:
 CONTEXT OF CURRENT BUILDER PAGE:
 - Funnel Name: ${funnelName || 'Your Funnel'}
 - Active Page Path: ${activeBuilderPagePath || 'None'}
-- Current Page Code (first 1000 chars):
-${activePageObject?.code?.substring(0, 1000) || 'No code available'}...
+- Current Page Code:
+${activePageObject?.code || 'No code available'}
+
 
 INSTRUCTIONS FOR SKILL CALLS:
 - If the user asks to change the layout, add sections, modify colors, or edit the React code, CALL the \`edit_builder_page\` tool. You must provide the FULL updated React code for the active page. Ensure you follow Babel Standalone React/Tailwind rules (no backtick template literals in JSX, use standard string concatenation).

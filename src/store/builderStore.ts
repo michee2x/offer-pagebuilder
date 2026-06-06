@@ -27,7 +27,6 @@ export interface PageData {
   rootList: string[];
   code?: string;
   compiledCode?: string;
-  html?: string;
 }
 
 export interface BuilderState {
@@ -53,7 +52,7 @@ export interface BuilderState {
   addComponent: (type: ComponentType, parentId?: string, index?: number) => void;
   moveComponent: (id: string, newIndex: number) => void;
   updateProps: (id: string, newProps: Partial<Record<string, any>>) => void;
-  updateCode: (code: string, compiledCode?: string, html?: string) => void;
+  updateCode: (code: string, compiledCode?: string) => void;
   updateCanvasStyle: (newStyle: Record<string, string>) => void;
   setSelected: (id: string | null, fieldKey?: string | null) => void;
   removeComponent: (id: string) => void;
@@ -96,6 +95,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   
   pages: { 
     '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] },
+    '/sales': { name: 'Sales Page', path: '/sales', components: {}, rootList: [] },
     '/upsell': { name: 'Upsell', path: '/upsell', components: {}, rootList: [] },
     '/downsell': { name: 'Downsell', path: '/downsell', components: {}, rootList: [] },
     '/thankyou': { name: 'Thank You', path: '/thankyou', components: {}, rootList: [] }
@@ -239,15 +239,14 @@ export const useBuilderStore = create<BuilderState>((set) => ({
     hasUnsavedChanges: true
   })),
 
-  updateCode: (code, compiledCode, html) => set((state) => ({
+  updateCode: (code, compiledCode) => set((state) => ({
     ...captureHistory(state),
     pages: {
       ...state.pages,
       [state.activePagePath]: {
         ...state.pages[state.activePagePath],
         code,
-        ...(compiledCode !== undefined ? { compiledCode } : {}),
-        ...(html !== undefined ? { html } : {})
+        ...(compiledCode !== undefined ? { compiledCode } : {})
       }
     },
     hasUnsavedChanges: true
