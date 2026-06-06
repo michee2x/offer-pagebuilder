@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { renderToString } from "react-dom/server";
 import * as LucideIcons from "lucide-react";
 import * as FramerMotion from "framer-motion";
 import { useBuilderStore } from "@/store/builderStore";
@@ -221,18 +222,27 @@ export function DynamicRunner({ code, compiledCode }: DynamicRunnerProps) {
         filename: "generated-funnel.tsx",
       }).code;
 
+      const Renderable = evaluateCode(transpiled);
+
       const store = useBuilderStore.getState();
       const activePagePath = store.activePagePath;
       const currentCompiled = store.pages[activePagePath]?.compiledCode;
+      const currentHtml = store.pages[activePagePath]?.html;
       
-      if (currentCompiled !== transpiled) {
+      let extractedHtml = "";
+      try {
+        extractedHtml = renderToString(<Renderable />);
+      } catch (e) {
+        console.error("Failed to extract static HTML:", e);
+      }
+      
+      if (currentCompiled !== transpiled || currentHtml !== extractedHtml) {
         // Schedule update to avoid React render cycle warnings
         setTimeout(() => {
-          useBuilderStore.getState().updateCode(code, transpiled);
+          useBuilderStore.getState().updateCode(code, transpiled, extractedHtml);
         }, 0);
       }
 
-      const Renderable = evaluateCode(transpiled);
       setComp(() => Renderable);
     } catch (compileError: any) {
       console.error("[DynamicRunner] Compilation failed:", compileError);

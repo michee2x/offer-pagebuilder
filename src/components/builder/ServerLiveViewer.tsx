@@ -84,9 +84,10 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
   const activePage = pages[activePagePath];
   const activeCode = activePage?.code;
   const compiledCode = activePage?.compiledCode;
+  const staticHtml = activePage?.html;
 
-  if (!compiledCode && activeCode) {
-    console.warn("⚠️ PERFORMANCE WARNING: `compiledCode` is missing for this page. The page will fall back to slow client-side Babel compilation, heavily delaying FCP. Please open this page in the Builder and click Save to generate the compiledCode.");
+  if (!staticHtml && !compiledCode && activeCode) {
+    console.warn("⚠️ PERFORMANCE WARNING: `staticHtml` is missing for this page. The page will fall back to slow client-side Babel compilation, heavily delaying FCP. Please open this page in the Builder and click Save to generate the pure HTML.");
   }
 
   const canvasRootStyle: React.CSSProperties = {
@@ -131,7 +132,9 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
         style={canvasRootStyle}
       >
         <div className="h-auto min-h-screen w-full p-0 flex flex-col transition-all">
-          {activeCode ? (
+          {staticHtml ? (
+            <div dangerouslySetInnerHTML={{ __html: staticHtml }} />
+          ) : activeCode ? (
             <DynamicRunner code={activeCode} compiledCode={compiledCode} />
           ) : (
             <div className="flex flex-col">
