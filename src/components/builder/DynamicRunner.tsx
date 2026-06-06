@@ -344,7 +344,7 @@ export function DynamicRunner({ code, compiledCode }: DynamicRunnerProps) {
   return (
     <div 
       className="w-full h-full min-h-screen" 
-      onClick={handleContainerClick}
+      onClick={handleContainerClick} 
       onBlur={handleContainerBlur}
       onKeyDown={handleContainerKeyDown}
     >
