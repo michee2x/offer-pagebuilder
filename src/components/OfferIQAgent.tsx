@@ -46,6 +46,7 @@ interface OfferIQAgentProps {
   // Intelligence context
   activeSectionId?: string | null;
   activeSectionContent?: string | null;
+  reportData?: { call1: Record<string, string> | null; call2: Record<string, string> | null } | null;
   onUpdateIntelligenceSection?: (sectionId: string, content: string) => void;
   // Builder context
   builderPages?: Record<string, any> | null;
@@ -172,6 +173,7 @@ export function OfferIQAgent({
   onUpdateCopyPage,
   activeSectionId = null,
   activeSectionContent = null,
+  reportData = null,
   onUpdateIntelligenceSection,
   builderPages = null,
   activeBuilderPagePath = null,
@@ -190,7 +192,7 @@ export function OfferIQAgent({
       : ability === "builder"
         ? { builderPages, activeBuilderPagePath }
         : ability === "intelligence"
-          ? { activeSectionId, activeSectionContent }
+          ? { activeSectionId, activeSectionContent, reportData }
           : { activeEmail, activePage, activeEmailIndex, emailSequence };
 
   // Set up V3 useChat with custom transport matching project patterns
@@ -208,7 +210,7 @@ export function OfferIQAgent({
               : ability === "builder"
                 ? { builderPages, activeBuilderPagePath, funnelName, funnelId }
                 : ability === "intelligence"
-                  ? { activeSectionId, activeSectionContent, funnelName, funnelId }
+                  ? { activeSectionId, activeSectionContent, reportData, funnelName, funnelId }
                   : {
                       activeEmail,
                       activePage,
@@ -257,9 +259,13 @@ export function OfferIQAgent({
             if (
               action === "edit_page_copy" &&
               onUpdateCopyPage &&
-              activeCopyPage
+              data?.html
             ) {
-              onUpdateCopyPage(activeCopyPage, data?.html || "");
+              // Use the explicit page key from the tool result, falling back to activeCopyPage
+              const targetPage = (data?.page as FunnelPageKey) || activeCopyPage;
+              if (targetPage) {
+                onUpdateCopyPage(targetPage, data.html);
+              }
             }
           } else if (ability === "intelligence") {
             if (

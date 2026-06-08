@@ -92,6 +92,16 @@ INSTRUCTIONS FOR SKILL CALLS:
       const { copy, activeCopyPage, funnelName, funnelId } = abilityContext || {};
       const activePageContent = activeCopyPage && copy?.pages ? copy.pages[activeCopyPage] : null;
 
+      // Build a summary of ALL pages so the agent knows about the whole funnel
+      const allPagesSummary = copy?.pages
+        ? Object.entries(copy.pages)
+            .map(([key, page]: [string, any]) => {
+              const isActive = key === activeCopyPage;
+              return `- ${key}${isActive ? ' [ACTIVE]' : ''}: "${page?.title || 'Untitled'}" (Score: ${page?.score || 0}/100, ${page?.word_count || 0} words)`;
+            })
+            .join('\n')
+        : 'No pages available';
+
       systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
 You are currently running with the **"copy"** ability in the funnel "${funnelName || 'Your Funnel'}".
 
@@ -101,40 +111,84 @@ CRITICAL SCOPE BOUNDARY RULES:
    - Example Response: "That is outside the scope of my ability. I am currently operating with the Copy Editing Ability, which is focused on optimizing your page copy for conversions. To build pages or modify layouts, please open the [Page Builder](/builder/${funnelId})."
    - Do NOT attempt to simulate page building or layout changes, and do NOT invoke any tools if the request is outside your ability scope.
 
-CONTEXT OF CURRENT PAGE:
-- Funnel Name: ${funnelName || 'Your Funnel'}
-- Active Page: ${activeCopyPage || 'None'}
-- Current Page Content:
-  * Title/Score: ${activePageContent?.title || 'N/A'}
-  * Conversion Score: ${activePageContent?.score || 0}/100
-  * HTML Content (first 500 chars):
-${activePageContent?.html?.substring(0, 500) || 'No content'}...
+ALL FUNNEL PAGES:
+${allPagesSummary}
+
+ACTIVE PAGE DETAILS:
+- Active Page Key: ${activeCopyPage || 'None'}
+- Title: ${activePageContent?.title || 'N/A'}
+- Conversion Score: ${activePageContent?.score || 0}/100
+- Full HTML Content:
+${activePageContent?.html || 'No content'}
 
 INSTRUCTIONS FOR SKILL CALLS:
-- If the user asks to rewrite, rephrase, or optimize the page copy, CALL the \`edit_page_copy\` tool. Always generate clean, production-ready, beautiful HTML maintaining the existing structure and styling.
+- If the user asks to rewrite, rephrase, or optimize the page copy, CALL the \`edit_page_copy\` tool. You MUST include the \`page\` parameter (the page key, e.g. "lead_capture", "sales_page") and the full updated \`html\`. Always generate clean, production-ready, beautiful HTML maintaining the existing structure and styling.
 - If the user asks for copy critique, suggestions, or objection analysis, CALL the \`suggest_copy_improvements\` tool to give them high-value feedback.
+- When editing copy, you have access to the FULL HTML above. You must return the COMPLETE updated HTML in the tool call — do not truncate or summarize it.
 - ALWAYS explain and summarize exactly what you have changed in your chat text response, so the user knows what updates occurred. Keep conversational text responses extremely brief, clean, and professional. Avoid raw JSON or technical jargon in the message bubble.`;
     } else if (ability === 'intelligence') {
-      const { activeSectionId, activeSectionContent, funnelName, funnelId } = abilityContext || {};
+      const { activeSectionId, activeSectionContent, reportData, funnelName, funnelId } = abilityContext || {};
+
+      // Build a summary of ALL report sections so the agent has full context
+      const sectionLabels: Record<string, string> = {
+        OFFER_SCORE: 'Intelligence Score',
+        SCORE_SUMMARY: 'Score Summary',
+        REVENUE_MODEL_ARCHITECTURE: 'Revenue Model',
+        PAIN_POINT_MAPPING: 'Pain Points',
+        FUNNEL_STRUCTURE_BLUEPRINT: 'Funnel Blueprint',
+        PRICING_STRATEGY: 'Pricing Strategy',
+        UPSELL_DOWNSELL_PATHS: 'Upsell Paths',
+        STRATEGIC_BONUS_RECOMMENDATIONS: 'Bonus Stack',
+        DESIGN_INTELLIGENCE_RECOMMENDATION: 'Design Intelligence',
+        FUNNEL_HEALTH_SCORE: 'Funnel Health',
+        PLATFORM_PRIORITY_MATRIX: 'Platform Priority',
+        OFFER_POSITIONING_ANALYSIS: 'Offer Positioning',
+        TARGET_PERSONA_INTELLIGENCE: 'Target Persona',
+        CONVERSION_HOOK_LIBRARY: 'Conversion Hooks',
+        MESSAGING_ANGLE_MATRIX: 'Messaging Matrix',
+        PRODUCT_CORE_VALUE_PERCEPTION: 'Value Perception',
+        REAL_WORLD_USE_CASE_SCENARIOS: 'Use Cases',
+        MONETIZATION_STRATEGY_NARRATIVE: 'Monetization Strategy',
+      };
+
+      let allSectionsSummary = 'No report data available.';
+      if (reportData) {
+        const allData: Record<string, string> = { ...(reportData.call1 || {}), ...(reportData.call2 || {}) };
+        const entries = Object.entries(allData).filter(([_, val]) => val && val.length > 0);
+        if (entries.length > 0) {
+          allSectionsSummary = entries.map(([key, val]) => {
+            const isActive = key === activeSectionId;
+            const label = sectionLabels[key] || key;
+            const preview = val.substring(0, 300).replace(/\n/g, ' ');
+            return `- ${key} ("${label}")${isActive ? ' [ACTIVE - CURRENTLY VIEWING]' : ''}: ${preview}...`;
+          }).join('\n');
+        }
+      }
 
       systemPrompt = `You are the OfferIQ Agent, an elite automated assistant integrated into the OfferIQ page and email builder.
 You are currently running with the **"Sales Intelligence"** ability in the funnel "${funnelName || 'Your Funnel'}".
 
 CRITICAL SCOPE BOUNDARY RULES:
-1. You have access ONLY to sales intelligence editing skills. You can rewrite, expand, or adjust the current section of the Sales Intelligence Report.
+1. You have access ONLY to sales intelligence editing skills. You can rewrite, expand, or adjust ANY section of the Sales Intelligence Report.
 2. You can embed dynamic charts and YouTube videos, or add reference links.
 3. If the user asks for anything OUTSIDE this scope (like building a page or writing email sequences), decline immediately and provide a markdown link to the appropriate tool.
    - Example Response: "That is outside the scope of my ability. I am currently operating with the Sales Intelligence Ability. To generate email sequences, please visit the [Email Campaigns](/funnels/${funnelId}/email) page. To edit landing pages, visit the [Page Builder](/builder/${funnelId})."
 
-CONTEXT OF CURRENT REPORT SECTION:
-- Funnel Name: ${funnelName || 'Your Funnel'}
-- Active Section ID: ${activeSectionId || 'None'}
-- Current Content (Markdown/HTML):
+FULL REPORT SECTIONS OVERVIEW:
+The following sections exist in this intelligence report. You have access to ALL of them:
+${allSectionsSummary}
+
+ACTIVE SECTION (Currently being viewed and editable):
+- Section ID: ${activeSectionId || 'None'}
+- Section Name: ${sectionLabels[activeSectionId || ''] || activeSectionId || 'Unknown'}
+- Full Content (Markdown/HTML):
 ${activeSectionContent || 'No content'}
 
 INSTRUCTIONS FOR SKILL CALLS:
-- If the user asks to rewrite, restructure, or add elements (like charts/videos) to this section, CALL the \`edit_intelligence_section\` tool.
-- You must output the entire replacement markdown/HTML content for this section, maintaining any high-level data storytelling structures.
+- If the user asks to rewrite, restructure, or add elements (like charts/videos) to the active section, CALL the \`edit_intelligence_section\` tool.
+- You must output the entire replacement markdown/HTML content for the section, maintaining any high-level data storytelling structures.
+- You can answer questions about ANY section in the report using the overview above, but you can only EDIT the active section (the one the user is currently viewing).
+- If the user wants to edit a different section, tell them to navigate to that section first using the sidebar.
 - IMPORTANT: Write in a highly digestible, simple, and punchy tone. Speak like an encouraging business coach. NO "BIG GRAMMAR" or corporate fluff.
 - ALWAYS explain exactly what you changed in your chat response. Keep conversational text brief.`;
     } else if (ability === 'blueprint-ideation') {
@@ -261,16 +315,17 @@ INSTRUCTIONS FOR SKILL CALLS:
       },
     } : ability === 'copy' ? {
       edit_page_copy: {
-        description: 'Updates and edits the copy of the currently active page.',
+        description: 'Updates and edits the copy of the specified page. You must specify which page you are editing.',
         inputSchema: jsonSchema({
           type: 'object',
           properties: {
-            html: { type: 'string', description: 'The complete, fully-styled inline-CSS responsive HTML page code with updated copy.' },
+            page: { type: 'string', description: 'The page key being edited (e.g. "lead_capture", "sales_page", "upsell", "downsell", "thankyou"). Must match one of the available page keys.' },
+            html: { type: 'string', description: 'The complete, fully-styled inline-CSS responsive HTML page code with updated copy. Must be the FULL page HTML, not a partial snippet.' },
           },
-          required: ['html'],
+          required: ['page', 'html'],
         }),
         execute: async (data: any) => {
-          console.log('=== Tool execute: edit_page_copy ===', data);
+          console.log('=== Tool execute: edit_page_copy ===', data?.page);
           return { success: true, action: 'edit_page_copy', data };
         },
       },

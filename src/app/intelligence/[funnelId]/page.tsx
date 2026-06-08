@@ -1116,6 +1116,14 @@ export default function IntelligencePage({
         funnelName={funnelName || "Your Funnel"}
         activeSectionId={activeSectionId}
         activeSectionContent={activeContent}
+        reportData={{
+          call1: call1 ?? null,
+          call2: call2 ? Object.entries(CALL2_SECTION_MAP).reduce((acc, [origKey, sectionId]) => {
+            const val = call2[origKey as keyof typeof call2];
+            if (val) acc[sectionId] = val;
+            return acc;
+          }, {} as Record<string, string>) : null,
+        }}
         onUpdateIntelligenceSection={(sectionId, content) => {
           updateSectionContent(sectionId, content);
         }}

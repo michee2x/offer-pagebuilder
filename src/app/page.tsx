@@ -137,16 +137,18 @@ export default async function DashboardPage(props: {
                   Create New Offer <span className="text-xl">→</span>
                 </a>
               ) : (
-                <Link href="/onboard">
-                  <Button className="h-14 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90">
-                    Create New Workspace →
-                  </Button>
+                <Link
+                  href="/onboard"
+                  className="h-14 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90 flex items-center justify-center gap-2"
+                >
+                  Create New Workspace →
                 </Link>
               )}
-              <Link href="/onboard">
-                <button className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all">
-                  Create New Workspace →
-                </button>
+              <Link
+                href="/onboard"
+                className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2"
+              >
+                Create New Workspace →
               </Link>
             </div>
           </div>
@@ -168,10 +170,11 @@ export default async function DashboardPage(props: {
                 <p className="text-white/50 mt-1 mb-8">
                   Create your first workspace to start managing campaigns.
                 </p>
-                <Link href="/onboard">
-                  <Button size="lg" className="h-12 px-8 rounded-full">
-                    Create New Workspace →
-                  </Button>
+                <Link
+                  href="/onboard"
+                  className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90 text-sm transition-all"
+                >
+                  Create New Workspace →
                 </Link>
               </div>
             ) : (
