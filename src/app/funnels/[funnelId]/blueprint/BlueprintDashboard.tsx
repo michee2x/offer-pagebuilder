@@ -72,6 +72,11 @@ export function BlueprintDashboard({
     call2: initialBlocks?.intelligence?.call2 || initialBlocks?.call2 || {},
   };
 
+  const contextRef = useRef({ funnelName, intelligenceData, topicMode });
+  useEffect(() => {
+    contextRef.current = { funnelName, intelligenceData, topicMode };
+  }, [funnelName, intelligenceData, topicMode]);
+
   const { messages, status, sendMessage } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/agent-chat",
@@ -82,9 +87,9 @@ export function BlueprintDashboard({
           ability: "blueprint-ideation",
           funnelId,
           abilityContext: {
-            funnelName,
-            intelligenceData,
-            topicMode,
+            funnelName: contextRef.current.funnelName,
+            intelligenceData: contextRef.current.intelligenceData,
+            topicMode: contextRef.current.topicMode,
           },
         },
       }),

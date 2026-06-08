@@ -195,6 +195,31 @@ export function OfferIQAgent({
           ? { activeSectionId, activeSectionContent, reportData }
           : { activeEmail, activePage, activeEmailIndex, emailSequence };
 
+  // Create a ref to hold the latest context
+  const contextRef = useRef({
+    copy, activeCopyPage,
+    builderPages, activeBuilderPagePath,
+    activeSectionId, activeSectionContent, reportData,
+    activeEmail, activePage, activeEmailIndex, emailSequence,
+    funnelName, funnelId
+  });
+
+  useEffect(() => {
+    contextRef.current = {
+      copy, activeCopyPage,
+      builderPages, activeBuilderPagePath,
+      activeSectionId, activeSectionContent, reportData,
+      activeEmail, activePage, activeEmailIndex, emailSequence,
+      funnelName, funnelId
+    };
+  }, [
+    copy, activeCopyPage,
+    builderPages, activeBuilderPagePath,
+    activeSectionId, activeSectionContent, reportData,
+    activeEmail, activePage, activeEmailIndex, emailSequence,
+    funnelName, funnelId
+  ]);
+
   // Set up V3 useChat with custom transport matching project patterns
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({
@@ -206,18 +231,18 @@ export function OfferIQAgent({
           ability,
           abilityContext:
             ability === "copy"
-              ? { copy, activeCopyPage, funnelName, funnelId }
+              ? { copy: contextRef.current.copy, activeCopyPage: contextRef.current.activeCopyPage, funnelName: contextRef.current.funnelName, funnelId: contextRef.current.funnelId }
               : ability === "builder"
-                ? { builderPages, activeBuilderPagePath, funnelName, funnelId }
+                ? { builderPages: contextRef.current.builderPages, activeBuilderPagePath: contextRef.current.activeBuilderPagePath, funnelName: contextRef.current.funnelName, funnelId: contextRef.current.funnelId }
                 : ability === "intelligence"
-                  ? { activeSectionId, activeSectionContent, reportData, funnelName, funnelId }
+                  ? { activeSectionId: contextRef.current.activeSectionId, activeSectionContent: contextRef.current.activeSectionContent, reportData: contextRef.current.reportData, funnelName: contextRef.current.funnelName, funnelId: contextRef.current.funnelId }
                   : {
-                      activeEmail,
-                      activePage,
-                      activeEmailIndex,
-                      emailSequence,
-                      funnelName,
-                      funnelId,
+                      activeEmail: contextRef.current.activeEmail,
+                      activePage: contextRef.current.activePage,
+                      activeEmailIndex: contextRef.current.activeEmailIndex,
+                      emailSequence: contextRef.current.emailSequence,
+                      funnelName: contextRef.current.funnelName,
+                      funnelId: contextRef.current.funnelId,
                     },
         },
       }),
