@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/utils/supabase/admin";
 import ClientDownloadRedirect from "@/components/blueprint/ClientDownloadRedirect";
-import { DownloadCloud } from "lucide-react";
+import Link from "next/link";
+import { DownloadCloud, ArrowLeft } from "lucide-react";
 
 interface BlueprintDownloadPageProps {
   params: Promise<{ funnelId: string }>;
@@ -73,21 +74,36 @@ export default async function BlueprintDownloadPage({
             <p className="text-white/60 mb-8 text-lg">
               Your generated blueprint will automatically download in a moment.
             </p>
-            <a
-              href={downloadUrl}
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-sm font-medium border border-white/10"
-            >
-              Click here if it doesn't start
-            </a>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href={downloadUrl}
+                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-sm font-medium border border-white/10"
+              >
+                Click here if it doesn't start
+              </a>
+              <Link
+                href={`/funnels/${funnelId}`}
+                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors text-sm font-medium text-white shadow-lg shadow-blue-500/20"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Funnel
+              </Link>
+            </div>
             {/* The client component triggers the automatic download */}
             <ClientDownloadRedirect downloadUrl={downloadUrl} />
           </>
         ) : (
           <>
             <h1 className="text-2xl font-bold mb-4">Missing File</h1>
-            <p className="text-sm text-white/70 mb-8">
-              Please return to the Blueprint page and select a file to download.
-            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href={`/funnels/${funnelId}/blueprint`}
+                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-sm font-medium border border-white/10"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Return to Blueprint
+              </Link>
+            </div>
           </>
         )}
       </div>

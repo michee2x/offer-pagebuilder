@@ -29,6 +29,10 @@ export function WorkspaceSwitcher({
             router.push("/onboard");
             return;
           }
+          if (val === "manage-workspace") {
+            router.push("/workspaces");
+            return;
+          }
           router.push(`/?workspace=${val}`);
         }}
       >
@@ -46,6 +50,12 @@ export function WorkspaceSwitcher({
             className="text-primary border-t border-border/50 pt-2"
           >
             + Add workspace
+          </SelectItem>
+          <SelectItem
+            value="manage-workspace"
+            className="text-muted-foreground"
+          >
+            Manage workspace
           </SelectItem>
         </SelectContent>
       </Select>
