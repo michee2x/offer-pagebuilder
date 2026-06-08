@@ -66,7 +66,7 @@ const SECTIONS: SectionConfig[] = [
   },
   {
     id: "omnichannel_ad_copy_matrix",
-    label: "Meta Ad Matrix",
+    label: "Ads Metrics",
     icon: <Target className="w-4 h-4" />,
     sub: "3 Complete Instagram/FB Ads",
     badge: "Paid Social",

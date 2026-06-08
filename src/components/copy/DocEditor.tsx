@@ -33,6 +33,7 @@ import {
   MousePointerClick,
   RefreshCw,
   Loader2,
+  Timer,
 } from "lucide-react";
 
 // ─── Toolbar primitives ───────────────────────────────────────────────────────
@@ -143,6 +144,14 @@ export function DocEditor({
       ?.chain()
       .focus()
       .insertContent("<p><em>[▶️ Video: describe what goes here]</em></p>")
+      .run();
+  }, [editor]);
+
+  const insertCountdownPlaceholder = useCallback(() => {
+    editor
+      ?.chain()
+      .focus()
+      .insertContent("<p><em>[⏱️ Countdown: X Minutes/Hours]</em></p>")
       .run();
   }, [editor]);
 
@@ -298,6 +307,12 @@ export function DocEditor({
           title="Insert Video Placeholder"
         >
           <Video className="w-3.5 h-3.5" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={insertCountdownPlaceholder}
+          title="Insert Countdown Placeholder"
+        >
+          <Timer className="w-3.5 h-3.5" />
         </ToolbarButton>
         <ToolbarButton onClick={insertCtaButton} title="Insert CTA Button">
           <MousePointerClick className="w-3.5 h-3.5" />

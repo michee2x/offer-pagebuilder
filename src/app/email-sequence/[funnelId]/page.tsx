@@ -1090,8 +1090,8 @@ export default function EmailSequencePage({
 
   const { completion, complete, isLoading } = useCompletion({
     api: `/api/generate-email-sequence/${funnelId}`,
-    onFinish: async (text) => {
-      const parsed = clampEmailSequence(parseEmailSequenceV2(text));
+    onFinish: async (prompt, completionText) => {
+      const parsed = clampEmailSequence(parseEmailSequenceV2(completionText));
       if (Object.keys(parsed).length > 0) {
         setEmailSequence(parsed);
         setHasUnsavedChanges(false);
