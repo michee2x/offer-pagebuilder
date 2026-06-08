@@ -11,7 +11,7 @@ import {
 } from '@/lib/offer-parser';
 import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
 
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
