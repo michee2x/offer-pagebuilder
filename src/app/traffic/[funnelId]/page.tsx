@@ -370,7 +370,6 @@ export default function TrafficIntelligencePage({
   const [activeSection, setActiveSection] = useState<SectionId>(
     "platform_priority_narrative",
   );
-  const [viewMode, setViewMode] = useState<"visual" | "raw">("visual");
 
   useEffect(() => {
     fetch(`/api/offer-data/${funnelId}`)
@@ -710,32 +709,6 @@ export default function TrafficIntelligencePage({
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="bg-white/5 border border-white/10 p-1 rounded-lg flex items-center">
-                      <button
-                        onClick={() => setViewMode("visual")}
-                        className={cn(
-                          "px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5",
-                          viewMode === "visual"
-                            ? "bg-white/10 text-white shadow-sm"
-                            : "text-muted-foreground hover:text-white",
-                        )}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        Visual Dashboard
-                      </button>
-                      <button
-                        onClick={() => setViewMode("raw")}
-                        className={cn(
-                          "px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5",
-                          viewMode === "raw"
-                            ? "bg-white/10 text-white shadow-sm"
-                            : "text-muted-foreground hover:text-white",
-                        )}
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        Raw Analysis
-                      </button>
-                    </div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -749,13 +722,7 @@ export default function TrafficIntelligencePage({
                 </div>
 
                 {/* Conditional rendering based on mode */}
-                {viewMode === "raw" ? (
-                  <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] transition-all rounded-3xl p-8 shadow-2xl relative">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
-                    <TextRenderer text={activeContent} />
-                  </div>
-                ) : (
-                  <div className="space-y-6">
+                <div className="space-y-6">
                     {/* Render visual dashboards unique for each section */}
 
                     {/* 1. platform_priority_narrative */}
@@ -1254,7 +1221,6 @@ export default function TrafficIntelligencePage({
                       </div>
                     )}
                   </div>
-                )}
               </div>
             )}
           </div>

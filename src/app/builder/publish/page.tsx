@@ -16,6 +16,7 @@ import {
   Settings,
   Camera,
   Info,
+  Upload,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -52,6 +53,7 @@ function PublishContent() {
   const [seoTitle, setSeoTitle]           = useState('');
   const [seoDescription, setSeoDescription] = useState('');
   const [faviconUrl, setFaviconUrl]       = useState('');
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
 
   const [baseDomain, setBaseDomain] = useState('ofiq.app');
   const [protocol, setProtocol]     = useState('https://');
@@ -135,6 +137,36 @@ function PublishContent() {
   }, [hasUnsavedLocalChanges]);
 
   /** Use this instead of direct navigation when there may be unsaved changes */
+
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingFavicon(true);
+      toast.loading('Uploading favicon...');
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const data = await res.json();
+      toast.dismiss();
+      if (!res.ok) throw new Error(data.error || 'Failed to upload favicon');
+      
+      setFaviconUrl(data.url);
+      toast.success('Favicon uploaded!');
+    } catch (err: any) {
+      toast.dismiss();
+      toast.error(err.message);
+    } finally {
+      setUploadingFavicon(false);
+      e.target.value = '';
+    }
+  };
 
   // ─── Domain handlers ─────────────────────────────────────────────────
   const handleSaveDomain = async (type: 'subdomain' | 'custom') => {
@@ -817,6 +849,16 @@ function PublishContent() {
                         placeholder="https://yourdomain.com/favicon.ico"
                         type="url"
                       />
+                      <label className="shrink-0 flex items-center justify-center bg-background border border-border rounded-md w-10 h-[42px] cursor-pointer hover:bg-muted transition-colors" title="Upload Favicon">
+                        {uploadingFavicon ? <Spinner size="sm" /> : <Upload className="w-4 h-4 text-muted-foreground" />}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFaviconUpload}
+                          disabled={uploadingFavicon}
+                        />
+                      </label>
                     </div>
                   </div>
                 </div>
