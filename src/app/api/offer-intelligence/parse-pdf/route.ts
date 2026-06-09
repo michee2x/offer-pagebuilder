@@ -20,13 +20,8 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-    let pdfParse: any;
-    try {
-      const mod = await import('pdf-parse') as any;
-      pdfParse = mod.default || mod;
-    } catch {
-      pdfParse = require('pdf-parse');
-    }
+    // pdf-parse is CommonJS, use require directly
+    const pdfParse = require('pdf-parse/lib/pdf-parse.js');
 
     if (typeof pdfParse !== 'function') {
       throw new Error('pdf-parse is not a function');
