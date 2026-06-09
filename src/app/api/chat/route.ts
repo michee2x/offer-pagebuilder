@@ -125,8 +125,8 @@ Instructions:
       },
     });
 
-    // toDataStreamResponse streams the data properly for DefaultChatTransport
-    return result.toDataStreamResponse();
+    // toUIMessageStreamResponse streams the data properly for DefaultChatTransport
+    return result.toUIMessageStreamResponse();
   } catch (streamError: any) {
     console.error('=== streamText ERROR ===', streamError);
     return new Response(
