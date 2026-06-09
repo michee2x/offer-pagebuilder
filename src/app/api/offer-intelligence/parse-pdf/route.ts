@@ -20,7 +20,49 @@ export async function POST(req: Request) {
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-    // Use dynamic import with proper error handling
+    // Import pdf-parse - handle both CommonJS and ESM
+    let pdfParse: any;
+    try {
+      const mod = await import('pdf-parse');
+      pdfParse = mod.default || mod;
+    } catch {
+      pdfParse = require('pdf-parse');
+    }
+
+    if (typeof pdfParse !== 'function') {
+      throw new Error('pdf-parse is not a function');
+    }
+
+    const data = await pdfParse(buffer);
+    const text = data.text;
+
+    if (!text || text.trim().length === 0) {
+      return NextResponse.json({ error: "Could not extract text from PDF." }, { status: 400 });
+    }
+
+    const systemPrompt = `You are a sales strategy extractor. Your job is to read the raw text of a document and extract the core offer strategy into a clean, readable summary with key-value pairs. Focus on:
+- Offer Name / Title
+- Format (course, service, software, etc)
+- Outcome / Promise
+- Target Audience (Persona)
+- Price (if mentioned)
+- Unique Mechanism
+- Any Proof / Results mentioned
+
+Keep it concise and formatted cleanly so the user can review it.`;
+
+    const { text: summary } = await generateText({
+      model: anthropic('claude-3-5-sonnet-20240620'),
+      system: systemPrompt,
+      prompt: `Extract the offer strategy from this document text. If something is missing, just omit it.\n\nDOCUMENT TEXT:\n${text.substring(0, 50000)}`,
+    });
+
+    return NextResponse.json({ summary });
+  } catch (error: any) {
+    console.error("Error parsing PDF:", error);
+    return NextResponse.json({ error: error.message || "Failed to parse PDF" }, { status: 500 });
+  }
+}
     const pdfParseModule = await import('pdf-parse/lib/pdf-parse.js').catch(() => 
       require('pdf-parse')
     );
