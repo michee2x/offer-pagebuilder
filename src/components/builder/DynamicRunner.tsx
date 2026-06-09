@@ -60,11 +60,76 @@ const requireMock = (modName: string) => {
   return {};
 };
 
+// ─── AST Component Wrapper for Text Editing ────────────────────────────────
+const EditableText = ({ ofiqId, childIndex, children }: { ofiqId: string, childIndex: number, children: React.ReactNode }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  // Flatten children to a string if possible, or just stringify
+  const textVal = typeof children === 'string' ? children : String(children);
+  const [text, setText] = useState(textVal);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setText(typeof children === 'string' ? children : String(children));
+    }
+  }, [children, isEditing]);
+
+  if (isEditing) {
+    return (
+      <span
+        contentEditable
+        suppressContentEditableWarning
+        autoFocus
+        onFocus={(e) => {
+          // Move cursor to end
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(e.target);
+          range.collapse(false);
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }}
+        onBlur={(e) => {
+          setIsEditing(false);
+          const newT = e.target.innerText;
+          if (newT !== textVal) {
+             // Call a global handler injected by DynamicRunner
+             if (typeof (window as any).__updateOfiqText === 'function') {
+               (window as any).__updateOfiqText(ofiqId, childIndex, newT);
+             }
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
+        }}
+        className="outline-none ring-2 ring-cyan-500 rounded bg-cyan-500/10 min-w-[10px] inline-block"
+      >
+        {textVal}
+      </span>
+    );
+  }
+
+  return (
+    <span 
+      onClick={(e) => {
+         e.preventDefault();
+         e.stopPropagation();
+         setIsEditing(true);
+      }}
+      className="hover:ring-2 hover:ring-cyan-500/50 hover:rounded cursor-text transition-all"
+    >
+      {children}
+    </span>
+  );
+};
+
 const evaluateCode = (jsCode: string) => {
   const exportsObj: Record<string, any> = {};
   const moduleObj = { exports: exportsObj };
-  const evaluator = new Function("React", "require", "exports", "module", jsCode);
-  evaluator(React, requireMock, exportsObj, moduleObj);
+  const evaluator = new Function("React", "require", "exports", "module", "EditableText", jsCode);
+  evaluator(React, requireMock, exportsObj, moduleObj, EditableText);
 
   let Renderable = exportsObj.default || moduleObj.exports.default;
   if (!Renderable && typeof moduleObj.exports === "function") {
@@ -172,6 +237,9 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
         return {
           visitor: {
             JSXElement(path: any) {
+              // Avoid processing the EditableText wrapper itself
+              if (path.node.openingElement.name.name === 'EditableText') return;
+
               const id = 'el_' + Math.random().toString(36).substring(2, 11);
               
               const info = {
@@ -185,12 +253,34 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
                 info.tagName = opening.name.name.toLowerCase();
               }
 
-              path.node.children.forEach((child: any) => {
-                if (child.type === 'JSXElement') {
+              // Wrap text children in EditableText
+              const newChildren: any[] = [];
+              path.node.children.forEach((child: any, i: number) => {
+                let isText = false;
+                if (child.type === 'JSXText' && child.value.trim().length > 0) {
+                  isText = true;
+                } else if (child.type === 'JSXExpressionContainer' && child.expression.type === 'StringLiteral') {
+                  isText = true;
+                } else if (child.type === 'JSXElement') {
                   info.isLeaf = false;
+                }
+
+                if (isText) {
+                  const editable = t.jsxElement(
+                    t.jsxOpeningElement(t.jsxIdentifier('EditableText'), [
+                      t.jsxAttribute(t.jsxIdentifier('ofiqId'), t.stringLiteral(id)),
+                      t.jsxAttribute(t.jsxIdentifier('childIndex'), t.numericLiteral(i))
+                    ]),
+                    t.jsxClosingElement(t.jsxIdentifier('EditableText')),
+                    [child] // keep original child
+                  );
+                  newChildren.push(editable);
+                } else {
+                  newChildren.push(child);
                 }
               });
 
+              path.node.children = newChildren;
               astMap.set(id, info);
               
               opening.attributes.push(
@@ -229,7 +319,7 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
   }, [code, babelLoaded, isBuilderMode]);
 
   // ─── Re-parse helpers for exact source updates ────────────────────────────
-  const replaceTextInSource = useCallback((currentCode: string, targetId: string, newText: string) => {
+  const replaceTextNodeInSource = useCallback((currentCode: string, targetId: string, childIndex: number, newText: string) => {
     if (!(window as any).Babel) return currentCode;
     const Babel = (window as any).Babel;
     let modifiedCode = currentCode;
@@ -246,10 +336,10 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
             );
 
             if (hasMatch) {
-              // Replace all children with a single text node or expression container if it has quotes
-              // Simple heuristic: just wrap in JSXText. Since Babel generates the string, we might need to handle escaping.
-              // A safer way is to use a JSXExpressionContainer with a string literal if there are special characters.
-              path.node.children = [t.jsxExpressionContainer(t.stringLiteral(newText))];
+              // Replace ONLY the specific child with a new string literal
+              if (path.node.children && path.node.children[childIndex]) {
+                 path.node.children[childIndex] = t.jsxExpressionContainer(t.stringLiteral(newText));
+              }
             }
           }
         }
@@ -335,6 +425,20 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
   }, []);
 
   // ─── Edit Mode Handlers ─────────────────────────────────────────────────
+  
+  // Inject the global update handler for EditableText components
+  useEffect(() => {
+    if (editMode && isBuilderMode && code) {
+      (window as any).__updateOfiqText = (ofiqId: string, childIndex: number, newText: string) => {
+        const newCode = replaceTextNodeInSource(code, ofiqId, childIndex, newText);
+        useBuilderStore.getState().updateCode(newCode);
+      };
+    }
+    return () => {
+      delete (window as any).__updateOfiqText;
+    };
+  }, [editMode, isBuilderMode, code, replaceTextNodeInSource]);
+
   const handleContainerClick = useCallback((e: React.MouseEvent) => {
     // Only handle clicks in edit mode within the builder
     if (!editMode || !isBuilderMode || !code) return;
@@ -363,65 +467,13 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
         mediaType,
         ofiqId: id,
       });
+
       return;
     }
 
-    // Text elements: make them contentEditable if they are text tags or leaf nodes
-    // This allows editing headings like `<h1>Text <span ...>highlight</span></h1>`
-    const textTags = ['h1','h2','h3','h4','h5','h6','p','span','a','button','li','label','strong','em','blockquote'];
-    const isTextNode = textTags.includes(tagName) || info.isLeaf;
-
-    if (isTextNode && !el.isContentEditable) {
-      e.preventDefault();
-      e.stopPropagation();
-      el.contentEditable = "true";
-      el.style.outline = "2px solid rgba(6, 182, 212, 0.5)";
-      el.style.outlineOffset = "2px";
-      el.style.borderRadius = "4px";
-      el.focus();
-      
-      const selection = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(el);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-    }
+    // Text editing is now handled natively by the EditableText component wrapper injected via Babel.
+    // No manual contentEditable or focus hacking required here!
   }, [editMode, isBuilderMode, code]);
-
-  const handleContainerBlur = useCallback((e: React.FocusEvent) => {
-    if (!editMode || !isBuilderMode || !code) return;
-    const target = e.target as HTMLElement;
-    if (target.isContentEditable) {
-      target.contentEditable = "false";
-      target.style.outline = "";
-      target.style.outlineOffset = "";
-      target.style.borderRadius = "";
-      const id = target.getAttribute('data-ofiq-id');
-      if (!id) return;
-      const info = astMap.get(id);
-      
-      const tagName = target.tagName.toLowerCase();
-      const textTags = ['h1','h2','h3','h4','h5','h6','p','span','a','button','li','label','strong','em','blockquote'];
-      const isTextNode = textTags.includes(tagName) || (info && info.isLeaf);
-      
-      if (isTextNode) {
-        const newText = target.innerText;
-        const newCode = replaceTextInSource(code, id, newText);
-        useBuilderStore.getState().updateCode(newCode);
-      }
-    }
-  }, [editMode, isBuilderMode, code]);
-
-  const handleContainerKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!editMode) return;
-    if (e.key === 'Enter' && e.shiftKey === false) {
-      const target = e.target as HTMLElement;
-      if (target.isContentEditable) {
-        e.preventDefault();
-        target.blur();
-      }
-    }
-  }, [editMode]);
 
   const handleMediaSave = useCallback((newSrc: string) => {
     if (!code || !mediaModal.ofiqId) {
@@ -469,8 +521,6 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
         <div 
           className="w-full h-full min-h-screen" 
           onClick={handleContainerClick}
-          onBlurCapture={handleContainerBlur}
-          onKeyDown={handleContainerKeyDown}
           style={{ cursor: "default" }}
         >
           <PageComponent />
