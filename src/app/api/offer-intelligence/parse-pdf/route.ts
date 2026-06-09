@@ -22,7 +22,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     let pdfParse: any;
     try {
-      const mod = await import('pdf-parse');
+      const mod = await import('pdf-parse') as any;
       pdfParse = mod.default || mod;
     } catch {
       pdfParse = require('pdf-parse');
