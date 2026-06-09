@@ -191,7 +191,7 @@ const ofiqEditorPlugin = (babel: any) => {
                   ),
                   t.jsxAttribute(
                     t.jsxIdentifier("childIndex"),
-                    t.numericLiteral(i)
+                    t.jsxExpressionContainer(t.numericLiteral(i))
                   ),
                 ]),
                 t.jsxClosingElement(t.jsxIdentifier("EditableText")),
