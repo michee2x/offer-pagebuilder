@@ -366,9 +366,12 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
       return;
     }
 
-    // Text elements: make them contentEditable if they are leaf nodes
-    // A leaf node is defined here as an element that has no nested JSXElements
-    if (info.isLeaf && !el.isContentEditable) {
+    // Text elements: make them contentEditable if they are text tags or leaf nodes
+    // This allows editing headings like `<h1>Text <span ...>highlight</span></h1>`
+    const textTags = ['h1','h2','h3','h4','h5','h6','p','span','a','button','li','label','strong','em','blockquote'];
+    const isTextNode = textTags.includes(tagName) || info.isLeaf;
+
+    if (isTextNode && !el.isContentEditable) {
       e.preventDefault();
       e.stopPropagation();
       el.contentEditable = "true";
@@ -397,7 +400,11 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
       if (!id) return;
       const info = astMap.get(id);
       
-      if (info && info.isLeaf) {
+      const tagName = target.tagName.toLowerCase();
+      const textTags = ['h1','h2','h3','h4','h5','h6','p','span','a','button','li','label','strong','em','blockquote'];
+      const isTextNode = textTags.includes(tagName) || (info && info.isLeaf);
+      
+      if (isTextNode) {
         const newText = target.innerText;
         const newCode = replaceTextInSource(code, id, newText);
         useBuilderStore.getState().updateCode(newCode);
