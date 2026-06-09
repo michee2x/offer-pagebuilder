@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { findImagePropMatch, ImagePropMatch } from "@/lib/findImageProp";
-import { ImagePickerModal } from "./ImagePickerModal";
+import { MediaPickerModal } from "./ImagePickerModal";
 
 interface BuilderComponentProps {
   id: string;
@@ -326,10 +326,11 @@ export function BuilderComponent({ id }: BuilderComponentProps) {
       </div>
 
       {/* Image picker modal — rendered outside the component wrapper to avoid z-index issues */}
-      <ImagePickerModal
+      <MediaPickerModal
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
         onSelect={handleImageSelected}
+        mediaType="image"
       />
     </>
   );

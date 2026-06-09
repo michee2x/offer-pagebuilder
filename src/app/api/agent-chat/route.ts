@@ -44,7 +44,9 @@ export async function POST(req: Request) {
 
     // Pass normalized messages directly as ModelMessage[].
     // convertToModelMessages is for chat history conversion; streamText expects { role, content } format directly.
-    const modelMessages = Array.isArray(normalizedMessages) ? normalizedMessages : [];
+    // Filter out any messages with empty content to prevent Anthropic API errors
+    const modelMessages = (Array.isArray(normalizedMessages) ? normalizedMessages : [])
+      .filter((msg: any) => msg.content && msg.content.trim().length > 0);
     console.log('messages ready for streamText:', JSON.stringify(modelMessages.slice(-1), null, 2));
 
     let systemPrompt = '';
@@ -223,6 +225,7 @@ ${bonusStack || 'No bonus stack content available.'}`;
     } else if (ability === 'builder') {
       const { builderPages, activeBuilderPagePath, funnelName, funnelId } = abilityContext || {};
       const activePageObject = activeBuilderPagePath && builderPages ? builderPages[activeBuilderPagePath] : null;
+      const pageCode = activePageObject?.code?.trim() || null;
 
       systemPrompt = `You are the OfferIQ Builder Agent, an elite automated assistant integrated into the OfferIQ page builder.
 You are currently running with the **"builder"** ability in the funnel "${funnelName || 'Your Funnel'}".
@@ -236,7 +239,7 @@ CONTEXT OF CURRENT BUILDER PAGE:
 - Funnel Name: ${funnelName || 'Your Funnel'}
 - Active Page Path: ${activeBuilderPagePath || 'None'}
 - Current Page Code:
-${activePageObject?.code || 'No code available'}
+${pageCode ? pageCode : 'No code available for this page yet.'}
 
 
 INSTRUCTIONS FOR SKILL CALLS:

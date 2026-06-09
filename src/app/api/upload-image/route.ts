@@ -3,14 +3,37 @@ import { createAdminClient } from '@/utils/supabase/admin';
 
 const BUCKET_NAME = 'page-images';
 
+const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/avif'];
+const VIDEO_MIME_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
+const ALL_ALLOWED_MIMES = [...IMAGE_MIME_TYPES, ...VIDEO_MIME_TYPES];
+
+const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'];
+const VIDEO_EXTENSIONS = ['mp4', 'webm', 'mov'];
+
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;  // 10 MB
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024;  // 50 MB
+
+function getFileMediaType(file: File): 'image' | 'video' | null {
+  if (file.type.startsWith('image/')) return 'image';
+  if (file.type.startsWith('video/')) return 'video';
+  return null;
+}
+
+function getMediaTypeFromName(name: string): 'image' | 'video' | 'unknown' {
+  const ext = name.split('.').pop()?.toLowerCase() || '';
+  if (IMAGE_EXTENSIONS.includes(ext)) return 'image';
+  if (VIDEO_EXTENSIONS.includes(ext)) return 'video';
+  return 'unknown';
+}
+
 async function ensureBucket(supabase: ReturnType<typeof createAdminClient>) {
   const { data: buckets } = await supabase.storage.listBuckets();
   const exists = buckets?.some((b) => b.name === BUCKET_NAME);
   if (!exists) {
     const { error } = await supabase.storage.createBucket(BUCKET_NAME, {
       public: true,
-      fileSizeLimit: 10 * 1024 * 1024, // 10 MB
-      allowedMimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/avif'],
+      fileSizeLimit: MAX_VIDEO_SIZE, // Use the larger limit; we enforce per-type in code
+      allowedMimeTypes: ALL_ALLOWED_MIMES,
     });
     if (error) throw new Error(`Failed to create bucket: ${error.message}`);
   }
@@ -25,19 +48,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+    const mediaType = getFileMediaType(file);
+    if (!mediaType) {
+      return NextResponse.json({ error: 'File must be an image or video' }, { status: 400 });
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File too large (max 10 MB)' }, { status: 400 });
+    const maxSize = mediaType === 'video' ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    const maxLabel = mediaType === 'video' ? '50 MB' : '10 MB';
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: `File too large (max ${maxLabel})` }, { status: 400 });
     }
 
     const supabase = createAdminClient();
     await ensureBucket(supabase);
 
     // Generate a unique filename while preserving the extension
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const ext = file.name.split('.').pop()?.toLowerCase() || (mediaType === 'video' ? 'mp4' : 'jpg');
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
 
     const buffer = await file.arrayBuffer();
@@ -55,7 +81,7 @@ export async function POST(req: NextRequest) {
       .from(BUCKET_NAME)
       .getPublicUrl(fileName);
 
-    return NextResponse.json({ url: urlData.publicUrl });
+    return NextResponse.json({ url: urlData.publicUrl, type: mediaType });
   } catch (err: any) {
     console.error('[upload-image]', err);
     return NextResponse.json({ error: err.message ?? 'Upload failed' }, { status: 500 });
@@ -82,6 +108,7 @@ export async function GET() {
       .map((f) => ({
         name: f.name,
         url: supabase.storage.from(BUCKET_NAME).getPublicUrl(f.name).data.publicUrl,
+        type: getMediaTypeFromName(f.name),
       }));
 
     return NextResponse.json({ files });
