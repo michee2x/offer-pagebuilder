@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
-import { PDFParse } from 'pdf-parse';
+import PDFParser from "pdf2json";
 
 export const maxDuration = 60;
 
@@ -17,10 +17,15 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Parse the PDF using new pdf-parse class API
-    const parser = new PDFParse({ data: buffer });
-    const data = await parser.getText();
-    const text = data.text;
+    // Parse the PDF using pdf2json (pure js, no DOMMatrix/canvas crashes)
+    const text = await new Promise<string>((resolve, reject) => {
+      const pdfParser = new PDFParser(null, 1);
+      pdfParser.on("pdfParser_dataError", (errData: any) => reject(errData.parserError));
+      pdfParser.on("pdfParser_dataReady", () => {
+        resolve((pdfParser as any).getRawTextContent());
+      });
+      pdfParser.parseBuffer(buffer);
+    });
 
     if (!text || text.trim().length === 0) {
       return NextResponse.json({ error: "Could not extract text from PDF." }, { status: 400 });
