@@ -1,4 +1,16 @@
 import { NextResponse } from "next/server";
+
+// Set polyfills BEFORE any pdfjs imports
+if (typeof (global as any).DOMMatrix === "undefined") {
+  (global as any).DOMMatrix = class DOMMatrix { constructor() {} };
+}
+if (typeof (global as any).Path2D === "undefined") {
+  (global as any).Path2D = class Path2D { constructor() {} };
+}
+if (typeof (global as any).ImageData === "undefined") {
+  (global as any).ImageData = class ImageData { constructor() {} };
+}
+
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -19,17 +31,6 @@ export async function POST(req: Request) {
 
     // Set the worker path for pdfjs-dist
     pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-    // Polyfill DOMMatrix and Path2D
-    if (typeof (global as any).DOMMatrix === "undefined") {
-      (global as any).DOMMatrix = class DOMMatrix { constructor() {} };
-    }
-    if (typeof (global as any).Path2D === "undefined") {
-      (global as any).Path2D = class Path2D { constructor() {} };
-    }
-    if (typeof (global as any).ImageData === "undefined") {
-      (global as any).ImageData = class ImageData { constructor() {} };
-    }
 
     // Import pdf-parse - it's a CommonJS module
     const pdfParse = require('pdf-parse');
