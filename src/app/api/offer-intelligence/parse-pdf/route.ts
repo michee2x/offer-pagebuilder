@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
+import * as pdfjsLib from 'pdfjs-dist';
 
 export const maxDuration = 60;
 
@@ -16,7 +17,10 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Polyfill DOMMatrix and Path2D to prevent pdf-parse/pdfjs from crashing in Vercel Serverless
+    // Set the worker path for pdfjs-dist
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+    // Polyfill DOMMatrix and Path2D
     if (typeof (global as any).DOMMatrix === "undefined") {
       (global as any).DOMMatrix = class DOMMatrix { constructor() {} };
     }
@@ -27,12 +31,11 @@ export async function POST(req: Request) {
       (global as any).ImageData = class ImageData { constructor() {} };
     }
 
-    // Use dynamic import so polyfills run BEFORE pdf-parse is evaluated
-    const { PDFParse } = await import('pdf-parse');
+    // Dynamic import AFTER polyfills
+    const pdfParse = await import('pdf-parse/lib/pdf-parse.js');
 
-    // Parse the PDF using pdf-parse class API
-    const parser = new PDFParse({ data: buffer });
-    const data = await parser.getText();
+    // pdf-parse is a function, not a class
+    const data = await pdfParse.default(buffer);
     const text = data.text;
 
     if (!text || text.trim().length === 0) {
@@ -52,9 +55,9 @@ export async function POST(req: Request) {
 Keep it concise and formatted cleanly so the user can review it.`;
 
     const { text: summary } = await generateText({
-      model: anthropic('claude-3-5-sonnet-20240620'), // Using 3.5 Sonnet for fast, high-quality extraction
+      model: anthropic('claude-3-5-sonnet-20240620'),
       system: systemPrompt,
-      prompt: `Extract the offer strategy from this document text. If something is missing, just omit it.\n\nDOCUMENT TEXT:\n${text.substring(0, 50000)}`, // Limiting length just in case
+      prompt: `Extract the offer strategy from this document text. If something is missing, just omit it.\n\nDOCUMENT TEXT:\n${text.substring(0, 50000)}`,
     });
 
     return NextResponse.json({ summary });
