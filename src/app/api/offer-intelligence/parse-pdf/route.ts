@@ -2,19 +2,6 @@ import { NextResponse } from "next/server";
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
 
-// Polyfill DOMMatrix and Path2D to prevent pdf-parse/pdfjs from crashing in Vercel Serverless
-if (typeof (global as any).DOMMatrix === "undefined") {
-  (global as any).DOMMatrix = class DOMMatrix { constructor() {} };
-}
-if (typeof (global as any).Path2D === "undefined") {
-  (global as any).Path2D = class Path2D { constructor() {} };
-}
-if (typeof (global as any).ImageData === "undefined") {
-  (global as any).ImageData = class ImageData { constructor() {} };
-}
-
-import { PDFParse } from 'pdf-parse';
-
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
@@ -28,6 +15,20 @@ export async function POST(req: Request) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    // Polyfill DOMMatrix and Path2D to prevent pdf-parse/pdfjs from crashing in Vercel Serverless
+    if (typeof (global as any).DOMMatrix === "undefined") {
+      (global as any).DOMMatrix = class DOMMatrix { constructor() {} };
+    }
+    if (typeof (global as any).Path2D === "undefined") {
+      (global as any).Path2D = class Path2D { constructor() {} };
+    }
+    if (typeof (global as any).ImageData === "undefined") {
+      (global as any).ImageData = class ImageData { constructor() {} };
+    }
+
+    // Use dynamic import so polyfills run BEFORE pdf-parse is evaluated
+    const { PDFParse } = await import('pdf-parse');
 
     // Parse the PDF using pdf-parse class API
     const parser = new PDFParse({ data: buffer });
