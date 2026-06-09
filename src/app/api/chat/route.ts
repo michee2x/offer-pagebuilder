@@ -125,9 +125,8 @@ Instructions:
       },
     });
 
-    // toUIMessageStreamResponse streams the full UI-compatible stream including tool calls
-    // This is required for DefaultChatTransport on the client to receive tool data
-    return result.toUIMessageStreamResponse();
+    // toDataStreamResponse streams the data properly for DefaultChatTransport
+    return result.toDataStreamResponse();
   } catch (streamError: any) {
     console.error('=== streamText ERROR ===', streamError);
     return new Response(

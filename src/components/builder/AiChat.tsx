@@ -40,21 +40,28 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
         },
       }),
     }),
-    onFinish: ({ message }) => {
+    onFinish: (message) => {
       // Log full message to diagnose tool call flow
       console.log('[AiChat] onFinish message:', JSON.stringify(message, null, 2));
 
+      // Try extracting from toolInvocations first (standard Vercel AI SDK)
+      const toolInvocations = message.toolInvocations ?? [];
+      for (const ti of toolInvocations) {
+        if (ti.result?.updatedProps) {
+          console.log('[AiChat] Applying updatedProps from toolInvocations:', ti.result.updatedProps);
+          updateProps(componentId, ti.result.updatedProps);
+          return;
+        }
+      }
+
       const parts = message.parts ?? [];
       console.log('[AiChat] parts count:', parts.length);
-      parts.forEach((p: any, i: number) => {
-        console.log(`[AiChat] part[${i}]:`, JSON.stringify(p, null, 2));
-      });
-
-      // Try extracting the tool result from any part type that has updatedProps
+      
+      // Try extracting the tool result from any part type that has updatedProps (fallback)
       for (const part of parts as any[]) {
         const result = part?.result ?? part?.output;
         if (result?.updatedProps) {
-          console.log('[AiChat] Applying updatedProps:', result.updatedProps);
+          console.log('[AiChat] Applying updatedProps from parts:', result.updatedProps);
           updateProps(componentId, result.updatedProps);
           return;
         }
@@ -77,55 +84,56 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
   }, [messages, isLoading]);
 
   return (
-    <div className="flex flex-col h-full justify-between items-stretch">
-      <ScrollArea className="flex-1 p-4 h-[calc(100vh-250px)]">
-        <div className="flex flex-col gap-4">
-          <p className="text-xs text-center text-muted-foreground pb-2">
-            Chat with Claude to edit <span className="font-medium bg-muted px-1 rounded">{config.type}</span>
-            {selectedField && <><br/>Focusing on: <span className="text-primary font-mono">{selectedField}</span></>}
-          </p>
+    <div className="flex flex-col h-full justify-between items-stretch bg-[#0a0d14] text-white">
+      <ScrollArea className="flex-1 p-5 h-[calc(100vh-250px)] scrollbar-thin scrollbar-thumb-white/10">
+        <div className="flex flex-col gap-6">
+          <div className="text-center pb-4 border-b border-white/5 mb-2">
+            <p className="text-xs text-white/50">
+              Chat with AI to edit <span className="font-semibold text-brand-yellow bg-brand-yellow/10 px-1.5 py-0.5 rounded-md">{config.type}</span>
+              {selectedField && <><br/><span className="inline-block mt-1">Targeting: <span className="text-white font-mono bg-white/10 px-1 rounded">{selectedField}</span></span></>}
+            </p>
+          </div>
 
           {messages.map((m) => {
-            // v3 messages expose content via `parts`
-            const textContent = (m.parts ?? [])
+            // v3 messages expose content via `parts` or `content`
+            const textContent = m.content || (m.parts ?? [])
               .filter((p: any) => p.type === 'text')
               .map((p: any) => p.text)
               .join('');
 
-            const toolParts = (m.parts ?? []).filter(
+            const toolParts = m.toolInvocations || (m.parts ?? []).filter(
               (p: any) => p.type === 'tool-invocation' || p.type === 'tool-result'
             );
 
             return (
               <div
                 key={m.id}
-                className={`flex gap-2 text-sm ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-3 text-sm ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {m.role === 'assistant' && (
-                  <div className="w-7 h-7 rounded bg-primary/20 flex items-center justify-center text-primary shrink-0 mt-1">
-                    <Bot className="w-3.5 h-3.5" />
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-yellow to-amber-500 flex items-center justify-center text-black shrink-0 shadow-[0_2px_10px_rgba(245,166,35,0.3)]">
+                    <Bot className="w-4 h-4" />
                   </div>
                 )}
 
                 <div
-                  className={`rounded-lg px-3 py-2 max-w-[85%] text-sm ${
+                  className={`rounded-2xl px-4 py-3 max-w-[85%] text-[14px] leading-relaxed shadow-sm ${
                     m.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
+                      ? 'bg-brand-indigo text-white rounded-tr-sm shadow-[0_4px_14px_rgba(99,102,241,0.3)]'
+                      : 'bg-white/5 border border-white/10 text-white/90 rounded-tl-sm backdrop-blur-md'
                   }`}
                 >
                   {textContent}
-                  {toolParts.map((part: any, i) => (
-                    <div key={i} className="mt-1 text-xs italic opacity-70">
-                      {part.type === 'tool-invocation' && '⏳ Applying changes...'}
-                      {part.type === 'tool-result' && '✓ Changes applied'}
+                  {toolParts.map((part: any, i: number) => (
+                    <div key={i} className="mt-2 text-xs italic text-white/50 bg-black/20 rounded p-2 border border-white/5">
+                      {part.state === 'call' || part.type === 'tool-invocation' ? '⏳ Applying changes...' : '✓ Changes applied'}
                     </div>
                   ))}
                 </div>
 
                 {m.role === 'user' && (
-                  <div className="w-7 h-7 rounded bg-secondary flex items-center justify-center text-secondary-foreground shrink-0 mt-1">
-                    <User className="w-3.5 h-3.5" />
+                  <div className="w-8 h-8 rounded-xl bg-brand-indigo flex items-center justify-center text-white shrink-0 shadow-lg">
+                    <User className="w-4 h-4" />
                   </div>
                 )}
               </div>
@@ -133,14 +141,14 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
           })}
 
           {isLoading && (
-            <div className="flex gap-2 text-sm justify-start">
-              <div className="w-7 h-7 rounded bg-primary/20 flex items-center justify-center text-primary shrink-0 mt-1">
-                <Bot className="w-3.5 h-3.5" />
+            <div className="flex gap-3 text-sm justify-start">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-yellow/50 to-amber-500/50 flex items-center justify-center text-brand-yellow shrink-0">
+                <Bot className="w-4 h-4" />
               </div>
-              <div className="bg-muted px-4 py-3 rounded-lg flex items-center space-x-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" />
-                <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce delay-75" />
-                <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce delay-150" />
+              <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-sm flex items-center space-x-1.5 backdrop-blur-md">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-yellow animate-bounce" />
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-yellow animate-bounce [animation-delay:-0.15s]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-yellow animate-bounce [animation-delay:-0.3s]" />
               </div>
             </div>
           )}
@@ -149,18 +157,20 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t bg-background shrink-0">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <div className="text-xs text-muted-foreground flex justify-between">
-            <span>Targeting:</span>
-            <span className="font-mono bg-muted px-1 rounded">{config.type} {selectedField ? `→ ${selectedField}` : ''}</span>
+      <div className="p-4 bg-[#0a0d14] border-t border-white/10 shrink-0">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <div className="text-[11px] font-medium text-white/40 flex justify-between uppercase tracking-wider">
+            <span>Target Element</span>
+            <span className="font-mono bg-white/5 text-white/70 px-1.5 py-0.5 rounded border border-white/10">
+              {config.type} {selectedField ? `→ ${selectedField}` : ''}
+            </span>
           </div>
-          <div className="flex w-full items-center space-x-2">
+          <div className="relative flex items-center bg-[#131826] border border-white/10 rounded-2xl shadow-xl overflow-hidden p-1.5 focus-within:border-brand-indigo/50 focus-within:ring-1 focus-within:ring-brand-indigo/50 transition-all">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="e.g. Rewrite this to convert better"
-              className="flex-1"
+              className="flex-1 bg-transparent border-none px-3 py-2 text-sm text-white placeholder:text-white/30 focus-visible:ring-0 focus-visible:ring-offset-0"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) handleSubmit(e as any);
               }}
@@ -169,6 +179,7 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
               type="submit"
               size="icon"
               disabled={isLoading || !inputValue.trim()}
+              className="w-9 h-9 rounded-xl bg-brand-indigo hover:bg-brand-indigo/90 text-white shrink-0 ml-1 transition-all disabled:opacity-50 disabled:bg-white/10"
             >
               <Send className="h-4 w-4" />
             </Button>
