@@ -31,10 +31,10 @@ export async function POST(req: Request) {
       (global as any).ImageData = class ImageData { constructor() {} };
     }
 
-    // Dynamic import AFTER polyfills
-    const pdfParse = await import('pdf-parse/lib/pdf-parse.js');
+    // Import pdf-parse correctly
+    const pdfParse = await import('pdf-parse');
 
-    // pdf-parse is a function, not a class
+    // pdf-parse exports default function
     const data = await pdfParse.default(buffer);
     const text = data.text;
 
