@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
-import PDFParser from "pdf2json";
+
+// Polyfill DOMMatrix and Path2D to prevent pdf-parse/pdfjs from crashing in Vercel Serverless
+if (typeof (global as any).DOMMatrix === "undefined") {
+  (global as any).DOMMatrix = class DOMMatrix { constructor() {} };
+}
+if (typeof (global as any).Path2D === "undefined") {
+  (global as any).Path2D = class Path2D { constructor() {} };
+}
+if (typeof (global as any).ImageData === "undefined") {
+  (global as any).ImageData = class ImageData { constructor() {} };
+}
+
+import { PDFParse } from 'pdf-parse';
 
 export const maxDuration = 60;
 
@@ -17,15 +29,10 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Parse the PDF using pdf2json (pure js, no DOMMatrix/canvas crashes)
-    const text = await new Promise<string>((resolve, reject) => {
-      const pdfParser = new PDFParser(null, 1);
-      pdfParser.on("pdfParser_dataError", (errData: any) => reject(errData.parserError));
-      pdfParser.on("pdfParser_dataReady", () => {
-        resolve((pdfParser as any).getRawTextContent());
-      });
-      pdfParser.parseBuffer(buffer);
-    });
+    // Parse the PDF using pdf-parse class API
+    const parser = new PDFParse({ data: buffer });
+    const data = await parser.getText();
+    const text = data.text;
 
     if (!text || text.trim().length === 0) {
       return NextResponse.json({ error: "Could not extract text from PDF." }, { status: 400 });
