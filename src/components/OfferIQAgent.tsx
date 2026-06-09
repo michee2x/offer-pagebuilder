@@ -302,7 +302,7 @@ export function OfferIQAgent({
             }
           } else if (ability === "builder") {
             // Builder-specific skill executions
-            if (action === "edit_builder_code" && onUpdateBuilderCode) {
+            if (action === "edit_builder_page" && onUpdateBuilderCode) {
               // data is expected to contain { code: string }
               onUpdateBuilderCode(data?.code || "");
             } else if (
