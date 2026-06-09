@@ -1,4 +1,4 @@
-import 'src/lib/pdf-polyfills';
+import './../../../../lib/pdf-polyfills';
 import { NextResponse } from "next/server";
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
