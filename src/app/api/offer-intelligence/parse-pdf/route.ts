@@ -31,11 +31,11 @@ export async function POST(req: Request) {
       (global as any).ImageData = class ImageData { constructor() {} };
     }
 
-    // Import pdf-parse correctly
-    const pdfParse = await import('pdf-parse');
+    // Import pdf-parse - it's a CommonJS module
+    const pdfParse = require('pdf-parse');
 
-    // pdf-parse exports default function
-    const data = await pdfParse.default(buffer);
+    // pdf-parse is the function itself
+    const data = await pdfParse(buffer);
     const text = data.text;
 
     if (!text || text.trim().length === 0) {
