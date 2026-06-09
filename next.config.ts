@@ -14,10 +14,8 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
-  experimental: {
-    outputFileTracingIncludes: {
-      "/api/offer-intelligence/parse-pdf": ["./node_modules/pdfjs-dist/**/*", "./node_modules/pdf-parse/**/*"]
-    }
+  outputFileTracingIncludes: {
+    "/api/offer-intelligence/parse-pdf": ["./node_modules/pdfjs-dist/**/*", "./node_modules/pdf-parse/**/*"]
   }
 };
 
