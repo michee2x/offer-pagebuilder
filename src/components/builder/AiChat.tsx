@@ -40,7 +40,10 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
         },
       }),
     }),
-    onFinish: (message) => {
+    onFinish: (event: any) => {
+      // In this older AI SDK version, onFinish receives an event object with { message }
+      const message = event?.message || event;
+      
       // Log full message to diagnose tool call flow
       console.log('[AiChat] onFinish message:', JSON.stringify(message, null, 2));
 
@@ -59,6 +62,13 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
       
       // Try extracting the tool result from any part type that has updatedProps (fallback)
       for (const part of parts as any[]) {
+        // Check if the args contain the props
+        if (part?.type === 'tool-invocation' && part?.args?.props) {
+          console.log('[AiChat] Applying props from part.args.props:', part.args.props);
+          updateProps(componentId, part.args.props);
+          return;
+        }
+
         const result = part?.result ?? part?.output;
         if (result?.updatedProps) {
           console.log('[AiChat] Applying updatedProps from parts:', result.updatedProps);
@@ -94,7 +104,7 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
             </p>
           </div>
 
-          {messages.map((m) => {
+          {messages.map((m: any) => {
             // v3 messages expose content via `parts` or `content`
             const textContent = m.content || (m.parts ?? [])
               .filter((p: any) => p.type === 'text')
