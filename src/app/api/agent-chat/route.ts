@@ -1,7 +1,7 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText, jsonSchema } from 'ai';
 
-export const maxDuration = 45;
+export const maxDuration = 300; // Increased to 5 minutes to allow for large code generations
 
 export async function POST(req: Request) {
   try {
