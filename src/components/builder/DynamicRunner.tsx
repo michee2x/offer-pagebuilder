@@ -63,7 +63,6 @@ const requireMock = (modName: string) => {
 // ─── AST Component Wrapper for Text Editing ────────────────────────────────
 const EditableText = ({ ofiqId, childIndex, children }: { ofiqId: string, childIndex: number, children: React.ReactNode }) => {
   const [isEditing, setIsEditing] = useState(false);
-  // Flatten children to a string if possible, or just stringify
   const textVal = typeof children === 'string' ? children : String(children);
   const [text, setText] = useState(textVal);
 
@@ -71,7 +70,11 @@ const EditableText = ({ ofiqId, childIndex, children }: { ofiqId: string, childI
     if (!isEditing) {
       setText(typeof children === 'string' ? children : String(children));
     }
-  }, [children, isEditing]);
+    // Debug log to confirm it's actually rendering
+    console.log("[EditableText] Rendered for", ofiqId, childIndex, textVal);
+  }, [children, isEditing, textVal, ofiqId, childIndex]);
+
+  const canEdit = typeof window !== 'undefined' && (window as any).__ofiqEditMode === true;
 
   if (isEditing) {
     return (
@@ -114,11 +117,12 @@ const EditableText = ({ ofiqId, childIndex, children }: { ofiqId: string, childI
   return (
     <span 
       onClick={(e) => {
+         if (!canEdit) return;
          e.preventDefault();
          e.stopPropagation();
          setIsEditing(true);
       }}
-      className="hover:ring-2 hover:ring-cyan-500/50 hover:rounded cursor-text transition-all"
+      className={canEdit ? "hover:ring-2 hover:ring-cyan-500/50 hover:rounded cursor-text transition-all" : ""}
     >
       {children}
     </span>
@@ -428,6 +432,7 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
   
   // Inject the global update handler for EditableText components
   useEffect(() => {
+    (window as any).__ofiqEditMode = editMode && isBuilderMode;
     if (editMode && isBuilderMode && code) {
       (window as any).__updateOfiqText = (ofiqId: string, childIndex: number, newText: string) => {
         const newCode = replaceTextNodeInSource(code, ofiqId, childIndex, newText);
@@ -436,6 +441,7 @@ export function DynamicRunner({ code, compiledCode, editMode = false }: DynamicR
     }
     return () => {
       delete (window as any).__updateOfiqText;
+      delete (window as any).__ofiqEditMode;
     };
   }, [editMode, isBuilderMode, code, replaceTextNodeInSource]);
 
