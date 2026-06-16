@@ -45,11 +45,22 @@ export async function GET(req: Request) {
       if (p) filename = decodeURIComponent(p);
     } catch {}
 
+    // Set correct Content-Type based on the file extension/type
+    const ext = filename.split('.').pop()?.toLowerCase();
+    let contentType = "application/pdf"; // default fallback
+    
+    if (ext === "csv" || file?.fileType === "csv") {
+      contentType = "text/csv";
+      if (!filename.endsWith(".csv")) filename += ".csv";
+    } else if (ext === "docx" || file?.fileType === "docx") {
+      contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      if (!filename.endsWith(".docx")) filename += ".docx";
+    }
+
     const headers = new Headers(upstream.headers);
     // Force download
     headers.set("Content-Disposition", `attachment; filename="${filename}"`);
-    // Ensure content-type is set (fallback to pdf)
-    if (!headers.get("content-type")) headers.set("Content-Type", "application/pdf");
+    headers.set("Content-Type", contentType);
 
     return new NextResponse(upstream.body, {
       status: 200,

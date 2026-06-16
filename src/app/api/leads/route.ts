@@ -246,15 +246,40 @@ export async function POST(req: Request) {
     return Response.json({ error: insertErr.message }, { status: 500 });
   }
 
+  // Fetch page configuration for emails and webhooks
+  const { data: page } = await supabase
+    .from('builder_pages')
+    .select('name, subdomain, custom_domain, blocks')
+    .eq('id', funnelId)
+    .single();
+
+  const blocks = page?.blocks || {};
+
+  // Fire Webhooks (Make & Zapier)
+  const integrations = blocks.integrations || {};
+  const payload = {
+    ...lead,
+    funnelName: page?.name || 'Unknown Funnel'
+  };
+
+  if (integrations.makeWebhookUrl) {
+    fetch(integrations.makeWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(e => console.error('[leads] make webhook failed:', e));
+  }
+
+  if (integrations.zapierWebhookUrl) {
+    fetch(integrations.zapierWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(e => console.error('[leads] zapier webhook failed:', e));
+  }
+
   // Send blueprint email (fire-and-forget — don't block the response)
   if (process.env.RESEND_API_KEY) {
-    const { data: page } = await supabase
-      .from('builder_pages')
-      .select('name, subdomain, custom_domain, blocks')
-      .eq('id', funnelId)
-      .single();
-
-    const blocks = page?.blocks || {};
 
     const offerName =
       blocks.offerContext?.productType ||

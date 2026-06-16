@@ -145,6 +145,9 @@ export default async function BlueprintFilesPage({
                             Topic
                           </th>
                           <th className="px-5 py-4 text-sm font-semibold text-white/60">
+                            Type
+                          </th>
+                          <th className="px-5 py-4 text-sm font-semibold text-white/60">
                             Created
                           </th>
                           <th className="px-5 py-4 text-sm font-semibold text-white/60">
@@ -161,6 +164,12 @@ export default async function BlueprintFilesPage({
                           const downloadId = file.id || file.fileName;
                           const isActive = activeLeadMagnetFileId === downloadId;
                           
+                          // Type badge details
+                          const fileType = file.fileType || "pdf";
+                          let typeColor = "text-red-400 bg-red-500/10 border-red-500/20";
+                          if (fileType === "csv") typeColor = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+                          if (fileType === "docx") typeColor = "text-blue-400 bg-blue-500/10 border-blue-500/20";
+                          
                           return (
                             <tr
                               key={fileKey}
@@ -168,6 +177,11 @@ export default async function BlueprintFilesPage({
                             >
                             <td className="px-5 py-4 align-middle text-sm text-white">
                               {file.topic}
+                            </td>
+                            <td className="px-5 py-4 align-middle">
+                              <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${typeColor}`}>
+                                {fileType}
+                              </span>
                             </td>
                             <td className="px-5 py-4 align-middle text-sm text-white/70">
                               {file.createdAt

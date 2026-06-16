@@ -14,6 +14,8 @@ import {
   PenTool,
   Lightbulb,
   Target,
+  TableProperties,
+  FileEdit,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useChat } from "@ai-sdk/react";
@@ -58,11 +60,12 @@ export function BlueprintDashboard({
   funnelName: string;
   initialBlocks: any;
 }) {
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [generationStatus, setGenerationStatus] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [topicMode, setTopicMode] = useState<"lead" | "bonus" | null>(null);
+  const [docFormat, setDocFormat] = useState<"pdf" | "csv" | "docx">("pdf");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -122,7 +125,7 @@ export function BlueprintDashboard({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  async function handleGeneratePdf(topic: string) {
+  async function handleGenerate(topic: string) {
     if (!topic) {
       toast.error("Please agree on a topic first.");
       return;
@@ -133,12 +136,12 @@ export function BlueprintDashboard({
       return;
     }
 
-    setGenerationStatus("Starting blueprint generation...");
-    setIsGeneratingPdf(true);
+    setGenerationStatus(`Starting ${docFormat.toUpperCase()} generation...`);
+    setIsGenerating(true);
     const generationToast = toast.loading(
-      "Generating your PDF... This might take a minute.",
+      `Generating your ${docFormat.toUpperCase()}... This might take a minute.`,
     );
-    console.info("[blueprint] Starting PDF generation", {
+    console.info(`[blueprint] Starting ${docFormat.toUpperCase()} generation`, {
       funnelId,
       topic,
       type: topicMode,
@@ -149,27 +152,33 @@ export function BlueprintDashboard({
       const htmlRes = await fetch(`/api/generate-blueprint/html`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ funnelId, topic, type: topicMode }),
+        body: JSON.stringify({ funnelId, topic, type: topicMode, docFormat }),
       });
 
-      if (!htmlRes.ok) throw new Error("Failed to write blueprint HTML content");
+      if (!htmlRes.ok) throw new Error("Failed to write blueprint content");
       const htmlData = await htmlRes.json();
       
-      setGenerationStatus("Rendering PDF document and saving...");
+      setGenerationStatus(`Building ${docFormat.toUpperCase()} document and saving...`);
       const pdfRes = await fetch(`/api/generate-blueprint/pdf`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ funnelId, html: htmlData.html, topic, type: topicMode }),
+        body: JSON.stringify({ 
+          funnelId, 
+          content: htmlData.content, 
+          topic, 
+          type: topicMode, 
+          format: docFormat 
+        }),
       });
 
-      if (!pdfRes.ok) throw new Error("Failed to generate PDF from HTML");
+      if (!pdfRes.ok) throw new Error(`Failed to generate ${docFormat.toUpperCase()} document`);
       const data = await pdfRes.json();
 
       if (!data.fileId) {
         throw new Error("Missing file ID from generation response");
       }
 
-      toast.success("Blueprint PDF generated successfully!", {
+      toast.success(`${docFormat.toUpperCase()} generated successfully!`, {
         id: generationToast,
       });
       setGenerationStatus(
@@ -182,13 +191,13 @@ export function BlueprintDashboard({
         )}&fileId=${encodeURIComponent(data.fileId)}`,
       );
     } catch (err) {
-      console.error("[blueprint] PDF generation failed:", err);
-      setGenerationStatus("PDF generation failed. See console for details.");
-      toast.error("Error generating PDF. Please try again.", {
+      console.error(`[blueprint] ${docFormat.toUpperCase()} generation failed:`, err);
+      setGenerationStatus(`${docFormat.toUpperCase()} generation failed. See console for details.`);
+      toast.error(`Error generating ${docFormat.toUpperCase()}. Please try again.`, {
         id: generationToast,
       });
     } finally {
-      setIsGeneratingPdf(false);
+      setIsGenerating(false);
     }
   }
 
@@ -328,21 +337,64 @@ export function BlueprintDashboard({
                       </button>
                     ))}
                   </div>
-                  <div className="flex flex-col gap-3">
+
+                  <div className="pt-4 border-t border-white/10">
+                    <p className="text-sm font-semibold text-white/80 mb-3">
+                      Choose Document Format
+                    </p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        onClick={() => setDocFormat("pdf")}
+                        className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all ${
+                          docFormat === "pdf"
+                            ? "border-red-500 bg-red-500/10 text-red-100"
+                            : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:border-white/20"
+                        }`}
+                      >
+                        <FileText className={`w-6 h-6 mb-2 ${docFormat === "pdf" ? "text-red-400" : ""}`} />
+                        <span className="text-xs font-bold uppercase tracking-wider">PDF</span>
+                        <span className="text-[10px] mt-1 opacity-70 text-center">Visual Magnet</span>
+                      </button>
+                      <button
+                        onClick={() => setDocFormat("csv")}
+                        className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all ${
+                          docFormat === "csv"
+                            ? "border-emerald-500 bg-emerald-500/10 text-emerald-100"
+                            : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:border-white/20"
+                        }`}
+                      >
+                        <TableProperties className={`w-6 h-6 mb-2 ${docFormat === "csv" ? "text-emerald-400" : ""}`} />
+                        <span className="text-xs font-bold uppercase tracking-wider">CSV</span>
+                        <span className="text-[10px] mt-1 opacity-70 text-center">Data Sheet</span>
+                      </button>
+                      <button
+                        onClick={() => setDocFormat("docx")}
+                        className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all ${
+                          docFormat === "docx"
+                            ? "border-blue-500 bg-blue-500/10 text-blue-100"
+                            : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:border-white/20"
+                        }`}
+                      >
+                        <FileEdit className={`w-6 h-6 mb-2 ${docFormat === "docx" ? "text-blue-400" : ""}`} />
+                        <span className="text-xs font-bold uppercase tracking-wider">Word</span>
+                        <span className="text-[10px] mt-1 opacity-70 text-center">Playbook</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3 pt-2">
                     <div className="flex justify-end">
                       <Button
-                        onClick={() => handleGeneratePdf(selectedTopic)}
-                        disabled={isGeneratingPdf || !selectedTopic}
-                        className="bg-brand-indigo hover:bg-brand-indigo/90 text-white font-bold px-6 py-3 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => handleGenerate(selectedTopic)}
+                        disabled={isGenerating || !selectedTopic}
+                        className="bg-brand-indigo hover:bg-brand-indigo/90 text-white font-bold px-6 py-6 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full text-lg"
                       >
-                        {isGeneratingPdf ? (
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        {isGenerating ? (
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
                         ) : (
-                          <Sparkles className="w-4 h-4 mr-2" />
+                          <Sparkles className="w-5 h-5 mr-2" />
                         )}
-                        {topicMode === "bonus"
-                          ? "Generate Bonus PDF"
-                          : "Generate PDF"}
+                        Generate {docFormat.toUpperCase()} {topicMode === "bonus" ? "Bonus" : "Blueprint"}
                       </Button>
                     </div>
                     {generationStatus ? (

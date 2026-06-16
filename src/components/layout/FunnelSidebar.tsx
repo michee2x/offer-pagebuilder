@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   Globe,
   BookOpen,
+  Plug,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +60,11 @@ export function FunnelSidebar({
       label: "Traffic Intelligence",
       href: `/funnels/${funnelId}/traffic`,
       icon: TrendingUp,
+    },
+    {
+      label: "Integrations",
+      href: `/funnels/${funnelId}/integrations`,
+      icon: Plug,
     },
     {
       label: "Publish",
