@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { anthropic } from '@ai-sdk/anthropic';
-import { generateText } from 'ai';
+import Anthropic from "@anthropic-ai/sdk";
 
 export const maxDuration = 60;
+
+const client = new Anthropic();
 
 export async function POST(req: Request) {
   try {
@@ -14,33 +15,27 @@ export async function POST(req: Request) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const base64Pdf = Buffer.from(arrayBuffer).toString("base64");
 
-    // Polyfill DOMMatrix and Path2D to prevent pdf-parse/pdfjs from crashing in Vercel Serverless
-    if (typeof (global as any).DOMMatrix === "undefined") {
-      (global as any).DOMMatrix = class DOMMatrix { constructor() {} };
-    }
-    if (typeof (global as any).Path2D === "undefined") {
-      (global as any).Path2D = class Path2D { constructor() {} };
-    }
-    if (typeof (global as any).ImageData === "undefined") {
-      (global as any).ImageData = class ImageData { constructor() {} };
-    }
-
-    // Use dynamic import so polyfills run BEFORE pdf-parse is evaluated
-    const { PDFParse } = await import('pdf-parse');
-
-    // Parse the PDF using pdf-parse class API
-    const parser = new PDFParse({ data: buffer });
-    const data = await parser.getText();
-    const text = data.text;
-
-    if (!text || text.trim().length === 0) {
-      return NextResponse.json({ error: "Could not extract text from PDF." }, { status: 400 });
-    }
-
-    // Call LLM to summarize and format
-    const systemPrompt = `You are a sales strategy extractor. Your job is to read the raw text of a document and extract the core offer strategy into a clean, readable summary with key-value pairs. Focus on:
+    // Send the PDF directly to Claude — no parsing library needed
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1024,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "document",
+              source: {
+                type: "base64",
+                media_type: "application/pdf",
+                data: base64Pdf,
+              },
+            },
+            {
+              type: "text",
+              text: `You are a sales strategy extractor. Read this document and extract the core offer strategy into a clean, readable summary with key-value pairs. Focus on:
 - Offer Name / Title
 - Format (course, service, software, etc)
 - Outcome / Promise
@@ -49,17 +44,29 @@ export async function POST(req: Request) {
 - Unique Mechanism
 - Any Proof / Results mentioned
 
-Keep it concise and formatted cleanly so the user can review it.`;
-
-    const { text: summary } = await generateText({
-      model: anthropic('claude-3-5-sonnet-20240620'), // Using 3.5 Sonnet for fast, high-quality extraction
-      system: systemPrompt,
-      prompt: `Extract the offer strategy from this document text. If something is missing, just omit it.\n\nDOCUMENT TEXT:\n${text.substring(0, 50000)}`, // Limiting length just in case
+Keep it concise and formatted cleanly so the user can review it. If something is missing, just omit it.`,
+            },
+          ],
+        },
+      ],
     });
+
+    const summary =
+      message.content[0].type === "text" ? message.content[0].text : "";
+
+    if (!summary) {
+      return NextResponse.json(
+        { error: "Could not extract strategy from PDF." },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json({ summary });
   } catch (error: any) {
     console.error("Error parsing PDF:", error);
-    return NextResponse.json({ error: error.message || "Failed to parse PDF" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Failed to parse PDF" },
+      { status: 500 }
+    );
   }
 }

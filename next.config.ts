@@ -13,10 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
-  outputFileTracingIncludes: {
-    "/api/offer-intelligence/parse-pdf": ["./node_modules/pdfjs-dist/**/*", "./node_modules/pdf-parse/**/*"]
-  }
+
 };
 
 export default nextConfig;
