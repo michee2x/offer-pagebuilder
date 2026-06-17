@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { Users, MousePointerClick, TrendingUp, TrendingDown, ArrowUpRight, Eye, UserCheck, Percent } from "lucide-react";
 import Link from "next/link";
@@ -8,8 +8,10 @@ import Link from "next/link";
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 interface DashboardData {
-  pageViews:             number;
-  uniqueVisitors:        number;
+  pageViewsTotal:        number;
+  uniqueVisitorsTotal:   number;
+  pageViews7d:           number;
+  uniqueVisitors7d:      number;
   todayViews:            number;
   prevPageViews:         number;
   prevUniqueVisitors:    number;
@@ -23,6 +25,7 @@ interface DashboardData {
   countries:             { country: string; count: number }[];
   recentTraffic:         { country: string; timestamp: string; browser: string }[];
   pageBreakdown:         { path: string; label: string; views: number }[];
+  momentumData:          { date: string; hits: number }[];
   recentLeads:           { name: string; email: string; created_at: string }[];
 }
 
@@ -69,13 +72,47 @@ function MetricCard({
   );
 }
 
+function MilestoneTracker({ current }: { current: number }) {
+  const milestones = [100, 500, 1000, 5000, 10000, 50000, 100000, 1000000];
+  const nextMilestone = milestones.find(m => m > current) || milestones[milestones.length - 1];
+  const prevMilestone = milestones.slice().reverse().find(m => m <= current) || 0;
+  
+  const progress = Math.max(0, Math.min(100, ((current - prevMilestone) / (nextMilestone - prevMilestone)) * 100));
+
+  return (
+    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-4 md:p-6 shadow-2xl relative overflow-hidden group">
+      <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 to-orange-500 shadow-[0_0_15px_rgba(251,191,36,0.6)]" />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10 pl-2">
+        <div>
+          <p className="text-sm font-black text-white tracking-wide flex items-center gap-2">
+            <span className="text-amber-400">🏆</span> Journey to {nextMilestone.toLocaleString()} Visitors
+          </p>
+          <p className="text-xs text-white/50 font-medium mt-1">
+            You're currently at {current.toLocaleString()}. Keep pushing traffic!
+          </p>
+        </div>
+        <div className="w-full md:w-1/2 flex items-center gap-3">
+          <span className="text-xs font-bold text-white/40">{prevMilestone.toLocaleString()}</span>
+          <div className="flex-1 h-2.5 rounded-full bg-white/5 overflow-hidden shadow-inner border border-white/10 relative">
+            <div 
+              className="absolute top-0 left-0 bottom-0 rounded-full bg-gradient-to-r from-amber-500 to-yellow-300 shadow-[0_0_15px_rgba(253,224,71,0.5)] transition-all duration-1000 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <span className="text-xs font-bold text-amber-400">{nextMilestone.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function AnalyticsDashboard({ data, funnelId }: Props) {
-  const hasViews = data.pageViews > 0;
+  const hasViews = data.pageViewsTotal > 0;
 
-  const conversionRate = data.uniqueVisitors > 0
-    ? ((data.leadsCount / data.uniqueVisitors) * 100).toFixed(1)
+  const conversionRate = data.uniqueVisitorsTotal > 0
+    ? ((data.leadsCount / data.uniqueVisitorsTotal) * 100).toFixed(1)
     : "0.0";
 
   const maxCountry = Math.max(...data.countries.map(c => c.count), 1);
@@ -95,15 +132,15 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
       {/* ── Top 4 metrics ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <MetricCard
-          label="7-Day Page Views"
-          value={data.pageViews.toLocaleString()}
+          label="All-Time Page Views"
+          value={data.pageViewsTotal.toLocaleString()}
           icon={Eye}
           iconColor="text-brand-indigo"
           change={data.pageViewsChange}
         />
         <MetricCard
-          label="Unique Visitors"
-          value={data.uniqueVisitors.toLocaleString()}
+          label="All-Time Visitors"
+          value={data.uniqueVisitorsTotal.toLocaleString()}
           icon={Users}
           iconColor="text-brand-pink"
           change={data.uniqueVisitorsChange}
@@ -120,9 +157,58 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
           value={`${conversionRate}%`}
           icon={Percent}
           iconColor="text-emerald-400"
-          sub={`${data.leadsCount} leads / ${data.uniqueVisitors} visitors`}
+          sub={`${data.leadsCount} leads / ${data.uniqueVisitorsTotal} visitors`}
         />
       </div>
+
+      {/* ── Milestone Tracker ─────────────────────────────────────────────── */}
+      <MilestoneTracker current={data.uniqueVisitorsTotal} />
+
+      {/* ── Momentum Chart ────────────────────────────────────────────────── */}
+      {data.momentumData.length > 0 && (
+        <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 relative flex flex-col overflow-hidden shadow-2xl hover:border-white/[0.12] transition-all duration-300">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-blue via-brand-indigo to-violet-500" />
+          <div className="mb-6 flex justify-between items-end">
+            <div>
+              <p className="text-sm font-bold text-white tracking-wide">Traffic Momentum</p>
+              <p className="text-xs text-white/50 font-medium">Last 30 Days</p>
+            </div>
+          </div>
+          <div className="h-[250px] w-full -ml-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data.momentumData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="momentumGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 10, fill: "rgba(255,255,255,0.4)" }} 
+                  axisLine={false} 
+                  tickLine={false}
+                  tickFormatter={(val) => {
+                    if (!val) return "";
+                    const d = new Date(val);
+                    return isNaN(d.getTime()) ? val : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                  }}
+                />
+                <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.4)" }} axisLine={false} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: "rgba(10, 10, 10, 0.9)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }}
+                  labelFormatter={(val) => {
+                    if (!val) return "";
+                    const d = new Date(val);
+                    return isNaN(d.getTime()) ? val : d.toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' });
+                  }}
+                />
+                <Area type="monotone" dataKey="hits" stroke="#818cf8" strokeWidth={3} fillOpacity={1} fill="url(#momentumGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* ── Map + charts row ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -172,7 +258,7 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
             <div className="absolute inset-0 pointer-events-none rounded-2xl shadow-[inset_0_0_40px_rgba(0,0,0,0.4)]" />
           </div>
           <div className="absolute bottom-6 right-6 text-right z-10">
-            <p className="text-3xl font-black text-white">{data.pageViews.toLocaleString()}</p>
+            <p className="text-3xl font-black text-white">{data.pageViewsTotal.toLocaleString()}</p>
             <p className="text-xs text-white/40">Total Worldwide Hits</p>
           </div>
         </div>

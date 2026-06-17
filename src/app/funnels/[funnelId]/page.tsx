@@ -79,12 +79,14 @@ async function fetchPostHogStats(pageId: string) {
   };
 
   // All queries in parallel
-  const [overview, geo, devices, recent, pages] = await Promise.all([
-    // 1 — current + today + prev 7d in one scan
+  const [overview, geo, devices, recent, pages, momentum] = await Promise.all([
+    // 1 — all-time totals + 7d rolling + prev 7d
     run(
       "overview",
       `
       SELECT
+        count()                                                                                  AS views_total,
+        uniq(distinct_id)                                                                        AS visitors_total,
         countIf(timestamp > now() - interval 7 day)                                              AS views_7d,
         uniqIf(distinct_id, timestamp > now() - interval 7 day)                                  AS visitors_7d,
         countIf(toDate(timestamp) = today())                                                      AS views_today,
@@ -93,7 +95,6 @@ async function fetchPostHogStats(pageId: string) {
       FROM events
       WHERE event = 'funnel_page_view'
         AND properties['funnel_id'] = '${pageId}'
-        AND timestamp > now() - interval 14 day
     `,
     ),
 
@@ -152,15 +153,31 @@ async function fetchPostHogStats(pageId: string) {
       ORDER BY count() DESC
     `,
     ),
+
+    // 6 — daily traffic (30d) for Momentum Chart
+    run(
+      "momentum",
+      `
+      SELECT toDate(timestamp) AS day, count() AS hits
+      FROM events
+      WHERE event = 'funnel_page_view'
+        AND properties['funnel_id'] = '${pageId}'
+        AND timestamp > now() - interval 30 day
+      GROUP BY day
+      ORDER BY day ASC
+    `,
+    ),
   ]);
 
   // Parse overview row
   const row = overview?.results?.[0] ?? [];
-  const views7d = Number(row[0] ?? 0);
-  const visitors7d = Number(row[1] ?? 0);
-  const viewsToday = Number(row[2] ?? 0);
-  const viewsPrev7d = Number(row[3] ?? 0);
-  const visitorsPrev7d = Number(row[4] ?? 0);
+  const viewsTotal = Number(row[0] ?? 0);
+  const visitorsTotal = Number(row[1] ?? 0);
+  const views7d = Number(row[2] ?? 0);
+  const visitors7d = Number(row[3] ?? 0);
+  const viewsToday = Number(row[4] ?? 0);
+  const viewsPrev7d = Number(row[5] ?? 0);
+  const visitorsPrev7d = Number(row[6] ?? 0);
 
   // Parse geo
   const countries = (geo?.results ?? []).map((r: any[]) => ({
@@ -239,7 +256,15 @@ async function fetchPostHogStats(pageId: string) {
     }),
   );
 
+  // Momentum chart (last 30 days)
+  const momentumData = (momentum?.results ?? []).map((r: any[]) => ({
+    date: String(r[0] ?? ""),
+    hits: Number(r[1] ?? 0),
+  }));
+
   return {
+    viewsTotal,
+    visitorsTotal,
     views7d,
     visitors7d,
     viewsToday,
@@ -254,6 +279,7 @@ async function fetchPostHogStats(pageId: string) {
     tabletViews,
     recentTraffic,
     pageBreakdown,
+    momentumData,
   };
 }
 
@@ -297,8 +323,10 @@ export default async function FunnelDashboardPage({ params }: Props) {
   const analytics = await fetchPostHogStats(funnelId);
 
   const dashboardData = {
-    pageViews: analytics?.views7d ?? 0,
-    uniqueVisitors: analytics?.visitors7d ?? 0,
+    pageViewsTotal: analytics?.viewsTotal ?? 0,
+    uniqueVisitorsTotal: analytics?.visitorsTotal ?? 0,
+    pageViews7d: analytics?.views7d ?? 0,
+    uniqueVisitors7d: analytics?.visitors7d ?? 0,
     todayViews: analytics?.viewsToday ?? 0,
     prevPageViews: analytics?.viewsPrev7d ?? 0,
     prevUniqueVisitors: analytics?.visitorsPrev7d ?? 0,
@@ -317,6 +345,7 @@ export default async function FunnelDashboardPage({ params }: Props) {
     countries: analytics?.countries ?? [],
     recentTraffic: analytics?.recentTraffic ?? [],
     pageBreakdown: analytics?.pageBreakdown ?? [],
+    momentumData: analytics?.momentumData ?? [],
     recentLeads: (leads ?? []).map((l) => ({
       name: l.name,
       email: l.email,
