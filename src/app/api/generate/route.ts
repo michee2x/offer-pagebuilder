@@ -149,12 +149,12 @@ Goal: Hook the user and sell the primary offer. Must include a beautiful, highly
 ### PAGE 2 — UPSELL (path: "/upsell")
 export default function UpsellPage()
 Goal: Present a one-time offer. Must include pricing, strong value stack, and accept/decline actions.
-Accept CTA → navigate("/thankyou") | Decline link → navigate("/downsell")
+Accept CTA → navigate("/thankyou") | Decline link → navigate("/downsell?declined=true")
 
 ### PAGE 3 — DOWNSELL (path: "/downsell")
 export default function DownsellPage()
 Goal: Present a lower-commitment alternative.
-Accept CTA → navigate("/thankyou") | Decline link → navigate("/thankyou")
+Accept CTA → navigate("/thankyou") | Decline link → navigate("/thankyou?declined=true")
 
 ### PAGE 4 — THANK YOU (path: "/thankyou")
 export default function ThankYouPage()

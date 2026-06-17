@@ -953,8 +953,7 @@ export default function BuilderPage() {
           {!isPreviewMode && <LeftPanel />}
           {/* Canvas fills full width — left padding reserves space for the icon strip */}
           <div className="flex-1 overflow-hidden h-full w-full">
-
-            <Canvas />
+            <Canvas checkoutUrls={undefined} />
           </div>
         </div>
 

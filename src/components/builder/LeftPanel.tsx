@@ -64,7 +64,7 @@ export function LeftPanel() {
         <div className="flex items-center gap-3 px-[14px] h-10 shrink-0 border-b border-border/50">
           <Layout className="w-4 h-4 text-muted-foreground shrink-0" />
           <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap">
-            Lead Capture — {rootList.length} Sections
+            {pages[activePagePath]?.name || 'Page'} — {rootList.length} Sections
           </span>
         </div>
 
