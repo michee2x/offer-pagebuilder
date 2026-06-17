@@ -37,11 +37,14 @@ const createRequireMock = (checkoutUrls?: Record<string, string>, activePagePath
       
       // If we are navigating "forward" to buy, use the configured checkout URL instead!
       const isForwardNavigation = 
-        (activePagePath === "/" && path === "/upsell") ||
-        (activePagePath === "/upsell" && path === "/thankyou") ||
-        (activePagePath === "/downsell" && path === "/thankyou");
+        (activePagePath === "/" && path.includes("upsell")) ||
+        (activePagePath === "/upsell" && path.includes("thankyou")) ||
+        (activePagePath === "/downsell" && path.includes("thankyou"));
         
+      console.log("[DynamicRunner] go() intercepted", { activePagePath, path, isForwardNavigation, checkoutUrls });
+
       if (isForwardNavigation && checkoutUrls && activePagePath && checkoutUrls[activePagePath]) {
+        console.log("[DynamicRunner] Redirecting to external checkout:", checkoutUrls[activePagePath]);
         window.location.href = checkoutUrls[activePagePath];
         return;
       }

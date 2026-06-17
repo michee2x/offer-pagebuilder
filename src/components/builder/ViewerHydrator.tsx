@@ -40,7 +40,7 @@ export function ViewerHydrator({ blocks }: { blocks: any }) {
 
   return (
       <div className="w-screen min-h-screen bg-background text-foreground flex flex-col">
-          <Canvas isLiveViewer={true} />
+          <Canvas isLiveViewer={true} checkoutUrls={blocks?.integrations?.checkoutUrls} />
       </div>
   );
 }
