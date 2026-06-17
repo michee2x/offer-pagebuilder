@@ -23,12 +23,29 @@ const EditModeCtx = createContext(false);
 let _ofiqCounter = 0;
 
 // ─── Require sandbox ──────────────────────────────────────────────────────────
-const requireMock = (mod: string) => {
+const createRequireMock = (checkoutUrls?: Record<string, string>, activePagePath?: string) => (mod: string) => {
   if (mod === "react") return React;
   if (mod === "lucide-react") return LucideIcons;
   if (mod === "framer-motion" || mod === "motion") return FramerMotion;
   if (mod === "react-router-dom") {
     const go = (path: string) => {
+      // External URL (e.g. Stripe Payment Link) — redirect to it
+      if (path.startsWith("http://") || path.startsWith("https://")) {
+        window.location.href = path;
+        return;
+      }
+      
+      // If we are navigating "forward" to buy, use the configured checkout URL instead!
+      const isForwardNavigation = 
+        (activePagePath === "/" && path === "/upsell") ||
+        (activePagePath === "/upsell" && path === "/thankyou") ||
+        (activePagePath === "/downsell" && path === "/thankyou");
+        
+      if (isForwardNavigation && checkoutUrls && activePagePath && checkoutUrls[activePagePath]) {
+        window.location.href = checkoutUrls[activePagePath];
+        return;
+      }
+
       if (
         typeof window !== "undefined" &&
         (window.location.pathname.startsWith("/p/") ||
@@ -134,9 +151,15 @@ const EditableText = ({
 };
 
 // ─── Evaluate compiled JS – always injects EditableText into scope ────────────
-const evaluateCode = (jsCode: string): React.ComponentType => {
+const evaluateCode = (
+  jsCode: string, 
+  checkoutUrls?: Record<string, string>, 
+  activePagePath?: string
+): React.ComponentType => {
   const exportsObj: Record<string, any> = {};
   const moduleObj = { exports: exportsObj };
+  const requireMock = createRequireMock(checkoutUrls, activePagePath);
+  
   // 5th arg "EditableText" makes the compiled React.createElement(EditableText, …) resolve
   const fn = new Function(
     "React",
@@ -341,14 +364,18 @@ function cleanSource(code: string): string {
 // ─── Main component ───────────────────────────────────────────────────────────
 interface DynamicRunnerProps {
   code?: string;
-  compiledCode?: string;
+  compiledCode?: string; // If provided, we skip Babel in the browser
   editMode?: boolean;
+  checkoutUrls?: Record<string, string>;
+  activePagePath?: string;
 }
 
 export function DynamicRunner({
   code,
   compiledCode,
   editMode = false,
+  checkoutUrls,
+  activePagePath,
 }: DynamicRunnerProps) {
   const [babelLoaded, setBabelLoaded] = useState(false);
   const [comp, setComp] = useState<React.ComponentType | null>(null);
@@ -366,12 +393,14 @@ export function DynamicRunner({
   useEffect(() => {
     if (!compiledCode) return;
     try {
+      _ofiqCounter = 0; // reset deterministic id counter
+      const Comp = evaluateCode(compiledCode, checkoutUrls, activePagePath);
+      setComp(() => Comp);
       setErr(null);
-      setComp(() => evaluateCode(compiledCode));
     } catch (e: any) {
       setErr(e.message || "Failed to evaluate compiled component.");
     }
-  }, [compiledCode]);
+  }, [compiledCode, checkoutUrls, activePagePath]);
 
   // ── B: load Babel for builder ─────────────────────────────────────────────
   useEffect(() => {
@@ -419,12 +448,12 @@ export function DynamicRunner({
         );
       }
 
-      setComp(() => evaluateCode(transpiled));
+      setComp(() => evaluateCode(transpiled, checkoutUrls, activePagePath));
     } catch (e: any) {
       console.error("[DynamicRunner] compile error:", e);
       setErr(e?.message || "Failed to compile page code.");
     }
-  }, [code, babelLoaded, isBuilderMode]);
+  }, [code, babelLoaded, isBuilderMode, checkoutUrls, activePagePath]);
 
   // ── D: register text-update handler ──────────────────────────────────────
   useEffect(() => {

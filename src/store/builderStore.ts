@@ -94,8 +94,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
   funnelName: 'Untitled Page',
   
   pages: { 
-    '/': { name: 'Lead Capture', path: '/', components: {}, rootList: [] },
-    '/sales': { name: 'Sales Page', path: '/sales', components: {}, rootList: [] },
+    '/': { name: 'Sales Page', path: '/', components: {}, rootList: [] },
     '/upsell': { name: 'Upsell', path: '/upsell', components: {}, rootList: [] },
     '/downsell': { name: 'Downsell', path: '/downsell', components: {}, rootList: [] },
     '/thankyou': { name: 'Thank You', path: '/thankyou', components: {}, rootList: [] }

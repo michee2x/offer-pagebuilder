@@ -20,7 +20,7 @@ export default async function IntegrationsPage({ params }: Props) {
 
   const { data: funnel } = await supabase
     .from("builder_pages")
-    .select("id, name, blocks")
+    .select("id, name, blocks, subdomain")
     .eq("id", funnelId)
     .eq("user_id", session.user.id)
     .single();
@@ -29,6 +29,13 @@ export default async function IntegrationsPage({ params }: Props) {
 
   const makeWebhookUrl = funnel.blocks?.integrations?.makeWebhookUrl || "";
   const zapierWebhookUrl = funnel.blocks?.integrations?.zapierWebhookUrl || "";
+  const checkoutUrls = funnel.blocks?.integrations?.checkoutUrls || {};
+
+  // Extract page paths from the funnel blocks for the checkout helper
+  const pagePaths: string[] = funnel.blocks?.pages
+    ? Object.keys(funnel.blocks.pages)
+    : ["/"];
+  const subdomain = (funnel as any).subdomain || "";
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
@@ -95,6 +102,9 @@ export default async function IntegrationsPage({ params }: Props) {
               funnelId={funnelId} 
               initialMakeUrl={makeWebhookUrl}
               initialZapierUrl={zapierWebhookUrl}
+              initialCheckoutUrls={checkoutUrls}
+              subdomain={subdomain}
+              pagePaths={pagePaths}
             />
           </main>
         </div>

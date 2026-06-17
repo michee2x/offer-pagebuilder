@@ -120,7 +120,13 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
       >
         <div className="h-auto min-h-screen w-full p-0 flex flex-col transition-all">
           {activeCode ? (
-            <DynamicRunner code={activeCode} compiledCode={compiledCode} editMode={false} />
+            <DynamicRunner 
+              code={activeCode} 
+              compiledCode={compiledCode} 
+              editMode={false} 
+              checkoutUrls={blocks?.integrations?.checkoutUrls}
+              activePagePath={activePagePath}
+            />
           ) : (
             <div className="flex flex-col">
               {rootList.map((id: string) => (

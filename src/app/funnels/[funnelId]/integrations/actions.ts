@@ -4,7 +4,12 @@ import { getSession } from "@/auth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { revalidatePath } from "next/cache";
 
-export async function saveIntegrations(funnelId: string, makeWebhookUrl: string, zapierWebhookUrl: string) {
+export async function saveIntegrations(
+  funnelId: string,
+  makeWebhookUrl: string,
+  zapierWebhookUrl: string,
+  checkoutUrls?: Record<string, string>,
+) {
   const session = await getSession();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -22,8 +27,10 @@ export async function saveIntegrations(funnelId: string, makeWebhookUrl: string,
 
   const blocks = funnel.blocks || {};
   blocks.integrations = {
+    ...(blocks.integrations || {}),
     makeWebhookUrl: makeWebhookUrl.trim(),
     zapierWebhookUrl: zapierWebhookUrl.trim(),
+    checkoutUrls: checkoutUrls || blocks.integrations?.checkoutUrls || {},
   };
 
   const { error } = await supabase

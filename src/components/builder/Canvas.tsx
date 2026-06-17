@@ -67,7 +67,7 @@ function buildThemeInlineVars(theme: ShadcnTheme): React.CSSProperties {
   return cssVars as React.CSSProperties;
 }
 
-export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
+export function Canvas({ isLiveViewer = false, checkoutUrls }: { isLiveViewer?: boolean; checkoutUrls?: Record<string, string> }) {
   const {
     rootList,
     setSelected,
@@ -140,7 +140,12 @@ export function Canvas({ isLiveViewer = false }: { isLiveViewer?: boolean }) {
           } flex flex-col transition-all`}
         >
           {activeCode ? (
-            <DynamicRunner code={activeCode} editMode={!isPreviewMode} />
+            <DynamicRunner 
+              code={activeCode} 
+              editMode={!isPreviewMode} 
+              checkoutUrls={checkoutUrls}
+              activePagePath={activePagePath}
+            />
           ) : rootList.length === 0 ? (
             <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg border-muted p-12 text-center my-8 mx-8">
               <div>
