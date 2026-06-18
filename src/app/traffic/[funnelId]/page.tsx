@@ -27,6 +27,12 @@ import {
   Eye,
   FileText,
   Globe,
+  Video,
+  Film,
+  Mic,
+  User,
+  Smartphone,
+  Clapperboard,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -205,38 +211,89 @@ function parseGoogleAds(text: string) {
 
 function parseVideoScripts(text: string) {
   if (!text) return [];
+  // Split on SCRIPT 1, SCRIPT 2, etc. — keep the SCRIPT header with each block
   const blocks = text
-    .split(/(?=SCRIPT\s*\d+|SCRIPT\s*1|SCRIPT\s*2)/i)
+    .split(/(?=SCRIPT\s*\d+\s*(?:—|-|–))/i)
     .filter((b) => b.trim().length > 20);
   return blocks.map((block) => {
     const title =
       block
-        .match(/(SCRIPT\s*\d+\s*[—-]\s*[^\n]+|SCRIPT\s*\d+\s*[^\n]+)/i)?.[0]
+        .match(/(SCRIPT\s*\d+\s*(?:—|-|–)\s*[^\n]+)/i)?.[0]
         ?.trim() || "Video Script Blueprint";
+    
+    // Detect format type
+    const isUGC = /UGC\s*FORMAT/i.test(title) || /UGC/i.test(block.split("\n")[0]);
+    const isVSL = /VSL\s*FORMAT/i.test(title) || (!isUGC);
+    const formatType = isUGC ? "UGC" : "VSL";
+    
+    // Extract the [For: ...] usage context
+    const forContext = block.match(/\[For:\s*([^\]]+)\]/i)?.[1]?.trim() || 
+      (isUGC ? "TikTok, Instagram Reels, YouTube Shorts" : "Sales page hero video, YouTube pre-roll, or Facebook video ad");
+    
     const length =
-      block.match(/RECOMMENDED LENGTH:\s*(.*)/i)?.[1]?.trim() || "60 seconds";
+      block.match(/RECOMMENDED LENGTH:\s*(.*)/i)?.[1]?.trim() || 
+      (isUGC ? "45-60 seconds" : "3-5 minutes");
     const tone =
-      block.match(/TONE DIRECTION:\s*(.*)/i)?.[1]?.trim() ||
+      block.match(/TONE DIRECTION:\s*([^\n]+)/i)?.[1]?.trim() ||
       "Authoritative & Warm";
 
-    const cues: { time: string; action: string; direction: string }[] = [];
+    // UGC-specific fields
+    const targetPlatform = block.match(/TARGET PLATFORM:\s*([^\n]+)/i)?.[1]?.trim() || "";
+    const creatorDirection = block.match(/CREATOR DIRECTION:\s*([^\n]+)/i)?.[1]?.trim() || "";
+    const authenticityNote = block.match(/AUTHENTICITY NOTE:\s*([^\n]+)/i)?.[1]?.trim() || "";
+
+    // Parse timestamped cues — now also captures visual directions and delivery notes
+    const cues: { time: string; action: string; direction: string; visualDirection?: string; deliveryNote?: string }[] = [];
     const lines = block.split("\n");
-    lines.forEach((line) => {
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      // Match timecodes like 0:00 – 0:05, 0:00 - 0:05, 0:00–0:05
       const match = line.match(
-        /^(\d+:\d+\s*–\s*\d+:\d+|\d+:\d+\s*-\s*\d+:\d+|\d+:\d+)\s*\|\s*([^:]+):\s*(.*)/i,
+        /^([\d]+:[\d]+\s*(?:–|-)\s*[\d]+:[\d]+|[\d]+:[\d]+)\s*\|\s*([^:]+):\s*(.*)/i,
       );
       if (match) {
-        cues.push({
+        const cue: { time: string; action: string; direction: string; visualDirection?: string; deliveryNote?: string } = {
           time: match[1].trim(),
           action: match[2].trim(),
           direction: match[3].trim(),
-        });
+        };
+        
+        // Look ahead for [Visual direction: ...] and [Delivery note: ...] lines
+        for (let j = i + 1; j < Math.min(i + 4, lines.length); j++) {
+          const nextLine = lines[j].trim();
+          // Stop if we hit another timecode or a major header
+          if (/^[\d]+:[\d]+/.test(nextLine) || /^(?:CRITICAL|SCRIPT\s*\d)/i.test(nextLine)) break;
+          
+          const visualMatch = nextLine.match(/\[?\s*[Vv]isual\s*(?:direction)?:\s*(.*?)\]?$/);
+          if (visualMatch) {
+            cue.visualDirection = visualMatch[1].replace(/\]$/, "").trim();
+          }
+          const deliveryMatch = nextLine.match(/\[?\s*[Dd]elivery\s*(?:note)?:\s*(.*?)\]?$/);
+          if (deliveryMatch) {
+            cue.deliveryNote = deliveryMatch[1].replace(/\]$/, "").trim();
+          }
+        }
+        
+        cues.push(cue);
       }
-    });
+    }
 
     const successFactor =
-      block.match(/CRITICAL SUCCESS FACTOR:\s*([\s\S]*?)$/i)?.[1]?.trim() || "";
-    return { title, length, tone, cues, successFactor, rawText: block };
+      block.match(/CRITICAL SUCCESS FACTOR:\s*([\s\S]*?)(?=\n\n|SCRIPT\s*\d|$)/i)?.[1]?.trim() || "";
+    
+    return { 
+      title, 
+      length, 
+      tone, 
+      cues, 
+      successFactor, 
+      rawText: block, 
+      formatType,
+      forContext,
+      targetPlatform,
+      creatorDirection,
+      authenticityNote,
+    };
   });
 }
 
@@ -1009,80 +1066,235 @@ export default function TrafficIntelligencePage({
 
                     {/* 4. vsl_ugc_video_script_intelligence */}
                     {activeSection === "vsl_ugc_video_script_intelligence" && (
-                      <div className="space-y-6">
+                      <div className="space-y-8">
                         {parseVideoScripts(activeContent).length === 0 ? (
                           <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8">
                             <TextRenderer text={activeContent} />
                           </div>
                         ) : (
                           parseVideoScripts(activeContent).map(
-                            (script, idx) => (
+                            (script, idx) => {
+                              const isUGC = script.formatType === "UGC";
+                              const accentColor = isUGC ? "violet" : "rose";
+                              const accentBg = isUGC ? "violet-500" : "rose-500";
+                              const accentText = isUGC ? "violet-400" : "rose-400";
+                              
+                              return (
                               <div
                                 key={idx}
-                                className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl hover:border-white/[0.12] transition-all"
+                                className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-2xl hover:border-white/[0.12] transition-all duration-300 overflow-hidden relative"
                               >
-                                <div className="flex items-center justify-between border-b border-white/[0.05] pb-4 mb-6">
-                                  <div>
-                                    <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wide">
-                                      Script Variant {idx + 1}
-                                    </span>
-                                    <h3 className="text-xl font-black text-white mt-2">
-                                      {script.title}
-                                    </h3>
-                                  </div>
-                                  <div className="text-right">
-                                    <p className="text-xs font-bold text-rose-400 flex items-center gap-1.5 justify-end">
-                                      <Clock className="w-3.5 h-3.5" />
-                                      {script.length}
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                                      Tone: {script.tone}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {/* Script Cues Timeline */}
-                                <div className="space-y-4 mb-6 relative">
-                                  <div className="absolute top-[20px] bottom-[20px] left-[39px] w-[2px] bg-white/5" />
-
-                                  {script.cues.map((cue, cIdx) => (
-                                    <div
-                                      key={cIdx}
-                                      className="flex gap-4 items-start relative group"
-                                    >
-                                      <div className="w-[80px] text-xs font-mono font-bold text-rose-400 shrink-0 text-right pr-2 pt-2.5">
-                                        {cue.time}
+                                {/* Ambient glow */}
+                                <div className={`absolute top-[-30%] ${isUGC ? 'left' : 'right'}-[-15%] w-[500px] h-[500px] ${isUGC ? 'bg-violet-500/8' : 'bg-rose-500/8'} blur-[180px] rounded-full pointer-events-none`} />
+                                
+                                {/* Script Header */}
+                                <div className={`px-6 py-5 border-b border-white/[0.06] bg-white/[0.02] relative`}>
+                                  <div className="flex items-start justify-between flex-wrap gap-4">
+                                    <div className="flex items-start gap-4 flex-1 min-w-0">
+                                      {/* Format Icon */}
+                                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${isUGC ? 'bg-violet-500/15 border border-violet-500/25' : 'bg-rose-500/15 border border-rose-500/25'}`}>
+                                        {isUGC ? (
+                                          <Smartphone className={`w-5 h-5 text-${accentText}`} />
+                                        ) : (
+                                          <Video className={`w-5 h-5 text-${accentText}`} />
+                                        )}
                                       </div>
-                                      <div className="w-6 h-6 rounded-full bg-[#121824] border border-white/10 flex items-center justify-center shrink-0 mt-2.5 relative z-10 group-hover:border-rose-400/50 transition-colors">
-                                        <Play className="w-2.5 h-2.5 text-white/50 group-hover:text-rose-400 transition-colors" />
-                                      </div>
-                                      <div className="flex-1 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 hover:bg-white/[0.04] transition-colors">
-                                        <h5 className="text-[10px] font-black uppercase tracking-widest text-rose-400 mb-1.5">
-                                          {cue.action}
-                                        </h5>
-                                        <p className="text-sm text-white/80 leading-relaxed font-normal">
-                                          {cue.direction}
+                                      <div className="min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                                          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide ${isUGC ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                                            {isUGC ? "UGC Script" : "VSL Script"}
+                                          </span>
+                                          <span className="text-[10px] font-bold text-muted-foreground px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.06]">
+                                            Script {idx + 1}
+                                          </span>
+                                        </div>
+                                        <h3 className="text-lg font-black text-white leading-tight">
+                                          {script.title.replace(/^SCRIPT\s*\d+\s*(?:—|-|–)\s*/i, "")}
+                                        </h3>
+                                        <p className="text-[11px] text-muted-foreground mt-1">
+                                          {script.forContext}
                                         </p>
                                       </div>
                                     </div>
-                                  ))}
+                                    
+                                    {/* Copy Script Button */}
+                                    <Button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(script.rawText);
+                                        toast.success(`Script ${idx + 1} copied to clipboard!`);
+                                      }}
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-white/50 hover:text-white border-white/10 hover:border-white/20 flex-shrink-0 gap-1.5"
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                      Copy Script
+                                    </Button>
+                                  </div>
                                 </div>
 
+                                {/* Metadata Dashboard */}
+                                <div className="px-6 py-4 border-b border-white/[0.06]">
+                                  <div className={`grid ${isUGC ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2'} gap-3`}>
+                                    {/* Duration */}
+                                    <div className={`bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 flex items-center gap-3`}>
+                                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isUGC ? 'bg-violet-500/10' : 'bg-rose-500/10'}`}>
+                                        <Clock className={`w-3.5 h-3.5 ${isUGC ? 'text-violet-400' : 'text-rose-400'}`} />
+                                      </div>
+                                      <div>
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Duration</p>
+                                        <p className={`text-xs font-black ${isUGC ? 'text-violet-400' : 'text-rose-400'}`}>{script.length}</p>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Tone */}
+                                    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 flex items-center gap-3">
+                                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isUGC ? 'bg-violet-500/10' : 'bg-rose-500/10'}`}>
+                                        <Mic className={`w-3.5 h-3.5 ${isUGC ? 'text-violet-400' : 'text-rose-400'}`} />
+                                      </div>
+                                      <div>
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Tone</p>
+                                        <p className="text-xs font-bold text-white">{script.tone}</p>
+                                      </div>
+                                    </div>
+
+                                    {/* UGC-specific: Target Platform */}
+                                    {isUGC && script.targetPlatform && (
+                                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                                          <Smartphone className="w-3.5 h-3.5 text-violet-400" />
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Platform</p>
+                                          <p className="text-xs font-bold text-white">{script.targetPlatform}</p>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* UGC-specific: Creator Type */}
+                                    {isUGC && script.creatorDirection && (
+                                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                                          <User className="w-3.5 h-3.5 text-violet-400" />
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Creator</p>
+                                          <p className="text-xs font-bold text-white truncate max-w-[140px]">{script.creatorDirection}</p>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* UGC Authenticity Note — full width */}
+                                  {isUGC && script.authenticityNote && (
+                                    <div className="mt-3 bg-violet-500/[0.06] border border-violet-500/15 rounded-xl p-3 flex items-start gap-3">
+                                      <Film className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />
+                                      <div>
+                                        <p className="text-[9px] font-black uppercase tracking-widest text-violet-400 mb-0.5">Filming Direction</p>
+                                        <p className="text-xs text-white/80 leading-relaxed font-normal">{script.authenticityNote}</p>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Script Sequence Timeline */}
+                                <div className="px-6 py-6">
+                                  <div className="flex items-center gap-2 mb-5">
+                                    <Clapperboard className={`w-4 h-4 ${isUGC ? 'text-violet-400' : 'text-rose-400'}`} />
+                                    <h4 className={`text-xs font-black uppercase tracking-widest ${isUGC ? 'text-violet-400' : 'text-rose-400'}`}>
+                                      Script Sequence
+                                    </h4>
+                                    <div className="flex-1 h-px bg-white/[0.06]" />
+                                    <span className="text-[10px] text-muted-foreground font-bold">
+                                      {script.cues.length} beat{script.cues.length !== 1 ? "s" : ""}
+                                    </span>
+                                  </div>
+
+                                  <div className="space-y-3 relative">
+                                    {/* Vertical timeline line */}
+                                    {script.cues.length > 1 && (
+                                      <div className={`absolute top-[24px] bottom-[24px] left-[47px] w-[2px] ${isUGC ? 'bg-violet-500/10' : 'bg-rose-500/10'}`} />
+                                    )}
+
+                                    {script.cues.map((cue, cIdx) => (
+                                      <div
+                                        key={cIdx}
+                                        className="flex gap-3 items-start relative group"
+                                      >
+                                        {/* Timecode */}
+                                        <div className={`w-[90px] text-[11px] font-mono font-bold shrink-0 text-right pr-2 pt-3 ${isUGC ? 'text-violet-400' : 'text-rose-400'}`}>
+                                          {cue.time}
+                                        </div>
+                                        
+                                        {/* Timeline Node */}
+                                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-3 relative z-10 transition-all duration-200 ${isUGC ? 'bg-[#121824] border-violet-500/20 group-hover:border-violet-400/60 group-hover:shadow-[0_0_8px_rgba(139,92,246,0.3)]' : 'bg-[#121824] border-rose-500/20 group-hover:border-rose-400/60 group-hover:shadow-[0_0_8px_rgba(244,63,94,0.3)]'}`}>
+                                          <Play className={`w-2 h-2 transition-colors ${isUGC ? 'text-violet-400/50 group-hover:text-violet-400' : 'text-rose-400/50 group-hover:text-rose-400'}`} />
+                                        </div>
+                                        
+                                        {/* Content Card */}
+                                        <div className={`flex-1 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 hover:bg-white/[0.04] transition-all duration-200 group-hover:border-white/[0.10]`}>
+                                          <h5 className={`text-[10px] font-black uppercase tracking-widest mb-2 ${isUGC ? 'text-violet-400' : 'text-rose-400'}`}>
+                                            {cue.action}
+                                          </h5>
+                                          <p className="text-[13px] text-white/85 leading-relaxed font-normal">
+                                            {cue.direction}
+                                          </p>
+                                          
+                                          {/* Visual Direction */}
+                                          {cue.visualDirection && (
+                                            <div className="mt-3 flex items-start gap-2 bg-white/[0.03] border border-white/[0.05] rounded-xl px-3 py-2">
+                                              <Film className="w-3 h-3 text-sky-400 shrink-0 mt-0.5" />
+                                              <div>
+                                                <p className="text-[9px] font-bold uppercase tracking-widest text-sky-400 mb-0.5">Visual</p>
+                                                <p className="text-[11px] text-white/60 leading-relaxed font-normal">{cue.visualDirection}</p>
+                                              </div>
+                                            </div>
+                                          )}
+                                          
+                                          {/* Delivery Note */}
+                                          {cue.deliveryNote && (
+                                            <div className="mt-2 flex items-start gap-2 bg-white/[0.03] border border-white/[0.05] rounded-xl px-3 py-2">
+                                              <Mic className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
+                                              <div>
+                                                <p className="text-[9px] font-bold uppercase tracking-widest text-amber-400 mb-0.5">Delivery</p>
+                                                <p className="text-[11px] text-white/60 leading-relaxed font-normal">{cue.deliveryNote}</p>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  {/* Fallback: if no cues parsed, show raw text */}
+                                  {script.cues.length === 0 && (
+                                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5">
+                                      <TextRenderer text={script.rawText} />
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Critical Success Factor */}
                                 {script.successFactor && (
-                                  <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-4 flex gap-3">
-                                    <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-                                    <div>
-                                      <h4 className="text-[10px] font-black uppercase tracking-widest text-rose-400 mb-0.5">
-                                        Critical Success Factor
-                                      </h4>
-                                      <p className="text-xs text-white/70 leading-relaxed font-normal">
-                                        {script.successFactor}
-                                      </p>
+                                  <div className="mx-6 mb-6">
+                                    <div className={`${isUGC ? 'bg-violet-500/[0.06] border-violet-500/15' : 'bg-rose-500/[0.06] border-rose-500/15'} border rounded-2xl p-5 flex gap-3`}>
+                                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isUGC ? 'bg-violet-500/15' : 'bg-rose-500/15'}`}>
+                                        <ShieldAlert className={`w-5 h-5 ${isUGC ? 'text-violet-400' : 'text-rose-400'}`} />
+                                      </div>
+                                      <div>
+                                        <h4 className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isUGC ? 'text-violet-400' : 'text-rose-400'}`}>
+                                          Critical Success Factor
+                                        </h4>
+                                        <p className="text-[13px] text-white/75 leading-relaxed font-normal">
+                                          {script.successFactor}
+                                        </p>
+                                      </div>
                                     </div>
                                   </div>
                                 )}
                               </div>
-                            ),
+                              );
+                            },
                           )
                         )}
                       </div>

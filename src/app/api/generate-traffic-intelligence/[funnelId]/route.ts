@@ -242,7 +242,7 @@ DAY 21 REVIEW: [The specific metrics to compile. The go/no-go decision criteria 
             model: anthropic('claude-opus-4-6'),
             system: systemPrompt,
             prompt: userPrompt,
-            maxOutputTokens: 4000,
+            maxOutputTokens: 16000,
         });
 
         // Parse parsed section structure using the newly implemented parseCall3Output function

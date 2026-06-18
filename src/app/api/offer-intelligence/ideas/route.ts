@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
   console.log('[ideas] Starting AI stream with Claude');
   const result = streamText({
-    model: anthropic('claude-sonnet-4-20250514'),
+    model: anthropic('claude-sonnet-4-6'),
     system: IDEA_GENERATION_SYSTEM,
     prompt,
   });
