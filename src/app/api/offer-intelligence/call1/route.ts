@@ -24,6 +24,9 @@ export async function POST(req: Request) {
   let formData: OfferFormData;
   let existingFunnelId: string | undefined;
   let workspaceId: string | undefined;
+  let isTemplate = false;
+  let templateCategory: string | null = null;
+  let templateTags: string[] = [];
 
   const user = await getUser();
   if (!user || !user.id) {
@@ -38,6 +41,9 @@ export async function POST(req: Request) {
     formData = body.formData;
     existingFunnelId = body.funnelId;
     workspaceId = body.workspaceId;
+    isTemplate = body.isTemplate || false;
+    templateCategory = body.templateCategory || null;
+    templateTags = body.templateTags ? body.templateTags.split(',').map((t: string) => t.trim()) : [];
 
     console.log('[call1] Request body parsed:', {
       hasFormData: !!formData,
@@ -59,9 +65,9 @@ export async function POST(req: Request) {
     const funnelData: any = {
       name: formData.field_1_name || 'Untitled Funnel',
       user_id: user.id,
-      is_template: body.isTemplate || false,
-      template_category: body.templateCategory || null,
-      template_tags: body.templateTags ? body.templateTags.split(',').map((t: string) => t.trim()) : [],
+      is_template: isTemplate,
+      template_category: templateCategory,
+      template_tags: templateTags,
       blocks: {
         intelligence: {
           raw_input: formData,
