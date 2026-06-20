@@ -55,6 +55,9 @@ function AnalyzeContent() {
   const searchParams = useSearchParams();
   const supabase = createClient();
   const workspaceId = searchParams.get("workspace");
+  const isTemplate = searchParams.get("isTemplate") === "true";
+  const templateCategory = searchParams.get("templateCategory");
+  const templateTags = searchParams.get("templateTags");
 
   const [currentStep, setCurrentStep] = useState<CurrentStep>("path");
   const [campaignPath, setCampaignPath] = useState<CampaignPathType>(null);
@@ -203,6 +206,9 @@ function AnalyzeContent() {
           formData: submitData,
           workspaceId,
           hasIdea: campaignPath === "idea",
+          isTemplate,
+          templateCategory,
+          templateTags,
         }),
       });
 
@@ -254,6 +260,9 @@ function AnalyzeContent() {
           formData: submitData,
           workspaceId,
           hasIdea: true,
+          isTemplate,
+          templateCategory,
+          templateTags,
         }),
       });
 

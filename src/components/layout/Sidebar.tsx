@@ -16,6 +16,7 @@ import {
   LogOut,
   Brain,
   X,
+  LayoutTemplate,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/uiStore";
@@ -57,6 +58,7 @@ export function Sidebar() {
   const links: SidebarLink[] = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
     { label: "Workspaces", href: "/workspaces", icon: Filter },
+    { label: "Templates", href: `/templates${funnelId ? `?workspace=${funnelId}` : ''}`, icon: LayoutTemplate },
   ];
 
   const accountLinks: SidebarLink[] = [

@@ -130,20 +130,12 @@ export default async function DashboardPage(props: {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {activeWorkspace ? (
-                <>
-                  <a
-                    href={"/analyze?workspace=" + activeWorkspace.id}
-                    className="h-14 px-8 rounded-full bg-white text-black font-bold flex items-center justify-center gap-2 transition-all hover:bg-white/90 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
-                  >
-                    Create New Offer <span className="text-xl">→</span>
-                  </a>
-                  <Link
-                    href={`/templates?workspace=${activeWorkspace.id}`}
-                    className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2"
-                  >
-                    Use Template
-                  </Link>
-                </>
+                <a
+                  href={"/analyze?workspace=" + activeWorkspace.id}
+                  className="h-14 px-8 rounded-full bg-white text-black font-bold flex items-center justify-center gap-2 transition-all hover:bg-white/90 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
+                >
+                  Create New Offer <span className="text-xl">→</span>
+                </a>
               ) : (
                 <Link
                   href="/onboard"
@@ -210,21 +202,12 @@ export default async function DashboardPage(props: {
                     <p className="text-white/40 text-[15px]">
                       No campaigns in this workspace yet.
                     </p>
-                    <div className="flex gap-4 mt-4">
-                      <a
-                        href={"/analyze?workspace=" + activeWorkspace.id}
-                        className="text-white font-semibold hover:underline transition-all"
-                      >
-                        Launch your first campaign
-                      </a>
-                      <span className="text-white/20">or</span>
-                      <a
-                        href={`/templates?workspace=${activeWorkspace.id}`}
-                        className="text-white font-semibold hover:underline transition-all"
-                      >
-                        Use a template
-                      </a>
-                    </div>
+                    <a
+                      href={"/analyze?workspace=" + activeWorkspace.id}
+                      className="text-white font-semibold mt-4 hover:underline transition-all"
+                    >
+                      Launch your first campaign
+                    </a>
                   </div>
                 )}
               </div>

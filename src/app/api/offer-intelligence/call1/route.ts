@@ -59,6 +59,9 @@ export async function POST(req: Request) {
     const funnelData: any = {
       name: formData.field_1_name || 'Untitled Funnel',
       user_id: user.id,
+      is_template: body.isTemplate || false,
+      template_category: body.templateCategory || null,
+      template_tags: body.templateTags ? body.templateTags.split(',').map((t: string) => t.trim()) : [],
       blocks: {
         intelligence: {
           raw_input: formData,

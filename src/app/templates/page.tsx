@@ -4,14 +4,16 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Search, LayoutTemplate, Tag, Copy, ChevronRight } from "lucide-react";
+import { Search, LayoutTemplate, Tag, Copy, ChevronLeft, Zap, ArrowRight } from "lucide-react";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
 
 type Template = {
   id: string;
   name: string;
-  description: string;
-  category: string;
-  tags: string[];
+  template_category: string;
+  template_tags: string[];
+  blocks: any;
 };
 
 function TemplatesContent() {
@@ -22,34 +24,22 @@ function TemplatesContent() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [categories, setCategories] = useState<string[]>([]);
+  const [category, setCategory] = useState("All");
   const [cloningId, setCloningId] = useState<string | null>(null);
+
+  const categories = ["All", "SaaS", "Coaching", "E-commerce", "Agency", "Local Business", "Course", "Other"];
 
   useEffect(() => {
     fetchTemplates();
-  }, [search, category]);
+  }, []);
 
   const fetchTemplates = async () => {
-    setLoading(true);
     try {
-      const query = new URLSearchParams();
-      if (search) query.append("search", search);
-      if (category) query.append("category", category);
-
-      const res = await fetch(`/api/templates?${query.toString()}`);
+      const res = await fetch("/api/templates");
       const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.error);
-
-      setTemplates(data.templates || []);
-      
-      // Extract unique categories if not set
-      if (!category && categories.length === 0) {
-        const uniqueCategories = Array.from(new Set(data.templates.map((t: Template) => t.category).filter(Boolean)));
-        setCategories(uniqueCategories as string[]);
-      }
-    } catch (error: any) {
+      if (data.templates) setTemplates(data.templates);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
       toast.error("Failed to load templates");
     } finally {
       setLoading(false);
@@ -57,10 +47,16 @@ function TemplatesContent() {
   };
 
   const handleClone = async (templateId: string, templateName: string) => {
-    setCloningId(templateId);
+    if (!workspaceId) {
+      toast.error("No active workspace selected. Please select a workspace from the dashboard first.");
+      router.push("/");
+      return;
+    }
+
     try {
-      // In a real app, you might want to ask the user which workspace to clone to if they have multiple.
-      // For now, we'll clone it and let the backend default to their primary or active workspace if needed.
+      setCloningId(templateId);
+      toast.loading(`Cloning ${templateName}...`);
+
       const res = await fetch(`/api/templates/${templateId}/clone`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,124 +64,177 @@ function TemplatesContent() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to clone template");
+      toast.dismiss();
+
+      if (!res.ok) throw new Error(data.error);
 
       toast.success("Template cloned successfully!");
-      // Redirect to the builder with the new funnel ID
-      router.push(`/p/${data.funnelId}`);
+      router.push(`/funnels/${data.funnelId}`);
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to clone template");
       setCloningId(null);
     }
   };
 
+  const filteredTemplates = templates.filter((t) => {
+    const matchCategory = category === "All" || t.template_category === category;
+    const matchSearch = t.name.toLowerCase().includes(search.toLowerCase()) || 
+      (t.template_tags && t.template_tags.some(tag => tag.toLowerCase().includes(search.toLowerCase())));
+    return matchCategory && matchSearch;
+  });
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-          <div>
-            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Template Library</h1>
-            <p className="text-lg text-gray-500 mt-2">Start your next campaign in seconds with pre-built funnels.</p>
-          </div>
-          <div className="mt-4 md:mt-0 flex space-x-4">
-            <Link href="/workspaces" className="text-gray-600 hover:text-gray-900 font-medium flex items-center">
-              Go to Dashboard <ChevronRight className="w-4 h-4 ml-1" />
-            </Link>
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#030712] flex flex-col items-center overflow-hidden relative">
+      {/* Background Gradients */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)', transform: 'rotate(-30deg)' }} />
+        <div className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)', transform: 'rotate(30deg)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100" style={{ background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)' }} />
+        <div className="absolute inset-0 opacity-10 pointer-events-none z-[1]" style={{ backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)', backgroundRepeat: 'repeat', backgroundSize: '128px auto' }} />
+      </div>
 
-        <div className="flex flex-col md:flex-row gap-8 mb-10">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search templates..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none"
-            />
-          </div>
-          <div className="w-full md:w-64">
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none appearance-none bg-white"
-            >
-              <option value="">All Categories</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+      <Sidebar />
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white rounded-2xl h-64 animate-pulse shadow-sm border border-gray-100"></div>
-            ))}
-          </div>
-        ) : templates.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {templates.map((template) => (
-              <div key={template.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden group flex flex-col">
-                <div className="h-40 bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center border-b border-gray-100 relative">
-                  <LayoutTemplate className="w-16 h-16 text-indigo-200 group-hover:scale-110 transition-transform duration-300" />
-                  {template.category && (
-                    <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-indigo-600 shadow-sm">
-                      {template.category}
-                    </div>
-                  )}
-                </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{template.name}</h3>
-                  <p className="text-gray-500 text-sm mb-4 line-clamp-2 flex-1">{template.description}</p>
-                  
-                  {template.tags && template.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {template.tags.slice(0, 3).map((tag, i) => (
-                        <span key={i} className="inline-flex items-center text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
-                          <Tag className="w-3 h-3 mr-1" /> {tag}
-                        </span>
-                      ))}
-                      {template.tags.length > 3 && (
-                        <span className="text-xs text-gray-400">+{template.tags.length - 3}</span>
-                      )}
-                    </div>
-                  )}
+      <div className="flex-1 w-full flex flex-col min-w-0 overflow-hidden relative z-10">
+        <Topbar breadcrumbs={[{ label: "Workspaces", href: "/" }, { label: "Template Library" }]} />
 
-                  <button
-                    onClick={() => handleClone(template.id, template.name)}
-                    disabled={cloningId === template.id}
-                    className="w-full flex items-center justify-center py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors focus:ring-4 focus:ring-indigo-100 disabled:bg-indigo-400"
-                  >
-                    {cloningId === template.id ? (
-                      "Cloning Template..."
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 mr-2" /> Use This Template
-                      </>
-                    )}
-                  </button>
-                </div>
+        <main className="flex-1 overflow-y-auto p-6 md:p-12">
+          <div className="max-w-[1200px] mx-auto">
+            {/* Header */}
+            <div className="mb-12">
+              <h1 className="text-[48px] md:text-[56px] font-bold text-white tracking-tight mb-4 leading-[1.1]">
+                Template Library
+              </h1>
+              <p className="text-[18px] text-white/50 max-w-2xl font-light">
+                Skip the setup. Start with a proven, high-converting funnel template and customize it for your offer in minutes.
+              </p>
+            </div>
+
+            {/* Filters & Search */}
+            <div className="flex flex-col md:flex-row gap-4 mb-10">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <input
+                  type="text"
+                  placeholder="Search templates or tags..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-full pl-12 pr-4 text-white focus:outline-none focus:border-brand-blue focus:bg-white/[0.05] transition-all placeholder:text-white/30"
+                />
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 border-dashed">
-            <LayoutTemplate className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">No templates found</h3>
-            <p className="text-gray-500">We couldn't find any templates matching your search criteria.</p>
-            {(search || category) && (
-              <button 
-                onClick={() => { setSearch(""); setCategory(""); }}
-                className="mt-4 text-indigo-600 font-medium hover:text-indigo-800"
-              >
-                Clear filters
-              </button>
+              <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setCategory(cat)}
+                    className={`h-12 px-6 rounded-full whitespace-nowrap text-sm font-medium transition-all ${
+                      category === cat
+                        ? "bg-white text-black font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                        : "bg-white/[0.03] border border-white/10 text-white/70 hover:bg-white/[0.08] hover:text-white"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Grid */}
+            {loading ? (
+              <div className="text-center py-20">
+                <div className="w-10 h-10 border-4 border-brand-blue/30 border-t-brand-blue rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-white/50">Loading templates...</p>
+              </div>
+            ) : filteredTemplates.length === 0 ? (
+              <div className="flex flex-col items-center justify-center border border-white/10 rounded-3xl p-16 text-center bg-white/[0.02] backdrop-blur-sm">
+                <LayoutTemplate className="w-12 h-12 text-white/20 mb-4" />
+                <h3 className="text-xl font-bold text-white mb-2">No templates found</h3>
+                <p className="text-white/50">We couldn't find any templates matching your search criteria.</p>
+                <button 
+                  onClick={() => { setSearch(''); setCategory('All'); }}
+                  className="mt-6 h-10 px-6 rounded-full bg-white/[0.05] border border-white/10 text-white font-medium hover:bg-white/[0.1] transition-all"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
+                {filteredTemplates.map((template) => (
+                  <div key={template.id} className="group relative rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-white/20 transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+                    {/* Image Preview */}
+                    <div className="aspect-[16/10] bg-[#0A0A0F] relative overflow-hidden">
+                      {template.blocks?.og_image_url ? (
+                        <img 
+                          src={template.blocks.og_image_url} 
+                          alt={template.name} 
+                          className="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center opacity-30 text-white gap-3 bg-gradient-to-br from-brand-blue/10 to-brand-purple/10">
+                          <LayoutTemplate className="w-12 h-12" />
+                          <span className="text-sm font-medium tracking-widest uppercase">No Preview</span>
+                        </div>
+                      )}
+                      
+                      {/* Top Badges */}
+                      <div className="absolute top-4 right-4 flex gap-2">
+                        <span className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-bold text-white uppercase tracking-wider">
+                          {template.template_category || 'Uncategorized'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-brand-blue transition-colors truncate">
+                        {template.name}
+                      </h3>
+                      
+                      {/* Tags */}
+                      <div className="flex gap-2 flex-wrap mb-8 min-h-[28px]">
+                        {(template.template_tags || []).slice(0, 3).map((tag, i) => (
+                          <span key={i} className="text-xs font-medium text-white/50 bg-white/[0.03] border border-white/5 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+                            <Tag className="w-3 h-3" />
+                            {tag}
+                          </span>
+                        ))}
+                        {(template.template_tags?.length > 3) && (
+                          <span className="text-xs font-medium text-white/40 px-1 py-1">
+                            +{template.template_tags.length - 3} more
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Action Button */}
+                      <button
+                        onClick={() => handleClone(template.id, template.name)}
+                        disabled={cloningId === template.id}
+                        className={`w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                          cloningId === template.id 
+                            ? 'bg-white/10 text-white/50 cursor-not-allowed'
+                            : 'bg-white text-black hover:bg-white/90 active:scale-[0.98]'
+                        }`}
+                      >
+                        {cloningId === template.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Cloning...
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            Use This Template
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-        )}
+        </main>
       </div>
     </div>
   );
@@ -193,7 +242,11 @@ function TemplatesContent() {
 
 export default function TemplatesMarketplacePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-brand-blue/30 border-t-brand-blue rounded-full animate-spin" />
+      </div>
+    }>
       <TemplatesContent />
     </Suspense>
   );

@@ -11,48 +11,48 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const payload = await req.json();
-    const { workspaceId, name } = payload; // Optional workspaceId and custom name
+    const body = await req.json();
+    const { name, workspaceId } = body;
 
-    const supabaseAdmin = createAdminClient();
+    if (!workspaceId) {
+      return NextResponse.json({ error: 'Workspace ID is required' }, { status: 400 });
+    }
 
-    // Fetch the template
-    const { data: template, error: templateError } = await supabaseAdmin
-      .from('funnel_templates')
-      .select('name, blocks')
+    const supabase = createAdminClient();
+
+    // 1. Fetch the template
+    const { data: template, error: fetchError } = await supabase
+      .from('builder_pages')
+      .select('*')
       .eq('id', id)
+      .eq('is_template', true)
       .single();
 
-    if (templateError || !template) {
+    if (fetchError || !template) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
 
-    // Create a new builder_pages record
-    const newFunnelName = name || `${template.name} (Clone)`;
-    const funnelData: any = {
-      name: newFunnelName,
-      user_id: session.user.id,
-      blocks: template.blocks || {},
-    };
-
-    if (workspaceId) {
-      funnelData.workspace_id = workspaceId;
-    }
-
-    const { data: newFunnel, error: insertError } = await supabaseAdmin
+    // 2. Insert as a new regular builder_page for the user
+    const { data: newFunnel, error: insertError } = await supabase
       .from('builder_pages')
-      .insert(funnelData)
+      .insert({
+        user_id: session.user.id,
+        workspace_id: workspaceId,
+        name: name || `${template.name} (Copy)`,
+        blocks: template.blocks,
+        is_template: false, // Ensure the clone is NOT a template
+      })
       .select('id')
       .single();
 
-    if (insertError || !newFunnel) {
-      console.error('Error creating funnel from template:', insertError);
-      return NextResponse.json({ error: 'Failed to create funnel from template' }, { status: 500 });
-    }
+    if (insertError) throw insertError;
 
     return NextResponse.json({ success: true, funnelId: newFunnel.id });
   } catch (error: any) {
-    console.error('Template Clone error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error cloning template:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { Button } from "@/components/ui/button";
-import { Folder, Plus, LayoutTemplate } from "lucide-react";
+import { Folder, Plus } from "lucide-react";
 
 interface WorkspacePageProps {
   params: Promise<{
@@ -119,20 +119,12 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
             { label: workspace.name },
           ]}
         >
-          <div className="flex items-center gap-2">
-            <Link href={`/templates?workspace=${workspace.id}`}>
-              <Button variant="outline">
-                <LayoutTemplate className="w-4 h-4 mr-2" />
-                Templates
-              </Button>
-            </Link>
-            <Link href={`/analyze?workspace=${workspace.id}`}>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Launch campaign
-              </Button>
-            </Link>
-          </div>
+          <Link href={`/analyze?workspace=${workspace.id}`}>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Launch campaign
+            </Button>
+          </Link>
         </Topbar>
 
         <main className="flex-1 overflow-y-auto p-8">
@@ -155,14 +147,9 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Link href={`/templates?workspace=${workspace.id}`}>
-                    <Button variant="outline">Use Template</Button>
-                  </Link>
-                  <Link href={`/analyze?workspace=${workspace.id}`}>
-                    <Button variant="default">Launch campaign</Button>
-                  </Link>
-                </div>
+                <Link href={`/analyze?workspace=${workspace.id}`}>
+                  <Button variant="outline">Launch campaign</Button>
+                </Link>
               </div>
             </div>
 
@@ -224,14 +211,9 @@ export default async function WorkspacePage({ params }: WorkspacePageProps) {
                 <p className="text-sm text-muted-foreground">
                   No campaigns have been created in this workspace yet.
                 </p>
-                <div className="mt-4 flex justify-center gap-3">
-                  <Link href={`/templates?workspace=${workspace.id}`}>
-                    <Button variant="outline">Use Template</Button>
-                  </Link>
-                  <Link href={`/analyze?workspace=${workspace.id}`}>
-                    <Button>Launch first campaign</Button>
-                  </Link>
-                </div>
+                <Link href={`/analyze?workspace=${workspace.id}`}>
+                  <Button className="mt-4">Launch first campaign</Button>
+                </Link>
               </div>
             )}
           </div>
