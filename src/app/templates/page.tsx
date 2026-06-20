@@ -14,6 +14,7 @@ type Template = {
   template_category: string;
   template_tags: string[];
   blocks: any;
+  og_image_url?: string;
 };
 
 function TemplatesContent() {
@@ -164,9 +165,9 @@ function TemplatesContent() {
                   <div key={template.id} className="group relative rounded-3xl overflow-hidden bg-white/[0.02] border border-white/5 hover:border-white/20 transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
                     {/* Image Preview */}
                     <div className="aspect-[16/10] bg-[#0A0A0F] relative overflow-hidden">
-                      {template.blocks?.og_image_url ? (
+                      {(template.og_image_url || template.blocks?.og_image_url) ? (
                         <img 
-                          src={template.blocks.og_image_url} 
+                          src={template.og_image_url || template.blocks?.og_image_url} 
                           alt={template.name} 
                           className="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700" 
                         />

@@ -19,7 +19,7 @@ export async function GET(req: Request) {
 
     let query = supabase
       .from('builder_pages')
-      .select('id, name, template_category, template_tags, updated_at, blocks')
+      .select('id, name, template_category, template_tags, updated_at, blocks, og_image_url')
       .eq('is_template', true)
       .order('updated_at', { ascending: false });
 
