@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/auth';
 import { createAdminClient } from '@/utils/supabase/admin';
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await props.params;
     const session = await getSession();
 
     if (!session || !session.user?.id) {

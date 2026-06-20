@@ -3,9 +3,9 @@ import { getSession } from '@/auth';
 import { createAdminClient } from '@/utils/supabase/admin';
 import { createClient } from '@/utils/supabase/server';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await props.params;
     const supabase = await createClient();
 
     const { data: template, error } = await supabase
@@ -25,9 +25,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await props.params;
     const session = await getSession();
 
     if (!session || !session.user?.id) {
@@ -77,9 +77,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await props.params;
     const session = await getSession();
 
     if (!session || !session.user?.id) {
