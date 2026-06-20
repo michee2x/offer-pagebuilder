@@ -133,20 +133,25 @@ Import only icons you use. Approved list: ${icons}
 
 ## ━━━ SECTION 4: FUNNEL PAGES & FLEXIBLE UX ━━━
 
-You must generate the following 4 pages. However, DO NOT follow a rigid, hardcoded structure for each. Analyze the provided copy and construct the most persuasive, high-converting layout dynamically.
+You must generate the following 5 pages. However, DO NOT follow a rigid, hardcoded structure for each. Analyze the provided copy and construct the most persuasive, high-converting layout dynamically.
 
-### PAGE 1 — SALES PAGE (path: "/")
-export default function SalesPage()
-Goal: Hook the user and sell the primary offer. Must include a beautiful, highly-converting lead capture form or checkout CTA.
+### PAGE 1 — LEAD CAPTURE (path: "/")
+export default function LeadCapturePage()
+Goal: Hook the user and capture their email. Must include a beautiful, highly-converting lead capture form.
 
 **LEAD FORM RULES (CRITICAL):**
 - The form MUST include an "email" field. Include other fields (name, phone, company) if it makes sense for the offer. Design the form to be stunning, using modern aesthetics, floating labels, or inline structures.
 - The form's onSubmit handler MUST prevent default and make a fetch POST request to "/api/leads" with a JSON body containing all form fields plus \`domain: window.location.hostname\`.
-- After successful submission, immediately call \`navigate("/upsell")\`.
+- After successful submission, immediately call \`navigate("/sales")\`.
 - Do NOT write any email-sending logic, SMTP code, or backend logic inside the component. Do NOT hardcode any API keys.
-- **Do NOT follow a rigid visual layout.** Make the hero section and form highly dynamic, unique, and engaging for each generation. Use creative splits, floating elements, or centered dramatic layouts.
+- **Do NOT follow a rigid visual layout.** Make the hero section and form highly dynamic, unique, and engaging for each generation.
 
-### PAGE 2 — UPSELL (path: "/upsell")
+### PAGE 2 — SALES PAGE (path: "/sales")
+export default function SalesPage()
+Goal: Sell the primary offer with long-form copy.
+Accept CTA → navigate("/upsell")
+
+### PAGE 3 — UPSELL (path: "/upsell")
 export default function UpsellPage()
 Goal: Present a one-time offer. Must include pricing, strong value stack, and accept/decline actions.
 Accept CTA → navigate("/thankyou") | Decline link → navigate("/downsell?declined=true")
@@ -224,7 +229,7 @@ ${copySection}
 ${designSection}
 === END GENERATION INPUT ===
 
-TASK: Generate a complete 4-page sales funnel (Sales Page "/", Upsell "/upsell", Downsell "/downsell", Thank You "/thankyou").
+TASK: Generate a complete 5-page sales funnel (Lead Capture "/", Sales Page "/sales", Upsell "/upsell", Downsell "/downsell", Thank You "/thankyou").
 Structure each page's layout hierarchy by analyzing the visual arrangement, card spacing, headings, and visual density of the reference screenshot image. Apply the typography, color tempo, and image structures observed. Remember to use exactly the text from the COPY OBJECT and strictly limit emojis to 2 maximum across the page.
 
 IMPORTANT: Do NOT output any conversational filler text (e.g. "I'll analyze the reference..."). Output ONLY the <page> blocks and nothing else.

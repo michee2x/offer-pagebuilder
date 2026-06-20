@@ -250,7 +250,8 @@ export default function BuilderPage() {
             const loadedPages = data.page.blocks.pages;
             if (loadedPages) {
               const defaultPages = {
-                "/": { name: "Sales Page", path: "/", components: {}, rootList: [] },
+                "/": { name: "Lead Capture", path: "/", components: {}, rootList: [] },
+                "/sales": { name: "Sales Page", path: "/sales", components: {}, rootList: [] },
                 "/upsell": { name: "Upsell", path: "/upsell", components: {}, rootList: [] },
                 "/downsell": { name: "Downsell", path: "/downsell", components: {}, rootList: [] },
                 "/thankyou": { name: "Thank You", path: "/thankyou", components: {}, rootList: [] },
