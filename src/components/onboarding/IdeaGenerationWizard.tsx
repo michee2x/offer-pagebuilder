@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -101,6 +101,9 @@ export function IdeaGenerationWizard({
   onNext,
   errors,
 }: IdeaGenerationWizardProps) {
+  const [showAllIdeas, setShowAllIdeas] = useState(false);
+  const displayedIdeas = showAllIdeas ? generatedIdeas : generatedIdeas.slice(0, 5);
+
   return (
     <div className="max-w-[720px] mx-auto w-full relative z-10">
       <div className="relative group/container">
@@ -324,7 +327,7 @@ export function IdeaGenerationWizard({
                   </div>
                 ) : (
                   <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                    {generatedIdeas.map((idea, idx) => (
+                    {displayedIdeas.map((idea, idx) => (
                       <button
                         key={idx}
                         onClick={() => setPickedIdea(pickedIdea === idx ? -1 : idx)}
@@ -365,9 +368,9 @@ export function IdeaGenerationWizard({
                                 className="h-full bg-brand-yellow/40 rounded-full"
                                 style={{
                                   width:
-                                    idea.demand === "High"
+                                    idea.demand?.includes("High")
                                       ? "90%"
-                                      : idea.demand === "Medium"
+                                      : idea.demand?.includes("Medium")
                                         ? "60%"
                                         : "30%",
                                 }}
@@ -383,9 +386,9 @@ export function IdeaGenerationWizard({
                                 className="h-full bg-green-500/40 rounded-full"
                                 style={{
                                   width:
-                                    idea.fit === "High"
+                                    idea.fit?.includes("Perfect") || idea.fit?.includes("Strong")
                                       ? "90%"
-                                      : idea.fit === "Medium"
+                                      : idea.fit?.includes("Good")
                                         ? "60%"
                                         : "30%",
                                 }}
@@ -395,6 +398,14 @@ export function IdeaGenerationWizard({
                         </div>
                       </button>
                     ))}
+                    {!showAllIdeas && generatedIdeas.length > 5 && (
+                      <button
+                        onClick={() => setShowAllIdeas(true)}
+                        className="w-full py-3 rounded-xl border border-white/10 text-[13px] font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all mt-4"
+                      >
+                        Show More Ideas
+                      </button>
+                    )}
                   </div>
                 )}
 
