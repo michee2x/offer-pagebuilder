@@ -33,7 +33,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const { isSidebarOpen, setSidebarOpen } = useUIStore();
+  const { isSidebarOpen, setSidebarOpen, activeWorkspaceId } = useUIStore();
 
   const getFunnelId = () => {
     const parts = pathname?.split("/") || [];
@@ -71,7 +71,7 @@ export function Sidebar() {
   const links: SidebarLink[] = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
     { label: "Workspaces", href: "/workspaces", icon: Filter },
-    { label: "Templates", href: `/templates${funnelId ? `?workspace=${funnelId}` : ''}`, icon: LayoutTemplate },
+    { label: "Templates", href: `/templates${activeWorkspaceId ? `?workspace=${activeWorkspaceId}` : ''}`, icon: LayoutTemplate },
   ];
 
   if (isAdmin) {

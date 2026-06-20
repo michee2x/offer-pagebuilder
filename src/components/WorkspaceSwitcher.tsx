@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useUIStore } from "@/store/uiStore";
 import {
   Select,
   SelectContent,
@@ -17,6 +19,13 @@ export function WorkspaceSwitcher({
   activeId: string | null;
 }) {
   const router = useRouter();
+  const { setActiveWorkspaceId } = useUIStore();
+
+  useEffect(() => {
+    if (activeId) {
+      setActiveWorkspaceId(activeId);
+    }
+  }, [activeId, setActiveWorkspaceId]);
 
   if (!workspaces || workspaces.length === 0) return null;
 

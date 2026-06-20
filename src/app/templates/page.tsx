@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Search, LayoutTemplate, Tag, Copy, ChevronLeft, Zap, ArrowRight } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
+import { useUIStore } from "@/store/uiStore";
 
 type Template = {
   id: string;
@@ -20,7 +21,16 @@ type Template = {
 function TemplatesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const workspaceId = searchParams.get("workspace");
+  const urlWorkspaceId = searchParams.get("workspace");
+  const { activeWorkspaceId, setActiveWorkspaceId } = useUIStore();
+  
+  const workspaceId = urlWorkspaceId || activeWorkspaceId;
+
+  useEffect(() => {
+    if (urlWorkspaceId && urlWorkspaceId !== activeWorkspaceId) {
+      setActiveWorkspaceId(urlWorkspaceId);
+    }
+  }, [urlWorkspaceId, activeWorkspaceId, setActiveWorkspaceId]);
 
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
