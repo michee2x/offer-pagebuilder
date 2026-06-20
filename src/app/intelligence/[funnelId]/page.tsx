@@ -354,7 +354,7 @@ export default function IntelligencePage({
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
 
   // Navigation State
-  const [activeSectionId, setActiveSectionId] = useState<string>("OFFER_SCORE");
+  const [activeSectionId, setActiveSectionId] = useState<string>("SCORE_SUMMARY");
 
   // ── Load & optionally stream ──────────────────────────────────────────────
 
@@ -574,24 +574,12 @@ export default function IntelligencePage({
   // Derive consolidated list of available sections
   const availableSections = React.useMemo(() => {
     return [
-      "OFFER_SCORE",
       "SCORE_SUMMARY",
-      "FUNNEL_HEALTH_SCORE",
-      "REVENUE_MODEL_ARCHITECTURE",
-      "PAIN_POINT_MAPPING",
       "FUNNEL_STRUCTURE_BLUEPRINT",
       "PRICING_STRATEGY",
       "UPSELL_DOWNSELL_PATHS",
       "STRATEGIC_BONUS_RECOMMENDATIONS",
       "DESIGN_INTELLIGENCE_RECOMMENDATION",
-      "PLATFORM_PRIORITY_MATRIX",
-      "OFFER_POSITIONING_ANALYSIS",
-      "TARGET_PERSONA_INTELLIGENCE",
-      "CONVERSION_HOOK_LIBRARY",
-      "MESSAGING_ANGLE_MATRIX",
-      "PRODUCT_CORE_VALUE_PERCEPTION",
-      "REAL_WORLD_USE_CASE_SCENARIOS",
-      "MONETIZATION_STRATEGY_NARRATIVE",
     ];
   }, []);
 
