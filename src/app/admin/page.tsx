@@ -128,8 +128,8 @@ export default function AdminDashboard() {
               {templates.map(template => (
                 <div key={template.id} className="bg-white/[0.02] border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all">
                   <div className="aspect-[16/9] bg-[#1a1a2e] relative group">
-                    {(template.blocks as any)?.og_image_url ? (
-                      <img src={(template.blocks as any).og_image_url} alt={template.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                    {(template.og_image_url || (template.blocks as any)?.og_image_url) ? (
+                      <img src={template.og_image_url || (template.blocks as any).og_image_url} alt={template.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center opacity-30 text-white gap-3">
                         <LayoutTemplate className="w-12 h-12" />
