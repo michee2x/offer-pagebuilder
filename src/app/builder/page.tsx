@@ -92,15 +92,20 @@ export default function BuilderPage() {
     if (typeof window !== "undefined") {
       const qs = new URLSearchParams(window.location.search);
       const editId = qs.get("id");
+      const isTemplate = qs.get("isTemplate") === "true";
 
-      if (editId) {
-        fetch(`/api/pages/${editId}`)
+      if (editId || (isTemplate && qs.get("templateId"))) {
+        const idToLoad = editId || qs.get("templateId"); // fallback if passed as templateId instead
+        const fetchUrl = isTemplate ? `/api/templates/${idToLoad}` : `/api/pages/${idToLoad}`;
+
+        fetch(fetchUrl)
           .then((res) => res.json())
           .then((data) => {
-            if (data.page && data.page.blocks) {
-              setPageId(data.page.id);
-              if (data.page.name) setFunnelName(data.page.name);
-              const blocks = data.page.blocks;
+            const pageData = isTemplate ? data.template : data.page;
+            if (pageData && pageData.blocks) {
+              setPageId(pageData.id);
+              if (pageData.name) setFunnelName(pageData.name);
+              const blocks = pageData.blocks;
               
               // Validate Copy Presence
               const copyData = blocks.copy;
@@ -300,6 +305,8 @@ export default function BuilderPage() {
       setIsSaving(true);
       toast.loading("Saving draft to database...");
 
+      const isTemplate = new URLSearchParams(window.location.search).get("isTemplate") === "true";
+      
       const payload: any = {
         name: funnelName,
         components: initialPage.components || {},
@@ -308,13 +315,22 @@ export default function BuilderPage() {
         theme,
         pages: newPagesList,
       };
-      if (pageId) payload.pageId = pageId;
-
-      const res = await fetch("/api/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      
+      let res;
+      if (isTemplate && pageId) {
+        res = await fetch(`/api/templates/${pageId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ blocks: payload }),
+        });
+      } else {
+        if (pageId) payload.pageId = pageId;
+        res = await fetch("/api/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
       const text = await res.text();
       let data;
@@ -639,6 +655,8 @@ export default function BuilderPage() {
       setIsSaving(true);
       toast.loading("Saving draft...");
 
+      const isTemplate = new URLSearchParams(window.location.search).get("isTemplate") === "true";
+
       const payload: any = {
         name: funnelName,
         components,
@@ -650,13 +668,22 @@ export default function BuilderPage() {
           [activePagePath]: { ...pages[activePagePath], components, rootList },
         },
       };
-      if (pageId) payload.pageId = pageId;
 
-      const res = await fetch("/api/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      let res;
+      if (isTemplate && pageId) {
+        res = await fetch(`/api/templates/${pageId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ blocks: payload }),
+        });
+      } else {
+        if (pageId) payload.pageId = pageId;
+        res = await fetch("/api/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
       const text = await res.text();
       let data;
@@ -724,7 +751,7 @@ export default function BuilderPage() {
     );
   }
 
-  if (hasCopy === false) {
+  if (hasCopy === false && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("isTemplate") !== "true") {
     const editId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("id") : null;
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-[#f7f8fc] dark:bg-[#0a0a14] relative overflow-hidden font-sans">

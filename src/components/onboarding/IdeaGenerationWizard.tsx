@@ -327,11 +327,11 @@ export function IdeaGenerationWizard({
                     {generatedIdeas.map((idea, idx) => (
                       <button
                         key={idx}
-                        onClick={() => setPickedIdea(idx)}
+                        onClick={() => setPickedIdea(pickedIdea === idx ? -1 : idx)}
                         className={cn(
                           "w-full p-6 rounded-2xl border text-left transition-all relative group",
                           pickedIdea === idx
-                            ? "bg-white text-black border-white"
+                            ? "bg-white/[0.08] border-indigo-500/50 ring-1 ring-indigo-500/30"
                             : "bg-white/5 border-white/10 hover:border-white/20",
                         )}
                       >
@@ -339,11 +339,18 @@ export function IdeaGenerationWizard({
                           <h4 className="text-[17px] font-bold text-white group-hover:text-brand-yellow transition-colors">
                             {idea.title}
                           </h4>
-                          {pickedIdea === idx && (
-                            <div className="w-5 h-5 rounded-full bg-brand-yellow flex items-center justify-center">
-                              <Check className="h-3 w-3 text-black" />
-                            </div>
-                          )}
+                          <div
+                            className={cn(
+                              "w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all duration-200",
+                              pickedIdea === idx
+                                ? "bg-indigo-500 border-indigo-500"
+                                : "border-white/20 bg-transparent group-hover:border-white/40",
+                            )}
+                          >
+                            {pickedIdea === idx && (
+                              <Check className="h-3 w-3 text-white" />
+                            )}
+                          </div>
                         </div>
                         <p className="text-[13px] text-white/50 leading-relaxed mb-5">
                           {idea.description}
