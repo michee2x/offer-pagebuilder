@@ -239,7 +239,7 @@ DAY 21 REVIEW: [The specific metrics to compile. The go/no-go decision criteria 
 
     try {
         const { text } = await generateText({
-            model: anthropic('claude-3-7-sonnet-20250219'),
+            model: anthropic('claude-opus-4-8'),
             system: systemPrompt,
             prompt: userPrompt,
             maxOutputTokens: 16000,

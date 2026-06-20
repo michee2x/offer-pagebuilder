@@ -102,7 +102,7 @@ export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
             />
           </div>
           <div className="px-6 py-3 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
-            <span>claude-3-7-sonnet-20250219</span>
+            <span>claude-sonnet-4-6</span>
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               Generating

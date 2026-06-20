@@ -247,7 +247,7 @@ INSTRUCTIONS FOR SKILL CALLS:
 - ALWAYS explain exactly what you changed in your chat response briefly.`;
     }
 
-    const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-7-sonnet-20250219';
+    const model = process.env.ANTHROPIC_MODEL ?? 'claude-opus-4-8';
 
     // Define tools based on ability
     const toolsConfig = ability === 'email-sequence' ? {

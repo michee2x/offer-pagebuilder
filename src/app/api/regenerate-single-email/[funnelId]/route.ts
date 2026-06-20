@@ -204,7 +204,7 @@ You're receiving this because you signed up for ${formData.field_1_name}. <a hre
 
   try {
     const result = streamText({
-      model: anthropic('claude-3-7-sonnet-20250219'),
+      model: anthropic('claude-sonnet-4-6'),
       system: systemPrompt,
       prompt: userPrompt,
       maxOutputTokens: 4000,

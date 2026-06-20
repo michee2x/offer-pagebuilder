@@ -141,7 +141,7 @@ export async function POST(req: Request) {
     console.log(`[generate-blueprint/html] Generating ${docFormat.toUpperCase()} content via Claude...`);
     const prompt = buildPrompt(docFormat, funnel.name, topic, context);
 
-    const model = process.env.ANTHROPIC_MODEL ?? "claude-3-7-sonnet-20250219";
+    const model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
     
     const { text: rawContent } = await generateText({
       model: anthropic(model),

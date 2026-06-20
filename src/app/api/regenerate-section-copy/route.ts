@@ -56,7 +56,7 @@ CONVERSION HOOKS: ${JSON.stringify(call1Raw.CONVERSION_HOOK_LIBRARY || {})}
 STRATEGIC NARRATIVE: ${JSON.stringify(call2 || {})}`;
 
     const result = streamText({
-      model: anthropic('claude-3-7-sonnet-20250219'),
+      model: anthropic('claude-sonnet-4-6'),
       system: COPY_SYSTEM,
       prompt: userPrompt,
       maxOutputTokens: 8192,
