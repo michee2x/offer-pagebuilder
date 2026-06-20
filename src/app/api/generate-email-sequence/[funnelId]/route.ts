@@ -237,7 +237,7 @@ ${pageInstructions}`;
 
   try {
     const result = streamText({
-      model: anthropic('claude-sonnet-4-20250514'),
+      model: anthropic('claude-3-7-sonnet-20250219'),
       system: systemPrompt,
       prompt: userPrompt,
       maxOutputTokens: 16000,

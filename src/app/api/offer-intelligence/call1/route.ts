@@ -106,7 +106,7 @@ export async function POST(req: Request) {
 
   console.log('[call1] Starting AI stream with Claude');
   const result = streamText({
-    model: anthropic('claude-sonnet-4-20250514'),
+    model: anthropic('claude-3-7-sonnet-20250219'),
     system: CALL1_SYSTEM,
     prompt: userPrompt,
     onFinish: async ({ text }) => {

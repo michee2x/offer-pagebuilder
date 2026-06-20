@@ -9,7 +9,7 @@ import sharp from 'sharp';
 
 export const maxDuration = 300;
 
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-3-7-sonnet-20250219';
 const MAX_OUTPUT_TOKENS = 16_000;
 
 // ─────────────────────────────────────────────────────────────────────────────
