@@ -55,11 +55,28 @@ export function Sidebar() {
 
   const funnelId = getFunnelId();
 
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/user')
+      .then(res => res.json())
+      .then(data => {
+        if (data.user?.is_admin) {
+          setIsAdmin(true);
+        }
+      })
+      .catch(err => console.error("Error fetching user status", err));
+  }, []);
+
   const links: SidebarLink[] = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
     { label: "Workspaces", href: "/workspaces", icon: Filter },
     { label: "Templates", href: `/templates${funnelId ? `?workspace=${funnelId}` : ''}`, icon: LayoutTemplate },
   ];
+
+  if (isAdmin) {
+    links.push({ label: "Admin Dashboard", href: "/admin", icon: Zap });
+  }
 
   const accountLinks: SidebarLink[] = [
     { label: "Settings", href: "/settings", icon: Settings },
