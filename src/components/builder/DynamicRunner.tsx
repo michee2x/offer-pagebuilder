@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useContext,
   createContext,
+  useRef,
 } from "react";
 import * as LucideIcons from "lucide-react";
 import * as FramerMotion from "framer-motion";
@@ -325,6 +326,47 @@ const makeMediaPatchPlugin = (
   };
 };
 
+// ─── Babel plugin: replace style.backgroundImage of a specific node ──────────
+const makeBackgroundImagePatchPlugin = (
+  babel: any,
+  targetId: string,
+  newSrc: string
+) => {
+  const t = babel.types;
+  let cnt = 0;
+  return {
+    visitor: {
+      JSXElement(path: any) {
+        const nameNode = path.node.openingElement?.name;
+        const tag = nameNode?.name ?? nameNode?.property?.name ?? "";
+        if (tag === "EditableText") return;
+
+        const id = "el_" + (++cnt).toString(36);
+        if (id !== targetId) return;
+
+        path.node.openingElement.attributes.forEach((attr: any) => {
+          if (
+            attr.type === "JSXAttribute" &&
+            attr.name?.name === "style" &&
+            attr.value?.type === "JSXExpressionContainer" &&
+            attr.value.expression.type === "ObjectExpression"
+          ) {
+            const props = attr.value.expression.properties;
+            for (const prop of props) {
+              if (
+                prop.type === "ObjectProperty" &&
+                (prop.key.name === "backgroundImage" || prop.key.value === "backgroundImage")
+              ) {
+                prop.value = t.stringLiteral(`url('${newSrc}')`);
+              }
+            }
+          }
+        });
+      },
+    },
+  };
+};
+
 // ─── Shared Babel transform helper ───────────────────────────────────────────
 function babelTransform(
   Babel: any,
@@ -392,7 +434,20 @@ export function DynamicRunner({
     isOpen: boolean;
     mediaType: MediaType;
     ofiqId: string;
-  }>({ isOpen: false, mediaType: "image", ofiqId: "" });
+    patchMode: "src" | "backgroundImage";
+  }>({ isOpen: false, mediaType: "image", ofiqId: "", patchMode: "src" });
+
+  const [hoveredMedia, setHoveredMedia] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+    ofiqId: string;
+    type: "image" | "video" | "bg" | "icon";
+    patchMode: "src" | "backgroundImage" | "none";
+  } | null>(null);
+  
+  const hideMediaTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── A: pre-compiled viewer path (live/preview, no edit) ───────────────────
   useEffect(() => {
@@ -504,26 +559,113 @@ export function DynamicRunner({
     };
   }, [editMode, isBuilderMode, code]);
 
-  // ── Click handler: open media picker for img/video/iframe ─────────────────
+  // ── Hover handlers: overlay for image/video/bg/icons ──────────────────────
+  const handleMediaHover = useCallback(
+    (e: React.MouseEvent) => {
+      if (!editMode || !isBuilderMode) return;
+
+      const target = e.target as HTMLElement;
+      
+      // Keep overlay alive if hovering over the overlay itself
+      if (target.closest("[data-media-overlay]")) {
+        if (hideMediaTimerRef.current) clearTimeout(hideMediaTimerRef.current);
+        return;
+      }
+
+      // Find the closest element with a data-ofiq-id
+      let el = target;
+      while (el && !el.getAttribute("data-ofiq-id") && el !== e.currentTarget) {
+        el = el.parentElement as HTMLElement;
+      }
+      if (!el || !el.getAttribute("data-ofiq-id")) return;
+
+      const tag = el.tagName.toLowerCase();
+      let type: "image" | "video" | "bg" | "icon" | null = null;
+      let patchMode: "src" | "backgroundImage" | "none" = "none";
+      
+      if (tag === "img") { type = "image"; patchMode = "src"; }
+      else if (tag === "video" || tag === "iframe") { type = "video"; patchMode = "src"; }
+      else if (tag === "svg") { type = "icon"; patchMode = "none"; }
+      else {
+        // Check for background image
+        const style = window.getComputedStyle(el);
+        if (style.backgroundImage && style.backgroundImage !== "none" && style.backgroundImage.includes("url(")) {
+          type = "bg";
+          patchMode = "backgroundImage";
+        }
+      }
+
+      if (type) {
+        if (hideMediaTimerRef.current) clearTimeout(hideMediaTimerRef.current);
+        const rect = el.getBoundingClientRect();
+        const containerRect = e.currentTarget.getBoundingClientRect();
+        
+        setHoveredMedia({
+          top: rect.top - containerRect.top,
+          left: rect.left - containerRect.left,
+          width: rect.width,
+          height: rect.height,
+          ofiqId: el.getAttribute("data-ofiq-id")!,
+          type,
+          patchMode,
+        });
+      }
+    },
+    [editMode, isBuilderMode]
+  );
+
+  const handleMediaHoverOut = useCallback(
+    (e: React.MouseEvent) => {
+      if (!editMode || !isBuilderMode) return;
+      const related = e.relatedTarget as HTMLElement | null;
+      if (related?.closest("[data-media-overlay]")) return;
+      
+      hideMediaTimerRef.current = setTimeout(() => setHoveredMedia(null), 150);
+    },
+    [editMode, isBuilderMode]
+  );
+
+  // ── Click handler: open media picker for img/video/iframe/bg ──────────────
   const handleContainerClick = useCallback(
     (e: React.MouseEvent) => {
       if (!editMode || !isBuilderMode) return;
 
       let el = e.target as HTMLElement | null;
-      while (el && !el.getAttribute("data-ofiq-id")) el = el.parentElement;
+      while (el && !el.getAttribute("data-ofiq-id") && el !== e.currentTarget) {
+        el = el.parentElement;
+      }
       if (!el) return;
 
       const tag = el.tagName.toLowerCase();
-      if (tag === "img" || tag === "video" || tag === "iframe") {
+      let mediaType: MediaType | null = null;
+      let patchMode: "src" | "backgroundImage" = "src";
+
+      if (tag === "img") mediaType = "image";
+      else if (tag === "video" || tag === "iframe") mediaType = "video";
+      else if (tag === "svg") {
+        // Skip opening modal for SVG icons via click to prevent confusion,
+        // tooltip overlay handles explanation
+        return; 
+      }
+      else {
+        // Check computed style for background images
+        const style = window.getComputedStyle(el);
+        if (style.backgroundImage && style.backgroundImage !== "none" && style.backgroundImage.includes("url(")) {
+          mediaType = "image";
+          patchMode = "backgroundImage";
+        }
+      }
+
+      if (mediaType) {
         e.preventDefault();
         e.stopPropagation();
-        const mediaType: MediaType =
-          tag === "img" ? "image" : tag === "video" ? "video" : "any";
         setMediaModal({
           isOpen: true,
           mediaType,
           ofiqId: el.getAttribute("data-ofiq-id")!,
+          patchMode,
         });
+        setHoveredMedia(null);
       }
     },
     [editMode, isBuilderMode]
@@ -553,7 +695,9 @@ export function DynamicRunner({
               Babel.availablePlugins["transform-typescript"],
               { isTSX: true, allExtensions: true },
             ],
-            (b: any) => makeMediaPatchPlugin(b, mediaModal.ofiqId, newSrc),
+            mediaModal.patchMode === "backgroundImage" 
+              ? (b: any) => makeBackgroundImagePatchPlugin(b, mediaModal.ofiqId, newSrc)
+              : (b: any) => makeMediaPatchPlugin(b, mediaModal.ofiqId, newSrc),
           ],
           retainLines: true,
           filename: "generated-funnel.tsx",
@@ -603,11 +747,58 @@ export function DynamicRunner({
     // always receives the correct value synchronously during render — no race.
     <EditModeCtx.Provider value={isEditActive}>
       <div
-        className="w-full h-full min-h-screen"
+        className="w-full h-full min-h-screen relative"
         onClick={isEditActive ? handleContainerClick : undefined}
+        onMouseOver={isEditActive ? handleMediaHover : undefined}
+        onMouseOut={isEditActive ? handleMediaHoverOut : undefined}
         style={isEditActive ? { cursor: "default" } : undefined}
       >
         <PageComponent />
+        
+        {/* ── Hover Overlay ── */}
+        {isEditActive && hoveredMedia && (
+          <div
+            data-media-overlay="true"
+            className="absolute z-50 pointer-events-none"
+            style={{
+              top: hoveredMedia.top,
+              left: hoveredMedia.left,
+              width: hoveredMedia.width,
+              height: hoveredMedia.height,
+            }}
+          >
+            {/* Dim glass */}
+            <div className={`absolute inset-0 rounded-sm pointer-events-none ${hoveredMedia.type === 'icon' ? '' : 'bg-black/30 backdrop-blur-[1.5px]'}`} />
+
+            {hoveredMedia.type === 'icon' ? (
+              // Tooltip for icons
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-auto bg-[#111]/95 backdrop-blur-md text-white/90 text-[11px] px-3 py-1.5 rounded-lg border border-white/10 shadow-xl whitespace-nowrap z-50 flex items-center gap-1.5">
+                <LucideIcons.Info className="w-3.5 h-3.5 text-brand-yellow" />
+                This is an icon. Ask AI to replace it.
+              </div>
+            ) : (
+              // Replace button for images/videos/bg
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button
+                  className="pointer-events-auto flex items-center gap-2 bg-[#111]/90 backdrop-blur-md text-white text-[12px] font-semibold px-4 py-2 rounded-xl border border-white/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.6)] hover:bg-[#1a1a1a] hover:border-white/25 active:scale-95 transition-all"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMediaModal({
+                      isOpen: true,
+                      mediaType: hoveredMedia.type === "video" ? "video" : "image",
+                      ofiqId: hoveredMedia.ofiqId,
+                      patchMode: hoveredMedia.patchMode as "src" | "backgroundImage",
+                    });
+                    setHoveredMedia(null);
+                  }}
+                >
+                  <LucideIcons.ImageIcon className="w-3.5 h-3.5 text-brand-yellow" />
+                  Replace {hoveredMedia.type === "bg" ? "Background" : hoveredMedia.type === "video" ? "Video" : "Image"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       {isEditActive && (
         <MediaPickerModal
