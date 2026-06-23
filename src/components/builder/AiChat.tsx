@@ -8,7 +8,13 @@ import { ComponentConfig } from '@/config/components';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bot, Send, User } from 'lucide-react';
+import { Bot, Send, User, ImagePlus, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface AiChatProps {
   componentId: string;
@@ -20,7 +26,21 @@ interface AiChatProps {
 export function AiChat({ componentId, componentData, config, selectedField }: AiChatProps) {
   const { updateProps } = useBuilderStore();
   const [inputValue, setInputValue] = useState('');
+  const [recentImages, setRecentImages] = useState<any[]>([]);
+  const [isImagesLoading, setIsImagesLoading] = useState(false);
+  const [isImagesOpen, setIsImagesOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isImagesOpen && recentImages.length === 0) {
+      setIsImagesLoading(true);
+      fetch('/api/upload-image')
+        .then(res => res.json())
+        .then(data => setRecentImages(data.files || []))
+        .catch(() => setRecentImages([]))
+        .finally(() => setIsImagesLoading(false));
+    }
+  }, [isImagesOpen]);
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
@@ -176,6 +196,55 @@ export function AiChat({ componentId, componentData, config, selectedField }: Ai
             </span>
           </div>
           <div className="relative flex items-center bg-[#131826] border border-white/10 rounded-2xl shadow-xl overflow-hidden p-1.5 focus-within:border-brand-indigo/50 focus-within:ring-1 focus-within:ring-brand-indigo/50 transition-all">
+            <Popover open={isImagesOpen} onOpenChange={setIsImagesOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="ml-1 p-1.5 text-white/40 hover:text-white hover:bg-white/10 rounded-md transition-colors shrink-0"
+                >
+                  <ImagePlus className="w-4 h-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                side="top"
+                align="start"
+                className="w-64 p-2 bg-[#131826] border-white/10 shadow-xl z-[100]"
+              >
+                <div className="text-[11px] font-semibold text-white/70 mb-2 px-1">
+                  Recent Media
+                </div>
+                {isImagesLoading ? (
+                  <div className="flex justify-center p-4">
+                    <Loader2 className="w-4 h-4 animate-spin text-white/50" />
+                  </div>
+                ) : recentImages.length === 0 ? (
+                  <div className="text-[10px] text-white/40 p-2 text-center">
+                    No recent media
+                  </div>
+                ) : (
+                  <div className="max-h-48 overflow-y-auto custom-scrollbar grid grid-cols-3 gap-1.5 p-1">
+                    {recentImages.filter(f => !f.type || f.type !== 'video').map((f) => (
+                      <div
+                        key={f.url}
+                        className="relative aspect-square rounded-md overflow-hidden bg-black/40 border border-white/10 cursor-pointer hover:border-brand-indigo group"
+                        onClick={() => {
+                          setInputValue((prev) => `${prev} @[${f.name}](${f.url}) `);
+                          setIsImagesOpen(false);
+                        }}
+                      >
+                        <Image
+                          src={f.url}
+                          alt={f.name}
+                          fill
+                          className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
+
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
