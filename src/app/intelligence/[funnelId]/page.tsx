@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, use } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { ScoreRadarChart } from "@/components/intelligence/charts/ScoreRadarChart";
 import { Topbar } from "@/components/layout/Topbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -207,23 +208,6 @@ const SECTION_CONFIG: Record<string, ReportSectionConfig> = {
     subheader:
       "Step-by-step psychological layout mapped to funnel stages for maximum conversion efficiency.",
     icon: <Layers className="w-4 h-4" />,
-    color: "text-foreground",
-  },
-  PRICING_STRATEGY: {
-    id: "PRICING_STRATEGY",
-    label: "Pricing Strategy",
-    subheader:
-      "Optimal price points, psychological thresholds, and elasticity simulation across tiers.",
-    icon: <DollarIcon className="w-4 h-4" />,
-    color: "text-foreground",
-    chartType: "bar",
-  },
-  UPSELL_DOWNSELL_PATHS: {
-    id: "UPSELL_DOWNSELL_PATHS",
-    label: "Upsell Paths",
-    subheader:
-      "Logical expansions maximizing Average Order Value (AOV) post-initial purchase.",
-    icon: <TrendingUp className="w-4 h-4" />,
     color: "text-foreground",
   },
   STRATEGIC_BONUS_RECOMMENDATIONS: {
@@ -576,8 +560,6 @@ export default function IntelligencePage({
     return [
       "SCORE_SUMMARY",
       "FUNNEL_STRUCTURE_BLUEPRINT",
-      "PRICING_STRATEGY",
-      "UPSELL_DOWNSELL_PATHS",
       "STRATEGIC_BONUS_RECOMMENDATIONS",
       "DESIGN_INTELLIGENCE_RECOMMENDATION",
     ];
@@ -739,7 +721,7 @@ export default function IntelligencePage({
           <Button
             size="sm"
             disabled={availableSections.length === 0}
-            onClick={() => router.push(`/funnels/${funnelId}/copy`)}
+            onClick={() => router.push(`/copy/${funnelId}`)}
             className="gap-1.5 font-semibold print:hidden bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] border-transparent transition-all duration-300"
           >
             Generate Copy
@@ -1019,6 +1001,10 @@ export default function IntelligencePage({
 
                   {/* Editable Content — Theme Ground or Markdown Body */}
                   <div className="min-h-[250px] mb-12 relative z-10">
+                    {activeSectionId === "SCORE_SUMMARY" && (
+                      <ScoreRadarChart content={activeContent} />
+                    )}
+
                     {activeSectionId ===
                     "DESIGN_INTELLIGENCE_RECOMMENDATION" ? (
                       <ThemeGroundUI
@@ -1028,13 +1014,20 @@ export default function IntelligencePage({
                         }
                       />
                     ) : (
-                      <IntelligenceEditor
-                        content={activeContent}
-                        onChange={(newText) =>
-                          updateSectionContent(activeSectionId, newText)
-                        }
-                        isStreaming={phase === "call1" || phase === "call2"}
-                      />
+                      <div className={cn(activeSectionId === "SCORE_SUMMARY" && "hide-embedded-charts")}>
+                        <style dangerouslySetInnerHTML={{ __html: `
+                          .hide-embedded-charts [data-node-view-wrapper] {
+                            display: none !important;
+                          }
+                        `}} />
+                        <IntelligenceEditor
+                          content={activeContent}
+                          onChange={(newText) =>
+                            updateSectionContent(activeSectionId, newText)
+                          }
+                          isStreaming={phase === "call1" || phase === "call2"}
+                        />
+                      </div>
                     )}
                   </div>
 
@@ -1081,7 +1074,7 @@ export default function IntelligencePage({
                         onClick={() => router.push(`/copy/${funnelId}`)}
                         className="h-12 px-6 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] border-transparent transition-all duration-300"
                       >
-                        Finish & Build Pages
+                        Build Copy
                       </Button>
                     )}
                   </div>

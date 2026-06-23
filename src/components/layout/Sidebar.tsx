@@ -33,7 +33,21 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const { isSidebarOpen, setSidebarOpen, activeWorkspaceId } = useUIStore();
+  const { isSidebarOpen, setSidebarOpen, activeWorkspaceId, setActiveWorkspaceId } = useUIStore();
+
+  const pathWorkspaceId = React.useMemo(() => {
+    const parts = pathname?.split("/") || [];
+    if (parts.length >= 3 && parts[1] === "workspaces") {
+      return parts[2];
+    }
+    return null;
+  }, [pathname]);
+
+  React.useEffect(() => {
+    if (pathWorkspaceId && pathWorkspaceId !== activeWorkspaceId) {
+      setActiveWorkspaceId(pathWorkspaceId);
+    }
+  }, [pathWorkspaceId, activeWorkspaceId, setActiveWorkspaceId]);
 
   const getFunnelId = () => {
     const parts = pathname?.split("/") || [];

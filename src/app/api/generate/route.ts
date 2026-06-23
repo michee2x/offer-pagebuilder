@@ -26,15 +26,60 @@ const MAX_OUTPUT_TOKENS = 16_000;
 
 export function buildSystemPrompt(
   category: string,
-  screenshotFileName: string | null
+  screenshotFileName: string | null,
+  designIntelligence: string | null = null
 ) {
   const icons = LUCIDE_ICON_NAMES.join(", ");
+
+  let colorsRule = `Deep, premium palettes (e.g. navy/violet base #030612 or rich dark themes). Enrich with subtle indigo, violet, fuchsia, or teal gradients. Use glassmorphism heavily for cards (bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]).`;
+  
+  let typographyRule = `Always TWO families. Display: Fraunces, Sora, DM Serif Display, etc. Body: DM Sans, Plus Jakarta Sans, Figtree. Use text gradients (e.g., bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent) strategically for emphasis.`;
+
+  let styleTagRule = `✅ SHORT: <style>{"@import url('https://fonts.googleapis.com/...'); .display-font{font-family:'Fraunces',serif;}"}</style>
+✅ LONG: <style>{"@import url('...');" + " .display-font { font-family: 'Sora', sans-serif; }" + " html { scroll-behavior: smooth; }"}</style>
+❌ NEVER: <style>{\`@import url(...)\`}</style>
+Place <style> as FIRST child of the return. Never declare font strings as module-level variables.`;
+
+  if (designIntelligence) {
+    try {
+      const parsed = typeof designIntelligence === 'string' ? JSON.parse(designIntelligence) : designIntelligence;
+      if (parsed && parsed.colors && parsed.typography) {
+        const c = parsed.colors;
+        const t = parsed.typography;
+        
+        colorsRule = `You MUST strictly follow this custom color palette from the design intelligence:
+  - Page Background: "${c.background}" (use this for main container backgrounds, e.g. bg-["${c.background}"] or inline style).
+  - Main Text / Foreground: "${c.foreground}" (high contrast to background, e.g. text-["${c.foreground}"]).
+  - Primary Brand Highlight: "${c.primary}" (use for main call-to-action buttons, headers, highlighted text, e.g. bg-["${c.primary}"]).
+  - Secondary Brand Highlight: "${c.secondary}" (use for secondary CTAs, badges, tags, e.g. border-["${c.secondary}"]).
+  - Accent Color: "${c.accent}" (use for micro-copy highlights, border highlights, glows, e.g. text-["${c.accent}"]).
+  - Muted Card Background: "${c.muted}" (use for cards, feature blocks, form wrappers, e.g. bg-["${c.muted}"]).
+  
+  Tailwind semantic classes (bg-background, text-foreground, bg-primary, text-primary-foreground, bg-muted, border-border, bg-secondary) should be used extensively, but make sure your color placements and contrast pacing are logical and match the exact hex palette.`;
+
+        const headingFontEncoded = t.headingFont.replace(/ /g, "+");
+        const bodyFontEncoded = t.bodyFont.replace(/ /g, "+");
+        const googleFontUrl = `https://fonts.googleapis.com/css2?family=${headingFontEncoded}:wght@400;600;700;800&family=${bodyFontEncoded}:wght@400;500;600&display=swap`;
+
+        typographyRule = `You MUST strictly use the Google Fonts from the design intelligence:
+  - Heading Font: "${t.headingFont}" (for all H1, H2, H3, H4, H5, H6 display headers).
+  - Body Font: "${t.bodyFont}" (for standard copy, lists, button text, labels).
+  Ensure you set these fonts in your styles.`;
+
+        styleTagRule = `✅ REQUIRED: You MUST place a <style> block as the FIRST child of the return statement in every page component. Inside this style block, import the design intelligence fonts and apply them:
+  <style>{"@import url('${googleFontUrl}'); h1, h2, h3, h4, h5, h6 { font-family: '${t.headingFont}', sans-serif; } body, p, span, li, button, input { font-family: '${t.bodyFont}', sans-serif; }"}</style>
+  This style block is critical to ensure the page renders with the correct typography!`;
+      }
+    } catch (e) {
+      console.warn("Failed to parse design intelligence inside buildSystemPrompt:", e);
+    }
+  }
 
   return `# LANDING PAGE AGENT
 
 You build premium, high-converting 4-page React sales funnels (Lead Capture, Upsell, Downsell, Thank You). Output is production-grade, visually exceptional, and Babel Standalone-compatible.
 
-Your primary instruction is to act as an advanced assembly agent${screenshotFileName ? ` using the provided screenshot ("${screenshotFileName}") as your core visual blueprint` : " building an original design from the copy alone"}.
+Your primary instruction is to act as an advanced assembly agent\${screenshotFileName ? \` using the provided screenshot ("\${screenshotFileName}") as your core visual blueprint\` : " building an original design from the copy alone"}.
 
 ---
 
@@ -56,10 +101,7 @@ Applies to ALL elements — img, div, a, button, input, span, section — no exc
 ✅ REQUIRED: className={"p-6 " + (featured ? "bg-primary" : "bg-white")}
 
 ### 🚨 RULE 0.4 — STYLE TAG USES STRING CONCATENATION, NOT BACKTICKS
-✅ SHORT: <style>{"@import url('https://fonts.googleapis.com/...'); .display-font{font-family:'Fraunces',serif;}"}</style>
-✅ LONG: <style>{"@import url('...');" + " .display-font { font-family: 'Sora', sans-serif; }" + " html { scroll-behavior: smooth; }"}</style>
-❌ NEVER: <style>{\`@import url(...)\`}</style>
-Place <style> as FIRST child of the return. Never declare font strings as module-level variables.
+${styleTagRule}
 
 ### 🚨 RULE 0.5 — camelCase JSX ATTRIBUTES ONLY
 ❌ ILLEGAL: fetchpriority class for tabindex
@@ -96,13 +138,13 @@ Max 4 feature cards, max 4 FAQs. Avoid verbose nested markup.
 
 ## ━━━ SECTION 1: VISUAL DESIGN & ARCHITECTURE ━━━
 
-${screenshotFileName ? `Use the attached screenshot "${screenshotFileName}" as structural inspiration, but DO NOT hardcode its exact layout if it doesn't fit the copy. Adapt it intelligently.` : `No screenshot provided. You have full creative freedom to design a layout that best serves the copy and offer.`}
+\${screenshotFileName ? \`Use the attached screenshot "\${screenshotFileName}" as structural inspiration, but DO NOT hardcode its exact layout if it doesn't fit the copy. Adapt it intelligently.\` : \`No screenshot provided. You have full creative freedom to design a layout that best serves the copy and offer.\`}
 
 **MANDATORY DESIGN EXCELLENCE RULES:**
 - **Dynamic Layouts:** NEVER use the exact same layout structure for different pages or offers. Be highly flexible. Mix and match grids, splits, asymmetric layouts, and varied section pacing.
-- **Colors:** Deep, premium palettes (e.g. navy/violet base #030612 or rich dark themes). Enrich with subtle indigo, violet, fuchsia, or teal gradients. Use glassmorphism heavily for cards (bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]).
+- **Colors:** ${colorsRule}
 - **Glow effects:** Max 2 per section. absolute + pointer-events-none inside relative overflow-hidden parent. blur-[80px] to blur-[140px].
-- **Typography Hierarchy:** Always TWO families. Display: Fraunces, Sora, DM Serif Display, etc. Body: DM Sans, Plus Jakarta Sans, Figtree. Use text gradients (e.g., bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent) strategically for emphasis.
+- **Typography Hierarchy:** ${typographyRule}
 - **Assets:** Use high-quality Unsplash images. Never leave empty divs or placeholder shapes.
 
 **MOTION (framer-motion):**
@@ -127,7 +169,7 @@ ${screenshotFileName ? `Use the attached screenshot "${screenshotFileName}" as s
 
 ## ━━━ SECTION 3: ICONS ━━━
 
-Import only icons you use. Approved list: ${icons}
+Import only icons you use. Approved list: \${icons}
 
 ---
 
@@ -445,7 +487,7 @@ export async function POST(req: Request) {
     copyContext = JSON.stringify(existingBlocks.copy, null, 2);
   }
 
-  const systemPrompt = buildSystemPrompt(category, screenshot.fileName);
+  const systemPrompt = buildSystemPrompt(category, screenshot.fileName, designIntelligence);
   const contentPrompt = buildContentPrompt(offerContext, copyContext, category);
 
   console.log('[generate] model:', MODEL, '| maxTokens:', MAX_OUTPUT_TOKENS, '| funnelId:', resolvedFunnelId);

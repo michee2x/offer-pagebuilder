@@ -273,3 +273,88 @@ export function pickThemeForOffer(ctx: {
   // default: dark tech (good for SaaS, AI, productivity, general)
   return SHADCN_THEMES['dark-tech'];
 }
+
+function hexToHslVars(hex: string): string {
+  hex = hex.replace(/^#/, '');
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('');
+  }
+  let r = parseInt(hex.substring(0, 2), 16) / 255;
+  let g = parseInt(hex.substring(2, 4), 16) / 255;
+  let b = parseInt(hex.substring(4, 6), 16) / 255;
+  let max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (max !== min) {
+    let d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
+export function convertDesignIntelligenceToTheme(designIntel: any): ShadcnTheme {
+  const colors = designIntel.colors || {
+    primary: "#6366f1",
+    secondary: "#ec4899",
+    accent: "#8b5cf6",
+    background: "#030712",
+    foreground: "#f9fafb",
+    muted: "#1f2937",
+  };
+  const typography = designIntel.typography || {
+    headingFont: "Inter",
+    bodyFont: "Inter",
+  };
+
+  const primaryHsl = hexToHslVars(colors.primary);
+  const secondaryHsl = hexToHslVars(colors.secondary);
+  const accentHsl = hexToHslVars(colors.accent);
+  const backgroundHsl = hexToHslVars(colors.background);
+  const foregroundHsl = hexToHslVars(colors.foreground);
+  const mutedHsl = hexToHslVars(colors.muted);
+
+  // Determine light or dark based on background lightness
+  const bgParts = backgroundHsl.split(' ');
+  const bgLightness = parseInt(bgParts[2] || '0', 10);
+  const isDark = bgLightness < 50;
+
+  const primaryFg = isDark ? '0 0% 100%' : '0 0% 0%';
+  const borderHsl = isDark ? '240 5% 16%' : '214 32% 91%';
+  const mutedFg = isDark ? '240 5% 65%' : '215 16% 47%';
+
+  return {
+    id: 'design-intelligence-theme',
+    name: 'Design Intelligence',
+    category: isDark ? 'dark' : 'light',
+    headingFont: typography.headingFont,
+    bodyFont: typography.bodyFont,
+    googleFontsUrl: `https://fonts.googleapis.com/css2?family=${typography.headingFont.replace(/ /g, '+')}:wght@400;600;700;800&family=${typography.bodyFont.replace(/ /g, '+')}:wght@400;500;600&display=swap`,
+    vars: {
+      background: backgroundHsl,
+      foreground: foregroundHsl,
+      card: mutedHsl,
+      'card-foreground': foregroundHsl,
+      popover: backgroundHsl,
+      'popover-foreground': foregroundHsl,
+      primary: primaryHsl,
+      'primary-foreground': primaryFg,
+      secondary: secondaryHsl,
+      'secondary-foreground': foregroundHsl,
+      muted: mutedHsl,
+      'muted-foreground': mutedFg,
+      accent: accentHsl,
+      'accent-foreground': foregroundHsl,
+      destructive: '0 62.8% 50%',
+      'destructive-foreground': '0 0% 98%',
+      border: borderHsl,
+      input: borderHsl,
+      ring: primaryHsl,
+      radius: '0.5rem',
+    }
+  };
+}

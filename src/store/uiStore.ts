@@ -16,7 +16,16 @@ export const useUIStore = create<UIState>()(
       activeWorkspaceId: null,
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
       setSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
-      setActiveWorkspaceId: (id) => set({ activeWorkspaceId: id }),
+      setActiveWorkspaceId: (id) => {
+        if (typeof window !== 'undefined') {
+          if (id) {
+            document.cookie = `active_workspace_id=${id}; path=/; max-age=${60 * 60 * 24 * 365}`;
+          } else {
+            document.cookie = `active_workspace_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+          }
+        }
+        set({ activeWorkspaceId: id });
+      },
     }),
     {
       name: 'offer-iq-ui-storage',

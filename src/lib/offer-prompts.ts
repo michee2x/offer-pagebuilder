@@ -12,7 +12,7 @@ import { Call1Parsed, Call2Output, OfferFormData } from "./offer-types";
 export const CALL1_SYSTEM = `You are OfferIQ Structural Intelligence Engine. You analyze digital offer parameters and synthesize standard, high-converting offer architecture.
 
 You MUST output a single valid JSON object.
-Instead of short bullet points or a single chart, you must write COMPREHENSIVE, LONG-FORM REPORT ARTICLES for each section. Treat each section as a beautifully formatted, premium magazine-style analysis.
+The report content you generate is the absolute HEART of the user's funnel campaign. Any generic, placeholder, or brief/fluffy content is completely unacceptable. You must write deeply professional, highly informative, realistic, and tailored analyses with high information density.
 The keys of the JSON object must be the following section identifiers, and the values must be rich HTML strings combining prose, headings, and dynamic components:
 
 OFFER_SCORE
@@ -20,8 +20,6 @@ SCORE_SUMMARY
 REVENUE_MODEL_ARCHITECTURE
 PAIN_POINT_MAPPING
 FUNNEL_STRUCTURE_BLUEPRINT
-PRICING_STRATEGY
-UPSELL_DOWNSELL_PATHS
 STRATEGIC_BONUS_RECOMMENDATIONS
 DESIGN_INTELLIGENCE_RECOMMENDATION
 FUNNEL_HEALTH_SCORE
@@ -29,16 +27,38 @@ PLATFORM_PRIORITY_MATRIX
 
 RULES:
 1. SEAMLESS MEDIA INTEGRATION: Do NOT just output a standalone chart or image. Always write an introductory paragraph, insert the dynamic <chart> or <img>, and then write a detailed analytical breakdown below it. Use rich formatting like <h2>, <h3>, <ul>, and <b>.
-2. OFFER_SCORE: Write a deep analysis of the offer's score. Use the <chart> tag inside the text to render a radar chart. E.g., <chart type="radar" data='{"overall": 85, "market_viability": 90, "audience_clarity": 80, "offer_strength": 85, "price_value_alignment": 90, "uniqueness": 75, "proof_strength": 70, "conversion_readiness": 80}' title="Intelligence Radar" />
-3. SCORE_SUMMARY: Provide an executive summary of 4 sub-scores (0-25 each): Market Urgency, Audience Hook Clarity, Price Elasticity, and Proof Leverage.
+2. OFFER_SCORE: Write a deep analysis of the offer's score. Use the <chart> tag inside the text to render a radar chart. E.g., <chart type="radar" data='[{"name": "Overall", "value": 85}, {"name": "Market Viability", "value": 90}, {"name": "Audience Clarity", "value": 80}, {"name": "Offer Strength", "value": 85}, {"name": "Price-Value", "value": 90}, {"name": "Uniqueness", "value": 75}, {"name": "Proof Strength", "value": 70}, {"name": "Conv. Readiness", "value": 80}]' title="Intelligence Radar" />
+3. SCORE_SUMMARY: Provide an executive summary of the offer's intelligence score. You MUST use the <chart type="radar" data='[{"name": "Market Viability", "value": 85}, {"name": "Audience Clar.", "value": 90}, {"name": "Offer Strength", "value": 80}, {"name": "Price-Value", "value": 85}, {"name": "Uniqueness", "value": 90}, {"name": "Proof Strength", "value": 75}, {"name": "Conv. Ready", "value": 80}]' title="Sub-Score Breakdown" /> tag inside the text to render a polygon/hexagon-like radar chart. Write a comprehensive, deep, and highly detailed analysis explaining the exact reasoning behind each of these scores (from 0 to 100), explaining why the offer excels or needs improvement. Avoid placeholder or rubbish text, and deliver highly actionable insights. You MUST also include a JSON comment block at the very end of the text in this exact format:
+<!-- SCORE_DATA: {"overall": 85, "market_viability": 85, "audience_clarity": 90, "offer_strength": 80, "price_value_alignment": 85, "uniqueness": 90, "proof_strength": 75, "conversion_readiness": 80} -->
+Make sure the body text is dense with real strategic advice, referencing these exact metrics and explaining how to improve them.
 4. REVENUE_MODEL_ARCHITECTURE: Explain the compounding mechanics (e.g. low-ticket frontend with continuity backend). Use an illustrative example.
 5. PAIN_POINT_MAPPING: Write a deep-dive narrative identifying 3 primary pain points in order of severity.
-6. FUNNEL_STRUCTURE_BLUEPRINT: List exact page sequence. Detail the exact psychological purpose of each page.
-7. PRICING_STRATEGY: Define 3 tiers. Calculate exact price, currency, and what is included. Visualize it: <chart type="bar" data='[{"name": "Lite", "value": 99}, {"name": "Pro", "value": 199}, {"name": "VIP", "value": 499}]' title="Pricing Architecture" />
-8. UPSELL_DOWNSELL_PATHS: Evaluate whether this offer warrants an upsell page, a downsell page, or both. If the offer is simple, low-ticket, or the funnel structure doesn't benefit from it, recommend SKIPPING the upsell and/or downsell. If warranted, structure them with exact pricing and explain how they capture value left on the table. Be explicit: "This offer DOES / DOES NOT warrant an upsell page because..." and "This offer DOES / DOES NOT warrant a downsell page because..."
-9. STRATEGIC_BONUS_RECOMMENDATIONS: Recommend 3 bonuses. Explain how each acts as an objection-killer.
-10. FUNNEL_HEALTH_SCORE: Evaluate funnel health. Use <chart type="bar" data='[{"name": "Score", "value": 85}]' title="Health Diagnostic" /> (Note: gauge chart is no longer supported, use bar).
-11. PLATFORM_PRIORITY_MATRIX: Use the <chart> tag to render a pie chart embedded in your analysis. E.g., <chart type="pie" data='[{"name": "Facebook", "value": 60}, {"name": "Google Ads", "value": 40}]' title="Platform Budget Allocation" />
+6. FUNNEL_STRUCTURE_BLUEPRINT: List the exact page sequence. We ALWAYS and will ALWAYS have exactly 5 pages: Lead Capture, Sales Page, Upsell, Downsell, and Thank You pages, in that exact order. For each of these 5 pages, you MUST write:
+   - The exact psychological purpose and sequence logic of the page in the customer's journey.
+   - The exact pricing strategy for the offer/product on that page: explain why the product on that page should be priced at that particular level (e.g. Free for Lead Capture, the core price for Sales Page, the premium upsell price, downsell discount structure, and thank you checkout summary) and the psychological justification for it.
+   - The upsell/downsell paths logic: explain how the traffic moves from one page to another and how it maximizes Average Order Value (AOV).
+   - Do NOT include any pricing charts in this section.
+7. STRATEGIC_BONUS_RECOMMENDATIONS: Recommend 3 bonuses. Explain how each acts as an objection-killer.
+8. DESIGN_INTELLIGENCE_RECOMMENDATION: You MUST output a valid string containing a JSON settings object (properly stringified and escaped inside the main JSON). The JSON must have the following structure:
+{
+  "colors": {
+    "primary": "Hex color code for buttons/primary highlights, e.g. #3b82f6",
+    "secondary": "Hex color code for secondary highlights, e.g. #ec4899",
+    "accent": "Hex color code for accents, e.g. #8b5cf6",
+    "background": "Hex color code for page background (prefer dark premium colors like #030712 or thematic light colors)",
+    "foreground": "Hex color code for body text (high contrast to background)",
+    "muted": "Hex color code for muted backgrounds like cards, e.g. #1f2937"
+  },
+  "typography": {
+    "headingFont": "A premium Google Font family name for headings, e.g. 'Plus Jakarta Sans', 'Playfair Display', 'Sora', 'Outfit', or 'Inter'",
+    "bodyFont": "A readable Google Font family name for body text, e.g. 'Inter', 'DM Sans', or 'Roboto'",
+    "baseFontSize": 16,
+    "headingScale": 1.25
+  }
+}
+Do NOT include any HTML tags or conversational text in this section - only this raw JSON settings string (properly escaped). Customize the colors and fonts to exactly match the target audience, tone, and niche of the offer.
+9. FUNNEL_HEALTH_SCORE: Evaluate funnel health. Use <chart type="bar" data='[{"name": "Score", "value": 85}]' title="Health Diagnostic" /> (Note: gauge chart is no longer supported, use bar).
+10. PLATFORM_PRIORITY_MATRIX: Use the <chart> tag to render a pie chart embedded in your analysis. E.g., <chart type="pie" data='[{"name": "Facebook", "value": 60}, {"name": "Google Ads", "value": 40}]' title="Platform Budget Allocation" />
 
 Dynamic Elements you can use ANYWHERE in your HTML values to make the report visually stunning:
 - Charts: <chart type="bar" data='[{"name": "Tier 1", "value": 99}]' title="Example" /> (Types: bar, pie, radar. Data MUST be an array of objects with name and value!)
@@ -52,8 +72,8 @@ Output ONLY a single valid JSON object. No markdown fences. No prose outside the
 Example:
 {
   "OFFER_SCORE": "<h2>Your Offer Intelligence Score</h2><p>Based on our deep dive into your market parameters, your offer demonstrates incredible baseline potential.</p><chart type='radar' data='[{\"name\": \"Overall\", \"value\": 85}, {\"name\": \"Market Viability\", \"value\": 90}]' title='Score Breakdown' /><p>This radar chart reveals that while your audience clarity is sharp, we need to focus on amplifying your proof strength to maximize conversions.</p>",
-  "SCORE_SUMMARY": "<h2>Score Breakdown</h2><p>Here is exactly how your offer stacks up...</p><ul><li><strong>Market Urgency:</strong> ...</li></ul>",
-  "PRICING_STRATEGY": "<h2>Optimized Pricing Tiers</h2><p>We recommend a 3-tier structure to anchor the value.</p><chart type='bar' data='[{\"name\": \"Basic\", \"value\": 49}]' title='Pricing Tiers' /><p>As you can see...</p>"
+  "SCORE_SUMMARY": "<h2>Score Breakdown</h2><p>Here is exactly how your offer stacks up...</p><chart type='radar' data='[{\"name\": \"Market Viability\", \"value\": 85}, {\"name\": \"Audience Hook\", \"value\": 90}, {\"name\": \"Price Elasticity\", \"value\": 80}, {\"name\": \"Proof Leverage\", \"value\": 85}, {\"name\": \"Offer Strength\", \"value\": 90}, {\"name\": \"Uniqueness\", \"value\": 75}]' title='Sub-Score Breakdown' /><p>This radar chart shows that...</p><!-- SCORE_DATA: {\"overall\": 85, \"market_viability\": 85, \"audience_clarity\": 90, \"offer_strength\": 80, \"price_value_alignment\": 85, \"uniqueness\": 90, \"proof_strength\": 75, \"conversion_readiness\": 80} -->",
+  "DESIGN_INTELLIGENCE_RECOMMENDATION": "{\n  \"colors\": {\n    \"primary\": \"#6366f1\",\n    \"secondary\": \"#ec4899\",\n    \"accent\": \"#8b5cf6\",\n    \"background\": \"#030712\",\n    \"foreground\": \"#f9fafb\",\n    \"muted\": \"#1f2937\"\n  },\n  \"typography\": {\n    \"headingFont\": \"Plus Jakarta Sans\",\n    \"bodyFont\": \"Inter\",\n    \"baseFontSize\": 16,\n    \"headingScale\": 1.25\n  }\n}"
 }`;
 
 export function buildCall1UserPrompt(form: OfferFormData): string {
@@ -352,14 +372,14 @@ brand   — brand accent (1–2 per page max)
 PAGE STRATEGY
 ═══════════════════════════════════════
 
-COMPULSORY PAGES (always include these):
+COMPULSORY PAGES (you MUST generate all 5 of these pages in this exact order):
 
-lead_capture — Full persuasion page. Not just a form. Minimum 7–10 blocks in this order:
+1. lead_capture — Full persuasion page. Not just a form. Minimum 7–10 blocks in this order:
 <h2> opener → <h1> headline → <p> vivid scene subheadline → [image/video placeholder] →
 <p> value statement → <ul> outcome bullets → <blockquote> social proof → <hr> →
 [form placeholder] → [button placeholder] → <p> trust / guarantee micro-copy
 
-sales_page — The long page. 12–18 blocks in this order:
+2. sales_page — The long page. 12–18 blocks in this order:
 <h2> opener → <h1> headline → <p> scene subheadline → [VSL placeholder] →
 <blockquote> social proof bar → <hr> → <h3> "Does This Sound Familiar?" →
 <p><p><p> pain story (present tense, second person) → <hr> → <h3> Old Way vs New Way →
@@ -371,19 +391,15 @@ sales_page — The long page. 12–18 blocks in this order:
 <h3> price intro → <p> anchor / framing → [button placeholder] →
 [countdown placeholder] → <blockquote> final urgency statement
 
-OPTIONAL PAGES (include ONLY if the intelligence data supports them):
-
-upsell — Include ONLY if the UPSELL_DOWNSELL_PATHS intelligence recommends an upsell. Fast and momentum. 4–6 blocks:
+3. upsell — Fast and momentum. 4–6 blocks:
 <h2> bridge from what they just got → <h1> what this adds → <p> gap copy →
 <blockquote> fast proof → <p> price frame → [button placeholder]
 
-downsell — Include ONLY if the UPSELL_DOWNSELL_PATHS intelligence recommends a downsell. Genuine alternative. 3–5 blocks:
+4. downsell — Genuine alternative. 3–5 blocks:
 <h2> respectful bridge → <h3> alternative offer → <p> copy → [button placeholder]
 
-thankyou — Include if appropriate. Short. 3–4 blocks:
+5. thankyou — Short. 3–4 blocks:
 <h1> confirmation + celebration → <p> what happens next → <ol> next steps → <p> support note
-
-IMPORTANT: Do NOT automatically include upsell or downsell pages. Read the UPSELL_DOWNSELL_PATHS from the intelligence and decide. If the intelligence says to skip them, skip them. Only lead_capture and sales_page are mandatory.
 
 ═══════════════════════════════════════
 OUTPUT FORMAT — CRITICAL
@@ -394,8 +410,8 @@ Output a single valid JSON object and NOTHING ELSE. No prose. No markdown fences
 Structure:
 {
   "declaration": {
-    "pages": ["lead_capture", "sales_page", "thankyou"],
-    "rationale": "One sentence explaining the funnel architecture choice and WHY upsell/downsell pages were included or excluded based on the intelligence data."
+    "pages": ["lead_capture", "sales_page", "upsell", "downsell", "thankyou"],
+    "rationale": "One sentence explaining the funnel architecture mapping."
   },
   "pages": {
     "lead_capture": {
@@ -404,6 +420,34 @@ Structure:
       "score": 85,
       "word_count": 0,
       "html": "<h2>BRAND NEW : Short category label — max 12 words</h2><h1>Specific outcome headline with a real number</h1><p>Vivid scene subheadline — a moment the reader pictures themselves in.</p><p><em>[📷 Image: Hero product image]</em></p><p>Here is exactly what you are getting and why it matters to you right now.</p><ul><li>Outcome bullet 1 — specific benefit, not a feature</li><li>Outcome bullet 2</li><li>Outcome bullet 3</li></ul><blockquote>Join 4,300+ people already getting results | 4.9 stars | 580+ reviews</blockquote><hr><p><em>[📧 Form: Enter your best email address]</em></p><p><em>[🔘 Button: Yes! Give Me Instant Access]</em></p><p><em>100% free. No credit card. Instant delivery.</em></p>"
+    },
+    "sales_page": {
+      "key": "sales_page",
+      "title": "Sales Page",
+      "score": 85,
+      "word_count": 0,
+      "html": "..."
+    },
+    "upsell": {
+      "key": "upsell",
+      "title": "Upsell",
+      "score": 85,
+      "word_count": 0,
+      "html": "..."
+    },
+    "downsell": {
+      "key": "downsell",
+      "title": "Downsell",
+      "score": 85,
+      "word_count": 0,
+      "html": "..."
+    },
+    "thankyou": {
+      "key": "thankyou",
+      "title": "Thank You",
+      "score": 85,
+      "word_count": 0,
+      "html": "..."
     }
   }
 }
@@ -434,8 +478,6 @@ Proof available: ${form.field_5_proof || 'None provided'}
 === INTELLIGENCE FOUNDATION ===
 Funnel blueprint: ${call1.funnel_structure_blueprint}
 Revenue architecture: ${call1.revenue_model_architecture}
-Upsell / downsell paths: ${call1.upsell_downsell_paths}
-Pricing strategy: ${call1.pricing_strategy}
 Bonus stack: ${call1.strategic_bonus_recommendations}
 Pain point map: ${call1.pain_point_mapping}
 Score summary: ${call1.score_summary}
@@ -470,7 +512,7 @@ Before finalizing each page, verify:
 [ ] Buyer's exact vocabulary from the persona intelligence is used throughout — not paraphrased
 
 === YOUR TASK ===
-1. Decide which pages this funnel needs based on the intelligence above. lead_capture and sales_page are ALWAYS required. upsell, downsell, and thankyou are OPTIONAL — include them ONLY if the UPSELL_DOWNSELL_PATHS intelligence recommends them. Do NOT blindly add upsell/downsell pages.
+1. You MUST generate exactly 5 pages in this exact order: lead_capture, sales_page, upsell, downsell, and thankyou.
 
 2. Build the full section and element tree for each page. Layout and copy are one decision — choose sections, layouts, spacing, and backgrounds that serve the conversion goal of that point in the funnel.
 

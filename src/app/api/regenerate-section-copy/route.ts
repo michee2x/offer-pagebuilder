@@ -51,7 +51,7 @@ Return ONLY valid HTML code for this section. No markdown, no explanations.
 
 Intelligence Context:
 PAIN POINTS: ${JSON.stringify(call1Raw.PAIN_POINT_MAPPING || {})}
-PRICING STRATEGY: ${JSON.stringify(call1Raw.PRICING_STRATEGY || {})}
+FUNNEL BLUEPRINT: ${JSON.stringify(call1Raw.FUNNEL_STRUCTURE_BLUEPRINT || {})}
 CONVERSION HOOKS: ${JSON.stringify(call1Raw.CONVERSION_HOOK_LIBRARY || {})}
 STRATEGIC NARRATIVE: ${JSON.stringify(call2 || {})}`;
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Folder } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -44,8 +44,14 @@ export default async function DashboardPage(props: {
     console.error("Dashboard workspace query error:", error);
   }
 
+  const cookieStore = await cookies();
+  const activeWorkspaceCookie = cookieStore.get("active_workspace_id")?.value;
+
   const activeWorkspaceId =
     workspace ||
+    (activeWorkspaceCookie && allWorkspaces?.some((w: any) => w.id === activeWorkspaceCookie)
+      ? activeWorkspaceCookie
+      : null) ||
     (allWorkspaces && allWorkspaces.length > 0 ? allWorkspaces[0].id : null);
   const activeWorkspace = allWorkspaces?.find(
     (w: any) => w.id === activeWorkspaceId,

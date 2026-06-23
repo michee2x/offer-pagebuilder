@@ -289,191 +289,163 @@ export function ThemeGroundUI({ content, onChange }: ThemeGroundUIProps) {
   const isConfigDisabled = !!rawText;
 
   return (
-    <div className="flex flex-col w-full h-full min-h-[650px] overflow-hidden text-white/90">
+    <div className="flex flex-col lg:flex-row w-full gap-8 min-h-[650px] overflow-hidden text-white/90">
       {/* Google Fonts injection */}
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href={headingFontUrl} />
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href={bodyFontUrl} />
 
-      {/* ── Tab Switcher ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1 mb-6 p-1 bg-white/[0.04] border border-white/[0.08] rounded-xl w-fit">
-        <button
-          onClick={() => setActiveTab("intelligence")}
-          className={cn(
-            "flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-            activeTab === "intelligence"
-              ? "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white border border-indigo-500/30 shadow-lg shadow-indigo-500/10"
-              : "text-white/40 hover:text-white/70 hover:bg-white/[0.04] border border-transparent",
-          )}
-        >
-          <Settings2 className="w-4 h-4" />
-          Design Intelligence
-        </button>
-        <button
-          onClick={() => setActiveTab("preview")}
-          className={cn(
-            "flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-            activeTab === "preview"
-              ? "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white border border-indigo-500/30 shadow-lg shadow-indigo-500/10"
-              : "text-white/40 hover:text-white/70 hover:bg-white/[0.04] border border-transparent",
-          )}
-        >
-          <Eye className="w-4 h-4" />
-          Live Preview
-        </button>
-      </div>
+      {/* Left side (60%): Configuration Panel */}
+      <div className="w-full lg:w-[60%] flex flex-col overflow-y-auto pr-2 pb-10 space-y-7 custom-scrollbar">
+        <div>
+          <h2 className="text-xl font-bold text-white flex items-center gap-2.5 mb-1.5 font-display">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <Palette className="w-4 h-4 text-white" />
+            </div>
+            Theme Ground
+          </h2>
+          <p className="text-sm text-white/50 leading-relaxed">
+            Configure the core visual identity and design intelligence settings for your funnel pages.
+          </p>
+        </div>
 
-      {/* ── Tab Content ───────────────────────────────────────────────── */}
-      {activeTab === "intelligence" ? (
-        /* ── Configuration Panel ──────────────────────────────────────── */
-        <div className="w-full overflow-y-auto pr-2 pb-10 space-y-7 custom-scrollbar">
-          <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2.5 mb-1.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-                <Palette className="w-4 h-4 text-white" />
-              </div>
-              Theme Ground
-            </h2>
-            <p className="text-sm text-white/50 leading-relaxed">
-              Configure the core visual identity for your funnel pages.
+        {rawText && (
+          <div className="p-5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 space-y-3">
+            <p className="text-sm text-indigo-200 leading-relaxed">
+              The AI generated text design recommendations. Click below to initialize the interactive Theme Builder.
             </p>
+            <button
+              onClick={convertLegacyToTheme}
+              className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shadow-lg"
+            >
+              Initialize Theme Builder
+            </button>
+          </div>
+        )}
+
+        <div
+          className="space-y-7 transition-opacity"
+          style={{ opacity: isConfigDisabled ? 0.4 : 1, pointerEvents: isConfigDisabled ? "none" : "auto" }}
+        >
+          {/* ── Colors ── */}
+          <div className="space-y-4">
+            <h3 className="text-[11px] font-bold tracking-widest uppercase text-white/30 flex items-center gap-2">
+              <Palette className="w-3.5 h-3.5" />
+              Colors
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {Object.entries(theme.colors).map(([key, val]) => (
+                <ColorSwatch
+                  key={key}
+                  label={COLOR_LABELS[key] || key}
+                  value={val}
+                  onChange={(v) => updateColor(key as keyof ThemeSettings["colors"], v)}
+                />
+              ))}
+            </div>
           </div>
 
-          {rawText && (
-            <div className="p-5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 space-y-3">
-              <p className="text-sm text-indigo-200 leading-relaxed">
-                The AI generated text design recommendations. Click below to initialize the interactive Theme Builder.
-              </p>
-              <button
-                onClick={convertLegacyToTheme}
-                className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shadow-lg"
-              >
-                Initialize Theme Builder
-              </button>
-            </div>
-          )}
+          {/* ── Typography ── */}
+          <div className="space-y-4">
+            <h3 className="text-[11px] font-bold tracking-widest uppercase text-white/30 flex items-center gap-2">
+              <Type className="w-3.5 h-3.5" />
+              Typography
+            </h3>
 
-          <div
-            className="space-y-7 transition-opacity"
-            style={{ opacity: isConfigDisabled ? 0.4 : 1, pointerEvents: isConfigDisabled ? "none" : "auto" }}
-          >
-            {/* ── Colors ── */}
-            <div className="space-y-4">
-              <h3 className="text-[11px] font-bold tracking-widest uppercase text-white/30 flex items-center gap-2">
-                <Palette className="w-3.5 h-3.5" />
-                Colors
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {Object.entries(theme.colors).map(([key, val]) => (
-                  <ColorSwatch
-                    key={key}
-                    label={COLOR_LABELS[key] || key}
-                    value={val}
-                    onChange={(v) => updateColor(key as keyof ThemeSettings["colors"], v)}
-                  />
-                ))}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FontSelector
+                label="Heading Font"
+                value={theme.typography.headingFont}
+                fonts={fonts}
+                loading={loadingFonts}
+                onChange={(f) => updateTypography("headingFont", f)}
+              />
+
+              <FontSelector
+                label="Body Font"
+                value={theme.typography.bodyFont}
+                fonts={fonts}
+                loading={loadingFonts}
+                onChange={(f) => updateTypography("bodyFont", f)}
+              />
             </div>
 
-            {/* ── Typography ── */}
-            <div className="space-y-4">
-              <h3 className="text-[11px] font-bold tracking-widest uppercase text-white/30 flex items-center gap-2">
-                <Type className="w-3.5 h-3.5" />
-                Typography
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FontSelector
-                  label="Heading Font"
-                  value={theme.typography.headingFont}
-                  fonts={fonts}
-                  loading={loadingFonts}
-                  onChange={(f) => updateTypography("headingFont", f)}
-                />
-
-                <FontSelector
-                  label="Body Font"
-                  value={theme.typography.bodyFont}
-                  fonts={fonts}
-                  loading={loadingFonts}
-                  onChange={(f) => updateTypography("bodyFont", f)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-white/70">Base Font Size</Label>
+                  <span className="text-xs font-mono text-white/40">{theme.typography.baseFontSize}px</span>
+                </div>
+                <Slider
+                  value={[theme.typography.baseFontSize]}
+                  min={12}
+                  max={24}
+                  step={1}
+                  onValueChange={(v) => updateTypography("baseFontSize", v[0])}
+                  className="w-full"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs text-white/70">Base Font Size</Label>
-                    <span className="text-xs font-mono text-white/40">{theme.typography.baseFontSize}px</span>
-                  </div>
-                  <Slider
-                    value={[theme.typography.baseFontSize]}
-                    min={12}
-                    max={24}
-                    step={1}
-                    onValueChange={(v) => updateTypography("baseFontSize", v[0])}
-                    className="w-full"
-                  />
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-white/70">Heading Scale</Label>
+                  <span className="text-xs font-mono text-white/40">{theme.typography.headingScale}×</span>
                 </div>
-
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs text-white/70">Heading Scale</Label>
-                    <span className="text-xs font-mono text-white/40">{theme.typography.headingScale}×</span>
-                  </div>
-                  <Slider
-                    value={[theme.typography.headingScale]}
-                    min={1.1}
-                    max={1.6}
-                    step={0.05}
-                    onValueChange={(v) => updateTypography("headingScale", v[0])}
-                    className="w-full"
-                  />
-                </div>
+                <Slider
+                  value={[theme.typography.headingScale]}
+                  min={1.1}
+                  max={1.6}
+                  step={0.05}
+                  onValueChange={(v) => updateTypography("headingScale", v[0])}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
         </div>
-      ) : (
-        /* ── Live Preview ─────────────────────────────────────────────── */
-        <div className="flex-1 bg-black/30 rounded-2xl border border-white/10 overflow-hidden relative shadow-2xl flex flex-col min-h-[500px]">
-          {/* Browser chrome bar */}
-          <div className="px-4 py-2.5 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2 text-xs font-medium text-white/40">
-              <LayoutTemplate className="w-3.5 h-3.5" />
-              Live Preview
-            </div>
-            <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
-              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500/40" />
+      </div>
+
+      {/* Right Side (40%): Mobile Phone Preview Device Mockup */}
+      <div className="w-full lg:w-[40%] flex flex-col items-center justify-start shrink-0 lg:sticky lg:top-4 pb-10">
+        <div className="w-[280px] aspect-[9/19] h-[540px] bg-black rounded-[38px] border-[8px] border-neutral-800 shadow-2xl relative overflow-hidden flex flex-col shrink-0 ring-4 ring-white/5">
+          {/* Phone notch/island */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-20 bg-neutral-800 rounded-b-xl z-50 flex items-center justify-center">
+            <div className="w-8 h-1 bg-black rounded-full" />
+          </div>
+
+          {/* Phone Status bar */}
+          <div className="h-6 bg-neutral-900 flex items-center justify-between px-5 pt-1.5 shrink-0 text-[9px] text-white/40 font-semibold select-none z-40">
+            <span>9:41</span>
+            <div className="flex items-center gap-1">
+              <span className="opacity-60">5G</span>
+              <div className="w-3 h-1.5 bg-white/40 rounded-sm" />
             </div>
           </div>
 
-          {/* Preview content */}
+          {/* Preview content inside viewport */}
           <div
-            className="flex-1 overflow-y-auto custom-scrollbar transition-colors duration-500"
+            className="flex-1 overflow-y-auto custom-scrollbar transition-colors duration-500 relative z-30"
             style={{ backgroundColor: theme.colors.background, color: theme.colors.foreground }}
           >
             <div
-              className="w-full min-h-full p-8 md:p-12 flex flex-col items-center justify-center text-center"
-              style={{ fontFamily: `'${theme.typography.bodyFont}', sans-serif`, fontSize: `${theme.typography.baseFontSize}px` }}
+              className="w-full min-h-full p-5 flex flex-col items-center justify-center text-center"
+              style={{ fontFamily: `'${theme.typography.bodyFont}', sans-serif`, fontSize: `${theme.typography.baseFontSize * 0.75}px` }}
             >
               {/* Badge */}
               <div
-                className="inline-flex items-center justify-center px-4 py-1.5 rounded-full font-medium text-sm mb-6 shadow-sm transition-colors duration-300"
+                className="inline-flex items-center justify-center px-3 py-1 rounded-full font-medium text-[9px] mb-4 shadow-sm transition-colors duration-300"
                 style={{ backgroundColor: theme.colors.muted, color: theme.colors.accent }}
               >
-                ✨ New Feature Release
+                ✨ Live Preview
               </div>
 
               {/* Hero Heading */}
               <h1
-                className="font-bold tracking-tight mb-5 max-w-2xl leading-[1.1] transition-all duration-300"
+                className="font-bold tracking-tight mb-4 leading-[1.2] transition-all duration-300"
                 style={{
                   fontFamily: `'${theme.typography.headingFont}', sans-serif`,
-                  fontSize: `${theme.typography.baseFontSize * theme.typography.headingScale * theme.typography.headingScale * theme.typography.headingScale}px`,
+                  fontSize: `${theme.typography.baseFontSize * 0.75 * theme.typography.headingScale * theme.typography.headingScale}px`,
                 }}
               >
                 Convert more visitors with{" "}
@@ -481,55 +453,47 @@ export function ThemeGroundUI({ content, onChange }: ThemeGroundUIProps) {
               </h1>
 
               {/* Subtitle */}
-              <p className="max-w-xl mx-auto mb-10 opacity-75 leading-relaxed" style={{ fontSize: `${theme.typography.baseFontSize * 1.1}px` }}>
-                The visual aesthetics of your landing page instantly communicate trust.
-                Configure your brand colors and typography here to see the impact live.
+              <p className="opacity-70 leading-relaxed mb-6" style={{ fontSize: `${theme.typography.baseFontSize * 0.7}px` }}>
+                The visual aesthetics of your landing page instantly communicate trust. Configure your brand colors and typography here.
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex flex-col gap-2 w-full px-2">
                 <button
-                  className="px-8 py-3.5 rounded-xl font-bold transition-all duration-300 shadow-lg hover:opacity-90 hover:scale-[1.03]"
+                  className="w-full py-2 rounded-lg font-bold transition-all duration-300 shadow-lg text-[10px]"
                   style={{ backgroundColor: theme.colors.primary, color: "#fff" }}
                 >
                   Get Started Now
                 </button>
                 <button
-                  className="px-8 py-3.5 rounded-xl font-bold transition-all duration-300 border-2 bg-transparent hover:opacity-80"
+                  className="w-full py-2 rounded-lg font-bold transition-all duration-300 border bg-transparent text-[10px]"
                   style={{ borderColor: theme.colors.secondary, color: theme.colors.secondary }}
                 >
-                  View Documentation
+                  Learn More
                 </button>
               </div>
 
               {/* Feature Cards */}
-              <div className="mt-16 w-full max-w-3xl grid grid-cols-1 md:grid-cols-3 gap-5 text-left">
+              <div className="mt-6 w-full space-y-2 text-left">
                 {[
-                  { n: 1, title: "Speed Optimized", desc: "Pages that load in under 2 seconds with zero layout shift." },
-                  { n: 2, title: "Conversion Focused", desc: "Every element is designed to move your visitor closer to action." },
-                  { n: 3, title: "Mobile First", desc: "Responsive layouts that look incredible on every device." },
+                  { n: 1, title: "Speed Optimized", desc: "Pages load instantly with zero layout shift." },
+                  { n: 2, title: "Conversion Focused", desc: "Designed to drive visitor action." },
                 ].map((card) => (
                   <div
                     key={card.n}
-                    className="p-6 rounded-2xl shadow-sm border transition-colors duration-300"
+                    className="p-3.5 rounded-xl border transition-colors duration-300 text-[10px]"
                     style={{ backgroundColor: theme.colors.muted, borderColor: `${theme.colors.accent}33` }}
                   >
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 text-white font-bold text-sm"
-                      style={{ backgroundColor: theme.colors.accent }}
-                    >
-                      {card.n}
-                    </div>
                     <h3
-                      className="font-bold mb-2"
+                      className="font-bold mb-0.5"
                       style={{
                         fontFamily: `'${theme.typography.headingFont}', sans-serif`,
-                        fontSize: `${theme.typography.baseFontSize * theme.typography.headingScale}px`,
+                        fontSize: `${theme.typography.baseFontSize * 0.75 * theme.typography.headingScale}px`,
                       }}
                     >
                       {card.title}
                     </h3>
-                    <p className="opacity-65 leading-relaxed" style={{ fontSize: `${theme.typography.baseFontSize * 0.9}px` }}>
+                    <p className="opacity-60 leading-relaxed">
                       {card.desc}
                     </p>
                   </div>
@@ -538,7 +502,7 @@ export function ThemeGroundUI({ content, onChange }: ThemeGroundUIProps) {
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -104,8 +104,8 @@ export interface Call1Parsed {
   pain_point_mapping: string;
   platform_priority_matrix: PlatformPriorityMatrix;
   funnel_health_score: FunnelHealthScore;
-  pricing_strategy: string;
-  upsell_downsell_paths: string;
+  pricing_strategy?: string;
+  upsell_downsell_paths?: string;
   strategic_bonus_recommendations: string;
   design_intelligence_recommendation: string;
 }

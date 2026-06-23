@@ -76,10 +76,8 @@ export async function POST(
     );
   }
 
-  // Determine which funnel pages exist
-  const declaredPages: FunnelPageKey[] =
-    copyData?.declaration?.pages ??
-    ['lead_capture', 'sales_page', 'thankyou'];
+  // Fixed 5-page funnel structure (always in this order)
+  const declaredPages: FunnelPageKey[] = ['lead_capture', 'sales_page', 'upsell', 'downsell', 'thankyou'];
 
   // Case-insensitive property getter
   const getVal = (obj: any, key: string): string => {

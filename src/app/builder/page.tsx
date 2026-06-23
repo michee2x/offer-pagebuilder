@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { LeftPanel } from "@/components/builder/LeftPanel";
+import { convertDesignIntelligenceToTheme } from "@/lib/themes";
 
 export default function BuilderPage() {
   const {
@@ -173,7 +174,21 @@ export default function BuilderPage() {
               if (blocks.canvasStyle) {
                 useBuilderStore.setState({ canvasStyle: blocks.canvasStyle });
               }
-              if (data.page.blocks.theme) {
+              const designIntelRaw = blocks.intelligence?.call1?.DESIGN_INTELLIGENCE_RECOMMENDATION;
+              let activeTheme = null;
+              if (designIntelRaw) {
+                try {
+                  const parsedIntel = typeof designIntelRaw === 'string' ? JSON.parse(designIntelRaw) : designIntelRaw;
+                  if (parsedIntel && parsedIntel.colors && parsedIntel.typography) {
+                    activeTheme = convertDesignIntelligenceToTheme(parsedIntel);
+                  }
+                } catch (e) {
+                  console.warn("Failed to parse design intelligence theme:", e);
+                }
+              }
+              if (activeTheme) {
+                setTheme(activeTheme);
+              } else if (data.page.blocks.theme) {
                 setTheme(data.page.blocks.theme);
               }
               if (data.page.custom_domain) {

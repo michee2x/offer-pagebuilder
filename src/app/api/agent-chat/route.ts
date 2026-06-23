@@ -138,8 +138,6 @@ INSTRUCTIONS FOR SKILL CALLS:
         REVENUE_MODEL_ARCHITECTURE: 'Revenue Model',
         PAIN_POINT_MAPPING: 'Pain Points',
         FUNNEL_STRUCTURE_BLUEPRINT: 'Funnel Blueprint',
-        PRICING_STRATEGY: 'Pricing Strategy',
-        UPSELL_DOWNSELL_PATHS: 'Upsell Paths',
         STRATEGIC_BONUS_RECOMMENDATIONS: 'Bonus Stack',
         DESIGN_INTELLIGENCE_RECOMMENDATION: 'Design Intelligence',
         FUNNEL_HEALTH_SCORE: 'Funnel Health',

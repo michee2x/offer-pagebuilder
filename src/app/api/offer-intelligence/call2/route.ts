@@ -50,8 +50,8 @@ export async function POST(req: Request) {
       pain_point_mapping: call1Raw.PAIN_POINT_MAPPING || call1Raw.pain_point_mapping || '',
       platform_priority_matrix: parseJsonSafe(call1Raw.PLATFORM_PRIORITY_MATRIX || call1Raw.platform_priority_matrix, { primary: {} }),
       funnel_health_score: parseJsonSafe(call1Raw.FUNNEL_HEALTH_SCORE || call1Raw.funnel_health_score, { score: 0 }),
-      pricing_strategy: call1Raw.PRICING_STRATEGY || call1Raw.pricing_strategy || '',
-      upsell_downsell_paths: call1Raw.UPSELL_DOWNSELL_PATHS || call1Raw.upsell_downsell_paths || '',
+      pricing_strategy: '',
+      upsell_downsell_paths: '',
       strategic_bonus_recommendations: call1Raw.STRATEGIC_BONUS_RECOMMENDATIONS || call1Raw.strategic_bonus_recommendations || '',
       design_intelligence_recommendation: call1Raw.DESIGN_INTELLIGENCE_RECOMMENDATION || call1Raw.design_intelligence_recommendation || '',
     };

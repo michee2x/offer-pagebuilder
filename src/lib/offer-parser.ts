@@ -469,7 +469,7 @@ export function migrateFlatEmailSequence(flat: EmailCopy[]): FunnelEmailSequence
 
 const ALL_SECTIONS = [
   'OFFER_SCORE', 'SCORE_SUMMARY', 'REVENUE_MODEL_ARCHITECTURE', 'PAIN_POINT_MAPPING',
-  'FUNNEL_STRUCTURE_BLUEPRINT', 'PRICING_STRATEGY', 'UPSELL_DOWNSELL_PATHS',
+  'FUNNEL_STRUCTURE_BLUEPRINT',
   'STRATEGIC_BONUS_RECOMMENDATIONS', 'DESIGN_INTELLIGENCE_RECOMMENDATION',
   'FUNNEL_HEALTH_SCORE', 'PLATFORM_PRIORITY_MATRIX',
   'OFFER_POSITIONING_ANALYSIS', 'TARGET_PERSONA_INTELLIGENCE', 'CONVERSION_HOOK_LIBRARY',
@@ -533,8 +533,10 @@ export function parseCall1Output(rawText: string): Record<string, string> {
 
   const sections: Record<string, string> = {};
   for (const sectionName of ALL_SECTIONS) {
-    if (parsed && typeof parsed === 'object' && parsed[sectionName]) {
-      sections[sectionName] = parsed[sectionName];
+    if (parsed && typeof parsed === 'object' && parsed[sectionName] !== undefined) {
+      sections[sectionName] = typeof parsed[sectionName] === 'object'
+        ? JSON.stringify(parsed[sectionName], null, 2)
+        : String(parsed[sectionName]);
     } else {
       const fallback = extractSection(rawText, sectionName);
       if (fallback) {

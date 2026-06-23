@@ -68,8 +68,8 @@ export async function POST(req: Request) {
       call1Raw.PLATFORM_PRIORITY_MATRIX || call1Raw.platform_priority_matrix,
       { primary: {} }
     ),
-    pricing_strategy: call1Raw.PRICING_STRATEGY || call1Raw.pricing_strategy || '',
-    upsell_downsell_paths: call1Raw.UPSELL_DOWNSELL_PATHS || call1Raw.upsell_downsell_paths || '',
+    pricing_strategy: '',
+    upsell_downsell_paths: '',
     strategic_bonus_recommendations:
       call1Raw.STRATEGIC_BONUS_RECOMMENDATIONS || call1Raw.strategic_bonus_recommendations || '',
     design_intelligence_recommendation:

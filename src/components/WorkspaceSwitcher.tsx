@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useUIStore } from "@/store/uiStore";
 import {
@@ -19,13 +19,33 @@ export function WorkspaceSwitcher({
   activeId: string | null;
 }) {
   const router = useRouter();
-  const { setActiveWorkspaceId } = useUIStore();
+  const searchParams = useSearchParams();
+  const { activeWorkspaceId, setActiveWorkspaceId } = useUIStore();
 
   useEffect(() => {
-    if (activeId) {
-      setActiveWorkspaceId(activeId);
+    const urlWorkspace = searchParams.get("workspace");
+
+    if (urlWorkspace) {
+      if (urlWorkspace !== activeWorkspaceId) {
+        setActiveWorkspaceId(urlWorkspace);
+      }
+    } else {
+      if (activeWorkspaceId) {
+        const exists = workspaces?.some((w) => w.id === activeWorkspaceId);
+        if (exists && activeWorkspaceId !== activeId) {
+          router.replace(`/?workspace=${activeWorkspaceId}`);
+        } else if (!exists) {
+          if (activeId) {
+            setActiveWorkspaceId(activeId);
+          }
+        }
+      } else {
+        if (activeId) {
+          setActiveWorkspaceId(activeId);
+        }
+      }
     }
-  }, [activeId, setActiveWorkspaceId]);
+  }, [activeId, activeWorkspaceId, setActiveWorkspaceId, searchParams, workspaces, router]);
 
   if (!workspaces || workspaces.length === 0) return null;
 
