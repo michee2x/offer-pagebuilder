@@ -334,6 +334,15 @@ export function MediaPickerModal({ open, onClose, onSelect, mediaType = 'image' 
                     ) : (
                       <>
                         <div className="grid grid-cols-4 gap-2 max-h-[240px] overflow-y-auto pr-0.5 pb-0.5">
+                          {/* Upload Tile */}
+                          <button
+                            onClick={() => setTab('upload')}
+                            className="relative aspect-square rounded-lg flex flex-col items-center justify-center gap-1 border-2 border-dashed border-white/20 hover:border-white/40 hover:bg-white/[0.04] transition-all group"
+                          >
+                            <Upload className="w-5 h-5 text-white/40 group-hover:text-white/70" />
+                            <span className="text-[10px] text-white/50 group-hover:text-white/80 font-medium">Upload New</span>
+                          </button>
+                          
                           {recentFiles.map((file) => {
                             const fileIsVideo = file.type === 'video' || isVideoFileName(file.name);
                             return (
