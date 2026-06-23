@@ -359,6 +359,11 @@ export default function BuilderPage() {
           setPublishedUrl(`${proto}${data.subdomain}.${base}`);
         }
       }
+      if (data.pageId && data.pageId !== pageId) {
+        setPageId(data.pageId);
+        window.history.replaceState(null, "", "?id=" + data.pageId);
+      }
+
       setHasUnsavedChanges(false);
       toast.success("Funnel saved and synced to database successfully!");
     } catch (e: any) {
@@ -705,7 +710,7 @@ export default function BuilderPage() {
       }
       setHasUnsavedChanges(false);
 
-      if (!pageId && data.pageId) {
+      if (data.pageId && data.pageId !== pageId) {
         setPageId(data.pageId);
         window.history.replaceState(null, "", "?id=" + data.pageId);
       }
