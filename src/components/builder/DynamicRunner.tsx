@@ -344,24 +344,47 @@ const makeBackgroundImagePatchPlugin = (
         const id = "el_" + (++cnt).toString(36);
         if (id !== targetId) return;
 
+        let patched = false;
+        let styleAttrNode: any = null;
+
         path.node.openingElement.attributes.forEach((attr: any) => {
-          if (
-            attr.type === "JSXAttribute" &&
-            attr.name?.name === "style" &&
-            attr.value?.type === "JSXExpressionContainer" &&
-            attr.value.expression.type === "ObjectExpression"
-          ) {
-            const props = attr.value.expression.properties;
-            for (const prop of props) {
-              if (
-                prop.type === "ObjectProperty" &&
-                (prop.key.name === "backgroundImage" || prop.key.value === "backgroundImage")
-              ) {
-                prop.value = t.stringLiteral(`url('${newSrc}')`);
+          if (attr.type === "JSXAttribute" && attr.name?.name === "style") {
+            styleAttrNode = attr;
+            if (attr.value?.type === "JSXExpressionContainer" && attr.value.expression.type === "ObjectExpression") {
+              const props = attr.value.expression.properties;
+              for (const prop of props) {
+                if (
+                  prop.type === "ObjectProperty" &&
+                  (prop.key.name === "backgroundImage" || prop.key.value === "backgroundImage")
+                ) {
+                  prop.value = t.stringLiteral(`url('${newSrc}')`);
+                  patched = true;
+                }
               }
             }
           }
         });
+
+        if (!patched) {
+          // If style exists but no backgroundImage, append it.
+          if (styleAttrNode && styleAttrNode.value?.type === "JSXExpressionContainer" && styleAttrNode.value.expression.type === "ObjectExpression") {
+            styleAttrNode.value.expression.properties.push(
+              t.objectProperty(t.identifier("backgroundImage"), t.stringLiteral(`url('${newSrc}')`))
+            );
+          } else if (!styleAttrNode) {
+            // Inject a new style={{ backgroundImage: ... }} attribute
+            path.node.openingElement.attributes.push(
+              t.jSXAttribute(
+                t.jSXIdentifier("style"),
+                t.jSXExpressionContainer(
+                  t.objectExpression([
+                    t.objectProperty(t.identifier("backgroundImage"), t.stringLiteral(`url('${newSrc}')`))
+                  ])
+                )
+              )
+            );
+          }
+        }
       },
     },
   };
@@ -572,32 +595,31 @@ export function DynamicRunner({
         return;
       }
 
-      // Find the closest element with a data-ofiq-id
-      let el = target;
-      while (el && !el.getAttribute("data-ofiq-id") && el !== e.currentTarget) {
-        el = el.parentElement as HTMLElement;
-      }
-      if (!el || !el.getAttribute("data-ofiq-id")) return;
-
-      const tag = el.tagName.toLowerCase();
-      let type: "image" | "video" | "bg" | "icon" | null = null;
+      // Walk up the DOM tree looking for an element with an interactive visual feature
+      let el: HTMLElement | null = target;
+      let foundType: "image" | "video" | "bg" | "icon" | null = null;
       let patchMode: "src" | "backgroundImage" | "none" = "none";
-      
-      if (tag === "img") { type = "image"; patchMode = "src"; }
-      else if (tag === "video" || tag === "iframe") { type = "video"; patchMode = "src"; }
-      else if (tag === "svg") { type = "icon"; patchMode = "none"; }
-      else {
-        // Check for background image
-        const style = window.getComputedStyle(el);
-        if (style.backgroundImage && style.backgroundImage !== "none" && style.backgroundImage.includes("url(")) {
-          type = "bg";
-          patchMode = "backgroundImage";
+      let targetEl: HTMLElement | null = null;
+
+      while (el && el !== e.currentTarget) {
+        if (el.getAttribute("data-ofiq-id")) {
+          const tag = el.tagName.toLowerCase();
+          if (tag === "img") { foundType = "image"; patchMode = "src"; targetEl = el; break; }
+          else if (tag === "video" || tag === "iframe") { foundType = "video"; patchMode = "src"; targetEl = el; break; }
+          else if (tag === "svg") { foundType = "icon"; patchMode = "none"; targetEl = el; break; }
+          else {
+            const style = window.getComputedStyle(el);
+            if (style.backgroundImage && style.backgroundImage !== "none" && style.backgroundImage.includes("url(")) {
+              foundType = "bg"; patchMode = "backgroundImage"; targetEl = el; break;
+            }
+          }
         }
+        el = el.parentElement as HTMLElement | null;
       }
 
-      if (type) {
+      if (foundType && targetEl) {
         if (hideMediaTimerRef.current) clearTimeout(hideMediaTimerRef.current);
-        const rect = el.getBoundingClientRect();
+        const rect = targetEl.getBoundingClientRect();
         const containerRect = e.currentTarget.getBoundingClientRect();
         
         setHoveredMedia({
@@ -605,8 +627,8 @@ export function DynamicRunner({
           left: rect.left - containerRect.left,
           width: rect.width,
           height: rect.height,
-          ofiqId: el.getAttribute("data-ofiq-id")!,
-          type,
+          ofiqId: targetEl.getAttribute("data-ofiq-id")!,
+          type: foundType,
           patchMode,
         });
       }
@@ -630,39 +652,37 @@ export function DynamicRunner({
     (e: React.MouseEvent) => {
       if (!editMode || !isBuilderMode) return;
 
-      let el = e.target as HTMLElement | null;
-      while (el && !el.getAttribute("data-ofiq-id") && el !== e.currentTarget) {
-        el = el.parentElement;
-      }
-      if (!el) return;
-
-      const tag = el.tagName.toLowerCase();
+      let el: HTMLElement | null = e.target as HTMLElement | null;
       let mediaType: MediaType | null = null;
       let patchMode: "src" | "backgroundImage" = "src";
+      let targetEl: HTMLElement | null = null;
 
-      if (tag === "img") mediaType = "image";
-      else if (tag === "video" || tag === "iframe") mediaType = "video";
-      else if (tag === "svg") {
-        // Skip opening modal for SVG icons via click to prevent confusion,
-        // tooltip overlay handles explanation
-        return; 
-      }
-      else {
-        // Check computed style for background images
-        const style = window.getComputedStyle(el);
-        if (style.backgroundImage && style.backgroundImage !== "none" && style.backgroundImage.includes("url(")) {
-          mediaType = "image";
-          patchMode = "backgroundImage";
+      while (el && el !== e.currentTarget) {
+        if (el.getAttribute("data-ofiq-id")) {
+          const tag = el.tagName.toLowerCase();
+          if (tag === "img") { mediaType = "image"; patchMode = "src"; targetEl = el; break; }
+          else if (tag === "video" || tag === "iframe") { mediaType = "video"; patchMode = "src"; targetEl = el; break; }
+          else if (tag === "svg") {
+            // SVG icon found, stop traversal but don't open modal
+            return;
+          }
+          else {
+            const style = window.getComputedStyle(el);
+            if (style.backgroundImage && style.backgroundImage !== "none" && style.backgroundImage.includes("url(")) {
+              mediaType = "image"; patchMode = "backgroundImage"; targetEl = el; break;
+            }
+          }
         }
+        el = el.parentElement;
       }
 
-      if (mediaType) {
+      if (mediaType && targetEl) {
         e.preventDefault();
         e.stopPropagation();
         setMediaModal({
           isOpen: true,
           mediaType,
-          ofiqId: el.getAttribute("data-ofiq-id")!,
+          ofiqId: targetEl.getAttribute("data-ofiq-id")!,
           patchMode,
         });
         setHoveredMedia(null);
@@ -767,17 +787,43 @@ export function DynamicRunner({
               height: hoveredMedia.height,
             }}
           >
-            {/* Dim glass */}
-            <div className={`absolute inset-0 rounded-sm pointer-events-none ${hoveredMedia.type === 'icon' ? '' : 'bg-black/30 backdrop-blur-[1.5px]'}`} />
+            {/* Dim glass for regular images only. Do not dim entire background sections. */}
+            <div className={`absolute inset-0 rounded-sm pointer-events-none ${hoveredMedia.type === 'image' || hoveredMedia.type === 'video' ? 'bg-black/30 backdrop-blur-[1.5px]' : ''}`} />
 
             {hoveredMedia.type === 'icon' ? (
               // Tooltip for icons
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-auto bg-[#111]/95 backdrop-blur-md text-white/90 text-[11px] px-3 py-1.5 rounded-lg border border-white/10 shadow-xl whitespace-nowrap z-50 flex items-center gap-1.5">
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-auto bg-[#111]/95 backdrop-blur-md text-white/90 text-[11px] px-3 py-1.5 rounded-lg border border-white/10 shadow-xl whitespace-nowrap z-50 flex items-center gap-1.5 cursor-pointer hover:bg-white/10 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Optionally emit an event to open chat if feasible, otherwise keep instructions
+                  setHoveredMedia(null);
+                }}
+              >
                 <LucideIcons.Info className="w-3.5 h-3.5 text-brand-yellow" />
                 This is an icon. Ask AI to replace it.
               </div>
+            ) : hoveredMedia.type === 'bg' ? (
+              // Replace button for BACKGROUND images (top right, no dimming)
+              <div className="absolute top-4 right-4 z-50">
+                <button
+                  className="pointer-events-auto flex items-center gap-2 bg-[#111]/90 backdrop-blur-md text-white text-[12px] font-semibold px-4 py-2 rounded-xl border border-white/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.6)] hover:bg-[#1a1a1a] hover:border-white/25 active:scale-95 transition-all"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMediaModal({
+                      isOpen: true,
+                      mediaType: "image",
+                      ofiqId: hoveredMedia.ofiqId,
+                      patchMode: "backgroundImage",
+                    });
+                    setHoveredMedia(null);
+                  }}
+                >
+                  <LucideIcons.ImageIcon className="w-3.5 h-3.5 text-brand-yellow" />
+                  Replace Background
+                </button>
+              </div>
             ) : (
-              // Replace button for images/videos/bg
+              // Replace button for standard images/videos (centered)
               <div className="absolute inset-0 flex items-center justify-center">
                 <button
                   className="pointer-events-auto flex items-center gap-2 bg-[#111]/90 backdrop-blur-md text-white text-[12px] font-semibold px-4 py-2 rounded-xl border border-white/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.6)] hover:bg-[#1a1a1a] hover:border-white/25 active:scale-95 transition-all"
@@ -787,13 +833,13 @@ export function DynamicRunner({
                       isOpen: true,
                       mediaType: hoveredMedia.type === "video" ? "video" : "image",
                       ofiqId: hoveredMedia.ofiqId,
-                      patchMode: hoveredMedia.patchMode as "src" | "backgroundImage",
+                      patchMode: "src",
                     });
                     setHoveredMedia(null);
                   }}
                 >
                   <LucideIcons.ImageIcon className="w-3.5 h-3.5 text-brand-yellow" />
-                  Replace {hoveredMedia.type === "bg" ? "Background" : hoveredMedia.type === "video" ? "Video" : "Image"}
+                  Replace {hoveredMedia.type === "video" ? "Video" : "Image"}
                 </button>
               </div>
             )}
