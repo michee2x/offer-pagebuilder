@@ -89,30 +89,7 @@ export function ScoreRadarChart({ content }: { content: string }) {
     };
   }, [content]);
 
-  const [displayScore, setDisplayScore] = useState(0);
-  useEffect(() => {
-    if (!parsedData) return;
-    let start = 0;
-    const end = parsedData.overall;
-    if (start === end) {
-      setTimeout(() => setDisplayScore(end), 0);
-      return;
-    }
-    
-    const totalDuration = 1500;
-    const incrementTime = (totalDuration / end);
-    
-    const timer = setInterval(() => {
-      start += 1;
-      setDisplayScore(start);
-      if (start >= end) {
-        clearInterval(timer);
-        setDisplayScore(end);
-      }
-    }, incrementTime);
-    
-    return () => clearInterval(timer);
-  }, [parsedData]);
+  const displayScore = parsedData?.overall || 0;
 
   if (!parsedData) {
     return <div className="text-sm text-muted-foreground p-4">Invalid score data</div>;

@@ -26,20 +26,21 @@ FUNNEL_HEALTH_SCORE
 PLATFORM_PRIORITY_MATRIX
 
 RULES:
-1. SEAMLESS MEDIA INTEGRATION: Do NOT just output a standalone chart or image. Always write an introductory paragraph, insert the dynamic <chart> or <img>, and then write a detailed analytical breakdown below it. Use rich formatting like <h2>, <h3>, <ul>, and <b>.
-2. OFFER_SCORE: Write a deep analysis of the offer's score. Use the <chart> tag inside the text to render a radar chart. E.g., <chart type="radar" data='[{"name": "Overall", "value": 85}, {"name": "Market Viability", "value": 90}, {"name": "Audience Clarity", "value": 80}, {"name": "Offer Strength", "value": 85}, {"name": "Price-Value", "value": 90}, {"name": "Uniqueness", "value": 75}, {"name": "Proof Strength", "value": 70}, {"name": "Conv. Readiness", "value": 80}]' title="Intelligence Radar" />
-3. SCORE_SUMMARY: Provide an executive summary of the offer's intelligence score. You MUST use the <chart type="radar" data='[{"name": "Market Viability", "value": 85}, {"name": "Audience Clar.", "value": 90}, {"name": "Offer Strength", "value": 80}, {"name": "Price-Value", "value": 85}, {"name": "Uniqueness", "value": 90}, {"name": "Proof Strength", "value": 75}, {"name": "Conv. Ready", "value": 80}]' title="Sub-Score Breakdown" /> tag inside the text to render a polygon/hexagon-like radar chart. Write a comprehensive, deep, and highly detailed analysis explaining the exact reasoning behind each of these scores (from 0 to 100), explaining why the offer excels or needs improvement. Avoid placeholder or rubbish text, and deliver highly actionable insights. You MUST also include a JSON comment block at the very end of the text in this exact format:
+1. WRITE FULL, COMPREHENSIVE ARTICLES: Every single section MUST be a long-form, highly detailed article (minimum 400-600 words per section). Do not use brief bullet points or short paragraphs. You must explain the 'why' and 'how' in deep detail so that a non-technical user completely understands the strategic value. Break down concepts into readable, well-formatted paragraphs with clear <h2> and <h3> headings.
+2. SEAMLESS MEDIA INTEGRATION: Do NOT just output a standalone chart or image. Always write a detailed introductory paragraph, insert the dynamic <chart> or <img>, and then write a comprehensive analytical breakdown below it.
+3. OFFER_SCORE: Write a deep analysis of the offer's score. Use the <chart> tag inside the text to render a radar chart. E.g., <chart type="radar" data='[{"name": "Overall", "value": 85}, {"name": "Market Viability", "value": 90}, {"name": "Audience Clarity", "value": 80}, {"name": "Offer Strength", "value": 85}, {"name": "Price-Value", "value": 90}, {"name": "Uniqueness", "value": 75}, {"name": "Proof Strength", "value": 70}, {"name": "Conv. Readiness", "value": 80}]' title="Intelligence Radar" />
+4. SCORE_SUMMARY: This is a critical section. You MUST write a massive, comprehensive article breaking down the offer's intelligence score. DO NOT just show a chart. You must write a deep, multi-paragraph analysis explaining the exact reasoning behind each of the 7 scoring metrics (Market Viability, Audience Clarity, Offer Strength, Price-Value, Uniqueness, Proof Strength, Conversion Readiness). Explain what each metric means for a non-technical user, why they received that specific score (from 0 to 100), and give concrete, actionable steps on how they can improve it. You MUST use the <chart type="radar" data='[{"name": "Market Viability", "value": 85}, {"name": "Audience Clar.", "value": 90}, {"name": "Offer Strength", "value": 80}, {"name": "Price-Value", "value": 85}, {"name": "Uniqueness", "value": 90}, {"name": "Proof Strength", "value": 75}, {"name": "Conv. Ready", "value": 80}]' title="Sub-Score Breakdown" /> tag inside the text. You MUST also include a JSON comment block at the very end of the text in this exact format:
 <!-- SCORE_DATA: {"overall": 85, "market_viability": 85, "audience_clarity": 90, "offer_strength": 80, "price_value_alignment": 85, "uniqueness": 90, "proof_strength": 75, "conversion_readiness": 80} -->
 Make sure the body text is dense with real strategic advice, referencing these exact metrics and explaining how to improve them.
-4. REVENUE_MODEL_ARCHITECTURE: Explain the compounding mechanics (e.g. low-ticket frontend with continuity backend). Use an illustrative example.
-5. PAIN_POINT_MAPPING: Write a deep-dive narrative identifying 3 primary pain points in order of severity.
-6. FUNNEL_STRUCTURE_BLUEPRINT: List the exact page sequence. We ALWAYS and will ALWAYS have exactly 5 pages: Lead Capture, Sales Page, Upsell, Downsell, and Thank You pages, in that exact order. For each of these 5 pages, you MUST write:
+5. REVENUE_MODEL_ARCHITECTURE: Explain the compounding mechanics (e.g. low-ticket frontend with continuity backend). Use an illustrative example.
+6. PAIN_POINT_MAPPING: Write a deep-dive narrative identifying 3 primary pain points in order of severity.
+7. FUNNEL_STRUCTURE_BLUEPRINT: List the exact page sequence. We ALWAYS and will ALWAYS have exactly 5 pages: Lead Capture, Sales Page, Upsell, Downsell, and Thank You pages, in that exact order. For each of these 5 pages, you MUST write:
    - The exact psychological purpose and sequence logic of the page in the customer's journey.
    - The exact pricing strategy for the offer/product on that page: explain why the product on that page should be priced at that particular level (e.g. Free for Lead Capture, the core price for Sales Page, the premium upsell price, downsell discount structure, and thank you checkout summary) and the psychological justification for it.
    - The upsell/downsell paths logic: explain how the traffic moves from one page to another and how it maximizes Average Order Value (AOV).
    - Do NOT include any pricing charts in this section.
-7. STRATEGIC_BONUS_RECOMMENDATIONS: Recommend 3 bonuses. Explain how each acts as an objection-killer.
-8. DESIGN_INTELLIGENCE_RECOMMENDATION: You MUST output a valid string containing a JSON settings object (properly stringified and escaped inside the main JSON). The JSON must have the following structure:
+8. STRATEGIC_BONUS_RECOMMENDATIONS: Recommend 3 bonuses. Explain how each acts as an objection-killer.
+9. DESIGN_INTELLIGENCE_RECOMMENDATION: You MUST output a valid string containing a JSON settings object (properly stringified and escaped inside the main JSON). The JSON must have the following structure:
 {
   "colors": {
     "primary": "Hex color code for buttons/primary highlights, e.g. #3b82f6",
@@ -57,8 +58,8 @@ Make sure the body text is dense with real strategic advice, referencing these e
   }
 }
 Do NOT include any HTML tags or conversational text in this section - only this raw JSON settings string (properly escaped). Customize the colors and fonts to exactly match the target audience, tone, and niche of the offer.
-9. FUNNEL_HEALTH_SCORE: Evaluate funnel health. Use <chart type="bar" data='[{"name": "Score", "value": 85}]' title="Health Diagnostic" /> (Note: gauge chart is no longer supported, use bar).
-10. PLATFORM_PRIORITY_MATRIX: Use the <chart> tag to render a pie chart embedded in your analysis. E.g., <chart type="pie" data='[{"name": "Facebook", "value": 60}, {"name": "Google Ads", "value": 40}]' title="Platform Budget Allocation" />
+10. FUNNEL_HEALTH_SCORE: Evaluate funnel health. Use <chart type="bar" data='[{"name": "Score", "value": 85}]' title="Health Diagnostic" /> (Note: gauge chart is no longer supported, use bar).
+11. PLATFORM_PRIORITY_MATRIX: Use the <chart> tag to render a pie chart embedded in your analysis. E.g., <chart type="pie" data='[{"name": "Facebook", "value": 60}, {"name": "Google Ads", "value": 40}]' title="Platform Budget Allocation" />
 
 Dynamic Elements you can use ANYWHERE in your HTML values to make the report visually stunning:
 - Charts: <chart type="bar" data='[{"name": "Tier 1", "value": 99}]' title="Example" /> (Types: bar, pie, radar. Data MUST be an array of objects with name and value!)
@@ -115,14 +116,15 @@ REAL_WORLD_USE_CASE_SCENARIOS
 MONETIZATION_STRATEGY_NARRATIVE
 
 RULES:
-1. SEAMLESS MEDIA INTEGRATION: Always write rich paragraphs. Where relevant to prove a point, embed dynamic charts (<chart>) or images (<img>) seamlessly within your text.
-2. OFFER_POSITIONING_ANALYSIS: Deeply define the unique placement of this offer against competitors in a detailed narrative.
-3. TARGET_PERSONA_INTELLIGENCE: 3 detailed target buyer profiles (Demographics, Desires, Fears, Obstacles) formatted beautifully.
-4. CONVERSION_HOOK_LIBRARY: 5 high-converting headlines and subheadlines tailored to the target audience.
-5. MESSAGING_ANGLE_MATRIX: 4 distinct angles (Benefit, Fear, Curiosity, Logic) to position this offer. Use rich text to explain each.
-6. PRODUCT_CORE_VALUE_PERCEPTION: Explain how to frame the product's value to justify the price with a deep psychological breakdown.
-7. REAL_WORLD_USE_CASE_SCENARIOS: 3 operational scenarios showing how the customer benefits.
-8. MONETIZATION_STRATEGY_NARRATIVE: Write 8 distinct, comprehensive paragraphs outlining the master strategy.
+1. COMPREHENSIVE LONG-FORM ARTICLES: Every single section MUST be a deeply detailed, long-form article (minimum 400-600 words per section). You must deeply explain your reasoning, provide context, and make it easy for a non-technical user to understand the strategic value. Do not use brief lists or shallow paragraphs. Use <h2>, <h3> headings to break up the long text into readable segments.
+2. SEAMLESS MEDIA INTEGRATION: Always write rich paragraphs. Where relevant to prove a point, embed dynamic charts (<chart>) or images (<img>) seamlessly within your text.
+3. OFFER_POSITIONING_ANALYSIS: Deeply define the unique placement of this offer against competitors in a detailed narrative.
+4. TARGET_PERSONA_INTELLIGENCE: 3 detailed target buyer profiles (Demographics, Desires, Fears, Obstacles) formatted beautifully.
+5. CONVERSION_HOOK_LIBRARY: 5 high-converting headlines and subheadlines tailored to the target audience.
+6. MESSAGING_ANGLE_MATRIX: 4 distinct angles (Benefit, Fear, Curiosity, Logic) to position this offer. Use rich text to explain each.
+7. PRODUCT_CORE_VALUE_PERCEPTION: Explain how to frame the product's value to justify the price with a deep psychological breakdown.
+8. REAL_WORLD_USE_CASE_SCENARIOS: 3 operational scenarios showing how the customer benefits.
+9. MONETIZATION_STRATEGY_NARRATIVE: Write 8 distinct, comprehensive paragraphs outlining the master strategy.
 
 Dynamic Elements you can use ANYWHERE in your HTML values to make the report visually stunning:
 - Charts: <chart type="pie" data='[{"name": "Angle A", "value": 40}]' title="Angle Distribution" />
