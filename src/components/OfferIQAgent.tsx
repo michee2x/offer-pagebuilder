@@ -512,6 +512,12 @@ export function OfferIQAgent({
                     <strong>Sales Intelligence</strong> scope. Cannot build landing
                     pages or edit email campaigns.
                   </>
+                ) : ability === "builder" ? (
+                  <>
+                    Operating strictly within the{" "}
+                    <strong>Page Builder</strong> scope. I can generate layouts, apply styles,
+                    and modify landing page components directly.
+                  </>
                 ) : (
                   <>
                     Operating strictly within the{" "}
@@ -566,6 +572,12 @@ export function OfferIQAgent({
                             Operating under the <strong className="text-slate-200">Sales Intelligence</strong> ability.
                             I can rewrite report sections, generate data charts,
                             embed relevant videos, and optimize your intelligence readouts.
+                          </>
+                        ) : ability === "builder" ? (
+                          <>
+                            Operating under the <strong className="text-slate-200">Page Builder</strong> ability.
+                            I can generate layouts, update styling, tweak components,
+                            and build entirely new sections for your landing pages.
                           </>
                         ) : (
                           <>

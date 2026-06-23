@@ -29,7 +29,18 @@ export function LeftPanel() {
         </div>
 
         <div className="flex flex-col pb-2">
-          {Object.values(pages || {}).map((page: any) => {
+          {Object.values(pages || {})
+            .sort((a: any, b: any) => {
+              const order = ["/", "/sales", "/upsell", "/downsell", "/thankyou", "/thank-you"];
+              const indexA = order.indexOf(a.path);
+              const indexB = order.indexOf(b.path);
+              
+              if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+              if (indexA !== -1) return -1;
+              if (indexB !== -1) return 1;
+              return a.name.localeCompare(b.name);
+            })
+            .map((page: any) => {
             const isActive = activePagePath === page.path;
             let Icon = Target;
             if (page.path === '/upsell') Icon = ArrowUpRight;
