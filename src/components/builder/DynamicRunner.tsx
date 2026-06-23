@@ -558,7 +558,6 @@ export function DynamicRunner({
 
       try {
         const res = Babel.transform(src, {
-          presets: ["react"],
           plugins: [
             [
               Babel.availablePlugins["transform-typescript"],
@@ -709,7 +708,6 @@ export function DynamicRunner({
 
       try {
         const res = Babel.transform(src, {
-          presets: ["react"],
           plugins: [
             [
               Babel.availablePlugins["transform-typescript"],
