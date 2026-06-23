@@ -40,13 +40,17 @@ export async function POST(req: Request) {
     let publishedPageId;
 
     if (!pageId) {
-      const { data: newPage, error } = await supabase.from('builder_pages').insert(payload).select('id').single()
+      const { data: newPage, error } = await supabase.from('builder_pages').insert(payload).select('id')
       if (error) throw new Error('Failed to insert page: ' + error.message)
-      publishedPageId = newPage.id
+      if (!newPage || newPage.length === 0) throw new Error('Failed to insert page: Unknown error')
+      publishedPageId = newPage[0].id
     } else {
-      const { data: updatedPage, error } = await supabase.from('builder_pages').update(payload).eq('id', pageId).eq('user_id', userId).select('id').single()
+      const { data: updatedPage, error } = await supabase.from('builder_pages').update(payload).eq('id', pageId).eq('user_id', userId).select('id')
       if (error) throw new Error('Failed to update page: ' + error.message)
-      publishedPageId = updatedPage.id
+      if (!updatedPage || updatedPage.length === 0) {
+        throw new Error('Failed to update page: Page not found or you do not have permission to edit it.')
+      }
+      publishedPageId = updatedPage[0].id
     }
 
     return NextResponse.json({ success: true, pageId: publishedPageId })

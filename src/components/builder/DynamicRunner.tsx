@@ -623,8 +623,8 @@ export function DynamicRunner({
         const containerRect = e.currentTarget.getBoundingClientRect();
         
         setHoveredMedia({
-          top: rect.top - containerRect.top,
-          left: rect.left - containerRect.left,
+          top: rect.top - containerRect.top + e.currentTarget.scrollTop,
+          left: rect.left - containerRect.left + e.currentTarget.scrollLeft,
           width: rect.width,
           height: rect.height,
           ofiqId: targetEl.getAttribute("data-ofiq-id")!,
@@ -730,7 +730,7 @@ export function DynamicRunner({
       useBuilderStore.getState().updateCode(patchedSrc);
       setMediaModal((p) => ({ ...p, isOpen: false }));
     },
-    [code, mediaModal.ofiqId]
+    [code, mediaModal.ofiqId, mediaModal.patchMode]
   );
 
   // ── Render ─────────────────────────────────────────────────────────────────
