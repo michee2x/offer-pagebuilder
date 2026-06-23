@@ -119,9 +119,16 @@ Now produce the Traffic Intelligence outputs. Every ad, script, and strategy ele
 Produce the following sections in this exact order. Use the exact section separators (e.g. —————————————————— SECTION_NAME ——————————————————) before each section content.
 
 —————————————————— PLATFORM_PRIORITY_NARRATIVE ——————————————————
-[4-5 sentences]
+[Comprehensive article broken down into readable sections]
 Explain the platform strategy in plain language — written directly to the offer owner. Do not repeat the JSON from Call 1. Instead, explain the WHY behind the platform priority in a way that gives the offer owner conviction to execute.
-Answer: Why this platform first? What does the first 30 days look like in terms of where attention and budget goes? What is the single platform most likely to produce the first profitable result — and what is the specific reason it will work for this offer with this persona at this price point? What is the risk to watch for in this platform selection?
+IMPORTANT: You MUST break your answer down into 3-4 distinct sections using '###' headings and short paragraphs. Do NOT output a single wall of text.
+Use these headings or similar:
+### Why [Platform] First
+[Explain why this platform first? What is the specific reason it will work for this offer with this persona at this price point?]
+### The First 30 Days
+[What does the first 30 days look like in terms of where attention and budget goes?]
+### The Primary Risk Factor
+[What is the risk to watch for in this platform selection?]
 
 —————————————————— OMNICHANNEL_AD_COPY_MATRIX ——————————————————
 [3 complete Meta/Instagram ad variants]

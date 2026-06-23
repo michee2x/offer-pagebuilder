@@ -52,7 +52,7 @@ export function WorkspaceSwitcher({
   return (
     <div className="mr-2">
       <Select
-        value={activeId || ""}
+        value={activeWorkspaceId || activeId || ""}
         onValueChange={(val) => {
           if (val === "create-workspace") {
             router.push("/onboard");
@@ -62,7 +62,9 @@ export function WorkspaceSwitcher({
             router.push("/workspaces");
             return;
           }
+          setActiveWorkspaceId(val);
           router.push(`/?workspace=${val}`);
+          router.refresh();
         }}
       >
         <SelectTrigger className="min-w-[190px] h-10 rounded-full border border-border bg-muted/10 px-3 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted/20">
