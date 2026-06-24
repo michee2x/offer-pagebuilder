@@ -132,11 +132,8 @@ export interface Call3Output {
   platform_priority_narrative: string;
   omnichannel_ad_copy_matrix: string;
   google_ads_copy_matrix: string;
-  vsl_ugc_video_script_intelligence: string;
-  media_buying_strategy_report: string;
-  traffic_funnel_alignment: string;
-  competitive_acquisition_intelligence: string;
-  launch_sequence_recommendation: string;
+  vsl_video_script: string;
+  ugc_video_script: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
