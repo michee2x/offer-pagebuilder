@@ -17,11 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { SparkleAura } from "@/components/ui/sparkle-aura";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { MediaPickerModal } from "@/components/builder/ImagePickerModal";
 
 import { cn } from "@/lib/utils";
 import type {
@@ -188,22 +184,9 @@ export function OfferIQAgent({
 }: OfferIQAgentProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [recentImages, setRecentImages] = useState<any[]>([]);
-  const [isImagesLoading, setIsImagesLoading] = useState(false);
-  const [isImagesOpen, setIsImagesOpen] = useState(false);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
   const isDraggingRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isImagesOpen && recentImages.length === 0) {
-      setIsImagesLoading(true);
-      fetch('/api/upload-image')
-        .then(res => res.json())
-        .then(data => setRecentImages(data.files || []))
-        .catch(() => setRecentImages([]))
-        .finally(() => setIsImagesLoading(false));
-    }
-  }, [isImagesOpen]);
 
   // Determine context based on ability
   const context =
@@ -909,54 +892,13 @@ export function OfferIQAgent({
                 }}
                 className="flex items-center gap-2 bg-[#060810] border border-white/[0.06] focus-within:border-cyan-500/30 rounded-xl px-3.5 py-2 transition-all duration-200"
               >
-                <Popover open={isImagesOpen} onOpenChange={setIsImagesOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-400/10 rounded-md transition-colors shrink-0"
-                    >
-                      <ImagePlus className="w-4 h-4" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    side="top"
-                    align="start"
-                    className="w-64 p-2 bg-[#0d111e] border-white/10 shadow-xl"
-                  >
-                    <div className="text-[11px] font-semibold text-slate-300 mb-2 px-1">
-                      Recent Media
-                    </div>
-                    {isImagesLoading ? (
-                      <div className="flex justify-center p-4">
-                        <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
-                      </div>
-                    ) : recentImages.length === 0 ? (
-                      <div className="text-[10px] text-slate-500 p-2 text-center">
-                        No recent media
-                      </div>
-                    ) : (
-                      <div className="max-h-48 overflow-y-auto custom-scrollbar grid grid-cols-3 gap-1.5 p-1">
-                        {recentImages.filter(f => !f.type || f.type !== 'video').map((f) => (
-                          <div
-                            key={f.url}
-                            className="relative aspect-square rounded-md overflow-hidden bg-black/40 border border-white/5 cursor-pointer hover:border-cyan-400/50 group"
-                            onClick={() => {
-                              setInputValue((prev) => `${prev} @[${f.name}](${f.url}) `);
-                              setIsImagesOpen(false);
-                            }}
-                          >
-                            <Image
-                              src={f.url}
-                              alt={f.name}
-                              fill
-                              className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </PopoverContent>
-                </Popover>
+                <button
+                  type="button"
+                  onClick={() => setIsPickerOpen(true)}
+                  className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-cyan-400/10 rounded-md transition-colors shrink-0"
+                >
+                  <ImagePlus className="w-4 h-4" />
+                </button>
 
                 <input
                   type="text"
@@ -993,6 +935,18 @@ export function OfferIQAgent({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        open={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        onSelect={(url) => {
+          const name = url.split("/").pop() || "media";
+          setInputValue((prev) => `${prev} @[${name}](${url}) `);
+          setIsPickerOpen(false);
+        }}
+        mediaType="any"
+      />
     </>
   );
 }
