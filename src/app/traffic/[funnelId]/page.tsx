@@ -33,6 +33,7 @@ import {
   User,
   Smartphone,
   Clapperboard,
+  Loader2,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
@@ -387,6 +388,7 @@ export default function TrafficIntelligencePage({
   const [activeSection, setActiveSection] = useState<SectionId>(
     "platform_priority_narrative",
   );
+  const [isRegeneratingSection, setIsRegeneratingSection] = useState(false);
 
   useEffect(() => {
     fetch(`/api/offer-data/${funnelId}`)
@@ -440,6 +442,41 @@ export default function TrafficIntelligencePage({
     const content = data[activeSection] || "";
     navigator.clipboard.writeText(content);
     toast.success("Section content copied to clipboard!");
+  };
+
+  const handleRegenerateSection = async () => {
+    if (!data || !activeSection) return;
+    setIsRegeneratingSection(true);
+    try {
+      const resp = await fetch(
+        `/api/generate-traffic-intelligence/${funnelId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sectionId: activeSection }),
+        },
+      );
+
+      if (!resp.ok) {
+        const err = await resp.json();
+        throw new Error(err.error || "Regeneration failed");
+      }
+
+      const { data: generated } = await resp.json();
+      // Merge only the regenerated section into current data
+      if (generated && generated[activeSection]) {
+        setData((prev: any) => ({ ...prev, [activeSection]: generated[activeSection] }));
+        toast.success(`${SECTIONS.find(s => s.id === activeSection)?.label || activeSection} regenerated!`);
+      } else if (generated) {
+        // Full regeneration fallback
+        setData(generated);
+        toast.success("Section regenerated!");
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to regenerate section");
+    } finally {
+      setIsRegeneratingSection(false);
+    }
   };
 
   if (loading) {
@@ -561,20 +598,6 @@ export default function TrafficIntelligencePage({
             { label: funnelName, href: "#" },
             { label: "Traffic Intelligence™" },
           ]}
-          actions={
-            data ? (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleGenerate}
-                disabled={generating}
-                className="gap-1.5 font-semibold text-white bg-white/5 border-white/10 hover:bg-white/10 hover:text-white"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Regenerate All
-              </Button>
-            ) : undefined
-          }
         />
 
         <div className="flex flex-1 overflow-hidden">
@@ -726,6 +749,20 @@ export default function TrafficIntelligencePage({
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerateSection}
+                      disabled={isRegeneratingSection || generating}
+                      className="text-white bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 gap-1.5 transition-all"
+                    >
+                      {isRegeneratingSection ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      )}
+                      {isRegeneratingSection ? "Regenerating…" : "Regenerate"}
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"

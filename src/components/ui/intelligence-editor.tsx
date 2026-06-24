@@ -25,6 +25,8 @@ import {
   Image as ImageIcon,
   Video,
   MousePointerClick,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 import { ChartExtension } from "@/components/intelligence/extensions/ChartExtension";
 import { InsightExtension } from "@/components/intelligence/extensions/InsightExtension";
@@ -81,12 +83,16 @@ interface IntelligenceEditorProps {
   content: string;
   onChange?: (content: string) => void;
   isStreaming?: boolean;
+  onRegenerate?: () => void;
+  isRegenerating?: boolean;
 }
 
 export function IntelligenceEditor({
   content,
   onChange,
   isStreaming = false,
+  onRegenerate,
+  isRegenerating = false,
 }: IntelligenceEditorProps) {
   const prevHtml = useRef<string | null>(null);
 
@@ -170,7 +176,7 @@ export function IntelligenceEditor({
   return (
     <div className="flex flex-col w-full h-full rounded-2xl border border-white/10 bg-black/20 backdrop-blur-sm overflow-hidden shadow-2xl">
       {/* ── Toolbar ──────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-0.5 px-4 py-3 border-b border-white/[0.07] bg-white/[0.02] flex-wrap shrink-0 sticky top-0 z-20 backdrop-blur-md">
+      <div className="flex items-center gap-0.5 px-4 py-3 border-b border-white/[0.07] bg-white/[0.02] flex-wrap shrink-0 sticky top-0 z-20 backdrop-blur-md gap-x-0.5">
         <ToolbarButton
           onClick={() => editor.chain().focus().setParagraph().run()}
           active={editor.isActive("paragraph")}
@@ -296,6 +302,26 @@ export function IntelligenceEditor({
         <ToolbarButton onClick={insertCtaButton} title="Insert CTA Button">
           <MousePointerClick className="w-4 h-4" />
         </ToolbarButton>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Regenerate section button */}
+        {onRegenerate && (
+          <button
+            onClick={onRegenerate}
+            disabled={isRegenerating || isStreaming}
+            title="Regenerate this section with AI"
+            className="ml-auto flex items-center gap-1.5 px-3 h-7 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/15 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isRegenerating ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="w-3.5 h-3.5" />
+            )}
+            {isRegenerating ? "Generating…" : "Regenerate"}
+          </button>
+        )}
       </div>
 
       {/* ── Bubble Menu ──────────────────────────────────────────────── */}

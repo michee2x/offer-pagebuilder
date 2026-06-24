@@ -10,10 +10,10 @@ interface AiStreamBoardProps {
 }
 
 const STAGES = [
-  { label: 'Analysing offer intelligence',  duration: 3_000  },
-  { label: 'Composing section layouts',     duration: 9_000  },
-  { label: 'Writing conversion copy',       duration: 20_000 },
-  { label: 'Packaging all 4 funnel pages',  duration: Infinity },
+  { label: 'Analysing offer intelligence', duration: 3_000 },
+  { label: 'Composing section layouts', duration: 9_000 },
+  { label: 'Writing conversion copy', duration: 20_000 },
+  { label: 'Packaging all 4 funnel pages', duration: Infinity },
 ] as const;
 
 export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
@@ -55,15 +55,15 @@ export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground leading-none mb-1">Building Your Funnel</h3>
-            <p className="text-xs text-muted-foreground">Claude is generating 4 high-converting pages</p>
+            <p className="text-xs text-muted-foreground">Generating 5 high-converting pages</p>
           </div>
         </div>
 
         {/* Stage list */}
         <div className="px-6 pb-5 space-y-3">
           {STAGES.map((stage, i) => {
-            const isDone    = i < activeStage;
-            const isActive  = i === activeStage;
+            const isDone = i < activeStage;
+            const isActive = i === activeStage;
             const isPending = i > activeStage;
 
             return (
@@ -71,19 +71,19 @@ export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
                 {/* Status icon */}
                 <div className={[
                   'w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-all duration-500',
-                  isDone   && 'bg-primary/20 border-primary/40 text-primary',
+                  isDone && 'bg-primary/20 border-primary/40 text-primary',
                   isActive && 'border-primary bg-primary/10',
                   isPending && 'border-border',
                 ].filter(Boolean).join(' ')}>
-                  {isDone   && <Check className="w-3 h-3" />}
+                  {isDone && <Check className="w-3 h-3" />}
                   {isActive && <Spinner size="sm" />}
                 </div>
 
                 {/* Label */}
                 <span className={[
                   'text-sm transition-colors duration-300',
-                  isDone    && 'text-foreground/50',
-                  isActive  && 'text-foreground font-medium',
+                  isDone && 'text-foreground/50',
+                  isActive && 'text-foreground font-medium',
                   isPending && 'text-muted-foreground/40',
                 ].filter(Boolean).join(' ')}>
                   {stage.label}
@@ -102,7 +102,6 @@ export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
             />
           </div>
           <div className="px-6 py-3 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
-            <span>claude-sonnet-4-6</span>
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               Generating

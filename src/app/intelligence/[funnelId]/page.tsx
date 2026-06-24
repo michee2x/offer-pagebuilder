@@ -49,8 +49,6 @@ import type {
 } from "@/lib/offer-types";
 import { parseCall1Output, parseCall2Output } from "@/lib/offer-parser";
 
-// ─── Wizard step config ───────────────────────────────────────────────────────
-
 const WIZARD_STEPS = [
   { id: 1, label: "Upload", status: "done" as const },
   { id: 2, label: "Intelligence", status: "active" as const },
@@ -339,6 +337,7 @@ export default function IntelligencePage({
 
   // Navigation State
   const [activeSectionId, setActiveSectionId] = useState<string>("SCORE_SUMMARY");
+  const [isRegeneratingSection, setIsRegeneratingSection] = useState(false);
 
   // ── Load & optionally stream ──────────────────────────────────────────────
 
@@ -502,6 +501,76 @@ export default function IntelligencePage({
     },
     [call1, call2, funnelId],
   );
+
+  const handleRegenerateSection = useCallback(async () => {
+    if (!formData || !activeSectionId) return;
+    setIsRegeneratingSection(true);
+    try {
+      const res = await fetch("/api/offer-intelligence/regenerate-section", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          funnelId,
+          sectionId: activeSectionId,
+          formData,
+          call1,
+          call2,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to regenerate section");
+      }
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      if (reader) {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          accumulated += decoder.decode(value, { stream: true });
+        }
+      }
+
+      // The API returns JSON: { "SECTION_ID": "html content" }
+      // or for Call2: { "original_key": "html content" }
+      try {
+        // Strip markdown fences if present
+        const cleaned = accumulated.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+        const parsed = JSON.parse(cleaned);
+
+        // Try the section ID directly first
+        if (parsed[activeSectionId]) {
+          await updateSectionContent(activeSectionId, parsed[activeSectionId]);
+        } else {
+          // Try Call2 original key mapping
+          const call2OrigKey = Object.keys(CALL2_SECTION_MAP).find(
+            (k) => CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === activeSectionId
+          );
+          if (call2OrigKey && parsed[call2OrigKey]) {
+            await updateSectionContent(activeSectionId, parsed[call2OrigKey]);
+          } else {
+            // Fallback: use first value in the parsed object
+            const firstValue = Object.values(parsed)[0];
+            if (typeof firstValue === "string") {
+              await updateSectionContent(activeSectionId, firstValue);
+            }
+          }
+        }
+      } catch {
+        // If not valid JSON, use raw text as fallback
+        if (accumulated.trim()) {
+          await updateSectionContent(activeSectionId, accumulated);
+        }
+      }
+    } catch (e: any) {
+      setErrorMsg("Failed to regenerate section");
+    } finally {
+      setIsRegeneratingSection(false);
+    }
+  }, [formData, activeSectionId, funnelId, call1, call2, updateSectionContent]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -697,26 +766,6 @@ export default function IntelligencePage({
           steps={WIZARD_STEPS}
         >
           {phase !== "idle" && phase !== "done" && <Spinner size="sm" />}
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={regenerateAnalysis}
-            className="gap-2 print:hidden text-white bg-white/5 border-white/10 hover:bg-white/10 hover:text-white transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]"
-          >
-            <Zap className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Regenerate</span>
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePrintPdf}
-            className="gap-2 print:hidden text-white bg-white/5 border-white/10 hover:bg-white/10 hover:text-white transition-all shadow-[0_0_10px_rgba(255,255,255,0.05)] hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Export PDF</span>
-          </Button>
 
           <Button
             size="sm"
@@ -1012,6 +1061,8 @@ export default function IntelligencePage({
                         onChange={(newText) =>
                           updateSectionContent(activeSectionId, newText)
                         }
+                        onRegenerate={handleRegenerateSection}
+                        isRegenerating={isRegeneratingSection}
                       />
                     ) : (
                       <div className={cn(activeSectionId === "SCORE_SUMMARY" && "hide-embedded-charts")}>
@@ -1026,6 +1077,8 @@ export default function IntelligencePage({
                             updateSectionContent(activeSectionId, newText)
                           }
                           isStreaming={phase === "call1" || phase === "call2"}
+                          onRegenerate={handleRegenerateSection}
+                          isRegenerating={isRegeneratingSection}
                         />
                       </div>
                     )}

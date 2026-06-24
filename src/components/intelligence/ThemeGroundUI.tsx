@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, Palette, Type, LayoutTemplate, Search, ChevronDown, Check, Eye, Settings2 } from "lucide-react";
+import { Loader2, Palette, Type, LayoutTemplate, Search, ChevronDown, Check, Eye, Settings2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ─── Font Loader ─────────────────────────────────────────────────────────────────
@@ -24,6 +24,8 @@ function loadFont(fontName: string) {
 interface ThemeGroundUIProps {
   content: string;
   onChange: (content: string) => void;
+  onRegenerate?: () => void;
+  isRegenerating?: boolean;
 }
 
 interface ThemeSettings {
@@ -208,7 +210,7 @@ function ColorSwatch({
 
 type DesignTab = "intelligence" | "preview";
 
-export function ThemeGroundUI({ content, onChange }: ThemeGroundUIProps) {
+export function ThemeGroundUI({ content, onChange, onRegenerate, isRegenerating = false }: ThemeGroundUIProps) {
   const [theme, setTheme] = useState<ThemeSettings>(DEFAULT_THEME);
   const [fonts, setFonts] = useState<string[]>([]);
   const [loadingFonts, setLoadingFonts] = useState(false);
@@ -299,12 +301,29 @@ export function ThemeGroundUI({ content, onChange }: ThemeGroundUIProps) {
       {/* Left side (60%): Configuration Panel */}
       <div className="w-full lg:w-[60%] flex flex-col overflow-y-auto pr-2 pb-10 space-y-7 custom-scrollbar">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2.5 mb-1.5 font-display">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <Palette className="w-4 h-4 text-white" />
-            </div>
-            Theme Ground
-          </h2>
+          <div className="flex items-center justify-between mb-1.5">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2.5 font-display">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <Palette className="w-4 h-4 text-white" />
+              </div>
+              Theme Ground
+            </h2>
+            {onRegenerate && (
+              <button
+                onClick={onRegenerate}
+                disabled={isRegenerating}
+                title="Regenerate design intelligence with AI"
+                className="flex items-center gap-1.5 px-3 h-7 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/15 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRegenerating ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-3.5 h-3.5" />
+                )}
+                {isRegenerating ? "Generating…" : "Regenerate"}
+              </button>
+            )}
+          </div>
           <p className="text-sm text-white/50 leading-relaxed">
             Configure the core visual identity and design intelligence settings for your funnel pages.
           </p>
