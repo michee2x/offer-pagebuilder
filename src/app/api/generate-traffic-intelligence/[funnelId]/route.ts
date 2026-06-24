@@ -16,11 +16,8 @@ const SECTION_LABELS: Record<string, string> = {
     platform_priority_narrative: 'PLATFORM_PRIORITY_NARRATIVE',
     omnichannel_ad_copy_matrix: 'OMNICHANNEL_AD_COPY_MATRIX',
     google_ads_copy_matrix: 'GOOGLE_ADS_COPY_MATRIX',
-    vsl_ugc_video_script_intelligence: 'VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE',
-    media_buying_strategy_report: 'MEDIA_BUYING_STRATEGY_REPORT',
-    traffic_funnel_alignment: 'TRAFFIC_FUNNEL_ALIGNMENT',
-    competitive_acquisition_intelligence: 'COMPETITIVE_ACQUISITION_INTELLIGENCE',
-    launch_sequence_recommendation: 'LAUNCH_SEQUENCE_RECOMMENDATION',
+    vsl_video_script: 'VSL_VIDEO_SCRIPT',
+    ugc_video_script: 'UGC_VIDEO_SCRIPT',
 };
 
 export async function POST(
@@ -164,8 +161,9 @@ D1-D3: [Max 90 chars each]
 MATCH TYPE: [Exact / Phrase with rationale]
 NEGATIVE KEYWORDS TO ADD: [3-5 specifics]
 
-—————————————————— VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE ——————————————————
-SCRIPT 1 — VSL FORMAT [For: Sales page hero video, YouTube pre-roll, or Facebook video ad (3-5 minutes)]
+—————————————————— VSL_VIDEO_SCRIPT ——————————————————
+[Produce exactly 2 variations of the VSL script]
+SCRIPT 1 — VSL FORMAT VARIATION 1 [For: Sales page hero video, YouTube pre-roll, or Facebook video ad (3-5 minutes)]
 RECOMMENDED LENGTH: [Time]
 TONE DIRECTION: [Pacing, energy, formality]
 0:00 – 0:05 | HOOK: [Exact opening line]
@@ -176,7 +174,20 @@ TONE DIRECTION: [Pacing, energy, formality]
 3:30 – 4:00 | CTA: [Exact closing lines]
 CRITICAL SUCCESS FACTOR: [Single make-or-break element]
 
-SCRIPT 2 — UGC FORMAT [For: TikTok, Instagram Reels, YouTube Shorts (45-60 seconds)]
+SCRIPT 2 — VSL FORMAT VARIATION 2 [Alternative hook or angle]
+RECOMMENDED LENGTH: [Time]
+TONE DIRECTION: [Different pacing or energy]
+0:00 – 0:05 | HOOK: [Alternative exact opening line]
+0:05 – 0:30 | PROBLEM AGITATION: [Alternative approach]
+1:00 – 1:45 | SOLUTION REVEAL: [Direction for offer intro]
+1:45 – 2:30 | PROOF STACK: [Alternative proof presentation]
+2:30 – 3:30 | OFFER PRESENTATION: [Offer stack sequence]
+3:30 – 4:00 | CTA: [Exact closing lines]
+CRITICAL SUCCESS FACTOR: [Make-or-break element]
+
+—————————————————— UGC_VIDEO_SCRIPT ——————————————————
+[Produce exactly 2 variations of the UGC script]
+SCRIPT 1 — UGC FORMAT VARIATION 1 [For: TikTok, Instagram Reels, YouTube Shorts (45-60 seconds)]
 TARGET PLATFORM: [Primary recommendation]
 CREATOR DIRECTION: [Who should film and why]
 AUTHENTICITY NOTE: [Filming style direction]
@@ -186,55 +197,17 @@ AUTHENTICITY NOTE: [Filming style direction]
 0:35 – 0:50 | PROOF MOMENT: [One specific proof element]
 0:50 – 1:00 | PATTERN INTERRUPT CTA: [Natural-feeling CTA]
 
-—————————————————— MEDIA_BUYING_STRATEGY_REPORT ——————————————————
-PHASE 1 — VALIDATION (Days 1-21):
-DAILY BUDGET: [$X/day with rationale]
-CAMPAIGN OBJECTIVE: [Specific + why]
-COLD AUDIENCE DEFINITION: [Specific interest layers and demographics]
-CREATIVE TESTING APPROACH: [Number of variants, what to isolate]
-SUCCESS THRESHOLD: [Specific CPL or ROAS number]
-PAUSE THRESHOLD: [Specific number + what to diagnose first]
-PIXEL EVENTS TO TRACK: [In order of importance]
+SCRIPT 2 — UGC FORMAT VARIATION 2 [Alternative hook or creator]
+TARGET PLATFORM: [Secondary recommendation or same]
+CREATOR DIRECTION: [Different persona or angle]
+AUTHENTICITY NOTE: [Filming style direction]
+0:00 – 0:03 | SCROLL STOP HOOK: [Alternative opening]
+0:03 – 0:15 | TENSION ESTABLISHMENT: [Alternative problem focus]
+0:15 – 0:35 | THE REVEAL: [Mechanism presented differently]
+0:35 – 0:50 | PROOF MOMENT: [Different proof element]
+0:50 – 1:00 | PATTERN INTERRUPT CTA: [Different CTA]
 
-PHASE 2 — SCALING (Days 22-60):
-SCALE TRIGGER: [Exact result]
-BUDGET INCREASE APPROACH: [How much, how fast]
-AUDIENCE EXPANSION: [Lookalike %, interest expansion]
-CREATIVE REFRESH TRIGGER: [Frequency decay signal]
-SCALE WARNING: [Specific risk]
-
-PHASE 3 — OPTIMIZATION (Day 60+):
-RETARGETING ARCHITECTURE: [Audience segments + creative]
-LTV OPTIMIZATION: [Revenue per customer]
-PLATFORM EXPANSION CRITERIA: [Specific threshold]
-
-—————————————————— TRAFFIC_FUNNEL_ALIGNMENT ——————————————————
-[5-6 sentences — integration layer tying traffic to funnel]
-Answer: Where does cold traffic enter? Why is this entry correct? What misalignment to avoid? How does this strategy avoid it? What is the most important ad-to-landing-page message match?
-
-—————————————————— COMPETITIVE_ACQUISITION_INTELLIGENCE ——————————————————
-STATE: Dominant saturated ad angle in this niche
-STATE: Fatigue-inducing proof type competitors lead with
-STATE: Positioning gap this offer could own
-TACTIC 1: [Specific angle competitors aren't using]
-TACTIC 2: [Specific targeting approach competitors aren't testing]
-TACTIC 3: [Specific creative format for attention differentiation]
-
-—————————————————— LAUNCH_SEQUENCE_RECOMMENDATION ——————————————————
-PRE-LAUNCH (Days 0-3): [Setup before spending]
-WEEK 1 (Days 1-7):
-Day 1: [Specific actions]
-Day 2: [Specific actions]
-Day 3: [Specific actions]
-Day 4-5: [Specific actions]
-Day 6-7: [First data review — metrics and decisions]
-WEEK 2 (Days 8-14):
-Day 8-10: [Based on Week 1 data]
-Day 11-14: [Optimization actions]
-WEEK 3 (Days 15-21):
-Day 15-17: [Expansion or pivot]
-Day 18-21: [Scale or diagnose decision tree]
-DAY 21 REVIEW: [Metrics, go/no-go criteria, 3 questions for Week 4]`;
+`;
 
     const fullUserPrompt = `You have completed Phase 1 (Structural) and Phase 2 (Strategic) intelligence for this offer. Now produce Phase 3: Traffic Intelligence.
 
@@ -285,7 +258,14 @@ Output ONLY the section separator line and content for "${sectionKey}". No other
 
             const currentBlocks = current?.blocks || {};
             const existingTI = currentBlocks.traffic_intelligence || {};
-            const mergedTI = { ...existingTI, ...parsed };
+            
+            const mergedTI = { ...existingTI };
+            const parsedVal = parsed[sectionId as keyof typeof parsed];
+            if (parsedVal) {
+                mergedTI[sectionId] = parsedVal;
+            } else if (text.trim()) {
+                mergedTI[sectionId] = text.trim();
+            }
 
             await supabaseAdmin
                 .from('builder_pages')

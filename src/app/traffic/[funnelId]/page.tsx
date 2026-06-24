@@ -51,10 +51,6 @@ type SectionId =
   | "platform_priority_narrative"
   | "omnichannel_ad_copy_matrix"
   | "google_ads_copy_matrix"
-  | "media_buying_strategy_report"
-  | "traffic_funnel_alignment"
-  | "competitive_acquisition_intelligence"
-  | "launch_sequence_recommendation"
   | "vsl_video_script"
   | "ugc_video_script";
 
@@ -93,38 +89,6 @@ const SECTIONS: SectionConfig[] = [
     gradient: "from-purple-500/10 to-indigo-500/5 border-purple-500/20",
   },
   {
-    id: "media_buying_strategy_report",
-    label: "Media Buying Strategy",
-    icon: <DollarSign className="w-4 h-4" />,
-    sub: "Budget & Validation Phases",
-    badge: "Media Buying",
-    gradient: "from-emerald-500/10 to-green-500/5 border-emerald-500/20",
-  },
-  {
-    id: "traffic_funnel_alignment",
-    label: "Traffic Funnel Alignment",
-    icon: <AlertTriangle className="w-4 h-4" />,
-    sub: "Acquisition Integration",
-    badge: "Integration",
-    gradient: "from-violet-500/10 to-purple-500/5 border-violet-500/20",
-  },
-  {
-    id: "competitive_acquisition_intelligence",
-    label: "Competitive Intelligence",
-    icon: <Eye className="w-4 h-4" />,
-    sub: "Differentiation Plan",
-    badge: "Competitive",
-    gradient: "from-fuchsia-500/10 to-pink-500/5 border-fuchsia-500/20",
-  },
-  {
-    id: "launch_sequence_recommendation",
-    label: "Launch Sequence",
-    icon: <Calendar className="w-4 h-4" />,
-    sub: "21-Day Checklist",
-    badge: "Launch",
-    gradient: "from-teal-500/10 to-emerald-500/5 border-teal-500/20",
-  },
-  {
     id: "vsl_video_script",
     label: "Video Sales Letter",
     icon: <Video className="w-4 h-4" />,
@@ -145,10 +109,9 @@ const SECTIONS: SectionConfig[] = [
 const GEN_STEPS = [
   "Extracting contextual details from Call 1 structural blueprint…",
   "Mapping psychological vectors from Call 2 strategic narrative…",
-  "Calibrating media buying benchmarks from 35,000+ comparable funnels…",
   "Synthesizing platform specific ad copies & hooks…",
   "Architecting video script hook sequences & directions…",
-  "Drafting the 21-day paid traffic validation checklist…",
+  "Finalizing traffic strategy generation…",
 ];
 
 // ─── Parsers for structured UI cards ───────────────────────────────────────────
@@ -227,7 +190,7 @@ function parseVideoScripts(text: string) {
   if (!text) return [];
   // Split on SCRIPT 1, SCRIPT 2, etc. — keep the SCRIPT header with each block
   const blocks = text
-    .split(/(?=SCRIPT\s*\d+\s*(?:—|-|–))/i)
+    .split(/(?=SCRIPT\s*\d+\s*(?:—|-|–|:|\n|\|))/i)
     .filter((b) => b.trim().length > 20);
   return blocks.map((block) => {
     const title =
@@ -311,49 +274,6 @@ function parseVideoScripts(text: string) {
   });
 }
 
-function parseMediaBuying(text: string) {
-  if (!text) return [];
-  const blocks = text
-    .split(/(?=PHASE\s*\d+)/i)
-    .filter((b) => b.trim().length > 20);
-  return blocks.map((block) => {
-    const title =
-      block
-        .match(/(PHASE\s*\d+\s*[—-]\s*[^\n]+|PHASE\s*\d+\s*[^\n]+)/i)?.[0]
-        ?.trim() || "Validation Phase";
-    const budget =
-      block.match(/DAILY BUDGET:\s*(.*)/i)?.[1]?.trim() || "$100/day";
-    const objective =
-      block.match(/CAMPAIGN OBJECTIVE:\s*(.*)/i)?.[1]?.trim() || "Conversion";
-    const coldAudience =
-      block.match(/COLD AUDIENCE DEFINITION:\s*(.*)/i)?.[1]?.trim() ||
-      "Broad targeting";
-    const creativeTesting =
-      block.match(/CREATIVE TESTING APPROACH:\s*(.*)/i)?.[1]?.trim() ||
-      "A/B Hook testing";
-    const successThreshold =
-      block.match(/SUCCESS THRESHOLD:\s*(.*)/i)?.[1]?.trim() ||
-      "CPL under target";
-    const pauseThreshold =
-      block.match(/PAUSE THRESHOLD:\s*(.*)/i)?.[1]?.trim() ||
-      "CPL exceeds threshold";
-    const pixelEvents =
-      block.match(/PIXEL EVENTS TO TRACK:\s*(.*)/i)?.[1]?.trim() ||
-      "Lead & Purchase";
-    return {
-      title,
-      budget,
-      objective,
-      coldAudience,
-      creativeTesting,
-      successThreshold,
-      pauseThreshold,
-      pixelEvents,
-      rawText: block,
-    };
-  });
-}
-
 function parsePlatformSections(text: string) {
   if (!text) return [];
   // Split on ### headings (AI is prompted to use them)
@@ -371,76 +291,6 @@ function parsePlatformSections(text: string) {
     const heading = lines[0].replace(/^###\s*/, "").trim();
     const body = lines.slice(1).join("\n").trim();
     return { heading, body };
-  });
-}
-
-function parseCompetitiveIntel(text: string) {
-  if (!text) return { states: [] as string[], tactics: [] as { label: string; detail: string }[] };
-  const states: string[] = [];
-  const tactics: { label: string; detail: string }[] = [];
-  const lines = text.split("\n");
-  for (const line of lines) {
-    const stateMatch = line.match(/^STATE:\s*(.*)/i);
-    if (stateMatch) {
-      states.push(stateMatch[1].trim());
-      continue;
-    }
-    const tacticMatch = line.match(/^TACTIC\s*(\d+):\s*(.*)/i);
-    if (tacticMatch) {
-      tactics.push({ label: `Tactic ${tacticMatch[1]}`, detail: tacticMatch[2].trim() });
-    }
-  }
-  return { states, tactics };
-}
-
-function parseLaunchSequence(text: string) {
-  if (!text) return [];
-  // Split on PRE-LAUNCH, WEEK N, DAY 21 REVIEW
-  const blocks = text
-    .split(/(?=^(?:PRE-LAUNCH|WEEK\s*\d+|DAY\s*21\s*REVIEW))/im)
-    .filter((b) => b.trim().length > 10);
-  return blocks.map((block) => {
-    const lines = block.trim().split("\n");
-    const titleLine = lines[0].trim();
-    const title = titleLine.replace(/[:\s]*\(.*\)/, "").replace(/:$/, "").trim();
-    const dateRange = titleLine.match(/\(([^)]+)\)/)?.[1] || "";
-    const items: { label: string; detail: string }[] = [];
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-      const dayMatch = line.match(/^(Day\s*[\d-]+|Days?\s*[\d-]+):\s*(.*)/i);
-      if (dayMatch) {
-        items.push({ label: dayMatch[1].trim(), detail: dayMatch[2].trim() });
-      } else {
-        // Continuation or generic line
-        const keyMatch = line.match(/^([A-Z][A-Z\s]+):\s*(.*)/i);
-        if (keyMatch) {
-          items.push({ label: keyMatch[1].trim(), detail: keyMatch[2].trim() });
-        } else if (items.length > 0) {
-          items[items.length - 1].detail += " " + line;
-        } else {
-          items.push({ label: "", detail: line });
-        }
-      }
-    }
-    return { title, dateRange, items };
-  });
-}
-
-function parseFunnelAlignment(text: string) {
-  if (!text) return [];
-  // Try splitting on bold key prefixes or numbered items
-  const parts = text.split(/\n\n+/).filter((p) => p.trim().length > 10);
-  return parts.map((part, i) => {
-    const trimmed = part.trim();
-    // Check if starts with a bold label or key prefix
-    const prefixMatch = trimmed.match(/^(?:\*\*([^\*]+)\*\*|([A-Z][A-Z\s]+):)\s*([\s\S]*)/);
-    if (prefixMatch) {
-      const heading = (prefixMatch[1] || prefixMatch[2] || "").trim();
-      const body = (prefixMatch[3] || "").trim();
-      return { heading, body };
-    }
-    return { heading: `Insight ${i + 1}`, body: trimmed };
   });
 }
 
@@ -1450,299 +1300,7 @@ export default function TrafficIntelligencePage({
                       </div>
                     )}
 
-                    {/* 5. media_buying_strategy_report */}
-                    {activeSection === "media_buying_strategy_report" && (
-                      <div className="space-y-6">
-                        {parseMediaBuying(activeContent).length === 0 ? (
-                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8">
-                            <TextRenderer text={activeContent} />
-                          </div>
-                        ) : (
-                          <div className="space-y-6">
-                            {parseMediaBuying(activeContent).map(
-                              (phase, pIdx) => (
-                                <div
-                                  key={pIdx}
-                                  className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl relative overflow-hidden hover:border-white/[0.12] transition-all duration-300"
-                                >
-                                  <div className="absolute top-[-30%] right-[-10%] w-80 h-80 bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
-                                  <div className="flex items-center justify-between border-b border-white/[0.05] pb-4 mb-6">
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wide">
-                                        Phase {pIdx + 1}
-                                      </span>
-                                      <h3 className="text-xl font-black text-white">
-                                        {phase.title}
-                                      </h3>
-                                    </div>
-                                    <div className="text-right">
-                                      <span className="text-xs font-black text-emerald-400 bg-emerald-400/5 border border-emerald-400/10 px-3 py-1.5 rounded-xl">
-                                        Budget Target: {phase.budget}
-                                      </span>
-                                    </div>
-                                  </div>
 
-                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 transition-all">
-                                      <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">
-                                        Campaign Objective
-                                      </h4>
-                                      <p className="text-xs text-white/90 leading-relaxed font-semibold">
-                                        {phase.objective}
-                                      </p>
-                                    </div>
-                                    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 transition-all">
-                                      <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">
-                                        Cold Audience Definition
-                                      </h4>
-                                      <p className="text-xs text-white/90 leading-relaxed font-semibold">
-                                        {phase.coldAudience}
-                                      </p>
-                                    </div>
-                                    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 transition-all">
-                                      <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">
-                                        Creative Testing Approach
-                                      </h4>
-                                      <p className="text-xs text-white/90 leading-relaxed font-semibold">
-                                        {phase.creativeTesting}
-                                      </p>
-                                    </div>
-                                    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 border-l-2 border-l-emerald-400 transition-all">
-                                      <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">
-                                        Success KPI Threshold
-                                      </h4>
-                                      <p className="text-xs text-emerald-400 leading-relaxed font-black">
-                                        {phase.successThreshold}
-                                      </p>
-                                    </div>
-                                    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 border-l-2 border-l-red-500 transition-all">
-                                      <h4 className="text-[10px] font-black uppercase tracking-widest text-red-400 mb-1">
-                                        Pause & Pivot Threshold
-                                      </h4>
-                                      <p className="text-xs text-red-400 leading-relaxed font-black">
-                                        {phase.pauseThreshold}
-                                      </p>
-                                    </div>
-                                    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-4 transition-all">
-                                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white mb-1">
-                                        Conversion Pixel Events
-                                      </h4>
-                                      <p className="text-xs text-white/90 leading-relaxed font-semibold">
-                                        {phase.pixelEvents}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              ),
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* 6. traffic_funnel_alignment */}
-                    {activeSection === "traffic_funnel_alignment" && (
-                      <div className="space-y-5 animate-fade-in">
-                        {parseFunnelAlignment(activeContent).length > 0 ? (
-                          <>
-                            {/* Section intro card */}
-                            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 relative overflow-hidden">
-                              <div className="absolute top-[-20%] left-[-10%] w-80 h-80 bg-violet-500/8 blur-[150px] rounded-full pointer-events-none" />
-                              <div className="flex items-center gap-3 relative z-10">
-                                <div className="w-10 h-10 rounded-2xl bg-violet-500/15 border border-violet-500/25 flex items-center justify-center">
-                                  <Layers className="w-5 h-5 text-violet-400" />
-                                </div>
-                                <div>
-                                  <h2 className="text-lg font-black text-white">Acquisition & Funnel Integration</h2>
-                                  <p className="text-[11px] text-muted-foreground mt-0.5">How traffic aligns with your funnel architecture</p>
-                                </div>
-                              </div>
-                            </div>
-                            {/* Insight cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {parseFunnelAlignment(activeContent).map((item, idx) => {
-                                const colors = ["violet", "sky", "amber", "emerald", "rose", "indigo"];
-                                const color = colors[idx % colors.length];
-                                return (
-                                  <div
-                                    key={idx}
-                                    className={`bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-2xl p-5 transition-all duration-300 relative overflow-hidden group`}
-                                  >
-                                    <div className={`absolute top-[-30%] right-[-15%] w-48 h-48 bg-${color}-500/5 blur-[80px] rounded-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity`} />
-                                    <div className="relative z-10">
-                                      <div className="flex items-center gap-2 mb-3">
-                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-${color}-500/10 text-${color}-400 border border-${color}-500/20`}>
-                                          {item.heading || `Insight ${idx + 1}`}
-                                        </span>
-                                      </div>
-                                      <p className="text-[14px] text-white/80 leading-relaxed font-normal">
-                                        {item.body.split(/(\*\*.*?\*\*)/g).map((part, pi) => {
-                                          if (part.startsWith("**") && part.endsWith("**")) {
-                                            return <strong key={pi} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
-                                          }
-                                          return <span key={pi}>{part}</span>;
-                                        })}
-                                      </p>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </>
-                        ) : (
-                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8 shadow-2xl">
-                            <TextRenderer text={activeContent} />
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* 7. competitive_acquisition_intelligence */}
-                    {activeSection === "competitive_acquisition_intelligence" && (
-                      <div className="space-y-6 animate-fade-in">
-                        {(() => {
-                          const parsed = parseCompetitiveIntel(activeContent);
-                          if (parsed.states.length === 0 && parsed.tactics.length === 0) {
-                            return (
-                              <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8 shadow-2xl">
-                                <TextRenderer text={activeContent} />
-                              </div>
-                            );
-                          }
-                          return (
-                            <>
-                              {/* Market observations */}
-                              {parsed.states.length > 0 && (
-                                <div className="space-y-3">
-                                  <div className="flex items-center gap-2">
-                                    <Eye className="w-4 h-4 text-fuchsia-400" />
-                                    <h4 className="text-xs font-black uppercase tracking-widest text-fuchsia-400">Market Observations</h4>
-                                    <div className="flex-1 h-px bg-white/[0.06]" />
-                                  </div>
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    {parsed.states.map((state, si) => (
-                                      <div
-                                        key={si}
-                                        className="bg-fuchsia-500/[0.06] border border-fuchsia-500/15 rounded-2xl p-5 relative overflow-hidden hover:border-fuchsia-500/25 transition-all duration-300"
-                                      >
-                                        <div className="absolute top-[-30%] right-[-15%] w-40 h-40 bg-fuchsia-500/5 blur-[80px] rounded-full pointer-events-none" />
-                                        <div className="relative z-10">
-                                          <div className="flex items-center gap-2 mb-3">
-                                            <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/25">
-                                              Observation {si + 1}
-                                            </span>
-                                          </div>
-                                          <p className="text-[14px] text-white/85 leading-relaxed font-normal">{state}</p>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              {/* Actionable Tactics */}
-                              {parsed.tactics.length > 0 && (
-                                <div className="space-y-3">
-                                  <div className="flex items-center gap-2">
-                                    <Crosshair className="w-4 h-4 text-emerald-400" />
-                                    <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400">Differentiation Tactics</h4>
-                                    <div className="flex-1 h-px bg-white/[0.06]" />
-                                  </div>
-                                  <div className="space-y-3">
-                                    {parsed.tactics.map((tactic, ti) => (
-                                      <div
-                                        key={ti}
-                                        className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-emerald-500/20 rounded-2xl p-5 flex gap-4 items-start transition-all duration-300 group relative overflow-hidden"
-                                      >
-                                        <div className="absolute top-[-30%] left-[-10%] w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center flex-shrink-0 relative z-10">
-                                          <span className="text-sm font-black text-emerald-400">{ti + 1}</span>
-                                        </div>
-                                        <div className="relative z-10 flex-1">
-                                          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1.5 block">{tactic.label}</span>
-                                          <p className="text-[15px] text-white/85 leading-relaxed font-normal">{tactic.detail}</p>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
-
-                    {/* 8. launch_sequence_recommendation */}
-                    {activeSection === "launch_sequence_recommendation" && (
-                      <div className="space-y-5 animate-fade-in">
-                        {parseLaunchSequence(activeContent).length > 0 ? (
-                          parseLaunchSequence(activeContent).map((phase, pIdx) => {
-                            const phaseColors = ["amber", "sky", "emerald", "violet", "rose"];
-                            const color = phaseColors[pIdx % phaseColors.length];
-                            const phaseIcons = [Rocket, ListChecks, TrendingUp, Target, CheckCircle2];
-                            const PhaseIcon = phaseIcons[pIdx % phaseIcons.length];
-                            return (
-                              <div
-                                key={pIdx}
-                                className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.12] rounded-3xl shadow-2xl relative overflow-hidden transition-all duration-300"
-                              >
-                                <div className={`absolute top-[-25%] ${pIdx % 2 === 0 ? 'right' : 'left'}-[-12%] w-80 h-80 bg-${color}-500/8 blur-[150px] rounded-full pointer-events-none`} />
-                                {/* Phase Header */}
-                                <div className="px-6 py-5 border-b border-white/[0.06] bg-white/[0.02] relative z-10">
-                                  <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-2xl bg-${color}-500/15 border border-${color}-500/25 flex items-center justify-center flex-shrink-0`}>
-                                      <PhaseIcon className={`w-5 h-5 text-${color}-400`} />
-                                    </div>
-                                    <div>
-                                      <div className="flex items-center gap-2">
-                                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide bg-${color}-500/10 text-${color}-400 border border-${color}-500/20`}>
-                                          Phase {pIdx + 1}
-                                        </span>
-                                        {phase.dateRange && (
-                                          <span className="text-[10px] font-bold text-muted-foreground px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.06]">
-                                            {phase.dateRange}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <h3 className="text-lg font-black text-white mt-1">{phase.title}</h3>
-                                    </div>
-                                  </div>
-                                </div>
-                                {/* Phase Items */}
-                                <div className="px-6 py-5 space-y-3 relative z-10">
-                                  {phase.items.map((item, iIdx) => (
-                                    <div
-                                      key={iIdx}
-                                      className="flex gap-3 items-start group"
-                                    >
-                                      {item.label ? (
-                                        <span className={`text-[11px] font-mono font-bold text-${color}-400 bg-${color}-500/10 border border-${color}-500/15 rounded-lg px-2.5 py-1.5 flex-shrink-0 min-w-[70px] text-center`}>
-                                          {item.label}
-                                        </span>
-                                      ) : (
-                                        <div className={`w-2 h-2 rounded-full bg-${color}-400/50 mt-2 flex-shrink-0`} />
-                                      )}
-                                      <p className="text-[14px] text-white/80 leading-relaxed font-normal flex-1">
-                                        {item.detail.split(/(\*\*.*?\*\*)/g).map((part, pi) => {
-                                          if (part.startsWith("**") && part.endsWith("**")) {
-                                            return <strong key={pi} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
-                                          }
-                                          return <span key={pi}>{part}</span>;
-                                        })}
-                                      </p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8 shadow-2xl">
-                            <TextRenderer text={activeContent} />
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
               </div>
             )}

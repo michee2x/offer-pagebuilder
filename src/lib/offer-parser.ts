@@ -476,8 +476,7 @@ const ALL_SECTIONS = [
   'MESSAGING_ANGLE_MATRIX', 'PRODUCT_CORE_VALUE_PERCEPTION', 'REAL_WORLD_USE_CASE_SCENARIOS',
   'MONETIZATION_STRATEGY_NARRATIVE',
   'PLATFORM_PRIORITY_NARRATIVE', 'OMNICHANNEL_AD_COPY_MATRIX', 'GOOGLE_ADS_COPY_MATRIX',
-  'VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE', 'MEDIA_BUYING_STRATEGY_REPORT', 'TRAFFIC_FUNNEL_ALIGNMENT',
-  'COMPETITIVE_ACQUISITION_INTELLIGENCE', 'LAUNCH_SEQUENCE_RECOMMENDATION'
+  'VSL_VIDEO_SCRIPT', 'UGC_VIDEO_SCRIPT'
 ];
 
 export function extractSection(text: string, sectionName: string): string {
@@ -566,10 +565,7 @@ export function parseCall3Output(rawText: string): Call3Output {
     platform_priority_narrative: parsedMap['PLATFORM_PRIORITY_NARRATIVE'] || extractSection(rawText, 'PLATFORM_PRIORITY_NARRATIVE'),
     omnichannel_ad_copy_matrix: parsedMap['OMNICHANNEL_AD_COPY_MATRIX'] || extractSection(rawText, 'OMNICHANNEL_AD_COPY_MATRIX'),
     google_ads_copy_matrix: parsedMap['GOOGLE_ADS_COPY_MATRIX'] || extractSection(rawText, 'GOOGLE_ADS_COPY_MATRIX'),
-    vsl_ugc_video_script_intelligence: parsedMap['VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE'] || extractSection(rawText, 'VSL_UGC_VIDEO_SCRIPT_INTELLIGENCE'),
-    media_buying_strategy_report: parsedMap['MEDIA_BUYING_STRATEGY_REPORT'] || extractSection(rawText, 'MEDIA_BUYING_STRATEGY_REPORT'),
-    traffic_funnel_alignment: parsedMap['TRAFFIC_FUNNEL_ALIGNMENT'] || extractSection(rawText, 'TRAFFIC_FUNNEL_ALIGNMENT'),
-    competitive_acquisition_intelligence: parsedMap['COMPETITIVE_ACQUISITION_INTELLIGENCE'] || extractSection(rawText, 'COMPETITIVE_ACQUISITION_INTELLIGENCE'),
-    launch_sequence_recommendation: parsedMap['LAUNCH_SEQUENCE_RECOMMENDATION'] || extractSection(rawText, 'LAUNCH_SEQUENCE_RECOMMENDATION'),
+    vsl_video_script: parsedMap['VSL_VIDEO_SCRIPT'] || extractSection(rawText, 'VSL_VIDEO_SCRIPT'),
+    ugc_video_script: parsedMap['UGC_VIDEO_SCRIPT'] || extractSection(rawText, 'UGC_VIDEO_SCRIPT'),
   };
 }
