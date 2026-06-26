@@ -161,8 +161,9 @@ Max 4 feature cards, max 4 FAQs. Avoid verbose nested markup.
 
 ## ━━━ SECTION 2: COPY RULES ━━━
 
-- Use COPY OBJECT verbatim. Do not truncate, summarize, or invent copy.
-- Interpret the markdown naturally into the best UI components (e.g., lists into feature cards, quotes into testimonials).
+- You are encouraged to enhance and "spice up" the COPY OBJECT content by about 20% to make it more engaging, persuasive, and better suited to your dynamic UI layout.
+- You do not need to limit yourself strictly verbatim, but you must remain true to the original context, meaning, and intent of the copy.
+- Interpret the markdown naturally into the best UI components (e.g., lists into feature cards, quotes into testimonials) and add creative layout variations.
 - Max 2 emojis per page.
 
 ---
@@ -251,7 +252,7 @@ function buildContentPrompt(
   let copySection = 'No pre-written copy provided.';
   if (copyContext) {
     copySection = `COPY OBJECT (RICH MARKDOWN BY PAGE):
-We have generated rich sales copy in Markdown format for each page of the funnel. You must parse this Markdown structure and map it directly to visually beautiful Tailwind sections and components without inventing any text:
+We have generated rich sales copy in Markdown format for each page of the funnel. You should parse this Markdown structure and map it to visually beautiful Tailwind sections and components. Feel free to add creative layout variations and enhance or spice up the copy by about 20% to make the page more engaging, while maintaining the original context:
 ${copyContext}
 `;
   }
@@ -272,7 +273,7 @@ ${designSection}
 === END GENERATION INPUT ===
 
 TASK: Generate a complete 5-page sales funnel (Lead Capture "/", Sales Page "/sales", Upsell "/upsell", Downsell "/downsell", Thank You "/thankyou").
-Structure each page's layout hierarchy by analyzing the visual arrangement, card spacing, headings, and visual density of the reference screenshot image. Apply the typography, color tempo, and image structures observed. Remember to use exactly the text from the COPY OBJECT and strictly limit emojis to 2 maximum across the page.
+Structure each page's layout hierarchy dynamically and creatively, using the reference screenshot image as inspiration rather than a strict mold. Apply the typography, color tempo, and image structures observed. You can enhance and spice up the text from the COPY OBJECT by about 20% to fit your creative layouts and maximize conversions, while maintaining the original context. Strictly limit emojis to 2 maximum across the page.
 
 IMPORTANT: Do NOT output any conversational filler text (e.g. "I'll analyze the reference..."). Output ONLY the <page> blocks and nothing else.
 
