@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, use } from "react";
+import React, { useEffect, useState, useCallback, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ScoreRadarChart } from "@/components/intelligence/charts/ScoreRadarChart";
@@ -335,6 +335,10 @@ export default function IntelligencePage({
   const [genStep, setGenStep] = useState(0);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
 
+  // Autosave State
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "unsaved" | "idle">("idle");
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Navigation State
   const [activeSectionId, setActiveSectionId] = useState<string>("SCORE_SUMMARY");
   const [isRegeneratingSection, setIsRegeneratingSection] = useState(false);
@@ -468,36 +472,52 @@ export default function IntelligencePage({
   }, [formData, streamCall1, streamCall2]);
 
   const updateSectionContent = useCallback(
-    async (key: string, newText: string) => {
-      // Determine if it's Call1 or Call2
-      try {
-        if (call1 && key in call1) {
-          const updated = { ...call1, [key]: newText };
-          setCall1(updated);
-          await fetch(`/api/offer-data/${funnelId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ intelligence: { call1: updated } }),
-          });
-        } else if (call2) {
-          // Map from SECTION key back to call2 mapping
-          const originalKey = Object.keys(CALL2_SECTION_MAP).find(
-            (k) =>
-              CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === key,
-          );
-          if (originalKey) {
-            const updated = { ...call2, [originalKey]: newText };
-            setCall2(updated);
+    (key: string, newText: string) => {
+      // Update local state immediately for responsive UI
+      if (call1 && key in call1) {
+        setCall1((prev) => prev ? { ...prev, [key]: newText } : prev);
+      } else if (call2) {
+        const originalKey = Object.keys(CALL2_SECTION_MAP).find(
+          (k) => CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === key,
+        );
+        if (originalKey) {
+          setCall2((prev) => prev ? { ...prev, [originalKey]: newText } : prev);
+        }
+      }
+      // Mark as unsaved and schedule debounced save
+      setAutoSaveStatus("unsaved");
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = setTimeout(async () => {
+        setAutoSaveStatus("saving");
+        try {
+          if (call1 && key in call1) {
+            const updated = { ...call1, [key]: newText };
             await fetch(`/api/offer-data/${funnelId}`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ intelligence: { call2: updated } }),
+              body: JSON.stringify({ intelligence: { call1: updated } }),
             });
+          } else if (call2) {
+            const originalKey = Object.keys(CALL2_SECTION_MAP).find(
+              (k) => CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === key,
+            );
+            if (originalKey) {
+              const updated = { ...call2, [originalKey]: newText };
+              await fetch(`/api/offer-data/${funnelId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ intelligence: { call2: updated } }),
+              });
+            }
           }
+          setAutoSaveStatus("saved");
+          // Reset to idle after showing "Saved" for 2 seconds
+          setTimeout(() => setAutoSaveStatus("idle"), 2000);
+        } catch {
+          setAutoSaveStatus("unsaved");
+          setErrorMsg("Failed to auto-save section");
         }
-      } catch (e: any) {
-        setErrorMsg("Failed to auto-save section");
-      }
+      }, 2000);
     },
     [call1, call2, funnelId],
   );
@@ -766,6 +786,21 @@ export default function IntelligencePage({
           steps={WIZARD_STEPS}
         >
           {phase !== "idle" && phase !== "done" && <Spinner size="sm" />}
+
+          {/* Autosave status indicator */}
+          {autoSaveStatus !== "idle" && (
+            <div className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all print:hidden",
+              autoSaveStatus === "saving" && "text-muted-foreground",
+              autoSaveStatus === "saved" && "text-emerald-400",
+              autoSaveStatus === "unsaved" && "text-amber-400",
+            )}>
+              {autoSaveStatus === "saving" && <Spinner size="xs" />}
+              {autoSaveStatus === "saved" && <Check className="w-3 h-3" />}
+              {autoSaveStatus === "unsaved" && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse inline-block" />}
+              {autoSaveStatus === "saving" ? "Saving…" : autoSaveStatus === "saved" ? "Saved" : "Unsaved"}
+            </div>
+          )}
 
           <Button
             size="sm"

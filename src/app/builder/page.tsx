@@ -56,6 +56,7 @@ export default function BuilderPage() {
   } = useBuilderStore();
   const updateCode = useBuilderStore((s) => s.updateCode);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = React.useState<"saved" | "saving" | "idle">("idle");
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [streamText, setStreamText] = React.useState("");
   const [initialLoading, setInitialLoading] = React.useState(true);
@@ -308,6 +309,44 @@ export default function BuilderPage() {
       clearInterval(interval);
     };
   }, [pageId, isGenerating, setFullState, setTheme, setHasUnsavedChanges]);
+
+  // ── Debounced autosave ───────────────────────────────────────────────────────
+
+  React.useEffect(() => {
+    if (!hasUnsavedChanges || !pageId || isGenerating || isSaving) return;
+    const timer = setTimeout(async () => {
+      setAutoSaveStatus("saving");
+      try {
+        const payload: any = {
+          name: funnelName,
+          components,
+          rootList,
+          canvasStyle,
+          theme,
+          pages: {
+            ...pages,
+            [activePagePath]: { ...pages[activePagePath], components, rootList },
+          },
+          pageId,
+        };
+        const res = await fetch("/api/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          setHasUnsavedChanges(false);
+          setAutoSaveStatus("saved");
+          setTimeout(() => setAutoSaveStatus("idle"), 2000);
+        } else {
+          setAutoSaveStatus("idle");
+        }
+      } catch {
+        setAutoSaveStatus("idle");
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [hasUnsavedChanges, pageId, isGenerating, isSaving, funnelName, components, rootList, canvasStyle, theme, pages, activePagePath, setHasUnsavedChanges]);
 
   // No more DND sensors or event handlers needed
 
@@ -924,6 +963,15 @@ export default function BuilderPage() {
 
             {/* Separator */}
             <div className="w-px h-5 bg-border mx-1" />
+
+            {/* Autosave status */}
+            {autoSaveStatus !== "idle" && (
+              <span className={`text-xs font-semibold transition-all ${
+                autoSaveStatus === "saving" ? "text-muted-foreground" : "text-emerald-500"
+              }`}>
+                {autoSaveStatus === "saving" ? "Saving…" : "✓ Saved"}
+              </span>
+            )}
 
             {/* Save */}
             <button

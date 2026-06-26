@@ -959,6 +959,7 @@ export default function EmailSequencePage({
   const [centerMode, setCenterMode] = useState<CenterMode>("preview");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"saved" | "saving" | "unsaved" | "idle">("idle");
   const [regeneratingEmail, setRegeneratingEmail] = useState<{
     pageKey: FunnelPageKey;
     emailIndex: number;
@@ -977,6 +978,7 @@ export default function EmailSequencePage({
         };
       });
       setHasUnsavedChanges(true);
+      setAutoSaveStatus("unsaved");
     },
     [activePage, activeEmailIndex],
   );
@@ -1080,6 +1082,8 @@ export default function EmailSequencePage({
       }
 
       setHasUnsavedChanges(false);
+      setAutoSaveStatus("saved");
+      setTimeout(() => setAutoSaveStatus("idle"), 2000);
       toast.success("Email sequence saved successfully!", { id: saveToastId });
     } catch (err: any) {
       toast.error(err.message || "Failed to save changes", { id: saveToastId });
@@ -1087,6 +1091,28 @@ export default function EmailSequencePage({
       setIsSaving(false);
     }
   };
+
+  // ── Debounced autosave ────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!hasUnsavedChanges || Object.keys(emailSequence).length === 0) return;
+    const timer = setTimeout(async () => {
+      setAutoSaveStatus("saving");
+      try {
+        await fetch(`/api/offer-data/${funnelId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ blocks: { email_sequence_v2: emailSequence } }),
+        });
+        setHasUnsavedChanges(false);
+        setAutoSaveStatus("saved");
+        setTimeout(() => setAutoSaveStatus("idle"), 2000);
+      } catch {
+        setAutoSaveStatus("unsaved");
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [emailSequence, hasUnsavedChanges, funnelId]);
 
   const { completion, complete, isLoading } = useCompletion({
     api: `/api/generate-email-sequence/${funnelId}`,
@@ -1356,21 +1382,37 @@ export default function EmailSequencePage({
             { label: "Email Sequence" },
           ]}
           actions={
-            hasEmails && hasUnsavedChanges ? (
+            hasEmails ? (
               <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  onClick={handleSave}
-                  disabled={isSaving || isLoading}
-                  className="gap-1.5 font-semibold bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all duration-300"
-                >
-                  {isSaving ? (
-                    <Spinner size="sm" color="white" />
-                  ) : (
-                    <Check className="w-3.5 h-3.5" />
-                  )}
-                  Save Changes
-                </Button>
+                {/* Autosave status indicator */}
+                {autoSaveStatus !== "idle" && (
+                  <div className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all",
+                    autoSaveStatus === "saving" && "text-muted-foreground",
+                    autoSaveStatus === "saved" && "text-emerald-400",
+                    autoSaveStatus === "unsaved" && "text-amber-400",
+                  )}>
+                    {autoSaveStatus === "saving" && <Spinner size="xs" color="muted" />}
+                    {autoSaveStatus === "saved" && <Check className="w-3 h-3" />}
+                    {autoSaveStatus === "unsaved" && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse inline-block" />}
+                    {autoSaveStatus === "saving" ? "Saving…" : autoSaveStatus === "saved" ? "Saved" : "Unsaved changes"}
+                  </div>
+                )}
+                {hasUnsavedChanges && (
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving || isLoading}
+                    className="gap-1.5 font-semibold bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.75)] transition-all duration-300"
+                  >
+                    {isSaving ? (
+                      <Spinner size="sm" color="white" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
+                    Save Changes
+                  </Button>
+                )}
               </div>
             ) : undefined
           }
