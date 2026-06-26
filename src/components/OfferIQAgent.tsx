@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { SparkleAura } from "@/components/ui/sparkle-aura";
+import { Spinner } from "@/components/ui/spinner";
 import { MediaPickerModal } from "@/components/builder/ImagePickerModal";
 
 import { cn } from "@/lib/utils";
