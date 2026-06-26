@@ -241,7 +241,7 @@ Output ONLY the section separator line and content for "${sectionKey}". No other
 
         try {
             const { text } = await generateText({
-                model: anthropic('claude-opus-4-8'),
+                model: anthropic('claude-sonnet-4-6'),
                 system: systemPrompt,
                 prompt: singleSectionPrompt,
                 maxOutputTokens: 8000,
@@ -287,7 +287,7 @@ Output ONLY the section separator line and content for "${sectionKey}". No other
     // ─── Full regeneration mode ────────────────────────────────────────────────
     try {
         const { text } = await generateText({
-            model: anthropic('claude-opus-4-8'),
+            model: anthropic('claude-sonnet-4-6'),
             system: systemPrompt,
             prompt: fullUserPrompt,
             maxOutputTokens: 16000,
