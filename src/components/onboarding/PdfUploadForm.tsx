@@ -2,8 +2,9 @@
 
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Upload, FileText, CheckCircle, Loader2 } from "lucide-react";
+import { Upload, FileText, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 interface PdfUploadFormProps {
   onBack?: () => void;
@@ -131,7 +132,7 @@ export function PdfUploadForm({ onBack, onSubmit }: PdfUploadFormProps) {
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Spinner size="sm" />
                   Analyzing PDF...
                 </>
               ) : (

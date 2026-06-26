@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, CheckCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 function SalesIntelligenceContent() {
   const router = useRouter();
@@ -61,7 +62,7 @@ function SalesIntelligenceContent() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#07080F] text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+        <Spinner size="md" />
       </div>
     );
   }
@@ -179,7 +180,7 @@ export default function SalesIntelligencePage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#07080F] text-white flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+          <Spinner size="md" />
         </div>
       }
     >

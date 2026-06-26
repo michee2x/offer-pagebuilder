@@ -8,6 +8,7 @@ import { Search, LayoutTemplate, Tag, Copy, ChevronLeft, Zap, ArrowRight } from 
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { useUIStore } from "@/store/uiStore";
+import { Spinner } from "@/components/ui/spinner";
 
 type Template = {
   id: string;
@@ -153,9 +154,8 @@ function TemplatesContent() {
 
             {/* Grid */}
             {loading ? (
-              <div className="text-center py-20">
-                <div className="w-10 h-10 border-4 border-brand-blue/30 border-t-brand-blue rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-white/50">Loading templates...</p>
+              <div className="flex items-center justify-center py-20">
+                <Spinner size="md" />
               </div>
             ) : filteredTemplates.length === 0 ? (
               <div className="flex flex-col items-center justify-center border border-white/10 rounded-3xl p-16 text-center bg-white/[0.02] backdrop-blur-sm">
@@ -229,7 +229,7 @@ function TemplatesContent() {
                       >
                         {cloningId === template.id ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <Spinner size="sm" color="white" />
                             Cloning...
                           </>
                         ) : (
@@ -255,7 +255,7 @@ export default function TemplatesMarketplacePage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#030712] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-brand-blue/30 border-t-brand-blue rounded-full animate-spin" />
+        <Spinner size="md" />
       </div>
     }>
       <TemplatesContent />

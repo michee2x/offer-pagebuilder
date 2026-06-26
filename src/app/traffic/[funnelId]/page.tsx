@@ -33,7 +33,6 @@ import {
   User,
   Smartphone,
   Clapperboard,
-  Loader2,
   Layers,
   Crosshair,
   Rocket,
@@ -750,7 +749,7 @@ export default function TrafficIntelligencePage({
                       className="text-white bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 gap-1.5 transition-all"
                     >
                       {isRegeneratingSection ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <Spinner size="xs" color="white" />
                       ) : (
                         <RefreshCw className="w-3.5 h-3.5" />
                       )}

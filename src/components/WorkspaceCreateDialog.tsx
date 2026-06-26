@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 
 export function WorkspaceCreateDialog() {
   const router = useRouter();
@@ -83,7 +84,7 @@ export function WorkspaceCreateDialog() {
           </div>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Workspace"}
+            {isSubmitting ? <Spinner size="sm" color="white" /> : "Create Workspace"}
           </Button>
         </form>
       </DialogContent>

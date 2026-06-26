@@ -45,14 +45,14 @@ function SettingsContent() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen bg-[#0e0e0e] items-center justify-center">
+      <div className="flex h-screen bg-[#030712] items-center justify-center">
         <Spinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0e0e0e]">
+    <div className="flex h-screen overflow-hidden bg-[#030712]">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Topbar breadcrumbs={[{ label: "Settings", href: "/settings" }, { label: activeTab.charAt(0).toUpperCase() + activeTab.slice(1) }]} />
@@ -96,7 +96,7 @@ function SettingsContent() {
 export default function SettingsPage() {
   return (
     <Suspense fallback={
-      <div className="flex h-screen bg-[#0e0e0e] items-center justify-center">
+      <div className="flex h-screen bg-[#030712] items-center justify-center">
         <Spinner size="lg" />
       </div>
     }>

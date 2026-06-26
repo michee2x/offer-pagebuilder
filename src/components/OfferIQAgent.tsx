@@ -9,7 +9,6 @@ import {
   Send,
   User,
   X,
-  Loader2,
   Brain,
   AlertTriangle,
   ImagePlus,
@@ -728,7 +727,7 @@ export function OfferIQAgent({
                               >
                                 {!isCompleted ? (
                                   <>
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                                    <Spinner size="xs" color="blue" />
                                     <span>Applying skill ({actionLabel})…</span>
                                   </>
                                 ) : (
@@ -925,7 +924,7 @@ export function OfferIQAgent({
                   disabled={isLoading || !inputValue.trim()}
                 >
                   {isLoading ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <Spinner size="xs" color="white" />
                   ) : (
                     <Send className="h-3.5 w-3.5" />
                   )}

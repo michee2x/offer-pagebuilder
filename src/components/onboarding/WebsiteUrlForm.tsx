@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Link2, CheckCircle, Loader2 } from "lucide-react";
+import { Link2, CheckCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface WebsiteUrlFormProps {
   onBack?: () => void;
@@ -97,7 +98,7 @@ export function WebsiteUrlForm({ onBack, onSubmit }: WebsiteUrlFormProps) {
             >
               {isScraping ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Spinner size="sm" />
                   Analyzing Website...
                 </>
               ) : (

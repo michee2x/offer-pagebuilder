@@ -620,7 +620,7 @@ function EmailHtmlPreview({
                 className="h-8 px-3 rounded-xl bg-[#131826]/80 hover:bg-[#1f2942]/80 backdrop-blur-md border border-white/10 text-xs font-semibold text-white/90 hover:text-white flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isRegenerating ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Spinner size="xs" color="white" />
                 ) : (
                   <RefreshCw className="w-3.5 h-3.5" />
                 )}
@@ -693,7 +693,7 @@ function EmailHtmlPreview({
                 <div className="flex flex-col items-center gap-4">
                   <div className="relative">
                     <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center">
-                      <Loader2 className="w-7 h-7 text-blue-500 animate-spin" />
+                      <Spinner size="md" />
                     </div>
                     <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 animate-ping" />
                   </div>

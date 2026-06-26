@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Workspace {
   id: string;
@@ -46,10 +47,7 @@ export default function WorkspacesPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
-          <p>Loading workspaces...</p>
-        </div>
+        <Spinner size="md" />
       </div>
     );
   }
@@ -66,7 +64,7 @@ export default function WorkspacesPage() {
           </div>
           <Link
             href="/onboard"
-            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-black shadow-sm transition hover:bg-yellow-400"
+            className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-sm transition hover:bg-white/90"
           >
             Create Workspace
           </Link>
@@ -81,7 +79,7 @@ export default function WorkspacesPage() {
             </p>
             <Link
               href="/onboard"
-              className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-semibold text-black shadow-sm transition hover:bg-yellow-400"
+              className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-black shadow-sm transition hover:bg-white/90"
             >
               Create Your First Workspace
             </Link>
@@ -92,17 +90,17 @@ export default function WorkspacesPage() {
               <Link
                 key={workspace.id}
                 href={`/workspaces/${workspace.id}`}
-                className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-yellow-300 transition-colors group"
+                className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-blue-500/50 transition-colors group"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-yellow-300/10 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
                     <span className="text-2xl">🏢</span>
                   </div>
                   <div className="text-xs text-slate-400">
                     {new Date(workspace.created_at).toLocaleDateString()}
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-accent transition-colors">
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-blue-400 transition-colors">
                   {workspace.name}
                 </h3>
                 {workspace.domain && (
@@ -110,7 +108,7 @@ export default function WorkspacesPage() {
                     {workspace.domain}.offeriq.com
                   </p>
                 )}
-                <div className="mt-4 text-accent text-sm font-medium">
+                <div className="mt-4 text-blue-400 text-sm font-medium">
                   Open Workspace →
                 </div>
               </Link>

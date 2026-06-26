@@ -32,9 +32,9 @@ import {
   Highlighter,
   MousePointerClick,
   RefreshCw,
-  Loader2,
   Timer,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 // ─── Toolbar primitives ───────────────────────────────────────────────────────
 
@@ -330,7 +330,7 @@ export function DocEditor({
             className="ml-auto flex items-center gap-1.5 px-3 h-7 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/15 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isRegenerating ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <Spinner size="xs" color="white" />
             ) : (
               <RefreshCw className="w-3.5 h-3.5" />
             )}

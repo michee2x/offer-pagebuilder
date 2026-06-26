@@ -12,6 +12,7 @@ import * as LucideIcons from "lucide-react";
 import * as FramerMotion from "framer-motion";
 import { useBuilderStore } from "@/store/builderStore";
 import { MediaPickerModal, MediaType } from "./ImagePickerModal";
+import { Spinner } from "@/components/ui/spinner";
 
 // ─── Edit-mode React Context ──────────────────────────────────────────────────
 // Using a context eliminates the window-global timing race where useEffect
@@ -752,7 +753,7 @@ export function DynamicRunner({
   if ((isBuilderMode && !babelLoaded) || !comp) {
     return (
       <div className="w-full h-screen flex items-center justify-center opacity-0 animate-[fadeIn_1s_ease-in-out_1s_forwards]">
-        <div className="w-6 h-6 border-2 border-white/10 border-t-white/30 rounded-full animate-spin" />
+        <Spinner size="sm" color="muted" />
       </div>
     );
   }

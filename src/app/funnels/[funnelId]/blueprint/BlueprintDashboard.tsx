@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
-  Loader2,
   Download,
   RefreshCw,
   FileText,
@@ -20,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { Spinner } from "@/components/ui/spinner";
 
 function parseSuggestedTopics(text: string) {
   if (!text) return [];
@@ -390,7 +390,7 @@ export function BlueprintDashboard({
                         className="bg-brand-indigo hover:bg-brand-indigo/90 text-white font-bold px-6 py-6 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full text-lg"
                       >
                         {isGenerating ? (
-                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          <Spinner size="sm" color="white" />
                         ) : (
                           <Sparkles className="w-5 h-5 mr-2" />
                         )}

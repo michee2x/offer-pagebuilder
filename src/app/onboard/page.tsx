@@ -199,12 +199,20 @@ function OnboardContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0e0e0e] text-white flex flex-col items-center justify-center p-4">
-        <div className="relative">
-          <div className="absolute inset-0 blur-3xl bg-brand-yellow/10 rounded-full animate-pulse"></div>
+      <div className="min-h-screen bg-[#030712] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        {/* Background Gradients */}
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)', transform: 'rotate(-30deg)' }} />
+          <div className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)', transform: 'rotate(30deg)' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100" style={{ background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)' }} />
+          <div className="absolute inset-0 opacity-10 pointer-events-none z-[1]" style={{ backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)', backgroundRepeat: 'repeat', backgroundSize: '128px auto' }} />
+        </div>
+        <div className="relative z-10">
+          <div className="absolute inset-0 blur-3xl bg-blue-500/10 rounded-full animate-pulse"></div>
           <div className="relative bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-12 flex flex-col items-center gap-6 shadow-2xl">
             <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center text-white border border-white/10 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-yellow/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <Spinner size="md" />
             </div>
             <div className="flex flex-col items-center gap-2">
@@ -218,8 +226,17 @@ function OnboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0e0e0e] text-white flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-[640px] relative">
+    <div className="min-h-screen bg-[#030712] text-white flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Background Gradients */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)', transform: 'rotate(-30deg)' }} />
+        <div className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)', transform: 'rotate(30deg)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[522px] opacity-[0.36] z-[1]" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(140, 22, 250) 0%, rgba(140, 22, 250, 0) 100%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100" style={{ background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)' }} />
+        <div className="absolute inset-0 opacity-10 pointer-events-none z-[1]" style={{ backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)', backgroundRepeat: 'repeat', backgroundSize: '128px auto' }} />
+      </div>
+
+      <div className="w-full max-w-[640px] relative z-10">
         <div className="absolute -top-16 left-10">
           <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-black shadow-lg">
             <svg
@@ -330,7 +347,7 @@ function OnboardContent() {
                             type="button"
                             onClick={() => removeInvite(index)}
                             variant="outline"
-                            className="rounded-full border-white/10 text-slate-400 hover:border-orange-400 hover:text-orange-400"
+                            className="rounded-full border-white/10 text-slate-400 hover:border-red-400 hover:text-red-400"
                           >
                             Remove
                           </Button>
@@ -401,7 +418,7 @@ function OnboardContent() {
                     (currentStep === "name" && !workspaceData.name.trim()) ||
                     (currentStep === "domain" && !workspaceData.domain.trim())
                   }
-                  className="rounded-[20px] bg-[#FF9E2C] px-8 py-4 text-sm font-semibold text-black hover:bg-orange-300 disabled:opacity-50"
+                  className="rounded-[20px] bg-white px-8 py-4 text-sm font-semibold text-black hover:bg-white/90 disabled:opacity-50"
                 >
                   {currentStep === "review"
                     ? isCreating
@@ -436,7 +453,7 @@ function OnboardContent() {
 export default function OnboardPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0e0e0e] text-white flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-[#030712] text-white flex flex-col items-center justify-center p-4">
         <Spinner size="lg" />
       </div>
     }>

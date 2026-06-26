@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { ChevronLeft } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import {
   OfferFormData,
   TrafficChannel,
@@ -551,10 +552,8 @@ function AnalyzeContent() {
 export default function AnalyzePage() {
   return (
     <Suspense fallback={
-      <div className="flex h-screen items-center justify-center bg-[#0e0e0e]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-        </div>
+      <div className="flex h-screen items-center justify-center bg-[#030712]">
+        <Spinner size="md" />
       </div>
     }>
       <AnalyzeContent />

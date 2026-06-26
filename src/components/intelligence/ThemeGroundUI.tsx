@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Loader2, Palette, Type, LayoutTemplate, Search, ChevronDown, Check, Eye, Settings2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 // ─── Font Loader ─────────────────────────────────────────────────────────────────
 
@@ -121,7 +122,7 @@ function FontSelector({
       >
         <span className="truncate" style={{ fontFamily: `'${value}', sans-serif` }}>{value}</span>
         {loading ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-white/40 shrink-0" />
+          <Spinner size="xs" color="muted" />
         ) : (
           <ChevronDown className={cn("w-3.5 h-3.5 text-white/40 shrink-0 transition-transform", open && "rotate-180")} />
         )}
@@ -316,7 +317,7 @@ export function ThemeGroundUI({ content, onChange, onRegenerate, isRegenerating 
                 className="flex items-center gap-1.5 px-3 h-7 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/15 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isRegenerating ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Spinner size="xs" color="white" />
                 ) : (
                   <RefreshCw className="w-3.5 h-3.5" />
                 )}
