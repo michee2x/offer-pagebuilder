@@ -14,7 +14,7 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: Request) {
-  console.log('[call1] Starting request processing');
+  console.log('[call1] Starting request processing...');
 
   if (!process.env.ANTHROPIC_API_KEY) {
     console.error('[call1] Missing ANTHROPIC_API_KEY');
