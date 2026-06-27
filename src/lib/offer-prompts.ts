@@ -26,8 +26,9 @@ FUNNEL_HEALTH_SCORE
 PLATFORM_PRIORITY_MATRIX
 
 RULES:
-1. WRITE FULL, COMPREHENSIVE ARTICLES: Every single section MUST be a long-form, highly detailed article (minimum 400-600 words per section). Do not use brief bullet points or short paragraphs. You must explain the 'why' and 'how' in deep detail so that a non-technical user completely understands the strategic value. Break down concepts into readable, well-formatted paragraphs with clear <h2> and <h3> headings.
-2. SEAMLESS MEDIA INTEGRATION: Do NOT just output a standalone chart or image. Always write a detailed introductory paragraph, insert the dynamic <chart> or <img>, and then write a comprehensive analytical breakdown below it.
+1. WRITE CONCISE, HIGH-IMPACT SECTIONS: Every section should be focused, precise, and avoid filler. Aim for 220-320 words per section. Use short paragraphs, clear headings, and compact bullet lists when useful. Do not repeat the same point more than once.
+2. DO NOT OVERWRITE THE USER WITH FLUFF: Avoid long-winded storytelling, excessive context, or generic business jargon. Only keep text that adds real strategic value for the offer.
+3. SEAMLESS MEDIA INTEGRATION: When using a chart or image, keep the text around it short and purposeful. Introduce it briefly, then explain the key insight it provides.
 3. OFFER_SCORE: Write a deep analysis of the offer's score. Use the <chart> tag inside the text to render a radar chart. E.g., <chart type="radar" data='[{"name": "Overall", "value": 85}, {"name": "Market Viability", "value": 90}, {"name": "Audience Clarity", "value": 80}, {"name": "Offer Strength", "value": 85}, {"name": "Price-Value", "value": 90}, {"name": "Uniqueness", "value": 75}, {"name": "Proof Strength", "value": 70}, {"name": "Conv. Readiness", "value": 80}]' title="Intelligence Radar" />
 4. SCORE_SUMMARY: This is a critical section. You MUST write a massive, comprehensive article breaking down the offer's intelligence score. DO NOT just show a chart. You must write a deep, multi-paragraph analysis explaining the exact reasoning behind each of the 7 scoring metrics (Market Viability, Audience Clarity, Offer Strength, Price-Value, Uniqueness, Proof Strength, Conversion Readiness). Explain what each metric means for a non-technical user, why they received that specific score (from 0 to 100), and give concrete, actionable steps on how they can improve it. You MUST use the <chart type="radar" data='[{"name": "Market Viability", "value": 85}, {"name": "Audience Clar.", "value": 90}, {"name": "Offer Strength", "value": 80}, {"name": "Price-Value", "value": 85}, {"name": "Uniqueness", "value": 90}, {"name": "Proof Strength", "value": 75}, {"name": "Conv. Ready", "value": 80}]' title="Sub-Score Breakdown" /> tag inside the text. You MUST also include a JSON comment block at the very end of the text in this exact format:
 <!-- SCORE_DATA: {"overall": 85, "market_viability": 85, "audience_clarity": 90, "offer_strength": 80, "price_value_alignment": 85, "uniqueness": 90, "proof_strength": 75, "conversion_readiness": 80} -->
@@ -94,7 +95,7 @@ Traffic Details: ${form.field_7_detail}
 Primary Challenge: ${form.field_8_challenge}
 
 === GENERATION DIRECTIVE ===
-Synthesize standard Offer Architecture. Ensure strict division of sections using divider lines. Every section must be written in a highly encouraging, simple, and motivational tone. Make the entrepreneur feel excited, supported, and capable of succeeding! Avoid corporate jargon and speak in plain English. Calculate exact prices and conversions where requested.`;
+Synthesize standard Offer Architecture. Ensure strict division of sections using divider lines. Every section must be written in a highly encouraging, simple, and motivational tone. Make the entrepreneur feel excited, supported, and capable of succeeding! Avoid corporate jargon and speak in plain English. Keep each section concise and practical: 220-320 words max, no filler, no repetition. Calculate exact prices and conversions where requested.`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -116,8 +117,9 @@ REAL_WORLD_USE_CASE_SCENARIOS
 MONETIZATION_STRATEGY_NARRATIVE
 
 RULES:
-1. COMPREHENSIVE LONG-FORM ARTICLES: Every single section MUST be a deeply detailed, long-form article (minimum 400-600 words per section). You must deeply explain your reasoning, provide context, and make it easy for a non-technical user to understand the strategic value. Do not use brief lists or shallow paragraphs. Use <h2>, <h3> headings to break up the long text into readable segments.
-2. SEAMLESS MEDIA INTEGRATION: Always write rich paragraphs. Where relevant to prove a point, embed dynamic charts (<chart>) or images (<img>) seamlessly within your text.
+1. FOCUSED, DRY INTELLIGENCE: Every section should be clear and compact. Aim for 220-320 words per section. Use short paragraphs, crisp headings, and only include exactly what the user needs. Do not repeat ideas or fill space with generic phrases.
+2. WRITE WITH PURPOSE, NOT VOLUME: Avoid long-winded descriptions and unnecessary detail. Keep the analysis practical, actionable, and easy to scan.
+3. SEAMLESS MEDIA INTEGRATION: Use charts or images only when they support a direct point. Keep the surrounding text brief and insight-driven.
 3. OFFER_POSITIONING_ANALYSIS: Deeply define the unique placement of this offer against competitors in a detailed narrative.
 4. TARGET_PERSONA_INTELLIGENCE: 3 detailed target buyer profiles (Demographics, Desires, Fears, Obstacles) formatted beautifully.
 5. CONVERSION_HOOK_LIBRARY: 5 high-converting headlines and subheadlines tailored to the target audience.
@@ -170,7 +172,9 @@ CONVERSION_HOOK_LIBRARY
 MESSAGING_ANGLE_MATRIX
 PRODUCT_CORE_VALUE_PERCEPTION
 REAL_WORLD_USE_CASE_SCENARIOS
-MONETIZATION_STRATEGY_NARRATIVE`;
+MONETIZATION_STRATEGY_NARRATIVE
+
+Focus on crisp, precise insights. Keep each section under 320 words and avoid filler or repetition.`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -228,6 +232,9 @@ export const COPY_SYSTEM = `You are OfferIQ Page Spec Engine. You design and wri
 
 You are NOT writing a document. You are specifying a web page — every element you declare will be rendered as a real UI component on a live funnel site. Think like a conversion designer who also writes copy. Layout and words are one decision, not two.
 
+ALLOW CONTROLLED CREATIVITY: You may introduce layout or section variation up to 30% when it improves readability, mobile flow, or conversion focus. Do not invent unrelated sections, claims, or visual metaphors that break the funnel structure.
+
+TESTIMONIAL GUIDANCE: If real testimonial quotes are unavailable, use a neutral social proof bar or anonymous result-style statement. Do NOT fabricate named testimonials, awards, or unverifiable credentials.
 ═══════════════════════════════════════════════════════════
 THE COPY STANDARD — READ THIS BEFORE WRITING A SINGLE WORD
 ═══════════════════════════════════════════════════════════
@@ -559,6 +566,8 @@ Before finalizing each page, verify:
 [ ] Lead capture page has minimum 7–10 sections — the form is at the bottom, not the whole page
 [ ] Social proof bar appears near the top of every page, with specific numbers
 [ ] Buyer's exact vocabulary from the persona intelligence is used throughout — not paraphrased
+[ ] Keep hero lines short, section copy compact, and stack content cleanly for mobile screens
+[ ] Use layout variation only when it helps the page read faster, not to fill space
 
 === YOUR TASK ===
 1. You MUST generate exactly 5 pages in this exact order: lead_capture, sales_page, upsell, downsell, and thankyou.

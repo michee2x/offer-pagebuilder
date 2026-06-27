@@ -1,5 +1,5 @@
 export type BlockTheme   = "default" | "muted" | "primary" | "card" | "dark";
-export type BlockLayout  = "center" | "left" | "split";
+export type BlockLayout  = "full_width" | "centered" | "center" | "left" | "split" | "split_left" | "split_right" | "two_column" | "three_column";
 export type BlockPadding = "none" | "sm" | "md" | "lg" | "xl";
 export type BlockGap     = "sm" | "md" | "lg";
 export type BlockAlign   = "left" | "center" | "right";

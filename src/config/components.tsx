@@ -262,13 +262,13 @@ export const COMPONENT_REGISTRY: Record<ComponentType, ComponentConfig<any>> = {
     label: "Page Section",
     defaultProps: {
       theme: "default",
-      layout: "center",
+      layout: "centered",
       padding: "md",
       blocks: [],
     },
     fields: {
       theme:   { type: "select", label: "Theme",   options: ["default", "muted", "primary", "card", "dark"] },
-      layout:  { type: "select", label: "Layout",  options: ["center", "left", "split"] },
+      layout:  { type: "select", label: "Layout",  options: ["centered", "full_width", "split_left", "split_right", "two_column", "three_column"] },
       padding: { type: "select", label: "Padding", options: ["none", "sm", "md", "lg", "xl"] },
     },
     render: (props: any) => <PageSectionRenderer {...props} />,
