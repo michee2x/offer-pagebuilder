@@ -411,7 +411,7 @@ Output a single valid JSON object and NOTHING ELSE. No prose. No markdown fences
 
 Do not surround the JSON with any backticks or extra text. Do not include any analysis, notes, or commentary before or after the object.
 
-Begin the response with `{"declaration":` and end with `}`. If you are unable to output valid JSON, return the smallest valid JSON object with the required root structure.
+Begin the response with \`{\"declaration\":\` and end with \`\`. If you are unable to output valid JSON, return the smallest valid JSON object with the required root structure.
 
 Structure:
 {
