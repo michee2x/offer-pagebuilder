@@ -214,7 +214,24 @@ export function parseCopyOutput(rawText: string): CopyOutput {
     parsed = JSON.parse(cleaned);
   } catch (error) {
     const match = extractJsonObject(cleaned);
-    if (match) {
+    const jsonText = match || cleaned;
+    const repaired = repairJsonString(jsonText);
+
+    if (repaired !== jsonText) {
+      try {
+        parsed = JSON.parse(repaired);
+        console.warn('[parseCopyOutput] Repaired AI JSON output and parsed successfully.');
+      } catch (repairError) {
+        console.error('[parseCopyOutput] Failed to parse AI JSON output after repair', {
+          error: repairError?.toString?.() ?? repairError,
+          originalError: error?.toString?.() ?? error,
+          cleaned,
+          extractedJson: match,
+          repaired: repaired.slice(0, 2000),
+        });
+        return { declaration: { pages: [], rationale: '' }, pages: {} };
+      }
+    } else if (match) {
       try {
         parsed = JSON.parse(match);
       } catch (innerError) {
@@ -304,6 +321,50 @@ function extractJsonObject(rawText: string): string | null {
   }
 
   return null;
+}
+
+function repairJsonString(rawText: string): string {
+  let text = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+
+  // Replace unescaped double quotes inside HTML content by escaping them.
+  // We only update quotes inside JSON string values, not quotes around keys.
+  let inString = false;
+  let escape = false;
+  let result = '';
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+
+    if (char === '"' && !escape) {
+      const prev = text[i - 1];
+      const nextNonWhitespace = (() => {
+        let j = i + 1;
+        while (j < text.length && /\s/.test(text[j])) j += 1;
+        return text[j] || '';
+      })();
+
+      if (inString && prev !== '\\') {
+        const isDelimiter = nextNonWhitespace === ':' || nextNonWhitespace === ',' || nextNonWhitespace === '}' || nextNonWhitespace === ']' || nextNonWhitespace === '';
+        if (!isDelimiter) {
+          result += '\\"';
+          continue;
+        }
+      }
+
+      inString = !inString;
+    }
+
+    if (char === '\\' && !escape) {
+      escape = true;
+      result += char;
+      continue;
+    }
+
+    result += char;
+    escape = false;
+  }
+
+  return result;
 }
 
 // ─── Legacy shim — kept so hydrateSections callers don't break ───────────────
