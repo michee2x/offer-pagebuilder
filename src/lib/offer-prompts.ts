@@ -571,3 +571,16 @@ Before finalizing each page, verify:
 
 5. Output ONLY the raw JSON. No markdown. No explanation. No code fences. The response must start with { and end with }.`;
 }
+
+// Guidelines added: allow controlled creativity and mobile-first rendering.
+// - Permit the AI to introduce layout or content variations up to ~30% when they
+//   clearly complement the funnel and remain on-topic.
+// - Prioritise mobile-first HTML: shorter headings, compact sections, flexible widths,
+//   and reasonable font sizes so pages render well on phones.
+// - When adding testimonials or avatars: do NOT invent named testimonials with
+//   false claims. If the copy includes testimonials without avatars, or no
+//   testimonials exist, the AI may add generic placeholder testimonials or a
+//   social-proof bar (numbers, community size). Use placeholder avatars (initials
+//   or a neutral avatar SVG) rather than fabricating real people.
+// - Creativity must not exceed 30% of the final page content and must always be
+//   relevant to the page's conversion goal.

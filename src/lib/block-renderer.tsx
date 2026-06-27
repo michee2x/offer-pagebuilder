@@ -693,16 +693,23 @@ const THEME_CLS: Record<string, string> = {
 
 const PADDING_CLS: Record<string, string> = {
   none: "py-0",
-  sm:   "py-8",
-  md:   "py-16",
-  lg:   "py-24",
-  xl:   "py-32",
+  sm:   "py-6",
+  md:   "py-12 md:py-16",
+  lg:   "py-20 md:py-24",
+  xl:   "py-28 md:py-32",
 };
 
+// Provide a richer set of layout classes and ensure smaller gaps on mobile.
 const LAYOUT_CLS: Record<string, string> = {
-  center: "flex flex-col items-center text-center gap-8",
-  left:   "flex flex-col items-start text-left gap-8",
-  split:  "grid grid-cols-1 md:grid-cols-2 gap-12 items-center",
+  full_width: "flex flex-col gap-6",
+  centered:   "flex flex-col items-center text-center gap-6",
+  center:     "flex flex-col items-center text-center gap-6",
+  left:       "flex flex-col items-start text-left gap-6",
+  split:      "grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center",
+  split_left: "grid grid-cols-1 md:grid-cols-12 gap-6 items-center",
+  split_right:"grid grid-cols-1 md:grid-cols-12 gap-6 items-center",
+  two_column: "grid grid-cols-1 md:grid-cols-2 gap-6 items-center",
+  three_column: "grid grid-cols-1 md:grid-cols-3 gap-6 items-start",
 };
 
 // ─── Public renderer ──────────────────────────────────────────────────────────
@@ -715,7 +722,7 @@ export function PageSectionRenderer({
 }: PageSectionProps) {
   return (
     <section className={cn("w-full", THEME_CLS[theme] ?? THEME_CLS.default, PADDING_CLS[padding] ?? PADDING_CLS.md)}>
-      <div className={cn("w-full max-w-6xl mx-auto px-6", LAYOUT_CLS[layout] ?? LAYOUT_CLS.center)}>
+      <div className={cn("w-full max-w-[1100px] md:max-w-6xl mx-auto px-4 sm:px-6", LAYOUT_CLS[layout] ?? LAYOUT_CLS.centered)}>
         {blocks.map((block, i) => renderBlock(block, i))}
       </div>
     </section>
