@@ -89,7 +89,23 @@ export async function POST(req: Request) {
     maxOutputTokens: 8192,
     onFinish: async ({ text }) => {
       try {
+        console.log('[offer-copy] raw AI output:');
+        console.log(text);
+
         const parsed = parseCopyOutput(text);
+
+        const parsedPagesCount = Object.keys(parsed.pages || {}).length;
+        console.log('[offer-copy] parsed AI output', {
+          pagesCount: parsedPagesCount,
+          declarationPages: Array.isArray(parsed.declaration?.pages)
+            ? parsed.declaration.pages.length
+            : 0,
+        });
+
+        if (parsedPagesCount === 0) {
+          console.error('[offer-copy] parsed output contains no pages — not saving copy.');
+          return;
+        }
 
         const { data: current } = await supabaseAdmin
           .from('builder_pages')

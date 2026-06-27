@@ -212,17 +212,24 @@ export function parseCopyOutput(rawText: string): CopyOutput {
 
   try {
     parsed = JSON.parse(cleaned);
-  } catch {
+  } catch (error) {
     const match = extractJsonObject(cleaned);
     if (match) {
       try {
         parsed = JSON.parse(match);
-      } catch {
-        console.error('[parseCopyOutput] Failed to parse AI JSON output');
+      } catch (innerError) {
+        console.error('[parseCopyOutput] Failed to parse AI JSON output', {
+          error: innerError?.toString?.() ?? innerError,
+          cleaned,
+          extractedJson: match,
+        });
         return { declaration: { pages: [], rationale: '' }, pages: {} };
       }
     } else {
-      console.error('[parseCopyOutput] No JSON object found in AI output');
+      console.error('[parseCopyOutput] No JSON object found in AI output', {
+        error: error?.toString?.() ?? error,
+        cleaned,
+      });
       return { declaration: { pages: [], rationale: '' }, pages: {} };
     }
   }
