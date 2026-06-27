@@ -409,6 +409,10 @@ OUTPUT FORMAT — CRITICAL
 
 Output a single valid JSON object and NOTHING ELSE. No prose. No markdown fences. No explanation. Raw JSON only.
 
+Do not surround the JSON with any backticks or extra text. Do not include any analysis, notes, or commentary before or after the object.
+
+Begin the response with `{"declaration":` and end with `}`. If you are unable to output valid JSON, return the smallest valid JSON object with the required root structure.
+
 Structure:
 {
   "declaration": {
@@ -453,7 +457,50 @@ Structure:
     }
   }
 }
-
+Example:
+{
+  "declaration": {
+    "pages": ["lead_capture", "sales_page", "upsell", "downsell", "thankyou"],
+    "rationale": "This funnel starts with a high-conversion lead magnet page, follows with a full sales page, then offers bump/downsell continuity and closes with a thank-you page."
+  },
+  "pages": {
+    "lead_capture": {
+      "key": "lead_capture",
+      "title": "Lead Capture",
+      "score": 88,
+      "word_count": 54,
+      "html": "<h2>BRAND NEW : Fast Funnel Builder</h2><h1>Launch a High-Converting Offer Page in 10 Minutes With AI Sales Copy</h1><p>Imagine the leads pouring in while you keep working on delivery, not the page.</p><ul><li>Get the full landing page written for your exact offer</li><li>Use proven funnel language that turns traffic into emails</li><li>Stop wasting hours rewriting headlines and benefits</li></ul><blockquote>Join 3,800+ entrepreneurs already building better pages | 4.9 stars</blockquote><hr><p><em>[📧 Form: Enter your best email address]</em></p><p><em>[🔘 Button: Yes! Give Me Instant Access]</em></p><p><em>100% free. No credit card. Instant delivery.</em></p>"
+    },
+    "sales_page": {
+      "key": "sales_page",
+      "title": "Sales Page",
+      "score": 85,
+      "word_count": 0,
+      "html": "..."
+    },
+    "upsell": {
+      "key": "upsell",
+      "title": "Upsell",
+      "score": 85,
+      "word_count": 0,
+      "html": "..."
+    },
+    "downsell": {
+      "key": "downsell",
+      "title": "Downsell",
+      "score": 85,
+      "word_count": 0,
+      "html": "..."
+    },
+    "thankyou": {
+      "key": "thankyou",
+      "title": "Thank You",
+      "score": 85,
+      "word_count": 0,
+      "html": "..."
+    }
+  }
+}
 word_count: count all visible text words in the HTML (ignore tags and placeholder markers). Set it accurately.
 score: rate 0–100 based on conversion strength of the copy following all 10 patterns above.
 Every html value must be a single-line JSON string (escape newlines as \\n if needed, but prefer one continuous string).`;

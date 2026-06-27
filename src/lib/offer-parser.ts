@@ -203,22 +203,20 @@ function sanitiseLegacySpec(raw: any, key: FunnelPageKey): PageSpec | null {
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export function parseCopyOutput(rawText: string): CopyOutput {
-  // Strip markdown code fences if AI wrapped it anyway
+  let parsed: any;
   const cleaned = rawText
     .trim()
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```$/i, '')
     .trim();
 
-  let parsed: any;
-
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    const match = cleaned.match(/\{[\s\S]*\}/);
+    const match = extractJsonObject(cleaned);
     if (match) {
       try {
-        parsed = JSON.parse(match[0]);
+        parsed = JSON.parse(match);
       } catch {
         console.error('[parseCopyOutput] Failed to parse AI JSON output');
         return { declaration: { pages: [], rationale: '' }, pages: {} };
@@ -261,6 +259,44 @@ export function parseCopyOutput(rawText: string): CopyOutput {
   }
 
   return { declaration, pages };
+}
+
+function extractJsonObject(rawText: string): string | null {
+  const cleaned = rawText.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const start = cleaned.indexOf('{');
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+
+  for (let i = start; i < cleaned.length; i++) {
+    const char = cleaned[i];
+
+    if (char === '"' && !escape) {
+      inString = !inString;
+    }
+
+    if (char === '\\' && !escape) {
+      escape = true;
+      continue;
+    }
+
+    if (!inString) {
+      if (char === '{') {
+        depth += 1;
+      } else if (char === '}') {
+        depth -= 1;
+        if (depth === 0) {
+          return cleaned.slice(start, i + 1);
+        }
+      }
+    }
+
+    escape = false;
+  }
+
+  return null;
 }
 
 // ─── Legacy shim — kept so hydrateSections callers don't break ───────────────
@@ -510,20 +546,14 @@ export function extractSection(text: string, sectionName: string): string {
 }
 
 export function parseCall1Output(rawText: string): Record<string, string> {
-  const cleaned = rawText
-    .trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/i, '')
-    .trim();
-
   let parsed: any = {};
   try {
-    parsed = JSON.parse(cleaned);
+    parsed = JSON.parse(rawText);
   } catch {
-    const match = cleaned.match(/\{[\s\S]*\}/);
+    const match = extractJsonObject(rawText);
     if (match) {
       try {
-        parsed = JSON.parse(match[0]);
+        parsed = JSON.parse(match);
       } catch {
         console.error('[parseCall1Output] Failed to parse AI JSON output');
       }
