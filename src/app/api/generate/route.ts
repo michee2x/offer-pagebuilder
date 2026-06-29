@@ -163,6 +163,7 @@ Max 4 feature cards, max 4 FAQs. Avoid verbose nested markup.
 
 - You are encouraged to enhance and "spice up" the COPY OBJECT content by about 20% to make it more engaging, persuasive, and better suited to your dynamic UI layout.
 - You do not need to limit yourself strictly verbatim, but you must remain true to the original context, meaning, and intent of the copy.
+- CRITICAL: Do NOT omit, remove, or skip any elements present in the copy, especially media elements like videos or images. If the copy includes multiple images, videos, or other specific elements (even 3-4 or more), you MUST include all of them in your generated UI.
 - Interpret the markdown naturally into the best UI components (e.g., lists into feature cards, quotes into testimonials) and add creative layout variations.
 - Max 2 emojis per page.
 
@@ -274,6 +275,7 @@ ${designSection}
 
 TASK: Generate a complete 5-page sales funnel (Lead Capture "/", Sales Page "/sales", Upsell "/upsell", Downsell "/downsell", Thank You "/thankyou").
 Structure each page's layout hierarchy dynamically and creatively, using the reference screenshot image as inspiration rather than a strict mold. Apply the typography, color tempo, and image structures observed. You can enhance and spice up the text from the COPY OBJECT by about 20% to fit your creative layouts and maximize conversions, while maintaining the original context. Strictly limit emojis to 2 maximum across the page.
+CRITICAL: You MUST include ALL media placeholders, images, videos, and structural elements exactly as they appear in the COPY OBJECT. Do NOT omit or skip any of them, no matter how many there are.
 
 IMPORTANT: Do NOT output any conversational filler text (e.g. "I'll analyze the reference..."). Output ONLY the <page> blocks and nothing else.
 
