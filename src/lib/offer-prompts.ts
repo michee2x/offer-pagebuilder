@@ -417,8 +417,8 @@ Example:
   }
 }
 word_count: count all visible text words in the HTML (ignore tags and placeholder markers). Set it accurately.
-score: rate 0–100 based on conversion strength of the copy following all 10 patterns above.
-Every html value must be a single-line JSON string (escape newlines as \\n if needed, but prefer one continuous string).`;
+score: rate 0–100 based on conversion strength of the copy.
+Every html value must be a single-line JSON string (escape newlines as \\n if needed, but prefer one continuous string). ABSOLUTELY DO NOT include markdown code fences (like \`\`\`html) inside the string value. It must be raw HTML.`;
 
 export function buildCopyUserPrompt(
   form: OfferFormData,
@@ -472,13 +472,14 @@ Before finalizing each page, verify:
 [ ] Are the benefits implicit, deeply psychological, and tied directly to their core desires/fears?
 [ ] Have you utilized direct response elements (headlines, subheadlines, VSLs, proof, CTAs) in a fluid, dynamic order?
 [ ] Have you used their exact vocabulary from the persona intelligence?
+[ ] Are you absolutely sure there are NO markdown fences (like \`\`\`html) inside the "html" string values?
 
 === YOUR TASK ===
 1. You MUST generate exactly 5 pages in this exact order: lead_capture, sales_page, upsell, downsell, and thankyou.
 
 2. Build the full section and element tree for each page. Choose sections, layouts, spacing, and backgrounds that build a dynamic, visually engaging, and psychologically compelling narrative.
 
-3. Output ONLY the raw JSON. No markdown. No explanation. No code fences. The response must start with { and end with }.`;
+3. Output ONLY the raw JSON. No markdown anywhere. No explanation. No code fences around the JSON, and NO code fences inside the JSON values. The response must start with { and end with }.`;
 }
 
 // Guidelines added: allow controlled creativity and mobile-first rendering.
