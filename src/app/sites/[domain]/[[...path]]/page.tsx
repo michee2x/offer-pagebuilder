@@ -3,6 +3,7 @@ import { createAdminClient } from "@/utils/supabase/admin"
 import { notFound } from "next/navigation"
 import { ViewerHydrator } from "@/components/builder/ViewerHydrator"
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker"
+import { ScriptInjector } from "@/components/tracking/ScriptInjector"
 
 type Props = { params: Promise<{ domain: string; path?: string[] }> }
 
@@ -112,21 +113,7 @@ export default async function LiveViewerPage({ params }: Props) {
 
     return (
         <>
-            {/* Inject custom head tracking scripts (e.g. Meta Pixel, Google Analytics) */}
-            {headCode && (
-                <head>
-                    <script
-                        dangerouslySetInnerHTML={{ __html: headCode }}
-                    />
-                </head>
-            )}
-            {/* Inject custom body tracking scripts (e.g. GTM noscript) */}
-            {bodyCode && (
-                <div
-                    style={{ display: 'contents' }}
-                    dangerouslySetInnerHTML={{ __html: bodyCode }}
-                />
-            )}
+            <ScriptInjector headCode={headCode} bodyCode={bodyCode} />
             <AnalyticsTracker pageId={page.id} pagePath={requestedPath} />
             <ViewerHydrator blocks={hydratedBlocks} />
         </>
