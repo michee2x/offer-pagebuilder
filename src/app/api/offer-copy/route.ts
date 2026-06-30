@@ -8,6 +8,7 @@ import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import { COPY_SYSTEM, buildCopyUserPrompt } from '@/lib/offer-prompts';
 import { parseCopyOutput } from '@/lib/offer-parser';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 300;
 
@@ -82,11 +83,18 @@ export async function POST(req: Request) {
 
   const userPrompt = buildCopyUserPrompt(formData, call1, call2);
 
+  const creativityLevel = data.blocks.campaign_settings?.creativity_level || 'Standard';
+  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 8192);
+
   const result = streamText({
     model: anthropic('claude-sonnet-4-6'),
     system: COPY_SYSTEM,
     prompt: userPrompt,
-    maxOutputTokens: 8192,
+    temperature,
+    maxOutputTokens,
+    headers: {
+      'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15,output-128k-2025-02-19',
+    },
     onFinish: async ({ text }) => {
       try {
         console.log('[offer-copy] raw AI output:');

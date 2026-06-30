@@ -5,6 +5,7 @@ import { CALL1_SYSTEM, buildCall1UserPrompt } from '@/lib/offer-prompts';
 import { parseCall1Output } from '@/lib/offer-parser';
 import type { OfferFormData } from '@/lib/offer-types';
 import { getUser } from '@/auth';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 120;
 
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
   let isTemplate = false;
   let templateCategory: string | null = null;
   let templateTags: string[] = [];
+  let creativityLevel: string | undefined;
 
   const user = await getUser();
   if (!user || !user.id) {
@@ -44,6 +46,7 @@ export async function POST(req: Request) {
     isTemplate = body.isTemplate || false;
     templateCategory = body.templateCategory || null;
     templateTags = body.templateTags ? body.templateTags.split(',').map((t: string) => t.trim()) : [];
+    creativityLevel = body.creativityLevel || 'Standard';
 
     console.log('[call1] Request body parsed:', {
       hasFormData: !!formData,
@@ -69,6 +72,9 @@ export async function POST(req: Request) {
       template_category: templateCategory,
       template_tags: templateTags,
       blocks: {
+        campaign_settings: {
+          creativity_level: creativityLevel,
+        },
         intelligence: {
           raw_input: formData,
           call1_complete: false,
@@ -104,11 +110,15 @@ export async function POST(req: Request) {
   console.log('[call1] Building AI prompt');
   const userPrompt = buildCall1UserPrompt(formData);
 
+  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
+
   console.log('[call1] Starting AI stream with Claude');
   const result = streamText({
     model: anthropic('claude-sonnet-4-6'),
     system: CALL1_SYSTEM,
     prompt: userPrompt,
+    temperature,
+    maxOutputTokens,
     onFinish: async ({ text }) => {
       console.log('[call1] AI stream finished, parsing output');
 

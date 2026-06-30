@@ -19,8 +19,10 @@ import { IdeaGenerationWizard } from "@/components/onboarding/IdeaGenerationWiza
 import { OnboardingLoading } from "@/components/onboarding/OnboardingLoading";
 import { PdfUploadForm } from "@/components/onboarding/PdfUploadForm";
 import { WebsiteUrlForm } from "@/components/onboarding/WebsiteUrlForm";
+import { CreativitySelection } from "@/components/onboarding/CreativitySelection";
+import { CreativityLevel } from "@/lib/creativity";
 
-type CurrentStep = "path" | "idea_subpath" | "form" | "B1" | "B2" | "B3" | "pdf_upload" | "website_url" | "loading";
+type CurrentStep = "path" | "idea_subpath" | "form" | "B1" | "B2" | "B3" | "pdf_upload" | "website_url" | "creativity" | "loading";
 
 interface GeneratedIdea {
   title: string;
@@ -62,6 +64,8 @@ function AnalyzeContent() {
 
   const [currentStep, setCurrentStep] = useState<CurrentStep>("path");
   const [campaignPath, setCampaignPath] = useState<CampaignPathType>(null);
+  const [creativityLevel, setCreativityLevel] = useState<CreativityLevel>("Standard");
+  const [summaryText, setSummaryText] = useState("");
   const [formData, setFormData] = useState<OfferFormData>({
     field_1_name: "",
     field_1_format: "course",
@@ -163,27 +167,50 @@ function AnalyzeContent() {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleFormSubmit = () => {
+    if (validateForm()) {
+      setCurrentStep("creativity");
+    }
+  };
+
+  const handleSummarySubmit = (text: string) => {
+    setSummaryText(text);
+    setCurrentStep("creativity");
+  };
+
+  const generateCampaign = async () => {
     let submitData: OfferFormData;
 
     if (campaignPath === "idea") {
-      // Path A: Use the unified form data
-      if (!validateForm()) return;
       submitData = {
         ...formData,
         field_7_channels: selectedChannels,
       };
+    } else if (campaignPath === "pdf" || campaignPath === "website") {
+      submitData = {
+        field_1_name: "Custom Strategy",
+        field_1_format: "course",
+        field_2_outcome: summaryText,
+        field_3_persona: "See summary",
+        field_4_price: "0",
+        field_4_currency: "USD",
+        field_4_upsell: "",
+        field_5_proof: "",
+        field_6_mechanism: "",
+        field_7_channels: [],
+        field_7_detail: "",
+        field_8_challenge: "",
+      };
     } else {
-      // Path B: Map selected idea to form data
       const selectedIdea = generatedIdeas[pickedIdea];
       submitData = {
         field_1_name: selectedIdea.title,
-        field_1_format: "course", // Default
+        field_1_format: "course",
         field_2_outcome: selectedIdea.description,
         field_3_persona: audienceTypes.join(", "),
         field_4_price: budget.includes("$")
           ? budget.split(" - ")[0].replace("$", "")
-          : "50", // Extract price
+          : "50",
         field_4_currency: bCurrency,
         field_4_upsell: "",
         field_5_proof: "",
@@ -206,10 +233,11 @@ function AnalyzeContent() {
         body: JSON.stringify({
           formData: submitData,
           workspaceId,
-          hasIdea: campaignPath === "idea",
+          hasIdea: campaignPath === "idea" || campaignPath === "pdf" || campaignPath === "website",
           isTemplate,
           templateCategory,
           templateTags,
+          creativityLevel,
         }),
       });
 
@@ -224,63 +252,17 @@ function AnalyzeContent() {
         throw new Error("No funnel ID returned");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error submitting campaign:", error);
       setErrors({ submit: "Failed to submit. Please try again." });
-      setCurrentStep(campaignPath === "idea" ? "form" : "B3");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSummarySubmit = async (summaryText: string) => {
-    if (!workspaceId) return;
-
-    setIsSubmitting(true);
-    setCurrentStep("loading");
-
-    const submitData: OfferFormData = {
-      field_1_name: "Custom Strategy",
-      field_1_format: "course", // Default
-      field_2_outcome: summaryText,
-      field_3_persona: "See summary",
-      field_4_price: "0",
-      field_4_currency: "USD",
-      field_4_upsell: "",
-      field_5_proof: "",
-      field_6_mechanism: "",
-      field_7_channels: [],
-      field_7_detail: "",
-      field_8_challenge: "",
-    };
-
-    try {
-      const response = await fetch("/api/offer-intelligence/call1", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          formData: submitData,
-          workspaceId,
-          hasIdea: true,
-          isTemplate,
-          templateCategory,
-          templateTags,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit form");
-      }
-
-      const funnelId = response.headers.get("X-Funnel-Id");
-      if (funnelId) {
-        router.push(`/intelligence/${funnelId}`);
-      } else {
-        throw new Error("No funnel ID returned");
-      }
-    } catch (error) {
-      console.error("Error submitting summary:", error);
-      setErrors({ submit: "Failed to submit. Please try again." });
-      setCurrentStep(campaignPath === "pdf" ? "pdf_upload" : "website_url");
+      setCurrentStep(
+        campaignPath === "idea" 
+          ? "form" 
+          : campaignPath === "pdf" 
+            ? "pdf_upload" 
+            : campaignPath === "website" 
+              ? "website_url" 
+              : "B3"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -393,7 +375,7 @@ function AnalyzeContent() {
         setErrors({ pickedIdea: "Please select an idea" });
         return;
       }
-      handleSubmit();
+      setCurrentStep("creativity");
     }
   };
 
@@ -414,6 +396,11 @@ function AnalyzeContent() {
       setCurrentStep("B1");
     } else if (currentStep === "B3") {
       setCurrentStep("B2");
+    } else if (currentStep === "creativity") {
+      if (campaignPath === "idea") setCurrentStep("form");
+      else if (campaignPath === "pdf") setCurrentStep("pdf_upload");
+      else if (campaignPath === "website") setCurrentStep("website_url");
+      else setCurrentStep("B3");
     }
   };
 
@@ -493,7 +480,7 @@ function AnalyzeContent() {
               selectedChannels={selectedChannels}
               handleChannelToggle={handleChannelToggle}
               errors={errors}
-              onSubmit={handleSubmit}
+              onSubmit={handleFormSubmit}
               isSubmitting={isSubmitting}
               onFillDemo={fillDemoData}
             />
@@ -537,6 +524,16 @@ function AnalyzeContent() {
               isGenerating={isGenerating}
               onNext={goNext}
               errors={errors}
+            />
+          )}
+
+          {currentStep === "creativity" && (
+            <CreativitySelection
+              key="creativity"
+              selectedLevel={creativityLevel}
+              onSelect={setCreativityLevel}
+              onGenerate={generateCampaign}
+              isGenerating={isSubmitting}
             />
           )}
 

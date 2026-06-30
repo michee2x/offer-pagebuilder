@@ -3,6 +3,7 @@ import { generateText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import type { OfferFormData } from '@/lib/offer-types';
 import { parseCall3Output } from '@/lib/offer-parser';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 180;
 
@@ -53,6 +54,7 @@ export async function POST(
     const formData: OfferFormData | undefined = intelligence?.raw_input;
     const call1 = intelligence?.call1;
     const call2 = intelligence?.call2;
+    const creativityLevel = funnel.blocks?.campaign_settings?.creativity_level || 'Standard';
 
     if (!formData) {
         return Response.json({ error: 'No offer data found for this funnel. Please complete structural intelligence first.' }, { status: 400 });
@@ -240,11 +242,17 @@ ${sectionInstruction}
 Output ONLY the section separator line and content for "${sectionKey}". No other sections. No preamble.`;
 
         try {
+            const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 8000);
+
             const { text } = await generateText({
                 model: anthropic('claude-sonnet-4-6'),
                 system: systemPrompt,
                 prompt: singleSectionPrompt,
-                maxOutputTokens: 8000,
+                temperature,
+                maxOutputTokens,
+                headers: {
+                    'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15,output-128k-2025-02-19',
+                },
             });
 
             const parsed = parseCall3Output(text);
@@ -286,11 +294,17 @@ Output ONLY the section separator line and content for "${sectionKey}". No other
 
     // ─── Full regeneration mode ────────────────────────────────────────────────
     try {
+        const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 16000);
+
         const { text } = await generateText({
             model: anthropic('claude-sonnet-4-6'),
             system: systemPrompt,
             prompt: fullUserPrompt,
-            maxOutputTokens: 16000,
+            temperature,
+            maxOutputTokens,
+            headers: {
+                'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15,output-128k-2025-02-19',
+            },
         });
 
         const parsed = parseCall3Output(text);

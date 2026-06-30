@@ -10,6 +10,7 @@ import {
   EMAIL_SEQUENCE_MAX_PER_PAGE,
 } from '@/lib/offer-parser';
 import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 300;
 
@@ -233,12 +234,16 @@ Write emails for EACH page section below. Use the exact page header format shown
 
 ${pageInstructions}`;
 
+  const creativityLevel = funnel.blocks?.campaign_settings?.creativity_level || 'Standard';
+  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 16000);
+
   try {
     const result = streamText({
       model: anthropic('claude-sonnet-4-6'),
       system: systemPrompt,
       prompt: userPrompt,
-      maxOutputTokens: 16000,
+      temperature,
+      maxOutputTokens,
       onFinish: async ({ text }) => {
         try {
           // Try v2 format first, fall back to flat

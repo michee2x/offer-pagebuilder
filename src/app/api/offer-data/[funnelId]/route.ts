@@ -36,10 +36,10 @@ export async function PATCH(
 
   try {
     const body = await req.json();
-    const { blocks } = body;
+    const { blocks, intelligence } = body;
 
-    if (!blocks) {
-      return Response.json({ error: 'blocks payload required' }, { status: 400 });
+    if (!blocks && !intelligence) {
+      return Response.json({ error: 'blocks or intelligence payload required' }, { status: 400 });
     }
 
     // Fetch current then deep-merge
@@ -49,7 +49,20 @@ export async function PATCH(
       .eq('id', funnelId)
       .single();
 
-    const merged = { ...(current?.blocks || {}), ...blocks };
+    const currentBlocks = current?.blocks || {};
+
+    // Deep-merge intelligence sub-key if provided directly
+    let merged = { ...currentBlocks, ...blocks };
+    if (intelligence) {
+      merged = {
+        ...merged,
+        intelligence: {
+          ...(currentBlocks.intelligence || {}),
+          ...(merged.intelligence || {}),
+          ...intelligence,
+        },
+      };
+    }
 
     const { error } = await supabaseAdmin
       .from('builder_pages')

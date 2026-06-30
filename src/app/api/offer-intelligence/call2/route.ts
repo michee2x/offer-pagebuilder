@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { CALL2_SYSTEM, buildCall2UserPrompt } from '@/lib/offer-prompts';
 import { parseCall2Output } from '@/lib/offer-parser';
 import type { OfferFormData, Call1Parsed } from '@/lib/offer-types';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 180;
 
@@ -66,20 +67,27 @@ export async function POST(req: Request) {
 
   const userPrompt = buildCall2UserPrompt(formData, call1);
 
+  // Fetch current blocks to get creativity level
+  const { data: current } = await supabaseAdmin
+    .from('builder_pages')
+    .select('blocks')
+    .eq('id', funnelId)
+    .single();
+
+  const currentBlocks = current?.blocks || {};
+  const creativityLevel = currentBlocks.campaign_settings?.creativity_level || 'Standard';
+  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
+
   const result = streamText({
     model: anthropic('claude-sonnet-4-6'),
     system: CALL2_SYSTEM,
     prompt: userPrompt,
+    temperature,
+    maxOutputTokens,
     onFinish: async ({ text }) => {
       try {
         const parsed = parseCall2Output(text);
-        const { data: current } = await supabaseAdmin
-          .from('builder_pages')
-          .select('blocks')
-          .eq('id', funnelId)
-          .single();
-
-        const currentBlocks = current?.blocks || {};
+        
         await supabaseAdmin
           .from('builder_pages')
           .update({

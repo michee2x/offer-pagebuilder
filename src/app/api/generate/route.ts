@@ -6,6 +6,7 @@ import { getSession } from '@/auth';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 300;
 
@@ -519,11 +520,15 @@ export async function POST(req: Request) {
       ? contentPrompt + '\n\n[IMAGE_BASE64_BEGIN]\n' + screenshotBase64 + '\n[IMAGE_BASE64_END]'
       : contentPrompt;
 
+    const creativityLevel = existingBlocks?.campaign_settings?.creativity_level || 'Standard';
+    const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, MAX_OUTPUT_TOKENS);
+
     const result = streamText({
       model: anthropic(MODEL),
       system: systemPrompt,
       prompt: promptString,
-      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      temperature,
+      maxOutputTokens,
       headers: {
         'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15,output-128k-2025-02-19',
       },

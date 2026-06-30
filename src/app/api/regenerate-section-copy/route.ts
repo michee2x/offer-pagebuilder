@@ -3,6 +3,7 @@ import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import { COPY_SYSTEM } from '@/lib/offer-prompts';
 import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 300;
 
@@ -55,11 +56,15 @@ FUNNEL BLUEPRINT: ${JSON.stringify(call1Raw.FUNNEL_STRUCTURE_BLUEPRINT || {})}
 CONVERSION HOOKS: ${JSON.stringify(call1Raw.CONVERSION_HOOK_LIBRARY || {})}
 STRATEGIC NARRATIVE: ${JSON.stringify(call2 || {})}`;
 
+    const creativityLevel = data.blocks.campaign_settings?.creativity_level || 'Standard';
+    const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 8192);
+
     const result = streamText({
       model: anthropic('claude-sonnet-4-6'),
       system: COPY_SYSTEM,
       prompt: userPrompt,
-      maxOutputTokens: 8192,
+      temperature,
+      maxOutputTokens,
     });
 
     return result.toTextStreamResponse();

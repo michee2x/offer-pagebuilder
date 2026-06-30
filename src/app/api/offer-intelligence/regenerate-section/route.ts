@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { CALL1_SYSTEM, CALL2_SYSTEM, buildCall1UserPrompt, buildCall2UserPrompt } from '@/lib/offer-prompts';
 import type { OfferFormData, Call2Output } from '@/lib/offer-types';
 import { parseCall1Output, parseCall2Output } from '@/lib/offer-parser';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 300;
 
@@ -88,12 +89,22 @@ Do NOT include any other sections. Just the one key.
 Make this section even better, more detailed, and more specific to the offer than before.`;
     }
 
+    // Fetch creativity level from DB
+    const { data: funnelMeta } = await supabaseAdmin
+      .from('builder_pages')
+      .select('blocks')
+      .eq('id', funnelId)
+      .single();
+    const creativityLevel = funnelMeta?.blocks?.campaign_settings?.creativity_level || 'Standard';
+    const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 8192);
+
     // Stream the response and extract the section content
     const result = streamText({
       model: anthropic('claude-sonnet-4-6'),
       system: systemPrompt,
       prompt: userPrompt,
-      maxOutputTokens: 8192,
+      temperature,
+      maxOutputTokens,
       onFinish: async ({ text }) => {
         try {
           // Parse the JSON output

@@ -3,6 +3,7 @@ import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import type { OfferFormData, FunnelPageKey, EmailCopy } from '@/lib/offer-types';
 import { FUNNEL_PAGE_LABELS } from '@/lib/offer-types';
+import { getCreativityParams } from '@/lib/creativity';
 
 export const maxDuration = 60;
 
@@ -202,12 +203,16 @@ You're receiving this because you signed up for ${formData.field_1_name}. <a hre
 </html>
 ---`;
 
+  const creativityLevel = funnel.blocks?.campaign_settings?.creativity_level || 'Standard';
+  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
+
   try {
     const result = streamText({
       model: anthropic('claude-sonnet-4-6'),
       system: systemPrompt,
       prompt: userPrompt,
-      maxOutputTokens: 4000,
+      temperature,
+      maxOutputTokens,
     });
 
     return result.toTextStreamResponse();
