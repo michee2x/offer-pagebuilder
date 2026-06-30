@@ -17,6 +17,7 @@ import {
   Camera,
   Info,
   Upload,
+  Code,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -39,12 +40,14 @@ function PublishContent() {
   const [loading, setLoading]       = useState(true);
   const [saving, setSaving]         = useState(false);
   const [savingSeo, setSavingSeo]   = useState(false);
+  const [savingScripts, setSavingScripts] = useState(false);
   const [copied, setCopied]         = useState(false);
   const [deploying, setDeploying]   = useState(false);
   const [deployStage, setDeployStage] = useState(0);
 
   const [pageData, setPageData]     = useState<any>(null);
   const [activeTab, setActiveTab]   = useState<'subdomain' | 'custom'>('subdomain');
+  const [rightTab, setRightTab]     = useState<'seo' | 'scripts'>('seo');
 
   const [subdomain, setSubdomain]         = useState('');
   const [customDomain, setCustomDomain]   = useState('');
@@ -54,6 +57,10 @@ function PublishContent() {
   const [seoDescription, setSeoDescription] = useState('');
   const [faviconUrl, setFaviconUrl]       = useState('');
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
+
+  // Scripts state
+  const [customHeadCode, setCustomHeadCode] = useState('');
+  const [customBodyCode, setCustomBodyCode] = useState('');
 
   const [baseDomain, setBaseDomain] = useState('ofiq.app');
   const [protocol, setProtocol]     = useState('https://');
@@ -103,6 +110,8 @@ function PublishContent() {
           setSeoTitle(data.page.seo_title || data.page.name || '');
           setSeoDescription(data.page.seo_description || '');
           setFaviconUrl(data.page.favicon_url || '');
+          setCustomHeadCode(data.page.custom_head_code || '');
+          setCustomBodyCode(data.page.custom_body_code || '');
         } else {
           toast.error('Page not found');
         }
@@ -197,6 +206,34 @@ function PublishContent() {
       toast.error(err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // ─── Scripts handler ─────────────────────────────────────────────────
+  const handleSaveScripts = async () => {
+    try {
+      setSavingScripts(true);
+      toast.loading('Saving tracking scripts…');
+
+      const res = await fetch('/api/scripts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pageId: id,
+          custom_head_code: customHeadCode,
+          custom_body_code: customBodyCode,
+        }),
+      });
+
+      const data = await res.json();
+      toast.dismiss();
+      if (!res.ok) throw new Error(data.error || 'Failed to save scripts');
+      toast.success('Tracking scripts saved!');
+    } catch (err: any) {
+      toast.dismiss();
+      toast.error(err.message);
+    } finally {
+      setSavingScripts(false);
     }
   };
 
@@ -772,15 +809,30 @@ function PublishContent() {
           {/* ── Right Config Panel ── */}
           <div className="w-[300px] shrink-0 border-l border-border bg-card p-6 overflow-y-auto hidden lg:block">
             <div className="flex bg-muted/50 p-1 rounded-lg gap-1 mb-8 border border-border/50">
-              <button className="flex-1 text-xs font-semibold text-foreground py-2 px-3 rounded-md bg-background shadow-sm border border-border/50">
+              <button
+                onClick={() => setRightTab('seo')}
+                className={`flex-1 text-xs font-semibold py-2 px-3 rounded-md transition-all ${
+                  rightTab === 'seo'
+                    ? 'bg-background text-foreground shadow-sm border border-border/50'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
                 SEO
               </button>
-              <button className="flex-1 text-xs font-medium text-muted-foreground hover:text-foreground py-2 px-3 rounded-md transition-colors">
+              <button
+                onClick={() => setRightTab('scripts')}
+                className={`flex-1 text-xs font-semibold py-2 px-3 rounded-md transition-all ${
+                  rightTab === 'scripts'
+                    ? 'bg-background text-foreground shadow-sm border border-border/50'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
                 Scripts
               </button>
             </div>
 
-            <div className="space-y-6">
+            {rightTab === 'seo' && (
+            <div className="space-y-6 animate-in fade-in duration-200">
               <div>
                 <h4 className="text-sm font-semibold mb-5 flex items-center gap-2 text-foreground">
                   <Globe className="w-4 h-4 text-muted-foreground" /> Meta Information
@@ -880,6 +932,72 @@ function PublishContent() {
                 </p>
               </div>
             </div>
+            )}
+
+            {rightTab === 'scripts' && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div>
+                <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-foreground">
+                  <Code className="w-4 h-4 text-muted-foreground" /> Tracking Scripts
+                </h4>
+                <p className="text-[11px] text-muted-foreground leading-relaxed mb-5">
+                  Paste pixel code from Meta, Google Analytics, TikTok, etc. Scripts are injected verbatim into your live page.
+                </p>
+
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      Head Code
+                      <span className="normal-case font-normal text-muted-foreground/60">(before &lt;/head&gt;)</span>
+                    </label>
+                    <textarea
+                      className="w-full bg-background border border-border rounded-md px-3 py-2.5 text-xs font-mono text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all resize-none leading-relaxed"
+                      rows={8}
+                      value={customHeadCode}
+                      onChange={(e) => setCustomHeadCode(e.target.value)}
+                      placeholder={`<!-- Meta Pixel Code -->\n<script>\n  !function(f,b,e,v,n,t,s){...}\n</script>\n<!-- End Meta Pixel Code -->`}
+                      spellCheck={false}
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      e.g. Meta Pixel, Google Analytics, Hotjar
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      Body Code
+                      <span className="normal-case font-normal text-muted-foreground/60">(after &lt;body&gt;)</span>
+                    </label>
+                    <textarea
+                      className="w-full bg-background border border-border rounded-md px-3 py-2.5 text-xs font-mono text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all resize-none leading-relaxed"
+                      rows={6}
+                      value={customBodyCode}
+                      onChange={(e) => setCustomBodyCode(e.target.value)}
+                      placeholder={`<!-- Google Tag Manager (noscript) -->\n<noscript><iframe src="https://..."\nheight="0" width="0"></iframe></noscript>\n<!-- End GTM -->`}
+                      spellCheck={false}
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      e.g. Google Tag Manager noscript fallback
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border">
+                <Button className="w-full gap-2" onClick={handleSaveScripts} disabled={savingScripts}>
+                  {savingScripts ? (
+                    <Spinner size="sm" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4" />
+                  )}
+                  {savingScripts ? 'Saving…' : 'Save Tracking Scripts'}
+                </Button>
+                <p className="text-[10px] text-muted-foreground text-center mt-3 leading-relaxed">
+                  Scripts are injected verbatim — only paste code from trusted sources.
+                </p>
+              </div>
+            </div>
+            )}
           </div>
         </div>
       </div>

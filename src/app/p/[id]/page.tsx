@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const { data: page } = await supabase
         .from('builder_pages')
-        .select('name, seo_title, seo_description, favicon_url, og_image_url, blocks')
+        .select('name, seo_title, seo_description, favicon_url, og_image_url, blocks, custom_head_code, custom_body_code')
         .eq('id', id)
         .single()
 
@@ -78,8 +78,26 @@ export default async function LiveViewerPage({ params }: Props) {
         return notFound()
     }
 
+    const headCode: string = (page as any).custom_head_code || ''
+    const bodyCode: string = (page as any).custom_body_code || ''
+
     return (
         <>
+            {/* Inject custom head tracking scripts (e.g. Meta Pixel, Google Analytics) */}
+            {headCode && (
+                <head>
+                    <script
+                        dangerouslySetInnerHTML={{ __html: headCode }}
+                    />
+                </head>
+            )}
+            {/* Inject custom body tracking scripts (e.g. GTM noscript) */}
+            {bodyCode && (
+                <div
+                    style={{ display: 'contents' }}
+                    dangerouslySetInnerHTML={{ __html: bodyCode }}
+                />
+            )}
             <AnalyticsTracker pageId={id} pagePath="/" />
             <ServerLiveViewer blocks={page.blocks} />
         </>

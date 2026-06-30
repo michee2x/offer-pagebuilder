@@ -107,8 +107,26 @@ export default async function LiveViewerPage({ params }: Props) {
         return notFound();
     }
 
+    const headCode: string = (page as any).custom_head_code || ''
+    const bodyCode: string = (page as any).custom_body_code || ''
+
     return (
         <>
+            {/* Inject custom head tracking scripts (e.g. Meta Pixel, Google Analytics) */}
+            {headCode && (
+                <head>
+                    <script
+                        dangerouslySetInnerHTML={{ __html: headCode }}
+                    />
+                </head>
+            )}
+            {/* Inject custom body tracking scripts (e.g. GTM noscript) */}
+            {bodyCode && (
+                <div
+                    style={{ display: 'contents' }}
+                    dangerouslySetInnerHTML={{ __html: bodyCode }}
+                />
+            )}
             <AnalyticsTracker pageId={page.id} pagePath={requestedPath} />
             <ViewerHydrator blocks={hydratedBlocks} />
         </>
