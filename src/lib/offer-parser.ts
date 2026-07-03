@@ -610,20 +610,48 @@ export function extractSection(text: string, sectionName: string): string {
     }
   }
 
-  return text.substring(contentStart, nextSectionIndex).trim();
+  let extracted = text.substring(contentStart, nextSectionIndex).trim();
+
+  // Clean up any remaining JSON syntax around the extracted block in case of fallback
+  extracted = extracted.replace(/^"?[ \t]*:[ \t]*"?/, '');
+  extracted = extracted.replace(/",?\s*$/, '');
+  
+  // Unescape if needed
+  if (extracted.includes('\\"')) {
+    extracted = extracted.replace(/\\"/g, '"');
+  }
+  if (extracted.includes('\\n')) {
+    extracted = extracted.replace(/\\n/g, '\n');
+  }
+
+  return extracted.trim();
 }
 
 export function parseCall1Output(rawText: string): Record<string, string> {
   let parsed: any = {};
+  const cleaned = rawText.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
   try {
-    parsed = JSON.parse(rawText);
+    parsed = JSON.parse(cleaned);
   } catch {
-    const match = extractJsonObject(rawText);
-    if (match) {
+    const match = extractJsonObject(cleaned);
+    const jsonText = match || cleaned;
+    
+    // Attempt to repair unescaped quotes inside HTML values
+    const repaired = repairJsonString(jsonText);
+    if (repaired !== jsonText) {
       try {
-        parsed = JSON.parse(match);
-      } catch {
-        console.error('[parseCall1Output] Failed to parse AI JSON output');
+        parsed = JSON.parse(repaired);
+      } catch (e) {}
+    }
+    
+    if (!parsed || Object.keys(parsed).length === 0) {
+      if (match) {
+        try {
+          parsed = JSON.parse(match);
+        } catch {
+          console.error('[parseCall1Output] Failed to parse AI JSON output');
+        }
       }
     }
   }
@@ -631,9 +659,14 @@ export function parseCall1Output(rawText: string): Record<string, string> {
   const sections: Record<string, string> = {};
   for (const sectionName of ALL_SECTIONS) {
     if (parsed && typeof parsed === 'object' && parsed[sectionName] !== undefined) {
-      sections[sectionName] = typeof parsed[sectionName] === 'object'
-        ? JSON.stringify(parsed[sectionName], null, 2)
-        : String(parsed[sectionName]);
+      const val = parsed[sectionName];
+      if (Array.isArray(val)) {
+        sections[sectionName] = val.map(String).join('\n\n');
+      } else {
+        sections[sectionName] = typeof val === 'object'
+          ? JSON.stringify(val, null, 2)
+          : String(val);
+      }
     } else {
       const fallback = extractSection(rawText, sectionName);
       if (fallback) {

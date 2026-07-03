@@ -8,6 +8,39 @@ import { cn } from "@/lib/utils";
 export function ScoreRadarChart({ content }: { content: string }) {
   const parsedData = React.useMemo(() => {
     try {
+      // 1. Try parsing the SCORE_DATA comment which is explicitly requested in the prompt
+      const scoreDataMatch = content.match(/<!--\s*SCORE_DATA:\s*(\{[\s\S]*?\})\s*-->/i);
+      if (scoreDataMatch) {
+        const scores = JSON.parse(scoreDataMatch[1]);
+        if (scores && (scores.overall !== undefined || scores.market_viability !== undefined)) {
+          return {
+            overall: scores.overall || Math.round(
+              ((scores.market_viability || 0) +
+               (scores.audience_clarity || 0) +
+               (scores.offer_strength || 0) +
+               (scores.price_value_alignment || 0) +
+               (scores.uniqueness || 0) +
+               (scores.proof_strength || 0) +
+               (scores.conversion_readiness || 0)) / 7
+            ),
+            data: [
+              { subject: 'Market Viability', A: scores.market_viability || 0, fullMark: 100 },
+              { subject: 'Audience Clar.', A: scores.audience_clarity || 0, fullMark: 100 },
+              { subject: 'Offer Strength', A: scores.offer_strength || 0, fullMark: 100 },
+              { subject: 'Price-Value', A: scores.price_value_alignment || 0, fullMark: 100 },
+              { subject: 'Uniqueness', A: scores.uniqueness || 0, fullMark: 100 },
+              { subject: 'Proof Strength', A: scores.proof_strength || 0, fullMark: 100 },
+              { subject: 'Conv. Ready', A: scores.conversion_readiness || 0, fullMark: 100 },
+            ]
+          };
+        }
+      }
+    } catch (e) {
+      // fallback
+    }
+
+    try {
+      // 2. Fallback to generic JSON object match if it was output directly as JSON
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const cleanContent = jsonMatch[0];
@@ -40,9 +73,12 @@ export function ScoreRadarChart({ content }: { content: string }) {
     }
 
     try {
+      // 3. Fallback to chart tag matching, making sure to handle single or double quotes robustly
       const chartMatch = content.match(/<chart[^>]*data=(['"])([\s\S]*?)\1/i);
       if (chartMatch) {
-        const rawData = JSON.parse(chartMatch[2]);
+        // Replace escaped quotes if necessary
+        const rawDataStr = chartMatch[2].replace(/\\"/g, '"').replace(/\\'/g, "'");
+        const rawData = JSON.parse(rawDataStr);
         if (Array.isArray(rawData)) {
           const findVal = (names: string[]) => {
             const match = rawData.find((d: any) => d && d.name && names.some(n => d.name.toLowerCase().includes(n.toLowerCase())));
