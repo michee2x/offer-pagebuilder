@@ -644,15 +644,45 @@ export default function IntelligencePage({
     init();
   }, [funnelId]);
 
-  // Derive consolidated list of available sections
+  // Derive consolidated list of available sections dynamically from data
   const availableSections = React.useMemo(() => {
-    return [
+    const sections: string[] = [];
+    const sectionOrder = [
       "SCORE_SUMMARY",
       "FUNNEL_STRUCTURE_BLUEPRINT",
       "STRATEGIC_BONUS_RECOMMENDATIONS",
       "DESIGN_INTELLIGENCE_RECOMMENDATION",
+      "REVENUE_MODEL_ARCHITECTURE",
+      "PAIN_POINT_MAPPING",
+      "FUNNEL_HEALTH_SCORE",
+      "PLATFORM_PRIORITY_MATRIX",
+      "OFFER_POSITIONING_ANALYSIS",
+      "TARGET_PERSONA_INTELLIGENCE",
+      "CONVERSION_HOOK_LIBRARY",
+      "MESSAGING_ANGLE_MATRIX",
+      "PRODUCT_CORE_VALUE_PERCEPTION",
+      "REAL_WORLD_USE_CASE_SCENARIOS",
+      "MONETIZATION_STRATEGY_NARRATIVE",
     ];
-  }, []);
+
+    for (const sid of sectionOrder) {
+      // Check if section has content in call1
+      if (call1 && call1[sid]) {
+        sections.push(sid);
+        continue;
+      }
+      // Check if section has content in call2 (via CALL2_SECTION_MAP)
+      if (call2) {
+        const origKey = Object.keys(CALL2_SECTION_MAP).find(
+          (k) => CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] === sid
+        );
+        if (origKey && call2[origKey as keyof Call2Output]) {
+          sections.push(sid);
+        }
+      }
+    }
+    return sections;
+  }, [call1, call2]);
 
   useEffect(() => {
     if (
