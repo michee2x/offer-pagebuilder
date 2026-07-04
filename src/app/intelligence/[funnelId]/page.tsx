@@ -644,56 +644,28 @@ export default function IntelligencePage({
     init();
   }, [funnelId]);
 
-  // List of available sections to show in the navigation sidebar
-  const availableSections = React.useMemo(() => {
-    const sections: string[] = [];
-    if (call1) {
-      Object.keys(SECTION_CONFIG).forEach(k => {
-        if (k in call1 && call1[k]) sections.push(k);
-      });
-    }
-    if (call2) {
-      Object.keys(CALL2_SECTION_MAP).forEach(origKey => {
-        const k = CALL2_SECTION_MAP[origKey as keyof typeof CALL2_SECTION_MAP];
-        if (origKey in call2 && (call2 as any)[origKey]) sections.push(k);
-      });
-    }
-    
-    // Deduplicate and filter to ensure they have config
-    const uniqueSections = Array.from(new Set(sections)).filter(k => SECTION_CONFIG[k]);
-    
-    const allowedSections = [
-      "SCORE_SUMMARY",
-      "FUNNEL_STRUCTURE_BLUEPRINT",
-      "STRATEGIC_BONUS_RECOMMENDATIONS",
-      "DESIGN_INTELLIGENCE_RECOMMENDATION",
-    ];
-    
-    // If empty (e.g. initial load), provide fallback
-    if (uniqueSections.length === 0) {
-      return allowedSections;
-    }
-    
-    // Order them roughly according to SECTION_CONFIG order, but strictly limit to allowedSections
-    return Object.keys(SECTION_CONFIG).filter(
-      k => uniqueSections.includes(k) && allowedSections.includes(k)
-    );
-  }, [call1, call2]);
+  // The 4 user-facing sections — always visible in the sidebar.
+  const ALLOWED_SECTIONS: string[] = [
+    "SCORE_SUMMARY",
+    "FUNNEL_STRUCTURE_BLUEPRINT",
+    "STRATEGIC_BONUS_RECOMMENDATIONS",
+    "DESIGN_INTELLIGENCE_RECOMMENDATION",
+  ];
+
+  // Always return the fixed 4 sections for the sidebar.
+  // Content area will show a loading placeholder if data hasn't arrived yet.
+  const availableSections: string[] = React.useMemo(
+    () => ALLOWED_SECTIONS,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   useEffect(() => {
-    if (
-      availableSections.length > 0 &&
-      (!activeSectionId || !availableSections.includes(activeSectionId))
-    ) {
-      // Prioritize SCORE_SUMMARY or OFFER_SCORE if available
-      const defaultSection = availableSections.includes("SCORE_SUMMARY") 
-        ? "SCORE_SUMMARY" 
-        : availableSections.includes("OFFER_SCORE") 
-          ? "OFFER_SCORE" 
-          : availableSections[0];
-      setActiveSectionId(defaultSection);
+    if (!activeSectionId || !ALLOWED_SECTIONS.includes(activeSectionId)) {
+      setActiveSectionId("SCORE_SUMMARY");
     }
-  }, [availableSections, activeSectionId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSectionId]);
 
   const activeIndex = availableSections.indexOf(activeSectionId);
   const prevSectionId =

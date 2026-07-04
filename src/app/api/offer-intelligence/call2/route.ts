@@ -76,7 +76,8 @@ export async function POST(req: Request) {
 
   const currentBlocks = current?.blocks || {};
   const creativityLevel = currentBlocks.campaign_settings?.creativity_level || 'Standard';
-  const { maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
+  // call2 must generate 7 full sections of rich HTML — needs adequate token budget
+  const { maxOutputTokens } = getCreativityParams(creativityLevel, 8000);
 
   const result = streamText({
     model: anthropic('claude-sonnet-4-6'),

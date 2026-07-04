@@ -110,7 +110,8 @@ export async function POST(req: Request) {
   console.log('[call1] Building AI prompt');
   const userPrompt = buildCall1UserPrompt(formData);
 
-  const { maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
+  // call1 must generate 9 full sections of rich HTML — needs large token budget
+  const { maxOutputTokens } = getCreativityParams(creativityLevel, 12000);
 
   console.log('[call1] Starting AI stream with Claude');
   const result = streamText({
