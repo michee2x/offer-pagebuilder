@@ -99,10 +99,13 @@ export function IntelligenceEditor({
 
   const parseMarkdownToHtml = (contentStr: string) => {
     if (!contentStr) return "";
-    if (contentStr.trim().startsWith("<") && contentStr.includes("</")) {
-      return contentStr;
+    let html = contentStr;
+    if (!(contentStr.trim().startsWith("<") && contentStr.includes("</"))) {
+      html = marked.parse(contentStr, { async: false }) as string;
     }
-    return marked.parse(contentStr, { async: false }) as string;
+    // Convert self-closing <chart ... /> tags to explicitly closed <chart ...></chart> tags
+    html = html.replace(/<chart([^>]*)\/>/gi, '<chart$1></chart>');
+    return html;
   };
 
   const editor = useEditor({

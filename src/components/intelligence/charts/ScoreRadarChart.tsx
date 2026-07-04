@@ -99,10 +99,10 @@ export function ScoreRadarChart({ content }: { content: string }) {
           };
           const mv = findVal(['market', 'viability']);
           const ac = findVal(['audience', 'clar', 'hook']);
-          const os = findVal(['offer', 'strength']);
+          const os = findVal(['offer strength', 'offer_strength', 'offer']);
           const pv = findVal(['price', 'elasticity', 'value']);
           const u = findVal(['uniqueness']);
-          const ps = findVal(['proof', 'leverage', 'strength']);
+          const ps = findVal(['proof strength', 'proof_strength', 'proof']);
           const cr = findVal(['conv', 'ready', 'readiness']);
           const overall = Math.round((mv + ac + os + pv + u + ps + cr) / 7);
 
