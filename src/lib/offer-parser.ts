@@ -658,14 +658,23 @@ export function parseCall1Output(rawText: string): Record<string, string> {
 
   const sections: Record<string, string> = {};
   for (const sectionName of ALL_SECTIONS) {
-    if (parsed && typeof parsed === 'object' && parsed[sectionName] !== undefined) {
-      const val = parsed[sectionName];
-      if (Array.isArray(val)) {
-        sections[sectionName] = val.map(String).join('\n\n');
+    if (parsed && typeof parsed === 'object') {
+      let val = parsed[sectionName];
+      if (val === undefined) val = parsed[sectionName.toLowerCase()];
+
+      if (val !== undefined) {
+        if (Array.isArray(val)) {
+          sections[sectionName] = val.map(String).join('\n\n');
+        } else {
+          sections[sectionName] = typeof val === 'object'
+            ? JSON.stringify(val, null, 2)
+            : String(val);
+        }
       } else {
-        sections[sectionName] = typeof val === 'object'
-          ? JSON.stringify(val, null, 2)
-          : String(val);
+        const fallback = extractSection(rawText, sectionName);
+        if (fallback) {
+          sections[sectionName] = fallback;
+        }
       }
     } else {
       const fallback = extractSection(rawText, sectionName);

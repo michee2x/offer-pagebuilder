@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ExternalLink, Globe, ArrowLeft, CheckCircle2, Share2, Copy, Check } from 'lucide-react';
+import { ExternalLink, Globe, ArrowLeft, CheckCircle2, Share2, Copy, Check, Package } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -88,6 +88,29 @@ function DeploymentSuccessContent() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleGenerateProductGuide = async () => {
+    toast.loading('Generating your product guide in the background... Feel free to navigate away!', { id: 'product-guide' });
+    try {
+      const res = await fetch('/api/generate-product-guide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ funnelId: pageId })
+      });
+      if (!res.ok) throw new Error('Generation failed');
+      const data = await res.json();
+      toast.success('Your product guide is ready!', {
+        id: 'product-guide',
+        duration: 20000,
+        action: {
+          label: 'Access Guide',
+          onClick: () => window.open(`/funnels/${pageId}/blueprint/download?funnelId=${pageId}&fileId=${data.fileId}`, '_blank')
+        }
+      });
+    } catch (err) {
+      toast.error('Failed to generate product guide.', { id: 'product-guide' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
       {/* Card */}
@@ -160,6 +183,21 @@ function DeploymentSuccessContent() {
         <div className="px-7 pb-5">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-3">Next Steps</p>
           <div className="space-y-2">
+            {/* Create Your Product Guide */}
+            <button
+              onClick={handleGenerateProductGuide}
+              className="w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all text-left group bg-gradient-to-r from-amber-500/5 to-transparent"
+            >
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                <Package className="w-4 h-4 text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-white/90">Create Your Product</p>
+                <p className="text-xs text-white/40">Step-by-step product creation & delivery guide</p>
+              </div>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/20">New</span>
+            </button>
+
             {/* Email Sequence */}
             <button
               onClick={() => router.push(`/email-sequence/${pageId}`)}

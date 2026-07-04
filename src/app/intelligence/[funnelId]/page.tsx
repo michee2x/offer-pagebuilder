@@ -646,20 +646,48 @@ export default function IntelligencePage({
 
   // List of available sections to show in the navigation sidebar
   const availableSections = React.useMemo(() => {
-    return [
-      "SCORE_SUMMARY",
-      "FUNNEL_STRUCTURE_BLUEPRINT",
-      "STRATEGIC_BONUS_RECOMMENDATIONS",
-      "DESIGN_INTELLIGENCE_RECOMMENDATION",
-    ];
-  }, []);
+    const sections: string[] = [];
+    if (call1) {
+      Object.keys(SECTION_CONFIG).forEach(k => {
+        if (k in call1 && call1[k]) sections.push(k);
+      });
+    }
+    if (call2) {
+      Object.keys(CALL2_SECTION_MAP).forEach(origKey => {
+        const k = CALL2_SECTION_MAP[origKey as keyof typeof CALL2_SECTION_MAP];
+        if (origKey in call2 && (call2 as any)[origKey]) sections.push(k);
+      });
+    }
+    
+    // Deduplicate and filter to ensure they have config
+    const uniqueSections = Array.from(new Set(sections)).filter(k => SECTION_CONFIG[k]);
+    
+    // If empty (e.g. initial load), provide fallback
+    if (uniqueSections.length === 0) {
+      return [
+        "SCORE_SUMMARY",
+        "FUNNEL_STRUCTURE_BLUEPRINT",
+        "STRATEGIC_BONUS_RECOMMENDATIONS",
+        "DESIGN_INTELLIGENCE_RECOMMENDATION",
+      ];
+    }
+    
+    // Order them roughly according to SECTION_CONFIG order
+    return Object.keys(SECTION_CONFIG).filter(k => uniqueSections.includes(k));
+  }, [call1, call2]);
 
   useEffect(() => {
     if (
       availableSections.length > 0 &&
       (!activeSectionId || !availableSections.includes(activeSectionId))
     ) {
-      setActiveSectionId(availableSections[0]);
+      // Prioritize SCORE_SUMMARY or OFFER_SCORE if available
+      const defaultSection = availableSections.includes("SCORE_SUMMARY") 
+        ? "SCORE_SUMMARY" 
+        : availableSections.includes("OFFER_SCORE") 
+          ? "OFFER_SCORE" 
+          : availableSections[0];
+      setActiveSectionId(defaultSection);
     }
   }, [availableSections, activeSectionId]);
 
@@ -673,9 +701,11 @@ export default function IntelligencePage({
 
   // Active section data lookup
   let activeContent = "";
-  if (call1 && activeSectionId in call1) {
+  if (call1 && call1[activeSectionId]) {
     activeContent = call1[activeSectionId];
-  } else if (call2) {
+  } 
+  
+  if (!activeContent && call2) {
     const origKey = Object.keys(CALL2_SECTION_MAP).find(
       (k) =>
         CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] ===
@@ -829,8 +859,9 @@ export default function IntelligencePage({
               subheader: "",
             };
             let content = "";
-            if (call1 && sectionId in call1) content = call1[sectionId];
-            else if (call2) {
+            if (call1 && call1[sectionId]) content = call1[sectionId];
+            
+            if (!content && call2) {
               const orig = Object.keys(CALL2_SECTION_MAP).find(
                 (k) =>
                   CALL2_SECTION_MAP[k as keyof typeof CALL2_SECTION_MAP] ===
@@ -1085,7 +1116,7 @@ export default function IntelligencePage({
 
                   {/* Editable Content — Theme Ground or Markdown Body */}
                   <div className="min-h-[250px] mb-12 relative z-10">
-                    {activeSectionId === "SCORE_SUMMARY" && (
+                    {(activeSectionId === "SCORE_SUMMARY" || activeSectionId === "OFFER_SCORE") && (
                       <ScoreRadarChart content={activeContent} />
                     )}
 
@@ -1100,7 +1131,7 @@ export default function IntelligencePage({
                         isRegenerating={isRegeneratingSection}
                       />
                     ) : (
-                      <div className={cn(activeSectionId === "SCORE_SUMMARY" && "hide-embedded-charts")}>
+                      <div className={cn((activeSectionId === "SCORE_SUMMARY" || activeSectionId === "OFFER_SCORE") && "hide-embedded-charts")}>
                         <style dangerouslySetInnerHTML={{ __html: `
                           .hide-embedded-charts [data-node-view-wrapper] {
                             display: none !important;
