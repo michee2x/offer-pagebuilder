@@ -111,7 +111,8 @@ export async function POST(req: Request) {
   const userPrompt = buildCall1UserPrompt(formData);
 
   // call1 must generate 9 full sections of rich HTML — needs large token budget
-  const { maxOutputTokens } = getCreativityParams(creativityLevel, 12000);
+  const rawParams = getCreativityParams(creativityLevel, 12000);
+  const maxOutputTokens = Math.min(rawParams.maxOutputTokens, 8192);
 
   console.log('[call1] Starting AI stream with Claude');
   const result = streamText({

@@ -614,7 +614,7 @@ export function extractSection(text: string, sectionName: string): string {
 
   // Clean up any remaining JSON syntax around the extracted block in case of fallback
   extracted = extracted.replace(/^"?[ \t]*:[ \t]*"?/, '');
-  extracted = extracted.replace(/",?\s*$/, '');
+  extracted = extracted.replace(/(?:\\?"?,?\s*)+$/, '');
   
   // Unescape if needed
   if (extracted.includes('\\"')) {
