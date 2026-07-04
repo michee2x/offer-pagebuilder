@@ -110,14 +110,14 @@ export async function POST(req: Request) {
   console.log('[call1] Building AI prompt');
   const userPrompt = buildCall1UserPrompt(formData);
 
-  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
+  const { maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
 
   console.log('[call1] Starting AI stream with Claude');
   const result = streamText({
     model: anthropic('claude-sonnet-4-6'),
     system: CALL1_SYSTEM,
     prompt: userPrompt,
-    temperature,
+    temperature: 0.5, // Force low temperature for strict JSON generation
     maxOutputTokens,
     onFinish: async ({ text }) => {
       console.log('[call1] AI stream finished, parsing output');

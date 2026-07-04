@@ -662,18 +662,22 @@ export default function IntelligencePage({
     // Deduplicate and filter to ensure they have config
     const uniqueSections = Array.from(new Set(sections)).filter(k => SECTION_CONFIG[k]);
     
+    const allowedSections = [
+      "SCORE_SUMMARY",
+      "FUNNEL_STRUCTURE_BLUEPRINT",
+      "STRATEGIC_BONUS_RECOMMENDATIONS",
+      "DESIGN_INTELLIGENCE_RECOMMENDATION",
+    ];
+    
     // If empty (e.g. initial load), provide fallback
     if (uniqueSections.length === 0) {
-      return [
-        "SCORE_SUMMARY",
-        "FUNNEL_STRUCTURE_BLUEPRINT",
-        "STRATEGIC_BONUS_RECOMMENDATIONS",
-        "DESIGN_INTELLIGENCE_RECOMMENDATION",
-      ];
+      return allowedSections;
     }
     
-    // Order them roughly according to SECTION_CONFIG order
-    return Object.keys(SECTION_CONFIG).filter(k => uniqueSections.includes(k));
+    // Order them roughly according to SECTION_CONFIG order, but strictly limit to allowedSections
+    return Object.keys(SECTION_CONFIG).filter(
+      k => uniqueSections.includes(k) && allowedSections.includes(k)
+    );
   }, [call1, call2]);
 
   useEffect(() => {

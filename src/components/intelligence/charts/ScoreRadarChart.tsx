@@ -7,11 +7,23 @@ import { cn } from "@/lib/utils";
 
 export function ScoreRadarChart({ content }: { content: string }) {
   const parsedData = React.useMemo(() => {
+    // Helper to unescape common HTML entities that might break JSON parsing
+    const unescapeJsonStr = (str: string) => {
+      return str
+        .replace(/&quot;/g, '"')
+        .replace(/&#34;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&#39;/g, "'")
+        .replace(/\\"/g, '"')
+        .replace(/\\'/g, "'");
+    };
+
     try {
       // 1. Try parsing the SCORE_DATA comment which is explicitly requested in the prompt
       const scoreDataMatch = content.match(/<!--\s*SCORE_DATA:\s*(\{[\s\S]*?\})\s*-->/i);
       if (scoreDataMatch) {
-        const scores = JSON.parse(scoreDataMatch[1]);
+        const cleanContent = unescapeJsonStr(scoreDataMatch[1]);
+        const scores = JSON.parse(cleanContent);
         if (scores && (scores.overall !== undefined || scores.market_viability !== undefined)) {
           return {
             overall: scores.overall || Math.round(
@@ -43,7 +55,7 @@ export function ScoreRadarChart({ content }: { content: string }) {
       // 2. Fallback to generic JSON object match if it was output directly as JSON
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const cleanContent = jsonMatch[0];
+        const cleanContent = unescapeJsonStr(jsonMatch[0]);
         const scores = JSON.parse(cleanContent);
         if (scores && (scores.overall !== undefined || scores.market_viability !== undefined)) {
           return {
@@ -76,8 +88,9 @@ export function ScoreRadarChart({ content }: { content: string }) {
       // 3. Fallback to chart tag matching, making sure to handle single or double quotes robustly
       const chartMatch = content.match(/<chart[^>]*data=(['"])([\s\S]*?)\1/i);
       if (chartMatch) {
-        // Replace escaped quotes if necessary
-        const rawDataStr = chartMatch[2].replace(/\\"/g, '"').replace(/\\'/g, "'");
+        let rawDataStr = unescapeJsonStr(chartMatch[2]);
+        // Replace single quotes with double quotes around property names/values to make it valid JSON
+        rawDataStr = rawDataStr.replace(/([{,]\s*)'([^']+)'(\s*:)/g, '$1"$2"$3').replace(/:\s*'([^']+)'(\s*[,}])/g, ':"$1"$2');
         const rawData = JSON.parse(rawDataStr);
         if (Array.isArray(rawData)) {
           const findVal = (names: string[]) => {

@@ -76,13 +76,13 @@ export async function POST(req: Request) {
 
   const currentBlocks = current?.blocks || {};
   const creativityLevel = currentBlocks.campaign_settings?.creativity_level || 'Standard';
-  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
+  const { maxOutputTokens } = getCreativityParams(creativityLevel, 4000);
 
   const result = streamText({
     model: anthropic('claude-sonnet-4-6'),
     system: CALL2_SYSTEM,
     prompt: userPrompt,
-    temperature,
+    temperature: 0.5, // Force low temperature for strict JSON generation
     maxOutputTokens,
     onFinish: async ({ text }) => {
       try {
