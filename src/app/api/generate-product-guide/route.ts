@@ -96,9 +96,12 @@ export async function POST(req: Request) {
 
     const model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
     
+    // Cap output tokens to prevent JSON truncation issues, similar to intelligence tools
     const { text: rawContent } = await generateText({
       model: anthropic(model),
       prompt,
+      maxOutputTokens: 8192,
+      temperature: 0.7,
     });
     
     const textGenTime = Date.now() - startTime;
