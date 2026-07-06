@@ -12,22 +12,29 @@ export function getCreativityParams(
   // Normalize string if needed, default to "Standard"
   const normalizedLevel = (level as CreativityLevel) || "Standard";
 
+  let temperature = 0.7;
+  let maxOutputTokens = baseTokens;
+
   switch (normalizedLevel) {
     case "Maximum":
-      return {
-        temperature: 1.0,
-        maxOutputTokens: Math.floor(baseTokens * 2.0),
-      };
+      temperature = 0.9;
+      maxOutputTokens = Math.floor(baseTokens * 2.0);
+      break;
     case "Creative":
-      return {
-        temperature: 0.85,
-        maxOutputTokens: Math.floor(baseTokens * 1.5),
-      };
+      temperature = 0.8;
+      maxOutputTokens = Math.floor(baseTokens * 1.5);
+      break;
     case "Standard":
     default:
-      return {
-        temperature: 0.7,
-        maxOutputTokens: baseTokens,
-      };
+      temperature = 0.7;
+      maxOutputTokens = baseTokens;
+      break;
   }
+
+  // Claude 3.5 Sonnet has a hard limit of 8192 output tokens
+  // Exceeding this causes the API to either error or truncate the response,
+  // resulting in incomplete/unparsed JSON bugs.
+  maxOutputTokens = Math.min(maxOutputTokens, 8192);
+
+  return { temperature, maxOutputTokens };
 }
