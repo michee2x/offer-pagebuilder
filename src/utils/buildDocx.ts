@@ -13,8 +13,6 @@ import {
   ShadingType,
   convertInchesToTwip,
   LevelFormat,
-  TabStopPosition,
-  TabStopType,
 } from "docx";
 
 /**
@@ -52,7 +50,8 @@ const TABLE_BORDER = "E0E0E0";
  * Returns a Buffer ready for upload to Supabase Storage.
  */
 export async function buildDocx(content: DocxContent): Promise<Buffer> {
-  const children: Paragraph[] = [];
+  // Must be (Paragraph | Table)[] — the docx library accepts both at the section level
+  const children: (Paragraph | Table)[] = [];
 
   // Title
   children.push(
@@ -259,12 +258,10 @@ export async function buildDocx(content: DocxContent): Promise<Buffer> {
         width: { size: 100, type: WidthType.PERCENTAGE },
       });
 
-      // We need to add the table as a separate element
-      // Tables are added as top-level children of the section
+      // Add a spacer paragraph, then the table, then another spacer
       children.push(new Paragraph({ children: [] }));
-      // We'll collect tables separately and merge
-      (children as any).push(table);
-      children.push(new Paragraph({ children: [] }));
+      children.push(table);
+      children.push(new Paragraph({ children: [], spacing: { after: 200 } }));
     }
   }
 
@@ -316,7 +313,7 @@ export async function buildDocx(content: DocxContent): Promise<Buffer> {
             },
           },
         },
-        children: children as any,
+        children,
       },
     ],
   });
