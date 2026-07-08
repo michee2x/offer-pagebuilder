@@ -70,84 +70,53 @@ const GEN_STEPS = [
 
 function GenerationOverlay({
   visible,
-  step,
+  step, // Kept for API compatibility but unused in UI
+  streamingText,
 }: {
   visible: boolean;
   step: number;
+  streamingText?: string;
 }) {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [streamingText]);
+
   if (!visible) return null;
-  const currentStepText = GEN_STEPS[Math.min(step, GEN_STEPS.length - 1)];
-  const progressPercent = Math.min(
-    100,
-    Math.round((step / GEN_STEPS.length) * 100),
-  );
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#050505]/95 backdrop-blur-2xl flex flex-col items-center justify-center overflow-hidden">
-      {/* Decorative scanning line */}
-      <motion.div
-        initial={{ top: "-10%" }}
-        animate={{ top: "110%" }}
-        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-        className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent z-0 opacity-30"
-      />
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/60 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="w-full max-w-xl mx-4 bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="px-6 py-5 flex items-center gap-4 bg-muted/20 border-b border-border/50">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Analyzing Intelligence</h3>
+            <p className="text-sm text-muted-foreground">Synthesizing offer parameters and market context</p>
+          </div>
+        </div>
 
-      <div className="w-full max-w-md mx-auto px-10 text-center flex flex-col items-center relative z-10">
-        <div className="relative w-32 h-32 mb-10">
-          {/* Outer rotating ring */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 rounded-full border border-indigo-500/10 border-t-indigo-500/50"
-          />
-          {/* Inner rotating ring */}
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-4 rounded-full border border-purple-500/20 border-b-purple-500"
-          />
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center">
-              <span className="text-3xl font-bold tracking-tighter text-white">
-                {progressPercent}%
-              </span>
-              <span className="text-[10px] uppercase font-black tracking-widest text-indigo-400">
-                Sync
-              </span>
+        {/* Stream Area */}
+        <div 
+          ref={scrollRef}
+          className="p-8 h-[320px] overflow-y-auto text-[15px] leading-relaxed text-muted-foreground/90 font-sans custom-scrollbar bg-background relative"
+        >
+          {/* Top mask for smooth scrolling fade effect */}
+          <div className="sticky top-0 left-0 right-0 h-8 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none -mt-8" />
+          
+          {streamingText ? (
+            <div className="whitespace-pre-wrap pb-4">{streamingText}</div>
+          ) : (
+            <div className="flex items-center gap-3 text-muted-foreground/50 h-full justify-center">
+              <span className="w-4 h-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+              <span>Initializing intelligence engine...</span>
             </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-white tracking-tighter">
-            Architecting{" "}
-            <span className="text-indigo-400">Offer Intelligence</span>
-          </h2>
-          <div className="h-6 overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={currentStepText}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="text-sm font-medium text-muted-foreground italic"
-              >
-                {step >= GEN_STEPS.length
-                  ? "Finalizing rendering..."
-                  : currentStepText}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Progress micro-bar */}
-        <div className="w-full h-1 bg-white/5 rounded-full mt-12 overflow-hidden border border-white/5">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercent}%` }}
-            className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"
-          />
+          )}
         </div>
       </div>
     </div>
@@ -1184,6 +1153,7 @@ export default function IntelligencePage({
       <GenerationOverlay
         visible={phase === "call1" || phase === "call2"}
         step={genStep}
+        streamingText={streamingText}
       />
 
       <OfferIQAgent

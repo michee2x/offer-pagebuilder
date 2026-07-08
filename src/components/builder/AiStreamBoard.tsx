@@ -1,115 +1,58 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Check, Wand2 } from 'lucide-react';
-import { Spinner } from '@/components/ui/spinner';
+import { useEffect, useRef } from 'react';
+import { Sparkles } from 'lucide-react';
 
 interface AiStreamBoardProps {
   isOpen: boolean;
-  thinkingText: string; // kept for API compatibility — not displayed
+  thinkingText: string;
 }
 
-const STAGES = [
-  { label: 'Analysing offer intelligence', duration: 3_000 },
-  { label: 'Composing section layouts', duration: 9_000 },
-  { label: 'Writing conversion copy', duration: 20_000 },
-  { label: 'Packaging all 4 funnel pages', duration: Infinity },
-] as const;
+export function AiStreamBoard({ isOpen, thinkingText }: AiStreamBoardProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-export function AiStreamBoard({ isOpen }: AiStreamBoardProps) {
-  const [activeStage, setActiveStage] = useState(0);
-
-  // Advance through stages on timers; reset when closed
+  // Auto-scroll to bottom as text streams in
   useEffect(() => {
-    if (!isOpen) return;
-
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    let elapsed = 0;
-
-    STAGES.slice(0, -1).forEach((stage, i) => {
-      elapsed += stage.duration;
-      timers.push(setTimeout(() => setActiveStage(i + 1), elapsed));
-    });
-
-    return () => {
-      timers.forEach(clearTimeout);
-      setActiveStage(0);
-    };
-  }, [isOpen]);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [thinkingText]);
 
   if (!isOpen) return null;
 
-  const progress = Math.min(
-    ((activeStage + 0.5) / STAGES.length) * 100,
-    90
-  );
-
   return (
-    <div className="fixed inset-0 z-200 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-sm mx-4 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
-
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/60 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="w-full max-w-xl mx-4 bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-6 pt-6 pb-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-            <Wand2 className="w-5 h-5 text-primary" />
+        <div className="px-6 py-5 flex items-center gap-4 bg-muted/20 border-b border-border/50">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground leading-none mb-1">Building Your Funnel</h3>
-            <p className="text-xs text-muted-foreground">Generating 5 high-converting pages</p>
+            <h3 className="text-base font-semibold text-foreground">AI Architect is working</h3>
+            <p className="text-sm text-muted-foreground">Generating high-converting sections tailored to your offer</p>
           </div>
         </div>
 
-        {/* Stage list */}
-        <div className="px-6 pb-5 space-y-3">
-          {STAGES.map((stage, i) => {
-            const isDone = i < activeStage;
-            const isActive = i === activeStage;
-            const isPending = i > activeStage;
-
-            return (
-              <div key={stage.label} className="flex items-center gap-3">
-                {/* Status icon */}
-                <div className={[
-                  'w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-all duration-500',
-                  isDone && 'bg-primary/20 border-primary/40 text-primary',
-                  isActive && 'border-primary bg-primary/10',
-                  isPending && 'border-border',
-                ].filter(Boolean).join(' ')}>
-                  {isDone && <Check className="w-3 h-3" />}
-                  {isActive && <Spinner size="sm" />}
-                </div>
-
-                {/* Label */}
-                <span className={[
-                  'text-sm transition-colors duration-300',
-                  isDone && 'text-foreground/50',
-                  isActive && 'text-foreground font-medium',
-                  isPending && 'text-muted-foreground/40',
-                ].filter(Boolean).join(' ')}>
-                  {stage.label}
-                </span>
-              </div>
-            );
-          })}
+        {/* Stream Area */}
+        <div 
+          ref={scrollRef}
+          className="p-8 h-[320px] overflow-y-auto text-[15px] leading-relaxed text-muted-foreground/90 font-sans custom-scrollbar bg-background relative"
+        >
+          {/* Top mask for smooth scrolling fade effect */}
+          <div className="sticky top-0 left-0 right-0 h-8 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none -mt-8" />
+          
+          {thinkingText ? (
+            <div className="whitespace-pre-wrap pb-4">{thinkingText}</div>
+          ) : (
+            <div className="flex items-center gap-3 text-muted-foreground/50 h-full justify-center">
+              <span className="w-4 h-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+              <span>Analyzing context...</span>
+            </div>
+          )}
         </div>
-
-        {/* Progress bar + footer */}
-        <div className="border-t border-border">
-          <div className="h-0.5 bg-muted">
-            <div
-              className="h-full bg-primary transition-all duration-1000 ease-out"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="px-6 py-3 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Generating
-            </span>
-          </div>
-        </div>
-
       </div>
     </div>
   );
 }
+
