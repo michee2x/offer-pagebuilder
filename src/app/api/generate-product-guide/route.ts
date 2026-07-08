@@ -102,13 +102,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Funnel not found" }, { status: 404 });
     }
 
-    const offerContext = funnel.blocks?.offerContext || {};
-    const call1Raw = funnel.blocks?.offerIntelligence?.call1 || funnel.blocks?.offerIntelligenceRaw || {};
+    const intelligence = funnel.blocks?.intelligence || {};
+    const offerContext = intelligence.raw_input || {};
+    const call1Raw = intelligence.call1 || {};
+    
+    // Pass the entire parsed call1/call2 data so the AI has rich context
+    // or specifically the Blueprint if that's all it needs. Let's pass the whole call1
+    // to give it maximum context about the funnel target audience and offer.
     const blueprintText =
-      funnel.blocks?.offerIntelligence?.FUNNEL_STRUCTURE_BLUEPRINT ||
       call1Raw?.FUNNEL_STRUCTURE_BLUEPRINT ||
       call1Raw?.funnel_structure_blueprint ||
-      "";
+      JSON.stringify(call1Raw);
 
     // 2. Generate content via Claude
     // claude-sonnet-4-6 supports up to 64k output tokens.
