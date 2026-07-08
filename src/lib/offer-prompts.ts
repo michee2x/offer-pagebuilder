@@ -414,14 +414,7 @@ Example:
 }
 word_count: count all visible text words in the HTML (ignore tags and placeholder markers). Set it accurately.
 score: rate 0–100 based on conversion strength of the copy.
-Every html value must be a single-line JSON string (escape newlines as \\n if needed, but prefer one continuous string). ABSOLUTELY DO NOT include markdown code fences (like \`\`\`html) inside the string value. It must be raw HTML.
-
-⚠️ CRITICAL JSON SAFETY RULES — MUST FOLLOW OR PARSING WILL FAIL:
-1. The entire response MUST be a single, complete, valid JSON object. Do NOT truncate or stop mid-stream.
-2. ALL HTML inline styles MUST use single quotes for attribute values (e.g. style='color:#fff;'). NEVER use double quotes inside HTML attribute values — they will break JSON string parsing.
-3. Do NOT escape HTML attribute quotes inside the JSON string. Just use single quotes natively in HTML attributes.
-4. ALL 5 pages (lead_capture, sales_page, upsell, downsell, thankyou) MUST be present and fully written before closing the JSON object.
-5. Close the JSON object with \`}\` as the absolute last character. Do NOT add any trailing text, explanation, or commentary after the closing brace.`;
+Every html value must be a single-line JSON string (escape newlines as \\n if needed, but prefer one continuous string). ABSOLUTELY DO NOT include markdown code fences (like \`\`\`html) inside the string value. It must be raw HTML.`;
 
 export function buildCopyUserPrompt(
   form: OfferFormData,

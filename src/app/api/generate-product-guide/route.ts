@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     const intelligence = funnel.blocks?.intelligence || {};
     const offerContext = intelligence.raw_input || {};
     const call1Raw = intelligence.call1 || {};
-
+    
     // Pass the entire parsed call1/call2 data so the AI has rich context
     // or specifically the Blueprint if that's all it needs. Let's pass the whole call1
     // to give it maximum context about the funnel target audience and offer.
@@ -124,7 +124,7 @@ export async function POST(req: Request) {
     const { text: rawContent } = await generateText({
       model: anthropic(model),
       prompt,
-      maxOutputTokens: 12000,
+      maxOutputTokens: 8192,
       temperature: 0.5, // lower = more deterministic JSON
     });
 

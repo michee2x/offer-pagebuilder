@@ -77,7 +77,7 @@ export async function POST(req: Request) {
   const currentBlocks = current?.blocks || {};
   const creativityLevel = currentBlocks.campaign_settings?.creativity_level || 'Standard';
   // call2 must generate 7 full sections of rich HTML — needs adequate token budget
-  const { maxOutputTokens } = getCreativityParams(creativityLevel, 32000);
+  const { maxOutputTokens } = getCreativityParams(creativityLevel, 8000);
 
   const result = streamText({
     model: anthropic('claude-sonnet-4-6'),
@@ -85,9 +85,6 @@ export async function POST(req: Request) {
     prompt: userPrompt,
     temperature: 0.5, // Force low temperature for strict JSON generation
     maxOutputTokens,
-    headers: {
-      'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15,output-128k-2025-02-19',
-    },
     onFinish: async ({ text }) => {
       try {
         const parsed = parseCall2Output(text);
