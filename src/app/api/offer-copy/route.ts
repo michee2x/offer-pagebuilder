@@ -84,7 +84,7 @@ export async function POST(req: Request) {
   const userPrompt = buildCopyUserPrompt(formData, call1, call2);
 
   const creativityLevel = data.blocks.campaign_settings?.creativity_level || 'Standard';
-  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 8192);
+  const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 64000);
 
   const result = streamText({
     model: anthropic('claude-sonnet-4-6'),
