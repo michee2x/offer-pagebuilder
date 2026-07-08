@@ -210,9 +210,11 @@ export function parseCopyOutput(rawText: string): CopyOutput {
     .replace(/\s*```$/i, '')
     .trim();
 
+  // Strategy 1: direct JSON.parse
   try {
     parsed = JSON.parse(cleaned);
   } catch (error) {
+    // Strategy 2: extract JSON object and try repair
     const match = extractJsonObject(cleaned);
     const jsonText = match || cleaned;
     const repaired = repairJsonString(jsonText);
@@ -222,12 +224,19 @@ export function parseCopyOutput(rawText: string): CopyOutput {
         parsed = JSON.parse(repaired);
         console.warn('[parseCopyOutput] Repaired AI JSON output and parsed successfully.');
       } catch (repairError) {
-        console.error('[parseCopyOutput] Failed to parse AI JSON output after repair', {
+        // Strategy 3: regex-based fallback extraction
+        console.warn('[parseCopyOutput] Repair failed, attempting regex fallback extraction...', {
+          originalError: error?.toString?.() ?? error,
+          repairError: repairError?.toString?.() ?? repairError,
+        });
+        const fallback = extractPagesFromRawText(cleaned);
+        if (Object.keys(fallback.pages).length > 0) {
+          console.info(`[parseCopyOutput] Regex fallback extracted ${Object.keys(fallback.pages).length} pages successfully.`);
+          return fallback;
+        }
+        console.error('[parseCopyOutput] All parsing strategies failed', {
           error: repairError?.toString?.() ?? repairError,
           originalError: error?.toString?.() ?? error,
-          cleaned,
-          extractedJson: match,
-          repaired: repaired.slice(0, 2000),
         });
         return { declaration: { pages: [], rationale: '' }, pages: {} };
       }
@@ -235,17 +244,28 @@ export function parseCopyOutput(rawText: string): CopyOutput {
       try {
         parsed = JSON.parse(match);
       } catch (innerError) {
-        console.error('[parseCopyOutput] Failed to parse AI JSON output', {
+        // Strategy 3: regex-based fallback extraction
+        console.warn('[parseCopyOutput] Extracted JSON parse failed, attempting regex fallback...');
+        const fallback = extractPagesFromRawText(cleaned);
+        if (Object.keys(fallback.pages).length > 0) {
+          console.info(`[parseCopyOutput] Regex fallback extracted ${Object.keys(fallback.pages).length} pages successfully.`);
+          return fallback;
+        }
+        console.error('[parseCopyOutput] All parsing strategies failed', {
           error: innerError?.toString?.() ?? innerError,
-          cleaned,
-          extractedJson: match,
         });
         return { declaration: { pages: [], rationale: '' }, pages: {} };
       }
     } else {
+      // No JSON object found — try regex as last resort
+      console.warn('[parseCopyOutput] No JSON object found, attempting regex fallback...');
+      const fallback = extractPagesFromRawText(cleaned);
+      if (Object.keys(fallback.pages).length > 0) {
+        console.info(`[parseCopyOutput] Regex fallback extracted ${Object.keys(fallback.pages).length} pages successfully.`);
+        return fallback;
+      }
       console.error('[parseCopyOutput] No JSON object found in AI output', {
         error: error?.toString?.() ?? error,
-        cleaned,
       });
       return { declaration: { pages: [], rationale: '' }, pages: {} };
     }
@@ -292,18 +312,44 @@ function extractJsonObject(rawText: string): string | null {
 
   let depth = 0;
   let inString = false;
-  let escape = false;
+  let i = start;
 
-  for (let i = start; i < cleaned.length; i++) {
+  while (i < cleaned.length) {
     const char = cleaned[i];
 
-    if (char === '"' && !escape) {
-      inString = !inString;
+    // Handle escape sequences inside strings
+    if (inString && char === '\\') {
+      i += 2; // skip backslash + next char
+      continue;
     }
 
-    if (char === '\\' && !escape) {
-      escape = true;
-      continue;
+    if (char === '"') {
+      if (!inString) {
+        inString = true;
+        i++;
+        continue;
+      }
+      // Inside a string — check if this is the real end
+      // Look at what follows the quote
+      let j = i + 1;
+      while (j < cleaned.length && (cleaned[j] === ' ' || cleaned[j] === '\t')) j++;
+      const nextChar = cleaned[j] || '';
+
+      if (nextChar === ':' || nextChar === ',' || nextChar === '}') {
+        inString = false;
+      } else if (nextChar === ']') {
+        // Check further: is this JSON "]," or "]}" or HTML content like "]</em>"?
+        let k = j + 1;
+        while (k < cleaned.length && /[\s]/.test(cleaned[k])) k++;
+        const afterBracket = cleaned[k] || '';
+        if (afterBracket === ',' || afterBracket === '}' || afterBracket === ']' || afterBracket === '') {
+          inString = false; // Real JSON array close
+        }
+        // Otherwise it's HTML content — stay in string
+      } else if (nextChar === '' || nextChar === '\n' || nextChar === '\r') {
+        inString = false;
+      }
+      // If none matched, this " is content inside the string — stay in string mode
     }
 
     if (!inString) {
@@ -317,7 +363,7 @@ function extractJsonObject(rawText: string): string | null {
       }
     }
 
-    escape = false;
+    i++;
   }
 
   return null;
@@ -326,42 +372,221 @@ function extractJsonObject(rawText: string): string | null {
 function repairJsonString(rawText: string): string {
   let text = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
 
-  // Replace unescaped double quotes inside HTML content by escaping them.
-  // We only update quotes inside JSON string values, not quotes around keys.
   let inString = false;
-  let escape = false;
   let result = '';
+  let i = 0;
 
-  for (let i = 0; i < text.length; i++) {
+  while (i < text.length) {
     const char = text[i];
 
-    if (char === '"' && !escape) {
-      const prev = text[i - 1];
-      const nextNonWhitespace = (() => {
-        let j = i + 1;
-        while (j < text.length && /\s/.test(text[j])) j += 1;
-        return text[j] || '';
-      })();
-
-      if (inString && prev !== '\\') {
-        const isDelimiter = nextNonWhitespace === ':' || nextNonWhitespace === ',' || nextNonWhitespace === '}' || nextNonWhitespace === ']' || nextNonWhitespace === '';
-        if (!isDelimiter) {
-          result += '\\"';
-          continue;
-        }
+    // Handle escape sequences inside strings
+    if (inString && char === '\\') {
+      result += char;
+      i++;
+      if (i < text.length) {
+        result += text[i];
+        i++;
       }
-
-      inString = !inString;
+      continue;
     }
 
-    if (char === '\\' && !escape) {
-      escape = true;
-      result += char;
+    // Escape literal newlines/carriage returns/tabs inside JSON strings
+    if (inString && (char === '\n' || char === '\r' || char === '\t')) {
+      if (char === '\r' && i + 1 < text.length && text[i + 1] === '\n') {
+        result += '\\n';
+        i += 2;
+      } else if (char === '\n') {
+        result += '\\n';
+        i++;
+      } else {
+        result += '\\t';
+        i++;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      if (!inString) {
+        // Opening a new JSON string
+        inString = true;
+        result += char;
+        i++;
+        continue;
+      }
+
+      // We're inside a string. Is this " the end of the string or content?
+      let j = i + 1;
+      while (j < text.length && (text[j] === ' ' || text[j] === '\t')) j++;
+      const nextChar = text[j] || '';
+
+      // Definite JSON structural delimiters after a closing quote
+      if (nextChar === ':' || nextChar === ',') {
+        inString = false;
+        result += char;
+        i++;
+        continue;
+      }
+
+      if (nextChar === '}') {
+        // Very likely end of JSON object value
+        inString = false;
+        result += char;
+        i++;
+        continue;
+      }
+
+      if (nextChar === ']') {
+        // Could be JSON array close or HTML content like "]</em>"
+        // Check what comes AFTER the ]
+        let k = j + 1;
+        while (k < text.length && /[\s]/.test(text[k])) k++;
+        const afterBracket = text[k] || '';
+        if (afterBracket === ',' || afterBracket === '}' || afterBracket === ']' || afterBracket === '') {
+          // Real JSON array close — end the string
+          inString = false;
+          result += char;
+          i++;
+          continue;
+        }
+        // It's HTML content (e.g. "]</em>") — escape the quote
+        result += '\\"';
+        i++;
+        continue;
+      }
+
+      if (nextChar === '' || nextChar === '\n' || nextChar === '\r') {
+        // End of text or line break — likely end of string
+        inString = false;
+        result += char;
+        i++;
+        continue;
+      }
+
+      // Next char is not a JSON delimiter — this is an unescaped quote in content
+      result += '\\"';
+      i++;
       continue;
     }
 
     result += char;
-    escape = false;
+    i++;
+  }
+
+  return result;
+}
+
+// ─── Regex fallback: extract pages from raw text when JSON.parse fails ────────
+
+function unescapeJsonString(s: string): string {
+  return s
+    .replace(/\\"/g, '"')
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, '\t')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\r/g, '\r');
+}
+
+function extractPagesFromRawText(rawText: string): CopyOutput {
+  const result: CopyOutput = {
+    declaration: { pages: [], rationale: '' },
+    pages: {},
+  };
+
+  // Extract rationale
+  const rationaleMatch = rawText.match(/"rationale"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (rationaleMatch) {
+    result.declaration.rationale = unescapeJsonString(rationaleMatch[1]);
+  }
+
+  const pageKeys: FunnelPageKey[] = ['lead_capture', 'sales_page', 'upsell', 'downsell', 'thankyou'];
+
+  for (let pi = 0; pi < pageKeys.length; pi++) {
+    const pageKey = pageKeys[pi];
+
+    // Find "pageKey": { in the raw text
+    const keyIdx = rawText.indexOf(`"${pageKey}"`);
+    if (keyIdx === -1) continue;
+
+    // Determine the boundary for this page's block
+    const blockStart = rawText.indexOf('{', keyIdx);
+    if (blockStart === -1) continue;
+
+    // Find the end: look for the next page key, or end of text
+    let blockEnd = rawText.length;
+    for (let ni = pi + 1; ni < pageKeys.length; ni++) {
+      const nextKeyIdx = rawText.indexOf(`"${pageKeys[ni]}"`, blockStart);
+      if (nextKeyIdx !== -1) {
+        blockEnd = nextKeyIdx;
+        break;
+      }
+    }
+
+    const pageBlock = rawText.slice(blockStart, blockEnd);
+
+    // Extract simple fields using regex
+    const titleMatch = pageBlock.match(/"title"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+    const title = titleMatch ? unescapeJsonString(titleMatch[1]) : pageKey;
+
+    const scoreMatch = pageBlock.match(/"score"\s*:\s*(\d+)/);
+    const score = scoreMatch ? parseInt(scoreMatch[1], 10) : 85;
+
+    const wcMatch = pageBlock.match(/"word_count"\s*:\s*(\d+)/);
+    const wordCount = wcMatch ? parseInt(wcMatch[1], 10) : 0;
+
+    // Extract HTML content
+    // Find "html": " — then take everything until the last unescaped " before }
+    const htmlMarker = '"html"';
+    const htmlMarkerIdx = pageBlock.indexOf(htmlMarker);
+    if (htmlMarkerIdx === -1) continue;
+
+    // Find the opening quote of the html value
+    const afterHtmlKey = pageBlock.slice(htmlMarkerIdx + htmlMarker.length);
+    const colonQuoteMatch = afterHtmlKey.match(/\s*:\s*"/);
+    if (!colonQuoteMatch) continue;
+
+    const htmlContentStart = htmlMarkerIdx + htmlMarker.length + colonQuoteMatch.index! + colonQuoteMatch[0].length;
+    const htmlBlock = pageBlock.slice(htmlContentStart);
+
+    // Scan backwards from end to find the closing " of the html value
+    // It should be the last " before a } that closes the page object
+    let closingQuoteIdx = -1;
+    for (let i = htmlBlock.length - 1; i >= 0; i--) {
+      if (htmlBlock[i] === '"') {
+        // Make sure it's not escaped
+        let backslashes = 0;
+        let j = i - 1;
+        while (j >= 0 && htmlBlock[j] === '\\') {
+          backslashes++;
+          j--;
+        }
+        if (backslashes % 2 === 0) {
+          closingQuoteIdx = i;
+          break;
+        }
+      }
+    }
+
+    const htmlContent = closingQuoteIdx > 0
+      ? htmlBlock.slice(0, closingQuoteIdx)
+      : htmlBlock.replace(/"\s*}\s*,?\s*$/, '');
+
+    const finalHtml = unescapeJsonString(htmlContent.trim());
+
+    if (finalHtml.length > 0) {
+      const wc = wordCount > 0 ? wordCount : countHtmlWords(finalHtml);
+      result.pages[pageKey] = {
+        key: pageKey,
+        title,
+        html: finalHtml,
+        score,
+        word_count: wc,
+      };
+      result.declaration.pages.push(pageKey);
+    }
+  }
+
+  if (Object.keys(result.pages).length > 0) {
+    console.info('[extractPagesFromRawText] Successfully extracted pages:', result.declaration.pages);
   }
 
   return result;

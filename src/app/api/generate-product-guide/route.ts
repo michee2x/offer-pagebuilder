@@ -124,7 +124,7 @@ export async function POST(req: Request) {
     const { text: rawContent } = await generateText({
       model: anthropic(model),
       prompt,
-      maxOutputTokens: 8192,
+      maxOutputTokens: 16384,
       temperature: 0.5, // lower = more deterministic JSON
     });
 

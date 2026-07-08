@@ -322,7 +322,12 @@ Output a single valid JSON object and NOTHING ELSE. No prose. No markdown fences
 
 Do not surround the JSON with any backticks or extra text. Do not include any analysis, notes, or commentary before or after the object.
 
-Begin the response with \`{\"declaration\":\` and end with \`\`. If you are unable to output valid JSON, return the smallest valid JSON object with the required root structure.
+CRITICAL JSON SAFETY RULES:
+- Inside HTML string values, NEVER use literal double-quote characters ("). Use &quot; or single quotes (') or curly quotes (\u201C \u201D) instead. Unescaped double quotes inside JSON string values will break the parser.
+- Do NOT include literal newline characters inside JSON string values. All HTML content must be on a single line within its JSON value.
+- Your output MUST be parseable by JSON.parse() in JavaScript.
+
+Begin the response with {"declaration": and end with }. If you are unable to output valid JSON, return the smallest valid JSON object with the required root structure.
 
 Structure:
 {
