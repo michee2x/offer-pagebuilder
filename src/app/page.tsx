@@ -7,6 +7,7 @@ import { Topbar } from "@/components/layout/Topbar";
 import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
 import { CampaignCard } from "@/components/CampaignCard";
+import { WelcomePage } from "@/components/WelcomePage";
 
 export default async function DashboardPage(props: {
   searchParams: Promise<{ workspace?: string }>;
@@ -31,7 +32,7 @@ export default async function DashboardPage(props: {
   });
 
   if (response.status === 401) {
-    redirect("/login");
+    return <WelcomePage />;
   }
 
   const result = await response.json();
