@@ -7,6 +7,7 @@ import { SettingsSidebar, SettingsTab } from "@/components/settings/SettingsSide
 import { ProfileSettings } from "@/components/settings/ProfileSettings";
 import { WorkspaceSettings } from "@/components/settings/WorkspaceSettings";
 import { TeamSettings } from "@/components/settings/TeamSettings";
+import { AgencySettings } from "@/components/settings/AgencySettings";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
@@ -74,6 +75,7 @@ function SettingsContent() {
                 />
               )}
               {activeTab === "team" && <TeamSettings workspace={activeWorkspace} />}
+              {activeTab === "agency" && <AgencySettings />}
               {["billing", "integrations", "notifications", "security"].includes(activeTab) && (
                 <div className="flex flex-col items-center justify-center h-[60vh] text-center">
                   <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">

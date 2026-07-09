@@ -371,10 +371,11 @@ export function WelcomePage() {
       <h2>Watch OfferIQ build a complete offer, start to finish</h2>
       <p>One idea in. A live, payment-enabled funnel out. Real time, no cuts.</p>
     </div>
-    <div className="video-shell reveal">
+    <div className="video-shell video-shell--empty reveal">
       <button className="play-btn" aria-label="Play demo video">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       </button>
+      <span className="video-label">Product demo</span>
       <span className="video-duration">4:12</span>
     </div>
   </div>
@@ -473,7 +474,7 @@ export function WelcomePage() {
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Standard support</span></li>
         </ul>
         <p className="price-best">Best for testing the platform and launching your first 1–3 offers.</p>
-        <a href="/login" className="btn btn-ghost" style={{"justifyContent": "center", }}>Get Starter</a>
+        <a href="/login" className="btn btn-ghost">Get Starter</a>
       </div>
 
       <div className="price-card popular reveal">
@@ -493,7 +494,7 @@ export function WelcomePage() {
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Priority support</span></li>
         </ul>
         <p className="price-best">Best for active creators running multiple offers or brands.</p>
-        <a href="/login" className="btn btn-primary" style={{"justifyContent": "center", }}>Get Growth</a>
+        <a href="/login" className="btn btn-primary">Get Growth</a>
       </div>
 
       <div className="price-card reveal">
@@ -511,7 +512,7 @@ export function WelcomePage() {
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Dedicated priority support channel</span></li>
         </ul>
         <p className="price-best">Best for agencies and consultants delivering offer strategy as a service.</p>
-        <a href="/login" className="btn btn-ghost" style={{"justifyContent": "center", }}>Get Agency</a>
+        <a href="/login" className="btn btn-ghost">Get Agency</a>
       </div>
     </div>
 

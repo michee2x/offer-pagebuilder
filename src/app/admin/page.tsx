@@ -90,11 +90,17 @@ export default function AdminDashboard() {
       </div>
 
       <div className="flex items-center justify-between px-6 h-16 border-b border-white/10 bg-[#030712]/50 backdrop-blur-xl relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white">
-            <Zap className="w-5 h-5" />
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white">
+              <Zap className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-lg text-white">Offer<span className="text-brand-blue">IQ</span> Admin</span>
           </div>
-          <span className="font-bold text-lg text-white">Offer<span className="text-brand-blue">IQ</span> Admin</span>
+          <div className="flex items-center gap-4 ml-4">
+            <Link href="/admin" className="text-white text-sm font-medium border-b-2 border-brand-blue py-5">Templates</Link>
+            <Link href="/admin/users" className="text-white/50 hover:text-white text-sm font-medium py-5">Users</Link>
+          </div>
         </div>
         <Link href="/" className="text-white/50 hover:text-white transition-colors text-sm font-medium">Back to App</Link>
       </div>

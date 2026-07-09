@@ -23,7 +23,8 @@ export type SettingsTab =
   | "security"
   | "notifications"
   | "email"
-  | "ai";
+  | "ai"
+  | "agency";
 
 interface SettingsSidebarProps {
   activeTab: SettingsTab;
@@ -44,6 +45,7 @@ export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps
       items: [
         { id: "workspace", label: "General", icon: Layout },
         { id: "team", label: "Team & Access", icon: Users },
+        { id: "agency", label: "Agency Clients", icon: Users },
         { id: "integrations", label: "Integrations", icon: Puzzle },
         { id: "security", label: "Security", icon: Shield },
       ]
