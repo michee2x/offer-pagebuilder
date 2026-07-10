@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { saveIntegrations } from "./actions";
-import { CreditCard, Copy, Check, ExternalLink, ArrowRight } from "lucide-react";
+import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap } from "lucide-react";
 
 interface Props {
   funnelId: string;
@@ -21,7 +21,10 @@ const PAGE_LABELS: Record<string, string> = {
   "/thankyou": "Thank You Page",
 };
 
+type Tab = "webhooks" | "checkouts";
+
 export function IntegrationsClient({ funnelId, initialMakeUrl, initialZapierUrl, initialCheckoutUrls, subdomain, pagePaths }: Props) {
+  const [activeTab, setActiveTab] = useState<Tab>("webhooks");
   const [makeUrl, setMakeUrl] = useState(initialMakeUrl);
   const [zapierUrl, setZapierUrl] = useState(initialZapierUrl);
   const [checkoutUrls, setCheckoutUrls] = useState<Record<string, string>>(initialCheckoutUrls || {});
@@ -57,182 +60,233 @@ export function IntegrationsClient({ funnelId, initialMakeUrl, initialZapierUrl,
     setTimeout(() => setCopiedPath(null), 2000);
   };
 
-  // Determine the flow order
   const flowOrder = ["/", "/upsell", "/downsell", "/thankyou"];
   const activePages = flowOrder.filter((p) => pagePaths.includes(p));
 
+  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    {
+      id: "webhooks",
+      label: "Webhook Integrations",
+      icon: <Webhook className="w-4 h-4" />,
+    },
+    {
+      id: "checkouts",
+      label: "External Checkouts",
+      icon: <CreditCard className="w-4 h-4" />,
+    },
+  ];
+
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* ── Webhook Integrations Card ─────────────────────────────────────── */}
-      <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 via-transparent to-brand-indigo/5 opacity-50" />
-        
-        <div className="p-8 relative z-10 border-b border-white/10">
-          <h2 className="text-2xl font-black text-white">Webhook Integrations</h2>
-          <p className="text-sm text-white/50 mt-2">
-            Connect your funnel to external autoresponders. When a lead is captured, we will send an HTTP POST request with the lead data to these Webhook URLs.
-          </p>
-        </div>
+    <div className="w-full max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-        <div className="p-8 relative z-10 space-y-6">
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-white block">Make.com Webhook URL</label>
-            <input 
-              type="url"
-              placeholder="https://hook.us1.make.com/..."
-              value={makeUrl}
-              onChange={(e) => setMakeUrl(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand-blue/50 focus:ring-1 focus:ring-brand-blue/50 transition-all"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-white block">Zapier Webhook URL</label>
-            <input 
-              type="url"
-              placeholder="https://hooks.zapier.com/hooks/catch/..."
-              value={zapierUrl}
-              onChange={(e) => setZapierUrl(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand-blue/50 focus:ring-1 focus:ring-brand-blue/50 transition-all"
-            />
-          </div>
-        </div>
-
-        <div className="p-6 bg-black/20 border-t border-white/10 relative z-10 flex justify-end">
-          <button 
-            onClick={handleSave}
-            disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-brand-indigo hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm rounded-xl transition-all shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] disabled:opacity-50 disabled:cursor-not-allowed"
+      {/* ── Tab Bar ─────────────────────────────────────────────────────────── */}
+      <div className="flex gap-2 mb-6 bg-white/[0.03] border border-white/10 rounded-2xl p-1.5">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              activeTab === tab.id
+                ? "bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-lg shadow-indigo-500/20"
+                : "text-white/40 hover:text-white/70 hover:bg-white/5"
+            }`}
           >
-            {loading ? "Saving..." : "Save Integrations"}
+            {tab.icon}
+            {tab.label}
           </button>
-        </div>
+        ))}
       </div>
 
-      {/* ── External Checkouts & Redirect URLs ─────────────────────────────── */}
-      <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-amber-500/5 opacity-50" />
+      {/* ── Webhook Integrations Tab ─────────────────────────────────────────── */}
+      {activeTab === "webhooks" && (
+        <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 via-transparent to-brand-indigo/5 opacity-50" />
 
-        <div className="p-8 relative z-10 border-b border-white/10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20">
-              <CreditCard className="w-5 h-5 text-emerald-400" />
+          <div className="p-8 relative z-10 border-b border-white/10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-brand-blue/20 to-brand-indigo/20 border border-brand-blue/20">
+                <Webhook className="w-5 h-5 text-brand-blue" />
+              </div>
+              <h2 className="text-2xl font-black text-white">Webhook Integrations</h2>
             </div>
-            <h2 className="text-2xl font-black text-white">External Checkouts & Redirects</h2>
-          </div>
-          <p className="text-sm text-white/50 mt-2">
-            Use Stripe Payment Links, Paystack, Lemon Squeezy, or any payment gateway. Copy the redirect URLs below and paste them as your &quot;Success URL&quot; to route buyers through your funnel.
-          </p>
-        </div>
-
-        <div className="p-8 relative z-10 space-y-6">
-          {/* How it works */}
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5">
-            <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">How It Works</p>
-            <div className="flex flex-col gap-3">
-              {[
-                { step: "1", text: "Create a payment link in Stripe, Paystack, or Lemon Squeezy for your product." },
-                { step: "2", text: "Set your Buy Button on the Sales Page to link to that payment URL." },
-                { step: "3", text: "In your payment gateway, set the \"Success Redirect URL\" to the next funnel step URL below." },
-                { step: "4", text: "After payment, the buyer is automatically sent to your Upsell or Thank You page!" },
-              ].map((item) => (
-                <div key={item.step} className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-[10px] font-black text-white">{item.step}</span>
-                  </div>
-                  <p className="text-sm text-white/70 leading-relaxed">{item.text}</p>
-                </div>
-              ))}
-            </div>
+            <p className="text-sm text-white/50 mt-2">
+              Connect your funnel to external autoresponders. When a lead is captured, we will send an HTTP POST request with the lead data to these Webhook URLs.
+            </p>
           </div>
 
-          {/* URL list & Checkout Link configuration */}
-          {baseDomain ? (
-            <div className="space-y-6">
-              <p className="text-xs font-bold text-white/60 uppercase tracking-widest border-b border-white/10 pb-2">Your Funnel Flow & Checkouts</p>
-              {activePages.map((path, i) => {
-                const url = buildUrl(path)!;
-                const label = PAGE_LABELS[path] || path;
-                const isCopied = copiedPath === path;
-                const isLast = i === activePages.length - 1;
-
-                return (
-                  <div key={path}>
-                    <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-xl px-4 py-3 group hover:border-white/20 transition-all">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-white/80 mb-1">{label}</p>
-                        <p className="text-sm text-emerald-400/80 font-mono truncate">{url}</p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => handleCopy(path)}
-                          className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group/btn"
-                          title="Copy Funnel URL"
-                        >
-                          {isCopied ? (
-                            <Check className="w-4 h-4 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-4 h-4 text-white/40 group-hover/btn:text-white/70" />
-                          )}
-                        </button>
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group/btn"
-                          title="Open Funnel step in new tab"
-                        >
-                          <ExternalLink className="w-4 h-4 text-white/40 group-hover/btn:text-white/70" />
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Checkout URL Input (if they want this step's Buy Button to redirect to Stripe) */}
-                    <div className="mt-2 ml-4 pl-4 border-l-2 border-white/5">
-                      <label className="text-[11px] font-semibold text-white/40 uppercase tracking-wider block mb-1">
-                        Buy Button Checkout URL (Optional)
-                      </label>
-                      <input 
-                        type="url"
-                        placeholder="e.g. https://buy.stripe.com/..."
-                        value={checkoutUrls[path] || ""}
-                        onChange={(e) => setCheckoutUrls({ ...checkoutUrls, [path]: e.target.value })}
-                        className="w-full bg-black/20 border border-white/5 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/50 transition-all"
-                      />
-                      <p className="text-[10px] text-white/30 mt-1">
-                        If set, any &quot;Buy&quot; button on this {label} will redirect to this URL.
-                      </p>
-                    </div>
-
-                    {!isLast && (
-                      <div className="flex justify-center py-3">
-                        <ArrowRight className="w-4 h-4 text-white/15 rotate-90" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+          <div className="p-8 relative z-10 space-y-6">
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-white block">Make.com Webhook URL</label>
+              <input
+                type="url"
+                placeholder="https://hook.us1.make.com/..."
+                value={makeUrl}
+                onChange={(e) => setMakeUrl(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand-blue/50 focus:ring-1 focus:ring-brand-blue/50 transition-all"
+              />
             </div>
-          ) : (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 text-center">
-              <p className="text-sm text-amber-300 font-semibold mb-1">No Subdomain Set</p>
-              <p className="text-xs text-white/50">
-                Publish your funnel first to generate a subdomain. Your redirect URLs will appear here automatically.
-              </p>
-            </div>
-          )}
 
-          {/* Pro tip */}
-          {baseDomain && (
-            <div className="bg-brand-blue/5 border border-brand-blue/10 rounded-xl p-4 flex gap-3">
-              <span className="text-lg shrink-0">💡</span>
-              <p className="text-xs text-white/50 leading-relaxed">
-                <span className="font-bold text-white/70">Pro Tip:</span> In Stripe, go to your Payment Link → After Payment → select &quot;Don&apos;t show confirmation page&quot; → paste the Upsell URL. This creates a seamless flow where the buyer lands directly on your upsell page after purchase.
-              </p>
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-white block">Zapier Webhook URL</label>
+              <input
+                type="url"
+                placeholder="https://hooks.zapier.com/hooks/catch/..."
+                value={zapierUrl}
+                onChange={(e) => setZapierUrl(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand-blue/50 focus:ring-1 focus:ring-brand-blue/50 transition-all"
+              />
             </div>
-          )}
+          </div>
+
+          <div className="p-6 bg-black/20 border-t border-white/10 relative z-10 flex justify-end">
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="px-6 py-2.5 bg-gradient-to-r from-brand-blue to-brand-indigo hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm rounded-xl transition-all shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Saving..." : "Save Integrations"}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── External Checkouts Tab ───────────────────────────────────────────── */}
+      {activeTab === "checkouts" && (
+        <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-amber-500/5 opacity-50" />
+
+          <div className="p-8 relative z-10 border-b border-white/10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20">
+                <CreditCard className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h2 className="text-2xl font-black text-white">External Checkouts &amp; Redirects</h2>
+            </div>
+            <p className="text-sm text-white/50 mt-2">
+              Use Stripe Payment Links, Paystack, Lemon Squeezy, or any payment gateway. Copy the redirect URLs below and paste them as your &quot;Success URL&quot; to route buyers through your funnel.
+            </p>
+          </div>
+
+          <div className="p-8 relative z-10 space-y-6">
+            {/* How it works */}
+            <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5">
+              <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">How It Works</p>
+              <div className="flex flex-col gap-3">
+                {[
+                  { step: "1", text: "Create a payment link in Stripe, Paystack, or Lemon Squeezy for your product." },
+                  { step: "2", text: "Set your Buy Button on the Sales Page to link to that payment URL." },
+                  { step: "3", text: "In your payment gateway, set the \"Success Redirect URL\" to the next funnel step URL below." },
+                  { step: "4", text: "After payment, the buyer is automatically sent to your Upsell or Thank You page!" },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-[10px] font-black text-white">{item.step}</span>
+                    </div>
+                    <p className="text-sm text-white/70 leading-relaxed">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* URL list & Checkout Link configuration */}
+            {baseDomain ? (
+              <div className="space-y-6">
+                <p className="text-xs font-bold text-white/60 uppercase tracking-widest border-b border-white/10 pb-2">Your Funnel Flow &amp; Checkouts</p>
+                {activePages.map((path, i) => {
+                  const url = buildUrl(path)!;
+                  const label = PAGE_LABELS[path] || path;
+                  const isCopied = copiedPath === path;
+                  const isLast = i === activePages.length - 1;
+
+                  return (
+                    <div key={path}>
+                      <div className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-xl px-4 py-3 group hover:border-white/20 transition-all">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-white/80 mb-1">{label}</p>
+                          <p className="text-sm text-emerald-400/80 font-mono truncate">{url}</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => handleCopy(path)}
+                            className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group/btn"
+                            title="Copy Funnel URL"
+                          >
+                            {isCopied ? (
+                              <Check className="w-4 h-4 text-emerald-400" />
+                            ) : (
+                              <Copy className="w-4 h-4 text-white/40 group-hover/btn:text-white/70" />
+                            )}
+                          </button>
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group/btn"
+                            title="Open Funnel step in new tab"
+                          >
+                            <ExternalLink className="w-4 h-4 text-white/40 group-hover/btn:text-white/70" />
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Checkout URL Input */}
+                      <div className="mt-2 ml-4 pl-4 border-l-2 border-white/5">
+                        <label className="text-[11px] font-semibold text-white/40 uppercase tracking-wider block mb-1">
+                          Buy Button Checkout URL (Optional)
+                        </label>
+                        <input
+                          type="url"
+                          placeholder="e.g. https://buy.stripe.com/..."
+                          value={checkoutUrls[path] || ""}
+                          onChange={(e) => setCheckoutUrls({ ...checkoutUrls, [path]: e.target.value })}
+                          className="w-full bg-black/20 border border-white/5 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/50 transition-all"
+                        />
+                        <p className="text-[10px] text-white/30 mt-1">
+                          If set, any &quot;Buy&quot; button on this {label} will redirect to this URL.
+                        </p>
+                      </div>
+
+                      {!isLast && (
+                        <div className="flex justify-center py-3">
+                          <ArrowRight className="w-4 h-4 text-white/15 rotate-90" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 text-center">
+                <p className="text-sm text-amber-300 font-semibold mb-1">No Subdomain Set</p>
+                <p className="text-xs text-white/50">
+                  Publish your funnel first to generate a subdomain. Your redirect URLs will appear here automatically.
+                </p>
+              </div>
+            )}
+
+            {/* Pro tip */}
+            {baseDomain && (
+              <div className="bg-brand-blue/5 border border-brand-blue/10 rounded-xl p-4 flex gap-3">
+                <span className="text-lg shrink-0">💡</span>
+                <p className="text-xs text-white/50 leading-relaxed">
+                  <span className="font-bold text-white/70">Pro Tip:</span> In Stripe, go to your Payment Link → After Payment → select &quot;Don&apos;t show confirmation page&quot; → paste the Upsell URL. This creates a seamless flow where the buyer lands directly on your upsell page after purchase.
+                </p>
+              </div>
+            )}
+
+            {/* Save button for checkout URLs */}
+            <div className="flex justify-end pt-2 border-t border-white/10">
+              <button
+                onClick={handleSave}
+                disabled={loading}
+                className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Saving..." : "Save Checkout URLs"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

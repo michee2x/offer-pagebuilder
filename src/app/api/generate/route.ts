@@ -143,6 +143,7 @@ Max 4 feature cards, max 4 FAQs. Avoid verbose nested markup.
 
 **MANDATORY DESIGN EXCELLENCE RULES:**
 - **Dynamic Layouts:** NEVER use the exact same layout structure for different pages or offers. Be highly flexible. Mix and match grids, splits, asymmetric layouts, and varied section pacing.
+- **Mobile Responsiveness (CRITICAL):** ALL generated components MUST be flawlessly mobile-responsive. Write mobile-first Tailwind classes by default (e.g. \`flex-col\`, \`p-6\`, \`text-center\`, \`w-full\`) and use \`md:\` or \`lg:\` prefixes for desktop layouts (e.g. \`md:flex-row\`, \`md:text-left\`, \`lg:w-1/2\`). Grid columns must stack on mobile (\`grid-cols-1 md:grid-cols-2\`). Never hardcode fixed heights or widths that break small screens.
 - **Colors:** ${colorsRule}
 - **Glow effects:** Max 2 per section. absolute + pointer-events-none inside relative overflow-hidden parent. blur-[80px] to blur-[140px].
 - **Typography Hierarchy:** ${typographyRule}

@@ -498,75 +498,87 @@ export default function CopyPage({
           />
 
           {/* Page nav */}
-          <div className="w-48 shrink-0 border-r border-border bg-card flex flex-col overflow-hidden">
-            <div className="px-4 py-3 border-b border-border">
-              <p className="text-xs font-bold text-foreground truncate">
+          <div className="w-52 shrink-0 border-r border-white/[0.07] bg-[#0e1118] flex flex-col overflow-hidden relative">
+            {/* Top accent */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
+
+            <div className="px-4 py-3.5 border-b border-white/[0.07]">
+              <p className="text-[11px] font-black text-white/80 truncate uppercase tracking-widest">
                 {funnelName || "Copy Engine"}
               </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
+              <p className="text-[10px] text-white/30 mt-0.5 font-medium">
                 {pageList.length > 0
                   ? `${pageList.length} pages`
                   : "Generating…"}
               </p>
             </div>
+
             <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
               {pageList.map((key) => {
                 const page = copy?.pages[key];
                 const score = page?.score ?? 0;
                 const active = activePage === key;
+                const scoreColor =
+                  score >= 80
+                    ? "from-emerald-500 to-teal-500"
+                    : score >= 65
+                    ? "from-amber-400 to-yellow-500"
+                    : "from-red-500 to-rose-500";
+
                 return (
                   <button
                     key={key}
                     onClick={() => setActivePage(key)}
                     className={cn(
-                      "w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-lg border text-left transition-all group",
+                      "w-full flex flex-col gap-2 px-3 py-2.5 rounded-xl text-left transition-all duration-200 group relative overflow-hidden",
                       active
-                        ? "bg-muted border-border"
-                        : "border-transparent hover:bg-muted/40",
+                        ? "bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+                        : "hover:bg-white/[0.04]",
                     )}
                   >
+                    {/* Active left bar */}
+                    {active && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 bg-gradient-to-b from-indigo-400 to-blue-500 rounded-r-full" />
+                    )}
+
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
+                          "transition-colors",
                           active
-                            ? "text-brand-yellow"
-                            : "text-muted-foreground group-hover:text-foreground",
+                            ? "text-indigo-400"
+                            : "text-white/30 group-hover:text-white/60",
                         )}
                       >
                         {PAGE_ICONS[key]}
                       </span>
                       <span
                         className={cn(
-                          "text-xs font-semibold",
+                          "text-[11px] font-semibold leading-tight flex-1",
                           active
-                            ? "text-foreground"
-                            : "text-muted-foreground group-hover:text-foreground",
+                            ? "text-white"
+                            : "text-white/50 group-hover:text-white/80",
                         )}
                       >
                         {FUNNEL_PAGE_LABELS[key]}
                       </span>
                     </div>
+
                     {score > 0 && (
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+                      <div className="flex items-center gap-1.5 pl-0.5">
+                        <div className="flex-1 h-0.5 bg-white/10 rounded-full overflow-hidden">
                           <div
                             className={cn(
-                              "h-full rounded-full",
-                              score >= 80
-                                ? "bg-foreground"
-                                : score >= 65
-                                  ? "bg-brand-yellow"
-                                  : "bg-destructive",
+                              "h-full rounded-full bg-gradient-to-r transition-all duration-500",
+                              scoreColor,
                             )}
                             style={{ width: `${score}%` }}
                           />
                         </div>
                         <span
                           className={cn(
-                            "text-[10px] font-bold",
-                            active
-                              ? "text-foreground"
-                              : "text-muted-foreground",
+                            "text-[9px] font-bold tabular-nums",
+                            active ? "text-white/70" : "text-white/30",
                           )}
                         >
                           {score}

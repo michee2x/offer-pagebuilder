@@ -779,31 +779,6 @@ function PublishContent() {
               </div>
             </div>
 
-            {/* Metrics Snapshot */}
-            <div>
-              <h3 className="text-sm font-semibold mb-4 text-foreground flex items-center gap-2">
-                Metrics Snapshot
-                <span className="text-[10px] uppercase tracking-wider font-bold bg-muted px-2 py-0.5 rounded text-muted-foreground">
-                  Preview
-                </span>
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  { lbl: 'Total Views',    val: '-', icon: '👁️' },
-                  { lbl: 'Leads Captured', val: '-', icon: '🎯' },
-                  { lbl: 'Sales Revenue',  val: '-', icon: '💰' },
-                ].map((an, i) => (
-                  <div
-                    key={i}
-                    className="bg-card border border-border rounded-xl p-5 shadow-sm hover:border-border/80 transition-colors"
-                  >
-                    <div className="text-2xl mb-3 opacity-60 grayscale">{an.icon}</div>
-                    <div className="text-sm font-medium text-muted-foreground mb-1">{an.lbl}</div>
-                    <div className="text-3xl font-bold text-muted-foreground/50">{an.val}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* ── Right Config Panel ── */}

@@ -77,11 +77,6 @@ export function FunnelSidebar({
     const w = open ? EXPANDED : COLLAPSED;
 
     return (
-      /*
-        Outer div holds the collapsed footprint in the flex layout (never changes).
-        Inner div is absolute so on hover it overlays the next sibling (report nav)
-        rather than pushing it — same pattern the global Sidebar uses.
-      */
       <div style={{ width: COLLAPSED, flexShrink: 0, position: "relative" }}>
         <div
           onMouseEnter={() => setOpen(true)}
@@ -92,35 +87,39 @@ export function FunnelSidebar({
             top: 0,
             height: "100%",
             width: w,
-            transition: "width 220ms ease, box-shadow 220ms ease",
+            transition: "width 240ms cubic-bezier(0.4,0,0.2,1), box-shadow 240ms ease",
             zIndex: 30,
-            boxShadow: open ? "4px 0 24px rgba(0,0,0,0.45)" : "none",
+            boxShadow: open ? "6px 0 32px rgba(0,0,0,0.55)" : "none",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
           }}
-          className="bg-[#131826] border-r border-white/10 shadow-2xl"
+          className="bg-[#0e1118] border-r border-white/[0.07]"
         >
+          {/* Top gradient accent */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent flex-shrink-0" />
+
           {/* Back / funnel name */}
-          <div className="px-2 py-3 border-b border-white/10 flex-shrink-0">
+          <div className="px-2 pt-3 pb-2 border-b border-white/[0.07] flex-shrink-0">
             <Link
               href={`/funnels/${funnelId}`}
               title={funnelName}
-              className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg p-1.5 hover:bg-muted"
+              className="flex items-center gap-2.5 text-white/40 hover:text-white/80 transition-colors rounded-xl p-1.5 hover:bg-white/[0.05] group/back"
             >
               <div
                 style={{ width: 32, height: 32, flexShrink: 0 }}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06] group-hover/back:bg-white/[0.08] transition-all"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
               </div>
               <span
                 style={{
                   opacity: open ? 1 : 0,
-                  transition: "opacity 180ms ease",
+                  transition: "opacity 160ms ease",
                   whiteSpace: "nowrap",
                   fontSize: 11,
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  letterSpacing: "0.01em",
                 }}
               >
                 {funnelName}
@@ -130,8 +129,8 @@ export function FunnelSidebar({
 
           {/* Nav */}
           <nav
-            className="flex-1 overflow-y-auto py-2 space-y-0.5"
-            style={{ padding: "8px 8px" }}
+            className="flex-1 overflow-y-auto"
+            style={{ padding: "8px 6px" }}
           >
             {navItems.map((item) => {
               const itemPath = item.href.split("?")[0];
@@ -147,21 +146,27 @@ export function FunnelSidebar({
                 <Link
                   key={item.label}
                   href={item.href}
-                  title={item.label}
+                  title={!open ? item.label : undefined}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-lg transition-all duration-300 overflow-hidden relative group",
+                    "flex items-center gap-2.5 rounded-xl transition-all duration-200 overflow-hidden relative mb-0.5",
                     isActive
-                      ? "bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-lg shadow-indigo-500/25"
-                      : "border border-transparent text-muted-foreground hover:text-white hover:bg-white/5",
+                      ? "bg-gradient-to-r from-brand-blue/90 to-brand-indigo/90 text-white shadow-[0_0_16px_rgba(99,102,241,0.25)]"
+                      : "text-white/35 hover:text-white/80 hover:bg-white/[0.05]",
                   )}
                   style={{ padding: "6px" }}
                 >
+                  {/* Active left accent (only visible when collapsed) */}
+                  {isActive && !open && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-gradient-to-b from-indigo-400 to-blue-500 rounded-r-full" />
+                  )}
                   <div
                     className={cn(
-                      "rounded-md flex items-center justify-center transition-colors z-10",
-                      isActive ? "text-white" : "",
+                      "rounded-lg flex items-center justify-center transition-all flex-shrink-0",
+                      isActive
+                        ? "bg-white/10 text-white"
+                        : "bg-white/[0.04] text-white/40 border border-white/[0.06]",
                     )}
-                    style={{ width: 32, height: 32, flexShrink: 0 }}
+                    style={{ width: 32, height: 32 }}
                   >
                     <Icon className="w-4 h-4" />
                   </div>
@@ -183,17 +188,17 @@ export function FunnelSidebar({
 
           {/* Builder CTA */}
           <div
-            className="flex-shrink-0 border-t border-border"
+            className="flex-shrink-0 border-t border-white/[0.07]"
             style={{ padding: 6 }}
           >
             <Link
               href={`/builder?id=${funnelId}`}
-              title="Funnel Builder"
-              className="flex items-center gap-2.5 rounded-lg bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all overflow-hidden"
-              style={{ height: 36, padding: "0 6px" }}
+              title={!open ? "Funnel Builder" : undefined}
+              className="flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-brand-blue to-brand-indigo text-white shadow-[0_0_14px_rgba(99,102,241,0.35)] hover:shadow-[0_0_22px_rgba(99,102,241,0.55)] transition-all overflow-hidden"
+              style={{ height: 40, padding: "0 6px" }}
             >
               <div
-                className="flex items-center justify-center flex-shrink-0"
+                className="flex items-center justify-center flex-shrink-0 rounded-lg bg-white/10"
                 style={{ width: 32, height: 32 }}
               >
                 <Hammer className="w-3.5 h-3.5" />
@@ -205,6 +210,7 @@ export function FunnelSidebar({
                   whiteSpace: "nowrap",
                   fontSize: 11,
                   fontWeight: 700,
+                  letterSpacing: "0.01em",
                 }}
               >
                 Funnel Builder
