@@ -111,6 +111,8 @@ export default async function LiveViewerPage({ params }: Props) {
     const headCode: string = (page as any).custom_head_code || ''
     const bodyCode: string = (page as any).custom_body_code || ''
 
+    hydratedBlocks.funnelId = page.id;
+
     return (
         <>
             <ScriptInjector headCode={headCode} bodyCode={bodyCode} />

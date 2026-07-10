@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { saveIntegrations, savePaymentIntegrations } from "./actions";
 import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap, Eye, EyeOff, Shield, ShieldCheck, AlertTriangle } from "lucide-react";
@@ -45,10 +45,7 @@ const GATEWAY_CONFIG: Record<string, {
     borderColor: "border-violet-500/20",
     icon: "💳",
     description: "Accept credit cards, Apple Pay, Google Pay and more.",
-    fields: [
-      { key: "secretKey", label: "Secret Key", placeholder: "sk_live_... or sk_test_...", required: true },
-      { key: "webhookSecret", label: "Webhook Signing Secret", placeholder: "whsec_...", required: true },
-    ]
+    fields: [] // Stripe uses OAuth Connect now
   },
   paypal: {
     label: "PayPal",
@@ -85,6 +82,18 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
   const [checkoutUrls, setCheckoutUrls] = useState<Record<string, string>>(initialCheckoutUrls || {});
   const [loading, setLoading] = useState(false);
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check if we just returned from Stripe Connect
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("stripe_connected") === "true") {
+        toast.success("Successfully connected to Stripe!");
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, []);
 
   // Payment gateway state
   const buildInitialCredentials = () => {
@@ -129,7 +138,10 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
     try {
       setPaymentLoading(true);
       const integrations = Object.entries(gatewayCredentials)
-        .filter(([_, creds]) => Object.values(creds).some((v: any) => v && v.length > 0))
+        .filter(([gateway, creds]) => {
+          if (gateway === 'stripe') return !!creds.accountId;
+          return Object.values(creds).some((v: any) => v && v.length > 0);
+        })
         .map(([gateway, credentials]) => ({
           gateway,
           credentials,
@@ -159,6 +171,10 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
     setCopiedWebhook(gateway);
     toast.success("Webhook URL copied!");
     setTimeout(() => setCopiedWebhook(null), 2000);
+  };
+
+  const handleStripeConnect = () => {
+    window.location.href = `/api/integrations/stripe/connect?workspaceId=${workspaceId}`;
   };
 
   const baseDomain = subdomain ? `${subdomain}.ofiq.app` : null;
@@ -200,6 +216,9 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
   ];
 
   const isGatewayConfigured = (gateway: string) => {
+    if (gateway === 'stripe') {
+      return !!gatewayCredentials[gateway]?.accountId;
+    }
     const config = GATEWAY_CONFIG[gateway];
     const creds = gatewayCredentials[gateway] || {};
     return config.fields
@@ -326,8 +345,48 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
                       </button>
                     </div>
 
-                    {/* Credential Fields */}
-                    {config.fields.map((field) => {
+                    {/* Stripe Connect Flow */}
+                    {gateway === "stripe" && (
+                      <div className="py-4 flex flex-col items-center justify-center space-y-3 bg-black/20 rounded-xl border border-white/5">
+                        {isConfigured ? (
+                          <>
+                            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-2">
+                              <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                            </div>
+                            <h3 className="text-white font-bold text-lg">Stripe is Connected</h3>
+                            <p className="text-white/40 text-sm text-center max-w-sm">
+                              Your Stripe account is successfully linked. Account ID: <span className="font-mono text-white/60 bg-white/10 px-1 py-0.5 rounded">{gatewayCredentials.stripe.accountId}</span>
+                            </p>
+                            <button
+                              onClick={handleStripeConnect}
+                              className="mt-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 text-sm rounded-lg transition-colors"
+                            >
+                              Reconnect Stripe
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center mb-2">
+                              <CreditCard className="w-6 h-6 text-indigo-400" />
+                            </div>
+                            <h3 className="text-white font-bold text-lg">Connect your Stripe Account</h3>
+                            <p className="text-white/40 text-sm text-center max-w-sm mb-2">
+                              Securely link your Stripe account to automatically process payments on your funnels.
+                            </p>
+                            <button
+                              onClick={handleStripeConnect}
+                              className="px-6 py-2.5 bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold text-sm rounded-xl transition-colors shadow-lg flex items-center gap-2"
+                            >
+                              Connect with Stripe
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Credential Fields for non-Stripe */}
+                    {gateway !== "stripe" && config.fields.map((field) => {
                       const fieldUniqueKey = `${gateway}-${field.key}`;
                       const isVisible = visibleFields[fieldUniqueKey];
                       return (
@@ -366,30 +425,31 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
                     })}
 
                     {/* Webhook URL for this gateway */}
-                    <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-2">
-                      <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Webhook Endpoint</p>
-                      <p className="text-[11px] text-white/40 leading-relaxed">
-                        Copy this URL and paste it into your {config.label} dashboard as the webhook endpoint.
-                        {gateway === "stripe" && " Configure it to listen for `checkout.session.completed` and `invoice.paid` events."}
-                        {gateway === "paystack" && " Configure it to listen for `charge.success` events."}
-                        {gateway === "paypal" && " Configure it to listen for `PAYMENT.CAPTURE.COMPLETED` events."}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 font-mono text-xs text-violet-400/80 truncate">
-                          {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhooks/payments/{gateway}/{funnelId}
+                    {gateway !== "stripe" && (
+                      <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-2">
+                        <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Webhook Endpoint</p>
+                        <p className="text-[11px] text-white/40 leading-relaxed">
+                          Copy this URL and paste it into your {config.label} dashboard as the webhook endpoint.
+                          {gateway === "paystack" && " Configure it to listen for `charge.success` events."}
+                          {gateway === "paypal" && " Configure it to listen for `PAYMENT.CAPTURE.COMPLETED` events."}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 font-mono text-xs text-violet-400/80 truncate">
+                            {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhooks/payments/{gateway}/{funnelId}
+                          </div>
+                          <button
+                            onClick={() => handleCopyWebhookUrl(gateway)}
+                            className="p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-violet-500/30 transition-all shrink-0"
+                          >
+                            {copiedWebhook === gateway ? (
+                              <Check className="w-4 h-4 text-emerald-400" />
+                            ) : (
+                              <Copy className="w-4 h-4 text-white/40" />
+                            )}
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleCopyWebhookUrl(gateway)}
-                          className="p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-violet-500/30 transition-all shrink-0"
-                        >
-                          {copiedWebhook === gateway ? (
-                            <Check className="w-4 h-4 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-4 h-4 text-white/40" />
-                          )}
-                        </button>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -581,7 +641,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
               <div className="bg-brand-blue/5 border border-brand-blue/10 rounded-xl p-4 flex gap-3">
                 <span className="text-lg shrink-0">💡</span>
                 <p className="text-xs text-white/50 leading-relaxed">
-                  <span className="font-bold text-white/70">Pro Tip:</span> In Stripe, go to your Payment Link → After Payment → select &quot;Don&apos;t show confirmation page&quot; → paste the Upsell URL. This creates a seamless flow where the buyer lands directly on your upsell page after purchase.
+                  <span className="font-bold text-white/70">Pro Tip:</span> In Stripe, go to your Payment Link → After Payment → select &quot;Don't show confirmation page&quot; → paste the Upsell URL. This creates a seamless flow where the buyer lands directly on your upsell page after purchase.
                 </p>
               </div>
             )}

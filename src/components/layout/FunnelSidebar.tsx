@@ -15,6 +15,7 @@ import {
   Globe,
   BookOpen,
   Plug,
+  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -60,6 +61,11 @@ export function FunnelSidebar({
       label: "Asset Bank",
       href: `/funnels/${funnelId}/blueprint`,
       icon: BookOpen,
+    },
+    {
+      label: "Products",
+      href: `/funnels/${funnelId}/products`,
+      icon: Package,
     },
     {
       label: "Integrations",

@@ -732,6 +732,72 @@ export function DynamicRunner({
     [code, mediaModal.ofiqId, mediaModal.patchMode]
   );
 
+  // ── Checkout Interceptor ───────────────────────────────────────────────────
+  const handleCheckoutClick = useCallback(async (e: React.MouseEvent) => {
+    // Only intercept in live viewer / preview mode
+    if (editMode && isBuilderMode) return;
+
+    const target = e.target as HTMLElement;
+    const button = target.closest('[data-product-id]') as HTMLElement;
+    
+    if (!button) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+
+    const productId = button.getAttribute('data-product-id');
+    if (!productId) return;
+
+    // Use current path as success URL, cancel returns to same page
+    const currentUrl = window.location.href;
+    const urlParams = new URLSearchParams(window.location.search);
+    let funnelId = urlParams.get('id') || useBuilderStore.getState().pageId;
+
+    // In Live Viewer (custom domain / subdomain), funnelId was passed via hydratedBlocks to Canvas?
+    // Wait, we can get it from document metadata or from blocks directly. Let's just use the store pageId.
+    
+    if (!funnelId && (window as any).__OFIQ_FUNNEL_ID__) {
+      funnelId = (window as any).__OFIQ_FUNNEL_ID__;
+    }
+
+    if (!funnelId) {
+      console.error("[Checkout] Missing funnel ID for checkout");
+      return;
+    }
+
+    try {
+      const btnText = button.innerText;
+      button.innerText = 'Processing...';
+      button.style.opacity = '0.7';
+      button.style.pointerEvents = 'none';
+
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          funnelId,
+          productId,
+          gateway: 'stripe', // Default to Stripe for now
+          successUrl: currentUrl.includes('?') ? `${currentUrl}&success=true` : `${currentUrl}?success=true`,
+          cancelUrl: currentUrl
+        })
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+    } catch (err) {
+      console.error('[Checkout] Error:', err);
+      alert('Checkout failed: ' + (err as Error).message);
+      button.innerText = 'Try Again';
+      button.style.opacity = '1';
+      button.style.pointerEvents = 'auto';
+    }
+  }, [editMode, isBuilderMode]);
+
   // ── Render ─────────────────────────────────────────────────────────────────
   if (err) {
     return (
@@ -767,7 +833,7 @@ export function DynamicRunner({
     <EditModeCtx.Provider value={isEditActive}>
       <div
         className="w-full h-full min-h-screen relative"
-        onClick={isEditActive ? handleContainerClick : undefined}
+        onClick={isEditActive ? handleContainerClick : handleCheckoutClick}
         onMouseOver={isEditActive ? handleMediaHover : undefined}
         onMouseOut={isEditActive ? handleMediaHoverOut : undefined}
         style={isEditActive ? { cursor: "default" } : undefined}

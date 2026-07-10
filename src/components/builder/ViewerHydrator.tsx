@@ -18,6 +18,10 @@ export function ViewerHydrator({ blocks }: { blocks: any }) {
         blocks.activePagePath || '/'
       );
       
+      if (blocks.funnelId && typeof window !== 'undefined') {
+        (window as any).__OFIQ_FUNNEL_ID__ = blocks.funnelId;
+      }
+      
       // 2. Lock the builder into Preview Mode permanently for the Viewer
       setIsPreviewMode(true);
       

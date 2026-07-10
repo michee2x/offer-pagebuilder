@@ -222,14 +222,32 @@ import { Link, useNavigate } from "react-router-dom"
 
 ## ━━━ SECTION 6: OUTPUT FORMAT ━━━
 
+You MUST output two things:
+1. A single <products> block containing a valid JSON array of products being sold.
+2. The <page> blocks containing the React code.
+
+**PRODUCTS BLOCK:**
+If there are items for sale (e.g. main offer, upsell), define them first:
+<products>
+[
+  { "id": "prod_1", "name": "Main Offer", "price": 99, "currency": "USD" },
+  { "id": "prod_upsell", "name": "Premium Upgrade", "price": 199, "currency": "USD" }
+]
+</products>
+*Make sure to assign a unique \`id\` starting with \`prod_\` for each product.*
+
+**PAGE BLOCKS:**
 Wrap each page in:
 <page path="[PATH]" name="[NAME]">
 import React from "react";
 // raw component code — no backtick wrappers
 </page>
 
+**BUY BUTTONS:**
+If a button is intended to purchase a product, add a \`data-product-id="[PRODUCT_ID]"\` attribute matching the ID from your \`<products>\` block.
+
 Allowed imports only: react, framer-motion, lucide-react, react-router-dom.
-Output ONLY the <page> blocks. No conversational filler text.
+Output ONLY the <products> and <page> blocks. No conversational filler text.
 `;
 }
 
@@ -578,6 +596,49 @@ export async function POST(req: Request) {
             }
 
             console.log('[generate] complete — output length:', fullText.length);
+
+            // Parse XML <products> block
+            let generatedProducts: any[] = [];
+            const productsMatch = fullText.match(/<products>([\s\S]*?)<\/products>/i);
+            if (productsMatch && productsMatch[1]) {
+              try {
+                // Remove markdown json wrappers if present
+                let jsonStr = productsMatch[1].trim();
+                jsonStr = jsonStr.replace(/^```json\n/i, '').replace(/\n```$/i, '').trim();
+                generatedProducts = JSON.parse(jsonStr);
+                
+                if (Array.isArray(generatedProducts) && generatedProducts.length > 0) {
+                  // Insert into database and map real UUIDs
+                  for (let i = 0; i < generatedProducts.length; i++) {
+                    const prod = generatedProducts[i];
+                    if (!prod.name || !prod.price) continue;
+                    
+                    const { data: dbProd, error: dbErr } = await supabase
+                      .from('products')
+                      .insert({
+                        funnel_id: resolvedFunnelId,
+                        name: prod.name,
+                        price: prod.price,
+                        currency: prod.currency || 'USD',
+                        payment_type: 'one_time'
+                      })
+                      .select('id')
+                      .single();
+                      
+                    if (dbProd && !dbErr) {
+                      // We need to replace occurrences of the AI's temp ID with the real DB UUID in the fullText
+                      // so the parsed React code naturally contains the correct real UUIDs.
+                      if (prod.id) {
+                        const regex = new RegExp(prod.id, 'g');
+                        fullText = fullText.replace(regex, dbProd.id);
+                      }
+                    }
+                  }
+                }
+              } catch (err) {
+                console.error('[generate] Failed to parse or save generated products:', err);
+              }
+            }
 
             // Parse XML <page> blocks out of the generated response
             const newPages: Record<string, any> = {};

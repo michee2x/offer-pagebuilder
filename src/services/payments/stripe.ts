@@ -3,12 +3,17 @@ import { PaymentProvider, PaymentCheckoutOptions, PaymentWebhookResult } from '.
 
 export const StripeProvider: PaymentProvider = {
   async createCheckout(options: PaymentCheckoutOptions, credentials: any) {
-    if (!credentials?.secretKey) {
-      return { error: 'Missing Stripe secret key.' };
+    if (!credentials?.accountId) {
+      return { error: 'Missing Stripe Connect account ID.' };
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      return { error: 'Platform Stripe Secret Key is not configured.' };
     }
 
     try {
-      const stripe = new Stripe(credentials.secretKey, {
+      const stripe = new Stripe(secretKey, {
         apiVersion: '2023-10-16' as any,
       });
 
@@ -44,7 +49,10 @@ export const StripeProvider: PaymentProvider = {
         metadata: options.metadata || {},
       };
 
-      const session = await stripe.checkout.sessions.create(sessionPayload);
+      // Create session on behalf of the connected account
+      const session = await stripe.checkout.sessions.create(sessionPayload, {
+        stripeAccount: credentials.accountId,
+      });
 
       return { url: session.url as string };
     } catch (err: any) {
@@ -53,12 +61,21 @@ export const StripeProvider: PaymentProvider = {
   },
 
   async verifyWebhook(req: Request, credentials: any): Promise<PaymentWebhookResult> {
-    if (!credentials?.secretKey || !credentials?.webhookSecret) {
+    if (!credentials?.accountId || !credentials?.webhookSecret) {
+      // In a real Stripe Connect setup, you often configure one master webhook endpoint 
+      // for all connected accounts, and pass the webhook secret from env.
+      // Alternatively, the user might still provide a webhook secret if they configured it themselves,
+      // but usually the platform manages it. For now, we expect credentials.webhookSecret.
       return { isValid: false, error: 'Missing Stripe credentials.' };
     }
 
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      return { isValid: false, error: 'Platform Stripe Secret Key is not configured.' };
+    }
+
     try {
-      const stripe = new Stripe(credentials.secretKey, {
+      const stripe = new Stripe(secretKey, {
         apiVersion: '2023-10-16' as any,
       });
 
@@ -68,6 +85,7 @@ export const StripeProvider: PaymentProvider = {
       }
 
       const rawBody = await req.text();
+      // Verify signature using the webhook secret
       const event = stripe.webhooks.constructEvent(rawBody, signature, credentials.webhookSecret);
 
       let externalPaymentId = '';
@@ -145,3 +163,4 @@ export const StripeProvider: PaymentProvider = {
     }
   }
 };
+

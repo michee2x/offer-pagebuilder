@@ -11,9 +11,10 @@ const providers: Record<string, any> = {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { funnelId, gateway, amount, currency, paymentType, productName, successUrl, cancelUrl, metadata } = body;
+    const { funnelId, gateway, productId, successUrl, cancelUrl, metadata } = body;
+    let { amount, currency, paymentType, productName } = body;
 
-    if (!funnelId || !gateway || !amount || !currency || !productName) {
+    if (!funnelId || !gateway) {
       return NextResponse.json({ error: 'Missing required checkout parameters' }, { status: 400 });
     }
 
@@ -35,6 +36,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Funnel not found' }, { status: 404 });
     }
 
+    // If productId is provided, fetch product details from DB
+    if (productId) {
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .eq('funnel_id', funnelId)
+        .single();
+
+      if (productError || !product) {
+        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      }
+
+      amount = product.price;
+      currency = product.currency;
+      paymentType = product.payment_type;
+      productName = product.name;
+    }
+
+    if (!amount || !currency || !productName) {
+      return NextResponse.json({ error: 'Missing product pricing details' }, { status: 400 });
+    }
+
     // Fetch the payment integration credentials for this workspace and gateway
     const { data: integration, error: integrationError } = await supabase
       .from('payment_integrations')
@@ -48,17 +72,21 @@ export async function POST(req: Request) {
     }
 
     // Call the respective provider to create the checkout
+    const protocol = req.headers.get('host')?.includes('localhost') ? 'http' : 'https';
+    const hostUrl = `${protocol}://${req.headers.get('host')}`;
+
     const result = await provider.createCheckout({
       funnelId,
       amount,
       currency,
       paymentType: paymentType || 'one_time',
       productName,
-      successUrl: successUrl || `https://${req.headers.get('host')}/thankyou`,
-      cancelUrl: cancelUrl || `https://${req.headers.get('host')}/cancel`,
+      successUrl: successUrl || `${hostUrl}/thankyou`,
+      cancelUrl: cancelUrl || `${hostUrl}/cancel`,
       metadata: {
         ...metadata,
         funnelId,
+        productId,
         paymentType: paymentType || 'one_time',
       }
     }, integration.credentials);
