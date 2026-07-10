@@ -2,14 +2,22 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { saveIntegrations } from "./actions";
-import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap } from "lucide-react";
+import { saveIntegrations, savePaymentIntegrations } from "./actions";
+import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap, Eye, EyeOff, Shield, ShieldCheck, AlertTriangle } from "lucide-react";
+
+interface PaymentIntegration {
+  gateway: string;
+  credentials: any;
+  is_live: boolean;
+}
 
 interface Props {
   funnelId: string;
+  workspaceId: string;
   initialMakeUrl: string;
   initialZapierUrl: string;
   initialCheckoutUrls: Record<string, string>;
+  initialPaymentIntegrations: PaymentIntegration[];
   subdomain: string;
   pagePaths: string[];
 }
@@ -21,15 +29,89 @@ const PAGE_LABELS: Record<string, string> = {
   "/thankyou": "Thank You Page",
 };
 
-type Tab = "webhooks" | "checkouts";
+const GATEWAY_CONFIG: Record<string, {
+  label: string;
+  color: string;
+  gradient: string;
+  borderColor: string;
+  icon: string;
+  fields: { key: string; label: string; placeholder: string; required: boolean }[];
+  description: string;
+}> = {
+  stripe: {
+    label: "Stripe",
+    color: "text-violet-400",
+    gradient: "from-violet-500/20 to-indigo-500/20",
+    borderColor: "border-violet-500/20",
+    icon: "💳",
+    description: "Accept credit cards, Apple Pay, Google Pay and more.",
+    fields: [
+      { key: "secretKey", label: "Secret Key", placeholder: "sk_live_... or sk_test_...", required: true },
+      { key: "webhookSecret", label: "Webhook Signing Secret", placeholder: "whsec_...", required: true },
+    ]
+  },
+  paypal: {
+    label: "PayPal",
+    color: "text-blue-400",
+    gradient: "from-blue-500/20 to-sky-500/20",
+    borderColor: "border-blue-500/20",
+    icon: "🅿️",
+    description: "Accept PayPal payments and debit/credit cards.",
+    fields: [
+      { key: "clientId", label: "Client ID", placeholder: "Your PayPal Client ID", required: true },
+      { key: "secretKey", label: "Secret Key", placeholder: "Your PayPal Secret Key", required: true },
+      { key: "webhookId", label: "Webhook ID", placeholder: "Your PayPal Webhook ID", required: false },
+    ]
+  },
+  paystack: {
+    label: "Paystack",
+    color: "text-teal-400",
+    gradient: "from-teal-500/20 to-cyan-500/20",
+    borderColor: "border-teal-500/20",
+    icon: "🏦",
+    description: "Accept payments from African customers via cards, bank transfers, and mobile money.",
+    fields: [
+      { key: "secretKey", label: "Secret Key", placeholder: "sk_live_... or sk_test_...", required: true },
+    ]
+  }
+};
 
-export function IntegrationsClient({ funnelId, initialMakeUrl, initialZapierUrl, initialCheckoutUrls, subdomain, pagePaths }: Props) {
-  const [activeTab, setActiveTab] = useState<Tab>("webhooks");
+type Tab = "webhooks" | "checkouts" | "payments";
+
+export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, initialZapierUrl, initialCheckoutUrls, initialPaymentIntegrations, subdomain, pagePaths }: Props) {
+  const [activeTab, setActiveTab] = useState<Tab>("payments");
   const [makeUrl, setMakeUrl] = useState(initialMakeUrl);
   const [zapierUrl, setZapierUrl] = useState(initialZapierUrl);
   const [checkoutUrls, setCheckoutUrls] = useState<Record<string, string>>(initialCheckoutUrls || {});
   const [loading, setLoading] = useState(false);
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
+
+  // Payment gateway state
+  const buildInitialCredentials = () => {
+    const creds: Record<string, any> = {};
+    for (const gateway of Object.keys(GATEWAY_CONFIG)) {
+      const existing = initialPaymentIntegrations.find(i => i.gateway === gateway);
+      creds[gateway] = existing?.credentials || {};
+    }
+    return creds;
+  };
+  const buildInitialLiveStatus = () => {
+    const statuses: Record<string, boolean> = {};
+    for (const gateway of Object.keys(GATEWAY_CONFIG)) {
+      const existing = initialPaymentIntegrations.find(i => i.gateway === gateway);
+      statuses[gateway] = existing?.is_live || false;
+    }
+    return statuses;
+  };
+
+  const [gatewayCredentials, setGatewayCredentials] = useState<Record<string, any>>(buildInitialCredentials);
+  const [gatewayLive, setGatewayLive] = useState<Record<string, boolean>>(buildInitialLiveStatus);
+  const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({});
+  const [expandedGateway, setExpandedGateway] = useState<string | null>(
+    initialPaymentIntegrations.length > 0 ? initialPaymentIntegrations[0].gateway : "stripe"
+  );
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [copiedWebhook, setCopiedWebhook] = useState<string | null>(null);
 
   const handleSave = async () => {
     try {
@@ -41,6 +123,42 @@ export function IntegrationsClient({ funnelId, initialMakeUrl, initialZapierUrl,
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSavePayments = async () => {
+    try {
+      setPaymentLoading(true);
+      const integrations = Object.entries(gatewayCredentials)
+        .filter(([_, creds]) => Object.values(creds).some((v: any) => v && v.length > 0))
+        .map(([gateway, credentials]) => ({
+          gateway,
+          credentials,
+          isLive: gatewayLive[gateway] || false,
+        }));
+
+      if (integrations.length === 0) {
+        toast.error("Please configure at least one payment gateway.");
+        return;
+      }
+      await savePaymentIntegrations(workspaceId, integrations);
+      toast.success("Payment gateways saved successfully!");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save payment gateways");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const toggleFieldVisibility = (fieldKey: string) => {
+    setVisibleFields(prev => ({ ...prev, [fieldKey]: !prev[fieldKey] }));
+  };
+
+  const handleCopyWebhookUrl = (gateway: string) => {
+    const webhookUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhooks/payments/${gateway}/${funnelId}`;
+    navigator.clipboard.writeText(webhookUrl);
+    setCopiedWebhook(gateway);
+    toast.success("Webhook URL copied!");
+    setTimeout(() => setCopiedWebhook(null), 2000);
   };
 
   const baseDomain = subdomain ? `${subdomain}.ofiq.app` : null;
@@ -65,8 +183,13 @@ export function IntegrationsClient({ funnelId, initialMakeUrl, initialZapierUrl,
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     {
+      id: "payments",
+      label: "Payment Gateways",
+      icon: <Shield className="w-4 h-4" />,
+    },
+    {
       id: "webhooks",
-      label: "Webhook Integrations",
+      label: "Webhooks",
       icon: <Webhook className="w-4 h-4" />,
     },
     {
@@ -75,6 +198,14 @@ export function IntegrationsClient({ funnelId, initialMakeUrl, initialZapierUrl,
       icon: <CreditCard className="w-4 h-4" />,
     },
   ];
+
+  const isGatewayConfigured = (gateway: string) => {
+    const config = GATEWAY_CONFIG[gateway];
+    const creds = gatewayCredentials[gateway] || {};
+    return config.fields
+      .filter(f => f.required)
+      .every(f => creds[f.key] && creds[f.key].length > 0);
+  };
 
   return (
     <div className="w-full max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -96,6 +227,187 @@ export function IntegrationsClient({ funnelId, initialMakeUrl, initialZapierUrl,
           </button>
         ))}
       </div>
+
+      {/* ── Payment Gateways Tab ───────────────────────────────────────────── */}
+      {activeTab === "payments" && (
+        <div className="space-y-4">
+          {/* Header Card */}
+          <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-teal-500/5 opacity-50" />
+            <div className="p-8 relative z-10">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500/20 to-teal-500/20 border border-violet-500/20">
+                  <Shield className="w-5 h-5 text-violet-400" />
+                </div>
+                <h2 className="text-2xl font-black text-white">Payment Gateways</h2>
+              </div>
+              <p className="text-sm text-white/50 mt-2 leading-relaxed">
+                Connect your payment processor accounts to accept payments directly through your funnels. We&apos;ll handle the checkout session and webhook verification automatically.
+              </p>
+            </div>
+          </div>
+
+          {/* Gateway Cards */}
+          {Object.entries(GATEWAY_CONFIG).map(([gateway, config]) => {
+            const isExpanded = expandedGateway === gateway;
+            const isConfigured = isGatewayConfigured(gateway);
+            const isLive = gatewayLive[gateway];
+
+            return (
+              <div
+                key={gateway}
+                className={`bg-[#131826] border rounded-2xl overflow-hidden shadow-xl transition-all duration-300 ${
+                  isExpanded ? "border-white/20" : "border-white/10 hover:border-white/15"
+                }`}
+              >
+                {/* Gateway Header */}
+                <button
+                  onClick={() => setExpandedGateway(isExpanded ? null : gateway)}
+                  className="w-full p-5 flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div className={`p-2.5 rounded-xl bg-gradient-to-br ${config.gradient} border ${config.borderColor} text-xl`}>
+                      {config.icon}
+                    </div>
+                    <div className="text-left">
+                      <p className="text-base font-bold text-white flex items-center gap-2">
+                        {config.label}
+                        {isConfigured && (
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            isLive
+                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                              : "bg-amber-500/15 text-amber-400 border border-amber-500/20"
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-emerald-400" : "bg-amber-400"}`} />
+                            {isLive ? "Live" : "Test"}
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-xs text-white/40 mt-0.5">{config.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {isConfigured && <ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                    <ArrowRight className={`w-4 h-4 text-white/30 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
+                  </div>
+                </button>
+
+                {/* Gateway Body */}
+                {isExpanded && (
+                  <div className="px-5 pb-5 space-y-4 border-t border-white/10 pt-5 animate-in fade-in slide-in-from-top-2 duration-300">
+                    {/* Live/Test Toggle */}
+                    <div className="flex items-center justify-between bg-black/30 border border-white/5 rounded-xl px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        {isLive ? (
+                          <AlertTriangle className="w-4 h-4 text-amber-400" />
+                        ) : (
+                          <Shield className="w-4 h-4 text-blue-400" />
+                        )}
+                        <div>
+                          <p className="text-xs font-bold text-white">
+                            {isLive ? "Live Mode" : "Test Mode"}
+                          </p>
+                          <p className="text-[10px] text-white/30">
+                            {isLive ? "Real transactions will be processed." : "Only test transactions will be processed."}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setGatewayLive(prev => ({ ...prev, [gateway]: !prev[gateway] }))}
+                        className={`relative w-11 h-6 rounded-full transition-all duration-200 ${
+                          isLive
+                            ? "bg-gradient-to-r from-emerald-600 to-emerald-500"
+                            : "bg-white/10"
+                        }`}
+                      >
+                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                          isLive ? "translate-x-5" : ""
+                        }`} />
+                      </button>
+                    </div>
+
+                    {/* Credential Fields */}
+                    {config.fields.map((field) => {
+                      const fieldUniqueKey = `${gateway}-${field.key}`;
+                      const isVisible = visibleFields[fieldUniqueKey];
+                      return (
+                        <div key={field.key} className="space-y-1.5">
+                          <label className="text-xs font-bold text-white/70 flex items-center gap-1.5">
+                            {field.label}
+                            {field.required && <span className="text-red-400">*</span>}
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={isVisible ? "text" : "password"}
+                              placeholder={field.placeholder}
+                              value={gatewayCredentials[gateway]?.[field.key] || ""}
+                              onChange={(e) =>
+                                setGatewayCredentials(prev => ({
+                                  ...prev,
+                                  [gateway]: { ...prev[gateway], [field.key]: e.target.value }
+                                }))
+                              }
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all font-mono"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => toggleFieldVisibility(fieldUniqueKey)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-white/10 transition-all"
+                            >
+                              {isVisible ? (
+                                <EyeOff className="w-4 h-4 text-white/30" />
+                              ) : (
+                                <Eye className="w-4 h-4 text-white/30" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Webhook URL for this gateway */}
+                    <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-2">
+                      <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Webhook Endpoint</p>
+                      <p className="text-[11px] text-white/40 leading-relaxed">
+                        Copy this URL and paste it into your {config.label} dashboard as the webhook endpoint.
+                        {gateway === "stripe" && " Configure it to listen for `checkout.session.completed` and `invoice.paid` events."}
+                        {gateway === "paystack" && " Configure it to listen for `charge.success` events."}
+                        {gateway === "paypal" && " Configure it to listen for `PAYMENT.CAPTURE.COMPLETED` events."}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 font-mono text-xs text-violet-400/80 truncate">
+                          {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhooks/payments/{gateway}/{funnelId}
+                        </div>
+                        <button
+                          onClick={() => handleCopyWebhookUrl(gateway)}
+                          className="p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-violet-500/30 transition-all shrink-0"
+                        >
+                          {copiedWebhook === gateway ? (
+                            <Check className="w-4 h-4 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-white/40" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Save Button */}
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={handleSavePayments}
+              disabled={paymentLoading}
+              className="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm rounded-xl transition-all shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {paymentLoading ? "Saving..." : "Save Payment Gateways"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Webhook Integrations Tab ─────────────────────────────────────────── */}
       {activeTab === "webhooks" && (

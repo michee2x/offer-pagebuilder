@@ -20,7 +20,7 @@ export default async function IntegrationsPage({ params }: Props) {
 
   const { data: funnel } = await supabase
     .from("builder_pages")
-    .select("id, name, blocks, subdomain")
+    .select("id, name, blocks, subdomain, workspace_id")
     .eq("id", funnelId)
     .eq("user_id", session.user.id)
     .single();
@@ -36,6 +36,12 @@ export default async function IntegrationsPage({ params }: Props) {
     ? Object.keys(funnel.blocks.pages)
     : ["/"];
   const subdomain = (funnel as any).subdomain || "";
+
+  // Fetch payment integrations
+  const { data: paymentIntegrations } = await supabase
+    .from("payment_integrations")
+    .select("gateway, credentials, is_live")
+    .eq("workspace_id", funnel.workspace_id);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
@@ -100,9 +106,11 @@ export default async function IntegrationsPage({ params }: Props) {
           <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-transparent relative z-10">
             <IntegrationsClient 
               funnelId={funnelId} 
+              workspaceId={funnel.workspace_id}
               initialMakeUrl={makeWebhookUrl}
               initialZapierUrl={zapierWebhookUrl}
               initialCheckoutUrls={checkoutUrls}
+              initialPaymentIntegrations={paymentIntegrations || []}
               subdomain={subdomain}
               pagePaths={pagePaths}
             />

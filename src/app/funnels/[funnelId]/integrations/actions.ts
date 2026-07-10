@@ -44,3 +44,38 @@ export async function saveIntegrations(
   revalidatePath(`/funnels/${funnelId}/integrations`);
   return { success: true };
 }
+
+export async function savePaymentIntegrations(
+  workspaceId: string,
+  integrations: { gateway: string; credentials: any; isLive: boolean }[]
+) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const supabase = createAdminClient();
+
+  // Validate the user has access to this workspace
+  const { data: member } = await supabase
+    .from("workspace_members")
+    .select("id")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", session.user.id)
+    .single();
+
+  if (!member) throw new Error("Unauthorized access to workspace");
+
+  for (const integration of integrations) {
+    const { error } = await supabase
+      .from("payment_integrations")
+      .upsert({
+        workspace_id: workspaceId,
+        gateway: integration.gateway,
+        credentials: integration.credentials,
+        is_live: integration.isLive
+      }, { onConflict: "workspace_id, gateway" });
+
+    if (error) throw new Error(`Failed to save ${integration.gateway}: ${error.message}`);
+  }
+
+  return { success: true };
+}
