@@ -29,7 +29,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ gateway
 
     // 1. Fetch funnel to get workspace_id
     const { data: funnel, error: funnelError } = await supabase
-      .from('funnels')
+      .from('builder_pages')
       .select('id, workspace_id, name')
       .eq('id', funnelId)
       .single();
