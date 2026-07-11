@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { saveIntegrations, savePaymentIntegrations } from "./actions";
-import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap, Eye, EyeOff, Shield, ShieldCheck, AlertTriangle } from "lucide-react";
+import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap, Eye, EyeOff, Shield, ShieldCheck, AlertTriangle, Key } from "lucide-react";
 
 interface PaymentIntegration {
   gateway: string;
@@ -45,7 +45,10 @@ const GATEWAY_CONFIG: Record<string, {
     borderColor: "border-violet-500/20",
     icon: "💳",
     description: "Accept credit cards, Apple Pay, Google Pay and more.",
-    fields: [] // Stripe uses OAuth Connect now
+    fields: [
+      { key: "secretKey", label: "Secret Key", placeholder: "sk_live_... or sk_test_...", required: true },
+      { key: "webhookSecret", label: "Webhook Signing Secret", placeholder: "whsec_...", required: false },
+    ]
   },
   paypal: {
     label: "PayPal",
@@ -73,10 +76,10 @@ const GATEWAY_CONFIG: Record<string, {
   }
 };
 
-type Tab = "webhooks" | "checkouts" | "payments";
+type Tab = "connect" | "apikeys" | "webhooks" | "checkouts";
 
 export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, initialZapierUrl, initialCheckoutUrls, initialPaymentIntegrations, subdomain, pagePaths }: Props) {
-  const [activeTab, setActiveTab] = useState<Tab>("payments");
+  const [activeTab, setActiveTab] = useState<Tab>("connect");
   const [makeUrl, setMakeUrl] = useState(initialMakeUrl);
   const [zapierUrl, setZapierUrl] = useState(initialZapierUrl);
   const [checkoutUrls, setCheckoutUrls] = useState<Record<string, string>>(initialCheckoutUrls || {});
@@ -139,7 +142,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
       setPaymentLoading(true);
       const integrations = Object.entries(gatewayCredentials)
         .filter(([gateway, creds]) => {
-          if (gateway === 'stripe') return !!creds.accountId;
+          if (gateway === 'stripe') return !!creds.accountId || !!creds.secretKey;
           return Object.values(creds).some((v: any) => v && v.length > 0);
         })
         .map(([gateway, credentials]) => ({
@@ -199,9 +202,14 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     {
-      id: "payments",
-      label: "Payment Gateways",
-      icon: <Shield className="w-4 h-4" />,
+      id: "connect",
+      label: "Quick Connect",
+      icon: <Zap className="w-4 h-4" />,
+    },
+    {
+      id: "apikeys",
+      label: "API Keys",
+      icon: <Key className="w-4 h-4" />,
     },
     {
       id: "webhooks",
@@ -216,11 +224,9 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
   ];
 
   const isGatewayConfigured = (gateway: string) => {
-    if (gateway === 'stripe') {
-      return !!gatewayCredentials[gateway]?.accountId;
-    }
-    const config = GATEWAY_CONFIG[gateway];
     const creds = gatewayCredentials[gateway] || {};
+    if (creds.accountId) return true;
+    const config = GATEWAY_CONFIG[gateway];
     return config.fields
       .filter(f => f.required)
       .every(f => creds[f.key] && creds[f.key].length > 0);
@@ -247,8 +253,113 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
         ))}
       </div>
 
-      {/* ── Payment Gateways Tab ───────────────────────────────────────────── */}
-      {activeTab === "payments" && (
+      {/* ── Quick Connect Tab ──────────────────────────────────────────────── */}
+      {activeTab === "connect" && (
+        <div className="space-y-4">
+          {/* Header Card */}
+          <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-violet-500/5 opacity-50" />
+            <div className="p-8 relative z-10">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
+                  <Zap className="w-5 h-5 text-amber-400" />
+                </div>
+                <h2 className="text-2xl font-black text-white">Quick Connect</h2>
+              </div>
+              <p className="text-sm text-white/50 mt-2 leading-relaxed">
+                Connect your payment accounts instantly with one click. No API keys needed &mdash; we handle everything securely via OAuth.
+              </p>
+            </div>
+          </div>
+
+          {/* Stripe Connect Card */}
+          <div className={`bg-[#131826] border rounded-2xl overflow-hidden shadow-xl transition-all duration-300 ${
+            gatewayCredentials.stripe?.accountId ? "border-emerald-500/20" : "border-white/10 hover:border-white/15"
+          }`}>
+            <div className="p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3.5">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/20 text-xl">
+                  💳
+                </div>
+                <div>
+                  <p className="text-base font-bold text-white flex items-center gap-2">
+                    Stripe
+                    {gatewayCredentials.stripe?.accountId && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        Connected
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-white/40 mt-0.5">Connect via Stripe&apos;s secure OAuth flow. Recommended for most users.</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-5 pb-5 border-t border-white/10 pt-5">
+              <div className="py-6 flex flex-col items-center justify-center space-y-3 bg-black/20 rounded-xl border border-white/5">
+                {gatewayCredentials.stripe?.accountId ? (
+                  <>
+                    <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center mb-2">
+                      <ShieldCheck className="w-7 h-7 text-emerald-400" />
+                    </div>
+                    <h3 className="text-white font-bold text-lg">Stripe is Connected</h3>
+                    <p className="text-white/40 text-sm text-center max-w-sm">
+                      Your Stripe account is successfully linked via OAuth. Account ID: <span className="font-mono text-white/60 bg-white/10 px-1.5 py-0.5 rounded">{gatewayCredentials.stripe.accountId}</span>
+                    </p>
+                    <button
+                      onClick={handleStripeConnect}
+                      className="mt-2 px-5 py-2 bg-white/5 hover:bg-white/10 text-white/70 text-sm rounded-xl transition-colors border border-white/10"
+                    >
+                      Reconnect Stripe
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-14 h-14 rounded-full bg-indigo-500/20 flex items-center justify-center mb-2">
+                      <CreditCard className="w-7 h-7 text-indigo-400" />
+                    </div>
+                    <h3 className="text-white font-bold text-lg">Connect your Stripe Account</h3>
+                    <p className="text-white/40 text-sm text-center max-w-sm mb-2">
+                      Securely link your Stripe account with one click to automatically process payments on your funnels.
+                    </p>
+                    <button
+                      onClick={handleStripeConnect}
+                      className="px-6 py-2.5 bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold text-sm rounded-xl transition-colors shadow-lg shadow-indigo-500/25 flex items-center gap-2"
+                    >
+                      Connect with Stripe
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* PayPal Connect Card – Coming Soon */}
+          <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-xl relative">
+            <div className="absolute inset-0 bg-white/[0.01]" />
+            <div className="p-5 flex items-center justify-between relative z-10">
+              <div className="flex items-center gap-3.5">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/20 to-sky-500/20 border border-blue-500/20 text-xl opacity-50">
+                  🅿️
+                </div>
+                <div>
+                  <p className="text-base font-bold text-white/50 flex items-center gap-2">
+                    PayPal
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/5 text-white/30 border border-white/10">
+                      Coming Soon
+                    </span>
+                  </p>
+                  <p className="text-xs text-white/30 mt-0.5">One-click PayPal business account connection via OAuth.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── API Keys Tab ───────────────────────────────────────────────────── */}
+      {activeTab === "apikeys" && (
         <div className="space-y-4">
           {/* Header Card */}
           <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
@@ -256,12 +367,12 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
             <div className="p-8 relative z-10">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500/20 to-teal-500/20 border border-violet-500/20">
-                  <Shield className="w-5 h-5 text-violet-400" />
+                  <Key className="w-5 h-5 text-violet-400" />
                 </div>
-                <h2 className="text-2xl font-black text-white">Payment Gateways</h2>
+                <h2 className="text-2xl font-black text-white">API Keys</h2>
               </div>
               <p className="text-sm text-white/50 mt-2 leading-relaxed">
-                Connect your payment processor accounts to accept payments directly through your funnels. We&apos;ll handle the checkout session and webhook verification automatically.
+                Manually connect your payment processors by entering your API keys. Copy the webhook endpoint for each gateway and configure it in your provider&apos;s dashboard.
               </p>
             </div>
           </div>
@@ -269,7 +380,8 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
           {/* Gateway Cards */}
           {Object.entries(GATEWAY_CONFIG).map(([gateway, config]) => {
             const isExpanded = expandedGateway === gateway;
-            const isConfigured = isGatewayConfigured(gateway);
+            const creds = gatewayCredentials[gateway] || {};
+            const hasApiKeys = config.fields.filter(f => f.required).every(f => creds[f.key] && creds[f.key].length > 0);
             const isLive = gatewayLive[gateway];
 
             return (
@@ -291,7 +403,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
                     <div className="text-left">
                       <p className="text-base font-bold text-white flex items-center gap-2">
                         {config.label}
-                        {isConfigured && (
+                        {hasApiKeys && (
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                             isLive
                               ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
@@ -306,7 +418,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {isConfigured && <ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                    {hasApiKeys && <ShieldCheck className="w-4 h-4 text-emerald-400" />}
                     <ArrowRight className={`w-4 h-4 text-white/30 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
                   </div>
                 </button>
@@ -345,48 +457,8 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
                       </button>
                     </div>
 
-                    {/* Stripe Connect Flow */}
-                    {gateway === "stripe" && (
-                      <div className="py-4 flex flex-col items-center justify-center space-y-3 bg-black/20 rounded-xl border border-white/5">
-                        {isConfigured ? (
-                          <>
-                            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-2">
-                              <ShieldCheck className="w-6 h-6 text-emerald-400" />
-                            </div>
-                            <h3 className="text-white font-bold text-lg">Stripe is Connected</h3>
-                            <p className="text-white/40 text-sm text-center max-w-sm">
-                              Your Stripe account is successfully linked. Account ID: <span className="font-mono text-white/60 bg-white/10 px-1 py-0.5 rounded">{gatewayCredentials.stripe.accountId}</span>
-                            </p>
-                            <button
-                              onClick={handleStripeConnect}
-                              className="mt-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 text-sm rounded-lg transition-colors"
-                            >
-                              Reconnect Stripe
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center mb-2">
-                              <CreditCard className="w-6 h-6 text-indigo-400" />
-                            </div>
-                            <h3 className="text-white font-bold text-lg">Connect your Stripe Account</h3>
-                            <p className="text-white/40 text-sm text-center max-w-sm mb-2">
-                              Securely link your Stripe account to automatically process payments on your funnels.
-                            </p>
-                            <button
-                              onClick={handleStripeConnect}
-                              className="px-6 py-2.5 bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold text-sm rounded-xl transition-colors shadow-lg flex items-center gap-2"
-                            >
-                              Connect with Stripe
-                              <ArrowRight className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Credential Fields for non-Stripe */}
-                    {gateway !== "stripe" && config.fields.map((field) => {
+                    {/* Credential Fields */}
+                    {config.fields.map((field) => {
                       const fieldUniqueKey = `${gateway}-${field.key}`;
                       const isVisible = visibleFields[fieldUniqueKey];
                       return (
@@ -424,32 +496,31 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
                       );
                     })}
 
-                    {/* Webhook URL for this gateway */}
-                    {gateway !== "stripe" && (
-                      <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-2">
-                        <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Webhook Endpoint</p>
-                        <p className="text-[11px] text-white/40 leading-relaxed">
-                          Copy this URL and paste it into your {config.label} dashboard as the webhook endpoint.
-                          {gateway === "paystack" && " Configure it to listen for `charge.success` events."}
-                          {gateway === "paypal" && " Configure it to listen for `PAYMENT.CAPTURE.COMPLETED` events."}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 font-mono text-xs text-violet-400/80 truncate">
-                            {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhooks/payments/{gateway}/{funnelId}
-                          </div>
-                          <button
-                            onClick={() => handleCopyWebhookUrl(gateway)}
-                            className="p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-violet-500/30 transition-all shrink-0"
-                          >
-                            {copiedWebhook === gateway ? (
-                              <Check className="w-4 h-4 text-emerald-400" />
-                            ) : (
-                              <Copy className="w-4 h-4 text-white/40" />
-                            )}
-                          </button>
+                    {/* Webhook URL */}
+                    <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-2">
+                      <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Webhook Endpoint</p>
+                      <p className="text-[11px] text-white/40 leading-relaxed">
+                        Copy this URL and paste it into your {config.label} dashboard as the webhook endpoint.
+                        {gateway === "stripe" && " Configure it to listen for `checkout.session.completed` events."}
+                        {gateway === "paystack" && " Configure it to listen for `charge.success` events."}
+                        {gateway === "paypal" && " Configure it to listen for `PAYMENT.CAPTURE.COMPLETED` events."}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 font-mono text-xs text-violet-400/80 truncate">
+                          {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhooks/payments/{gateway}/{funnelId}
                         </div>
+                        <button
+                          onClick={() => handleCopyWebhookUrl(gateway)}
+                          className="p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-violet-500/30 transition-all shrink-0"
+                        >
+                          {copiedWebhook === gateway ? (
+                            <Check className="w-4 h-4 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-white/40" />
+                          )}
+                        </button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -463,7 +534,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
               disabled={paymentLoading}
               className="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm rounded-xl transition-all shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {paymentLoading ? "Saving..." : "Save Payment Gateways"}
+              {paymentLoading ? "Saving..." : "Save API Keys"}
             </button>
           </div>
         </div>

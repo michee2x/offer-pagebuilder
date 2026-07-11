@@ -135,7 +135,7 @@ export function FunnelSidebar({
 
           {/* Nav */}
           <nav
-            className="flex-1 overflow-y-auto"
+            className="flex-1 overflow-y-auto scrollbar-hide"
             style={{ padding: "8px 6px" }}
           >
             {navItems.map((item) => {
