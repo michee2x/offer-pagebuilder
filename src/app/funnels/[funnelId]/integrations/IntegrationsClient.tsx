@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { saveIntegrations, savePaymentIntegrations } from "./actions";
+import { saveIntegrations, savePaymentIntegrations, saveCheckoutWebhookSecret } from "./actions";
 import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap, Eye, EyeOff, Shield, ShieldCheck, AlertTriangle, Key } from "lucide-react";
 
 interface PaymentIntegration {
@@ -48,7 +48,6 @@ const GATEWAY_CONFIG: Record<string, {
     fields: [
       { key: "secretKey", label: "Secret Key", placeholder: "sk_live_... or sk_test_...", required: true },
       { key: "publishableKey", label: "Publishable Key", placeholder: "pk_live_... or pk_test_...", required: true },
-      { key: "webhookSecret", label: "Webhook Signing Secret", placeholder: "whsec_...", required: false },
     ]
   },
   paypal: {
@@ -125,6 +124,12 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
   );
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [copiedWebhook, setCopiedWebhook] = useState<string | null>(null);
+
+  // Checkout webhook secret — loaded from payment_integrations credentials
+  const initialWebhookSecret = initialPaymentIntegrations.find(i => i.gateway === 'stripe')?.credentials?.webhookSecret || '';
+  const [checkoutWebhookSecret, setCheckoutWebhookSecret] = useState(initialWebhookSecret);
+  const [webhookSecretVisible, setWebhookSecretVisible] = useState(false);
+  const [webhookSaving, setWebhookSaving] = useState(false);
 
   const handleSave = async () => {
     try {
@@ -497,31 +502,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
                       );
                     })}
 
-                    {/* Webhook URL */}
-                    <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-2">
-                      <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Webhook Endpoint</p>
-                      <p className="text-[11px] text-white/40 leading-relaxed">
-                        Copy this URL and paste it into your {config.label} dashboard as the webhook endpoint.
-                        {gateway === "stripe" && " Configure it to listen for `checkout.session.completed` events."}
-                        {gateway === "paystack" && " Configure it to listen for `charge.success` events."}
-                        {gateway === "paypal" && " Configure it to listen for `PAYMENT.CAPTURE.COMPLETED` events."}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 font-mono text-xs text-violet-400/80 truncate">
-                          {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhooks/payments/{gateway}/{funnelId}
-                        </div>
-                        <button
-                          onClick={() => handleCopyWebhookUrl(gateway)}
-                          className="p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-violet-500/30 transition-all shrink-0"
-                        >
-                          {copiedWebhook === gateway ? (
-                            <Check className="w-4 h-4 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-4 h-4 text-white/40" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
+
                   </div>
                 )}
               </div>
@@ -708,6 +689,85 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
               </div>
             )}
 
+            {/* ── Webhook Configuration ─────────────────────────────────── */}
+            {baseDomain && (
+              <div className="space-y-4 pt-2 border-t border-white/10">
+                <div>
+                  <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Webhook Configuration</p>
+                  <p className="text-[11px] text-white/40 leading-relaxed mt-1">
+                    Set up a webhook so your system gets notified when a payment is completed. This enables automatic purchase logging and delivery emails.
+                  </p>
+                </div>
+
+                {/* Step 1: Webhook Endpoint URL to copy */}
+                <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-bold text-white/60 flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0">
+                      <span className="text-[9px] font-black text-white">1</span>
+                    </span>
+                    Copy this Webhook Endpoint URL
+                  </p>
+                  <p className="text-[11px] text-white/40 leading-relaxed">
+                    Paste this URL into your Stripe Dashboard → Developers → Webhooks → Add endpoint. Select <span className="text-white/60 font-semibold">checkout.session.completed</span> and <span className="text-white/60 font-semibold">invoice.paid</span> events.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 font-mono text-xs text-emerald-400/80 truncate">
+                      {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhooks/payments/stripe/{funnelId}
+                    </div>
+                    <button
+                      onClick={() => handleCopyWebhookUrl('stripe')}
+                      className="p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all shrink-0"
+                    >
+                      {copiedWebhook === 'stripe' ? (
+                        <Check className="w-4 h-4 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-white/40" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Step 2: Paste the Signing Secret */}
+                <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-bold text-white/60 flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0">
+                      <span className="text-[9px] font-black text-white">2</span>
+                    </span>
+                    Paste your Webhook Signing Secret
+                  </p>
+                  <p className="text-[11px] text-white/40 leading-relaxed">
+                    After creating the endpoint in Stripe, they&apos;ll give you a signing secret (<span className="font-mono text-white/50">whsec_...</span>). Paste it here so we can verify that webhook events are genuinely from Stripe.
+                  </p>
+                  <div className="relative">
+                    <input
+                      type={webhookSecretVisible ? "text" : "password"}
+                      placeholder="whsec_..."
+                      value={checkoutWebhookSecret}
+                      onChange={(e) => setCheckoutWebhookSecret(e.target.value)}
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setWebhookSecretVisible(!webhookSecretVisible)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-white/10 transition-all"
+                    >
+                      {webhookSecretVisible ? (
+                        <EyeOff className="w-4 h-4 text-white/30" />
+                      ) : (
+                        <Eye className="w-4 h-4 text-white/30" />
+                      )}
+                    </button>
+                  </div>
+                  {checkoutWebhookSecret && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-[11px] text-emerald-400/80 font-semibold">Signing secret configured</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Pro tip */}
             {baseDomain && (
               <div className="bg-brand-blue/5 border border-brand-blue/10 rounded-xl p-4 flex gap-3">
@@ -718,14 +778,29 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
               </div>
             )}
 
-            {/* Save button for checkout URLs */}
+            {/* Save button for checkout URLs + webhook secret */}
             <div className="flex justify-end pt-2 border-t border-white/10">
               <button
-                onClick={handleSave}
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    // Save checkout URLs
+                    await saveIntegrations(funnelId, makeUrl, zapierUrl, checkoutUrls);
+                    // Save webhook signing secret if provided
+                    if (checkoutWebhookSecret.trim()) {
+                      await saveCheckoutWebhookSecret(workspaceId, 'stripe', checkoutWebhookSecret.trim());
+                    }
+                    toast.success("Checkout settings saved successfully!");
+                  } catch (e: any) {
+                    toast.error(e.message || "Failed to save checkout settings");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
                 disabled={loading}
                 className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Saving..." : "Save Checkout URLs"}
+                {loading ? "Saving..." : "Save Checkout Settings"}
               </button>
             </div>
           </div>

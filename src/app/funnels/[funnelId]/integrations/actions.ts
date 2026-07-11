@@ -79,3 +79,51 @@ export async function savePaymentIntegrations(
 
   return { success: true };
 }
+
+export async function saveCheckoutWebhookSecret(
+  workspaceId: string,
+  gateway: string,
+  webhookSecret: string,
+) {
+  const session = await getSession();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const supabase = createAdminClient();
+
+  // Validate the user has access to this workspace
+  const { data: member } = await supabase
+    .from("workspace_members")
+    .select("id")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", session.user.id)
+    .single();
+
+  if (!member) throw new Error("Unauthorized access to workspace");
+
+  // Fetch existing credentials for this gateway so we merge, not overwrite
+  const { data: existing } = await supabase
+    .from("payment_integrations")
+    .select("credentials, is_live")
+    .eq("workspace_id", workspaceId)
+    .eq("gateway", gateway)
+    .single();
+
+  const mergedCredentials = {
+    ...(existing?.credentials || {}),
+    webhookSecret,
+  };
+
+  const { error } = await supabase
+    .from("payment_integrations")
+    .upsert({
+      workspace_id: workspaceId,
+      gateway,
+      credentials: mergedCredentials,
+      is_live: existing?.is_live || false,
+    }, { onConflict: "workspace_id, gateway" });
+
+  if (error) throw new Error(`Failed to save webhook secret: ${error.message}`);
+
+  revalidatePath(`/funnels`);
+  return { success: true };
+}
