@@ -11,16 +11,11 @@ const providers: Record<string, any> = {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { funnelId, gateway, productId, successUrl, cancelUrl, metadata } = body;
+    const { funnelId, gateway, productId, pagePath, successUrl, cancelUrl, metadata } = body;
     let { amount, currency, paymentType, productName } = body;
 
     if (!funnelId || !gateway) {
       return NextResponse.json({ error: 'Missing required checkout parameters' }, { status: 400 });
-    }
-
-    const provider = providers[gateway];
-    if (!provider) {
-      return NextResponse.json({ error: `Unsupported payment gateway: ${gateway}` }, { status: 400 });
     }
 
     const supabase = createAdminClient();
@@ -103,11 +98,11 @@ export async function POST(req: Request) {
       .from('payment_integrations')
       .select('*')
       .eq('workspace_id', funnel.workspace_id)
-      .eq('gateway', gateway)
+      .eq('gateway', selectedGateway)
       .single();
 
     if (integrationError || !integration || !integration.credentials) {
-      return NextResponse.json({ error: `Payment gateway ${gateway} is not configured for this workspace.` }, { status: 400 });
+      return NextResponse.json({ error: `Payment gateway ${selectedGateway} is not configured for this workspace.` }, { status: 400 });
     }
 
     // Call the respective provider to create the checkout
