@@ -31,6 +31,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Funnel not found' }, { status: 404 });
     }
 
+    // Fetch the funnel's published domain/subdomain for redirect URLs
+    const { data: publishedPage } = await supabase
+      .from('builder_pages')
+      .select('subdomain, custom_domain')
+      .eq('id', funnelId)
+      .single();
+
+    const protocol = req.headers.get('host')?.includes('localhost') ? 'http' : 'https';
+    const hostUrl = `${protocol}://${req.headers.get('host')}`;
+    
+    // Build the funnel's live base URL for success/cancel redirects
+    let funnelBaseUrl = hostUrl;
+    if (publishedPage?.custom_domain) {
+      funnelBaseUrl = `https://${publishedPage.custom_domain}`;
+    } else if (publishedPage?.subdomain) {
+      const isLocal = req.headers.get('host')?.includes('localhost');
+      funnelBaseUrl = isLocal
+        ? `http://${publishedPage.subdomain}.localhost:3000`
+        : `https://${publishedPage.subdomain}.ofiq.app`;
+    }
+
     // If productId is provided, fetch product details from DB
     let resolvedProductId = productId;
     if (!resolvedProductId && pagePath) {
@@ -106,17 +127,14 @@ export async function POST(req: Request) {
     }
 
     // Call the respective provider to create the checkout
-    const protocol = req.headers.get('host')?.includes('localhost') ? 'http' : 'https';
-    const hostUrl = `${protocol}://${req.headers.get('host')}`;
-
     const result = await provider.createCheckout({
       funnelId,
       amount,
       currency,
       paymentType: paymentType || 'one_time',
       productName,
-      successUrl: successUrl || `${hostUrl}/thankyou`,
-      cancelUrl: cancelUrl || `${hostUrl}/cancel`,
+      successUrl: successUrl || `${funnelBaseUrl}/thankyou`,
+      cancelUrl: cancelUrl || `${funnelBaseUrl}/sales`,
       metadata: {
         ...metadata,
         funnelId,
