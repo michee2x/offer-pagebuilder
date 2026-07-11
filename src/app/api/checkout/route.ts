@@ -37,26 +37,65 @@ export async function POST(req: Request) {
     }
 
     // If productId is provided, fetch product details from DB
-    if (productId) {
+    let resolvedProductId = productId;
+    if (!resolvedProductId && pagePath) {
+      const { data: products } = await supabase
+        .from('products')
+        .select('*')
+        .eq('funnel_id', funnelId)
+        .order('created_at', { ascending: true });
+
+      if (products && products.length > 0) {
+        let productIndex = 0;
+        if (pagePath.includes('upsell')) productIndex = 1;
+        else if (pagePath.includes('downsell')) productIndex = 2;
+
+        const product = products[productIndex] || products[0];
+        amount = product.price;
+        currency = product.currency;
+        paymentType = product.payment_type;
+        productName = product.name;
+        resolvedProductId = product.id;
+      }
+    } else if (resolvedProductId) {
       const { data: product, error: productError } = await supabase
         .from('products')
         .select('*')
-        .eq('id', productId)
+        .eq('id', resolvedProductId)
         .eq('funnel_id', funnelId)
         .single();
 
-      if (productError || !product) {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      if (!productError && product) {
+        amount = product.price;
+        currency = product.currency;
+        paymentType = product.payment_type;
+        productName = product.name;
       }
-
-      amount = product.price;
-      currency = product.currency;
-      paymentType = product.payment_type;
-      productName = product.name;
     }
 
     if (!amount || !currency || !productName) {
-      return NextResponse.json({ error: 'Missing product pricing details' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing product pricing details or no products found for this funnel.' }, { status: 400 });
+    }
+
+    // Auto-select gateway if 'auto'
+    let selectedGateway = gateway;
+    if (selectedGateway === 'auto') {
+      const { data: availableIntegrations } = await supabase
+        .from('payment_integrations')
+        .select('gateway')
+        .eq('workspace_id', funnel.workspace_id)
+        .limit(1);
+      
+      if (availableIntegrations && availableIntegrations.length > 0) {
+        selectedGateway = availableIntegrations[0].gateway;
+      } else {
+        return NextResponse.json({ error: 'No payment gateways are configured for this workspace.' }, { status: 400 });
+      }
+    }
+
+    const provider = providers[selectedGateway];
+    if (!provider) {
+      return NextResponse.json({ error: `Unsupported payment gateway: ${selectedGateway}` }, { status: 400 });
     }
 
     // Fetch the payment integration credentials for this workspace and gateway

@@ -40,17 +40,63 @@ const createRequireMock = (checkoutUrls?: Record<string, string>, activePagePath
       // If we are navigating "forward" to buy, use the configured checkout URL instead!
       const isForwardNavigation = 
         !path.includes("declined=true") && (
-          (activePagePath === "/" && path.includes("upsell")) ||
-          (activePagePath === "/upsell" && path.includes("thankyou")) ||
-          (activePagePath === "/downsell" && path.includes("thankyou"))
+          path.includes("upsell") ||
+          path.includes("downsell") ||
+          path.includes("thankyou")
         );
         
       console.log("[DynamicRunner] go() intercepted", { activePagePath, path, isForwardNavigation, checkoutUrls });
 
-      if (isForwardNavigation && checkoutUrls && activePagePath && checkoutUrls[activePagePath]) {
-        console.log("[DynamicRunner] Redirecting to external checkout:", checkoutUrls[activePagePath]);
-        window.location.href = checkoutUrls[activePagePath];
-        return;
+      if (isForwardNavigation) {
+        if (checkoutUrls && activePagePath && checkoutUrls[activePagePath]) {
+          console.log("[DynamicRunner] Redirecting to external checkout:", checkoutUrls[activePagePath]);
+          window.location.href = checkoutUrls[activePagePath];
+          return;
+        }
+
+        // Native Checkout fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        let funnelId = urlParams.get('id');
+        if (!funnelId && (window as any).__OFIQ_FUNNEL_ID__) {
+          funnelId = (window as any).__OFIQ_FUNNEL_ID__;
+        }
+
+        if (funnelId) {
+          fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              funnelId,
+              pagePath: activePagePath,
+              gateway: 'auto',
+              successUrl: window.location.href.includes('?') ? `${window.location.href}&success=true` : `${window.location.href}?success=true`,
+              cancelUrl: window.location.href
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.url) {
+              window.location.href = data.url;
+            } else {
+              console.error('[DynamicRunner] Checkout error:', data.error);
+              // Fallback to normal navigation if native checkout fails
+              if (typeof window !== "undefined" && (window.location.pathname.startsWith("/p/") || window.location.pathname.startsWith("/builder"))) {
+                useBuilderStore.getState().switchPage(path);
+              } else if (typeof window !== "undefined") {
+                window.location.pathname = path;
+              }
+            }
+          })
+          .catch(err => {
+            console.error('[DynamicRunner] Checkout failed:', err);
+            if (typeof window !== "undefined" && (window.location.pathname.startsWith("/p/") || window.location.pathname.startsWith("/builder"))) {
+              useBuilderStore.getState().switchPage(path);
+            } else if (typeof window !== "undefined") {
+              window.location.pathname = path;
+            }
+          });
+          return; // Stop normal navigation
+        }
       }
 
       if (
