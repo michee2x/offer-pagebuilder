@@ -97,7 +97,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ gateway
           try {
             const resend = new Resend(process.env.RESEND_API_KEY);
             await resend.emails.send({
-              from: 'OfferIQ Delivery <delivery@ofiq.app>',
+              from: 'onboarding@resend.dev',
               to: result.payerEmail,
               subject: `Your purchase of ${funnel.name}`,
               html: `<p>Hi ${result.payerName || 'there'},</p>
