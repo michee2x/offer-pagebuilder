@@ -47,6 +47,7 @@ const GATEWAY_CONFIG: Record<string, {
     description: "Accept credit cards, Apple Pay, Google Pay and more.",
     fields: [
       { key: "secretKey", label: "Secret Key", placeholder: "sk_live_... or sk_test_...", required: true },
+      { key: "publishableKey", label: "Publishable Key", placeholder: "pk_live_... or pk_test_...", required: true },
       { key: "webhookSecret", label: "Webhook Signing Secret", placeholder: "whsec_...", required: false },
     ]
   },
@@ -142,7 +143,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
       setPaymentLoading(true);
       const integrations = Object.entries(gatewayCredentials)
         .filter(([gateway, creds]) => {
-          if (gateway === 'stripe') return !!creds.accountId || !!creds.secretKey;
+          if (gateway === 'stripe') return !!creds.accountId || (!!creds.secretKey && !!creds.publishableKey);
           return Object.values(creds).some((v: any) => v && v.length > 0);
         })
         .map(([gateway, credentials]) => ({
