@@ -25,7 +25,18 @@ const EditModeCtx = createContext(false);
 let _ofiqCounter = 0;
 
 // ─── Require sandbox ──────────────────────────────────────────────────────────
-const createRequireMock = (checkoutUrls?: Record<string, string>, activePagePath?: string) => (mod: string) => {
+// Maps AI-generated page paths to the keys used in the integrations checkoutUrls store
+const normalizeCheckoutPath = (path?: string): string => {
+  if (!path) return '/';
+  // AI generates pages at /sales, but integrations stores the key as /
+  if (path === '/sales' || path === '/lead-capture' || path === '/') return '/';
+  if (path.includes('upsell')) return '/upsell';
+  if (path.includes('downsell')) return '/downsell';
+  if (path.includes('thankyou') || path.includes('thank-you')) return '/thankyou';
+  return path;
+};
+
+const createRequireMock = (checkoutUrls?: Record<string, string>, activePagePath?: string, editMode?: boolean) => (mod: string) => {
   if (mod === "react") return React;
   if (mod === "lucide-react") return LucideIcons;
   if (mod === "framer-motion" || mod === "motion") return FramerMotion;
@@ -37,6 +48,12 @@ const createRequireMock = (checkoutUrls?: Record<string, string>, activePagePath
         return;
       }
       
+      // In edit mode, block ALL navigation — show a hint instead
+      if (editMode) {
+        console.info('[DynamicRunner] Navigation blocked in edit mode. Switch to Preview to test checkout flow.');
+        return;
+      }
+
       // If we are navigating "forward" to buy, use the configured checkout URL instead!
       const isForwardNavigation = 
         !path.includes("declined=true") && (
@@ -44,13 +61,15 @@ const createRequireMock = (checkoutUrls?: Record<string, string>, activePagePath
           path.includes("downsell") ||
           path.includes("thankyou")
         );
-        
-      console.log("[DynamicRunner] go() intercepted", { activePagePath, path, isForwardNavigation, checkoutUrls });
+
+      // Normalize the current page path to match the integrations store keys
+      const lookupPath = normalizeCheckoutPath(activePagePath);
+      console.log("[DynamicRunner] go() intercepted", { activePagePath, lookupPath, path, isForwardNavigation, checkoutUrls });
 
       if (isForwardNavigation) {
-        if (checkoutUrls && activePagePath && checkoutUrls[activePagePath]) {
-          console.log("[DynamicRunner] Redirecting to external checkout:", checkoutUrls[activePagePath]);
-          window.location.href = checkoutUrls[activePagePath];
+        if (checkoutUrls && checkoutUrls[lookupPath]) {
+          console.log("[DynamicRunner] Redirecting to external checkout:", checkoutUrls[lookupPath]);
+          window.location.href = checkoutUrls[lookupPath];
           return;
         }
 
@@ -207,11 +226,12 @@ const EditableText = ({
 const evaluateCode = (
   jsCode: string, 
   checkoutUrls?: Record<string, string>, 
-  activePagePath?: string
+  activePagePath?: string,
+  editMode?: boolean
 ): React.ComponentType => {
   const exportsObj: Record<string, any> = {};
   const moduleObj = { exports: exportsObj };
-  const requireMock = createRequireMock(checkoutUrls, activePagePath);
+  const requireMock = createRequireMock(checkoutUrls, activePagePath, editMode);
   
   // 5th arg "EditableText" makes the compiled React.createElement(EditableText, …) resolve
   const fn = new Function(
@@ -524,7 +544,7 @@ export function DynamicRunner({
     if (!compiledCode) return;
     try {
       _ofiqCounter = 0; // reset deterministic id counter
-      const Comp = evaluateCode(compiledCode, checkoutUrls, activePagePath);
+      const Comp = evaluateCode(compiledCode, checkoutUrls, activePagePath, editMode);
       setComp(() => Comp);
       setErr(null);
     } catch (e: any) {
@@ -578,7 +598,7 @@ export function DynamicRunner({
         );
       }
 
-      setComp(() => evaluateCode(transpiled, checkoutUrls, activePagePath));
+      setComp(() => evaluateCode(transpiled, checkoutUrls, activePagePath, editMode));
     } catch (e: any) {
       console.error("[DynamicRunner] compile error:", e);
       setErr(e?.message || "Failed to compile page code.");

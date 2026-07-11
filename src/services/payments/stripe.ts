@@ -3,13 +3,18 @@ import { PaymentProvider, PaymentCheckoutOptions, PaymentWebhookResult } from '.
 
 export const StripeProvider: PaymentProvider = {
   async createCheckout(options: PaymentCheckoutOptions, credentials: any) {
-    if (!credentials?.accountId) {
-      return { error: 'Missing Stripe Connect account ID.' };
+    // Determine mode: Stripe Connect (accountId) vs. Direct API Keys (secretKey)
+    const isConnectMode = !!credentials?.accountId;
+    const isApiKeyMode = !!credentials?.secretKey;
+
+    if (!isConnectMode && !isApiKeyMode) {
+      return { error: 'Stripe is not configured. Please add your Stripe credentials in Integrations.' };
     }
 
-    const secretKey = process.env.STRIPE_SECRET_KEY;
+    // For Connect mode, we use the platform key. For API key mode, use the user's own key.
+    const secretKey = isApiKeyMode ? credentials.secretKey : process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
-      return { error: 'Platform Stripe Secret Key is not configured.' };
+      return { error: 'Stripe Secret Key is not configured.' };
     }
 
     try {
@@ -49,10 +54,12 @@ export const StripeProvider: PaymentProvider = {
         metadata: options.metadata || {},
       };
 
-      // Create session on behalf of the connected account
-      const session = await stripe.checkout.sessions.create(sessionPayload, {
-        stripeAccount: credentials.accountId,
-      });
+      // For Connect mode only: charge on behalf of connected account
+      const sessionOptions: Stripe.RequestOptions = isConnectMode
+        ? { stripeAccount: credentials.accountId }
+        : {};
+
+      const session = await stripe.checkout.sessions.create(sessionPayload, sessionOptions);
 
       return { url: session.url as string };
     } catch (err: any) {
@@ -61,17 +68,14 @@ export const StripeProvider: PaymentProvider = {
   },
 
   async verifyWebhook(req: Request, credentials: any): Promise<PaymentWebhookResult> {
-    if (!credentials?.accountId || !credentials?.webhookSecret) {
-      // In a real Stripe Connect setup, you often configure one master webhook endpoint 
-      // for all connected accounts, and pass the webhook secret from env.
-      // Alternatively, the user might still provide a webhook secret if they configured it themselves,
-      // but usually the platform manages it. For now, we expect credentials.webhookSecret.
-      return { isValid: false, error: 'Missing Stripe credentials.' };
+    if (!credentials?.webhookSecret) {
+      return { isValid: false, error: 'Missing Stripe webhook secret.' };
     }
 
-    const secretKey = process.env.STRIPE_SECRET_KEY;
+    // Support both Connect mode (platform key) and API key mode (user's own key)
+    const secretKey = credentials?.secretKey || process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
-      return { isValid: false, error: 'Platform Stripe Secret Key is not configured.' };
+      return { isValid: false, error: 'Stripe Secret Key is not configured.' };
     }
 
     try {

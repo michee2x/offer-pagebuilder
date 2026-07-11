@@ -64,6 +64,7 @@ export default function BuilderPage() {
   const [hasIntelligence, setHasIntelligence] = React.useState(false);
   const [hasCopy, setHasCopy] = React.useState<boolean | null>(null);
   const autoGenAttempted = React.useRef(false);
+  const [checkoutUrls, setCheckoutUrls] = React.useState<Record<string, string>>({});
 
   // We need handleGeneratePage in scope for the useEffect, but it's defined later.
   // Instead of moving the huge function, we can just call it via a ref or wait.
@@ -172,6 +173,9 @@ export default function BuilderPage() {
                 loadedPages,
                 initialPage.path,
               );
+              if (blocks.integrations?.checkoutUrls) {
+                setCheckoutUrls(blocks.integrations.checkoutUrls);
+              }
               if (blocks.canvasStyle) {
                 useBuilderStore.setState({ canvasStyle: blocks.canvasStyle });
               }
@@ -1022,7 +1026,7 @@ export default function BuilderPage() {
           {!isPreviewMode && <LeftPanel />}
           {/* Canvas fills full width — left padding reserves space for the icon strip */}
           <div className="flex-1 overflow-hidden h-full w-full">
-            <Canvas checkoutUrls={undefined} />
+            <Canvas checkoutUrls={checkoutUrls} />
           </div>
         </div>
 
