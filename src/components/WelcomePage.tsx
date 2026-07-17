@@ -1,10 +1,25 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Link as LinkIcon, FileText, PenTool, Target, Users, DollarSign, Zap, BookOpen, GraduationCap, Building, Sprout, Check, CreditCard, Megaphone, Music, ArrowRight, Play, TrendingUp } from 'lucide-react';
 import '../app/welcome.css';
+
+function FaqItem({ q, a, isOpen, onClick }: { q: string, a: string, isOpen: boolean, onClick: () => void }){
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <div className={`faq-item ${isOpen ? 'open' : ''}`}>
+      <button className="faq-q" onClick={onClick} aria-expanded={isOpen}>
+        <span>{q}</span>
+        <span className="plus"></span>
+      </button>
+      <div className="faq-a" style={{maxHeight: isOpen ? (ref.current ? ref.current.scrollHeight + 'px' : '400px') : '0px'}}>
+        <div className="faq-a-inner" ref={ref}>{a}</div>
+      </div>
+    </div>
+  );
+}
 
 export function WelcomePage() {
   const scenarios = [
@@ -52,6 +67,19 @@ export function WelcomePage() {
 
   const [activeScenario, setActiveScenario] = useState(0);
   const s = scenarios[activeScenario];
+
+  const faqs = [
+    { q:"Is OfferIQ a subscription, or a one-time purchase?", a:"Both structures exist, by tier. Starter and Growth are monthly subscriptions — you're billed each month and can cancel anytime from your account. Agency is a single one-time payment with credits that never expire. Pick whichever fits how you plan to use the platform." },
+    { q:"How does the $1 trial work, exactly?", a:"You get full access to the Starter plan for 7 days for $1. If you don't cancel before day 7, your card is billed the standard $39/mo rate and your subscription continues month to month. You can cancel anytime, including during the trial, with no further charge." },
+    { q:"Do unused offer credits roll over to the next month?", a:"No. Starter and Growth credits refresh monthly and reset at the start of each new billing cycle — unused credits don't carry over. If you consistently need more than your plan's monthly allowance, Growth or a credit top-up is the better fit. Agency credits work differently: they're a fixed pool that never expires and never refreshes, because they're paid for once." },
+    { q:"What happens to my published funnels if I cancel my subscription?", a:"Your funnels are taken offline when your subscription ends, since active publishing and hosting are part of what your monthly plan pays for. Your underlying data — copy, reports, and assets — stays accessible in your account for a limited window so you can export it or reactivate later, but live pages stop serving until you resubscribe." },
+    { q:"What happens when I run out of credits partway through the month?", a:"Your existing offers, pages, and data remain fully accessible — nothing is taken away. To build additional new offers before your next refresh, you can purchase additional credit packs for $10 per credit; one credit builds one complete offer (Intelligence Report + Copy + Pages + Traffic Strategy + Asset Bank)." },
+    { q:"Can I upgrade or downgrade my plan later?", a:"Yes. You can upgrade to a higher tier at any time by paying the price difference for the remainder of your billing cycle. Downgrades take effect at your next renewal date, so you keep your current plan's benefits until then." },
+    { q:"Is there a refund policy?", a:"Yes — a 30-day money-back guarantee applies to every tier, including Agency. If OfferIQ isn't right for you, request a full refund within 30 days of your purchase, no conditions." },
+    { q:"Does OfferIQ work outside the US?", a:"Yes. OfferIQ supports multiple currencies and target countries in the offer creation process, with additional payment integrations (Paystack, Flutterwave) on the roadmap for broader regional support." },
+    { q:"What if I run an agency and need more than 30 client sub-accounts?", a:"Contact support after purchase — additional sub-account packs are available for agencies scaling beyond the Agency tier's built-in allocation." },
+  ];
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
     // Nav Scroll
@@ -558,7 +586,11 @@ export function WelcomePage() {
               <span className="eyebrow center">Questions</span>
               <h2>Frequently asked questions</h2>
             </div>
-            <div className="faq-list reveal" style={{ "maxWidth": "760px", "margin": "0 auto", }} id="faqList"></div>
+            <div className="faq-list reveal in" style={{ "maxWidth": "760px", "margin": "0 auto" }}>
+              {faqs.map((f, i) => (
+                <FaqItem key={i} q={f.q} a={f.a} isOpen={openFaq === i} onClick={() => setOpenFaq(openFaq === i ? null : i)} />
+              ))}
+            </div>
           </div>
         </section>
 
