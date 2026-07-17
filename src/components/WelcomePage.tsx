@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { Link as LinkIcon, FileText, PenTool, Target, Users, DollarSign, Zap, BookOpen, GraduationCap, Building, Sprout, Check, CreditCard, Megaphone, Music } from 'lucide-react';
+import { Link as LinkIcon, FileText, PenTool, Target, Users, DollarSign, Zap, BookOpen, GraduationCap, Building, Sprout, Check, CreditCard, Megaphone, Music, ArrowRight, Play } from 'lucide-react';
 import '../app/welcome.css';
 
 export function WelcomePage() {
@@ -81,7 +81,7 @@ export function WelcomePage() {
     <div className="nav-cta">
       <a href="/login" className="btn btn-ghost btn-sm">Log In</a>
       <a href="/login" className="btn btn-primary btn-sm">Start Building
-        <svg className="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        <ArrowRight className="icon-inline w-4 h-4" />
       </a>
     </div>
   </div>
@@ -100,23 +100,19 @@ export function WelcomePage() {
       </p>
       <div className="hero-cta-row">
         <a href="/login" className="btn btn-primary">Analyse My Offer
-          <svg className="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          <ArrowRight className="icon-inline w-4 h-4" />
         </a>
         <a href="/login" className="btn btn-ghost">Build One For Me</a>
       </div>
       <p className="hero-micro">// No design or copywriting experience required. Cancel anytime.</p>
     </div>
     <div className="hero-visual">
-      <div className="browser-frame">
-        <div className="browser-bar"><span></span><span></span><span></span><div className="url">ofiq.app</div></div>
-        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop" alt="OfferIQ workspace dashboard" />
-      </div>
-      <div className="float-card float-score">
-        <div className="score-ring"></div>
-        <div><div className="label">Funnel Health</div><div className="value">Ready to launch</div></div>
-      </div>
-      <div className="float-card float-pulse">
-        <span className="pulse-dot"></span><span className="txt">Intelligence Report: <b>Complete</b></span>
+      <div className="video-shell reveal h-full">
+        <button className="play-btn" aria-label="Play demo video">
+          <Play className="w-7 h-7 text-white ml-1" />
+        </button>
+        <span className="video-label">Product demo</span>
+        <span className="video-duration">4:12</span>
       </div>
     </div>
   </div>
@@ -256,9 +252,9 @@ export function WelcomePage() {
         <span className="feature-tag">01 · Workspace &amp; Live Tracking</span>
         <h3>Every offer lives in one workspace, tracked from day one</h3>
         <ul className="feature-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span><b>Live Tracking</b> starts the moment your workspace is created — views, visitors, and conversion rate update automatically.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>A running <b>Funnel Health Score</b> gives you one number for how launch-ready your offer really is.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span><b>Global Traffic Distribution</b> maps where your visitors are actually coming from, by region.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span><b>Live Tracking</b> starts the moment your workspace is created — views, visitors, and conversion rate update automatically.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span>A running <b>Funnel Health Score</b> gives you one number for how launch-ready your offer really is.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span><b>Global Traffic Distribution</b> maps where your visitors are actually coming from, by region.</span></li>
         </ul>
       </div>
       <div className="feature-media">
@@ -272,9 +268,9 @@ export function WelcomePage() {
         <span className="feature-tag">02 · Choice Gate</span>
         <h3>Start from what you have — or start from nothing at all</h3>
         <ul className="feature-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span><b>Analyse &amp; Build My Offer</b> for a URL, PDF, or idea you already have.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span><b>Build an Offer For Me</b> generates five validated offer ideas from your niche, audience, and price range.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Every path lands in the same place: a complete Intelligence Report, ready in minutes.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span><b>Analyse &amp; Build My Offer</b> for a URL, PDF, or idea you already have.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span><b>Build an Offer For Me</b> generates five validated offer ideas from your niche, audience, and price range.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span>Every path lands in the same place: a complete Intelligence Report, ready in minutes.</span></li>
         </ul>
       </div>
       <div className="feature-media">
@@ -288,9 +284,9 @@ export function WelcomePage() {
         <span className="feature-tag">03 · Copy Engine</span>
         <h3>Copy written in your buyer's exact words</h3>
         <ul className="feature-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Full funnel copy — <b>lead page, sales page (up to 12,000 words), upsell, downsell, thank-you</b> — generated from the Intelligence Report, not a template.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Refine any section by chatting with the <b>OfferIQ Agent</b>: "make the problem section more specific to my audience."</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Inline editing on every section — <b>no copywriting experience required.</b></span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span>Full funnel copy — <b>lead page, sales page (up to 12,000 words), upsell, downsell, thank-you</b> — generated from the Intelligence Report, not a template.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span>Refine any section by chatting with the <b>OfferIQ Agent</b>: "make the problem section more specific to my audience."</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span>Inline editing on every section — <b>no copywriting experience required.</b></span></li>
         </ul>
       </div>
       <div className="feature-media">
@@ -304,9 +300,9 @@ export function WelcomePage() {
         <span className="feature-tag">04 · Traffic Intelligence™ + Email Sequences</span>
         <h3>Know where to spend before you spend a dollar</h3>
         <ul className="feature-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>A <b>platform priority matrix</b> ranks Meta, Google, and TikTok for your specific offer and audience.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Ready-to-deploy <b>ad copy, a VSL script, and a UGC script</b> — written from the same persona data as your sales page.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Five full <b>email sequences</b> — Lead Nurture, Launch, Re-engagement, Onboarding, Upsell — ready to connect to your leads.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span>A <b>platform priority matrix</b> ranks Meta, Google, and TikTok for your specific offer and audience.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span>Ready-to-deploy <b>ad copy, a VSL script, and a UGC script</b> — written from the same persona data as your sales page.</span></li>
+          <li><Check className="w-[18px] h-[18px] mt-[3px] text-emerald-400 shrink-0" /><span>Five full <b>email sequences</b> — Lead Nurture, Launch, Re-engagement, Onboarding, Upsell — ready to connect to your leads.</span></li>
         </ul>
       </div>
       <div className="feature-media">
@@ -336,9 +332,9 @@ export function WelcomePage() {
           <div className="mock-pdf"><div className="icon"></div><div className="t">Launch Week Playbook</div><span className="badge">Fast-Action</span></div>
         </div>
         <ul className="vault-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span><b>Auto-identified</b> the moment your Intelligence Report is ready — no manual setup.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Generated in <b>under 60 seconds</b>, written from your persona and pain-point data — not filler.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Three categories: <b>Lead Magnets, Core Bonuses, Fast-Action Bonuses</b> — each formatted and ready to attach.</span></li>
+          <li><Check className="w-[15px] h-[15px] mt-[3px] text-violet-400 shrink-0" /><span><b>Auto-identified</b> the moment your Intelligence Report is ready — no manual setup.</span></li>
+          <li><Check className="w-[15px] h-[15px] mt-[3px] text-violet-400 shrink-0" /><span>Generated in <b>under 60 seconds</b>, written from your persona and pain-point data — not filler.</span></li>
+          <li><Check className="w-[15px] h-[15px] mt-[3px] text-violet-400 shrink-0" /><span>Three categories: <b>Lead Magnets, Core Bonuses, Fast-Action Bonuses</b> — each formatted and ready to attach.</span></li>
         </ul>
         <div className="vault-note">// Downloadable as formatted PDF, titled and structured, no extra design work.</div>
       </div>
@@ -353,9 +349,9 @@ export function WelcomePage() {
           <div className="mock-template"><div className="thumb"></div><div className="cap">UGC Ad Script<span className="cat">Traffic</span></div></div>
         </div>
         <ul className="vault-list">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Browse templates by <b>niche, funnel type, or price point</b> instead of designing from a blank canvas.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>One click applies a template's <b>full design direction</b> — layout, palette, and copy structure — to any page.</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>New templates added on an <b>ongoing basis</b> as new top-performing offers enter the database.</span></li>
+          <li><Check className="w-[15px] h-[15px] mt-[3px] text-violet-400 shrink-0" /><span>Browse templates by <b>niche, funnel type, or price point</b> instead of designing from a blank canvas.</span></li>
+          <li><Check className="w-[15px] h-[15px] mt-[3px] text-violet-400 shrink-0" /><span>One click applies a template's <b>full design direction</b> — layout, palette, and copy structure — to any page.</span></li>
+          <li><Check className="w-[15px] h-[15px] mt-[3px] text-violet-400 shrink-0" /><span>New templates added on an <b>ongoing basis</b> as new top-performing offers enter the database.</span></li>
         </ul>
         <div className="vault-note">// Included at every tier — Growth and Agency unlock expanded categories and earlier access to new drops.</div>
       </div>
@@ -363,23 +359,6 @@ export function WelcomePage() {
   </div>
 </section>
 
-
-<section className="section" id="demo">
-  <div className="wrap">
-    <div className="section-head center reveal">
-      <span className="eyebrow center">See It Live</span>
-      <h2>Watch OfferIQ build a complete offer, start to finish</h2>
-      <p>One idea in. A live, payment-enabled funnel out. Real time, no cuts.</p>
-    </div>
-    <div className="video-shell video-shell--empty reveal">
-      <button className="play-btn" aria-label="Play demo video">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-      </button>
-      <span className="video-label">Product demo</span>
-      <span className="video-duration">4:12</span>
-    </div>
-  </div>
-</section>
 
 
 <section className="section" id="story">
@@ -428,28 +407,6 @@ export function WelcomePage() {
 </section>
 
 
-<section className="section" id="calculator">
-  <div className="wrap">
-    <div className="section-head center reveal">
-      <span className="eyebrow center">Do The Math</span>
-      <h2>What would this cost you to build manually?</h2>
-      <p>Drag the slider to your actual launch plan for the year.</p>
-    </div>
-    <div className="calc reveal">
-      <div>
-        <div className="calc-slider-label"><span>Offers you want to launch this year</span><b id="offerCount">5</b></div>
-        <input type="range" min="1" max="30" value="5" id="offerSlider" />
-        <p style={{"marginTop": "22px", "fontSize": "13.5px", "color": "var(--text-faint)", }}>Based on a conservative blended estimate of $8,000 per offer for a strategist, copywriter, designer, and media buyer working separately.</p>
-      </div>
-      <div className="calc-result">
-        <div className="calc-line old"><span className="l">Hiring it out</span><span className="v" id="manualCost">$40,000</span></div>
-        <div className="calc-line new"><span className="l">With OfferIQ</span><span className="v" id="iqCost">$49</span></div>
-        <div className="calc-save"><b id="savedAmount">$39,951 saved</b><span id="savedLabel">Across 5 offers this year</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 
 <section className="section" id="pricing">
   <div className="wrap">
@@ -464,14 +421,14 @@ export function WelcomePage() {
         <div className="price-amount"><span className="num">$49</span><span className="period">one-time</span></div>
         <p className="price-sub">One-time. 5 offer credits, forever.</p>
         <ul className="price-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span><b>5 offer credits</b> — yours forever, never expire</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>1 Workspace</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Full 4-Phase Engine: Intelligence, Copy, Pages, Traffic</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Asset Bank — lead magnets &amp; bonuses</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Email Sequences</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>OfferIQ subdomain publishing</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Payment &amp; Autoresponder integration</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Standard support</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span><b>5 offer credits</b> — yours forever, never expire</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>1 Workspace</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Full 4-Phase Engine: Intelligence, Copy, Pages, Traffic</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Asset Bank — lead magnets &amp; bonuses</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Email Sequences</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>OfferIQ subdomain publishing</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Payment &amp; Autoresponder integration</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Standard support</span></li>
         </ul>
         <p className="price-best">Best for testing the platform and launching your first 1–3 offers.</p>
         <a href="/login" className="btn btn-ghost">Get Starter</a>
@@ -483,15 +440,15 @@ export function WelcomePage() {
         <div className="price-amount"><span className="num">$149</span><span className="period">one-time</span></div>
         <p className="price-sub">One-time. 10 offer credits, forever.</p>
         <ul className="price-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Everything in Starter, plus:</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span><b>10 offer credits</b> — yours forever, never expire</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>3 Workspaces</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>5 Team member seats</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Remove "Built with OfferIQ" branding</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Advanced Analytics dashboard</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Custom domain connection</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Pixel tracking embed</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Priority support</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Everything in Starter, plus:</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span><b>10 offer credits</b> — yours forever, never expire</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>3 Workspaces</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>5 Team member seats</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Remove "Built with OfferIQ" branding</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Advanced Analytics dashboard</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Custom domain connection</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Pixel tracking embed</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Priority support</span></li>
         </ul>
         <p className="price-best">Best for active creators running multiple offers or brands.</p>
         <a href="/login" className="btn btn-primary">Get Growth</a>
@@ -502,14 +459,14 @@ export function WelcomePage() {
         <div className="price-amount"><span className="num">$497</span><span className="period">one-time</span></div>
         <p className="price-sub">One-time. 30 offer credits, forever.</p>
         <ul className="price-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Everything in Growth, plus:</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span><b>30 offer credits</b> — yours forever, never expire</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Unlimited Workspaces</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>10 Team member seats</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>20 client sub-accounts for agency delivery</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Agency asset pack — proposals &amp; branded covers</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Done-For-You onboarding session</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>Dedicated priority support channel</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Everything in Growth, plus:</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span><b>30 offer credits</b> — yours forever, never expire</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Unlimited Workspaces</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>10 Team member seats</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>20 client sub-accounts for agency delivery</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Agency asset pack — proposals &amp; branded covers</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Done-For-You onboarding session</span></li>
+          <li><Check className="w-[16px] h-[16px] mt-[3px] text-violet-400 shrink-0" /><span>Dedicated priority support channel</span></li>
         </ul>
         <p className="price-best">Best for agencies and consultants delivering offer strategy as a service.</p>
         <a href="/login" className="btn btn-ghost">Get Agency</a>
@@ -517,7 +474,7 @@ export function WelcomePage() {
     </div>
 
     <div className="guarantee-strip reveal">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+      <Check className="w-5 h-5 text-emerald-400 shrink-0" />
       <span>Backed by a 60-day money-back guarantee. If OfferIQ isn't right for you, get a full refund — no conditions.</span>
     </div>
     <p className="fomo-note">// Additional offer credits available at $10/each after your pool is used. Codes stack up to 3× per tier. Lifetime one-time pricing like this doesn't outlast standard SaaS pricing forever.</p>
@@ -544,7 +501,7 @@ export function WelcomePage() {
       <p>Every month without a validated offer is a month of revenue you don't make. OfferIQ closes the gap between idea and income — in one session.</p>
       <div className="final-cta-row">
         <a href="/login" className="btn btn-primary">Analyse My Offer
-          <svg className="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          <ArrowRight className="icon-inline w-4 h-4" />
         </a>
         <a href="/login" className="btn btn-ghost">See Pricing</a>
       </div>

@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OfferIQ — Build Profitable Offers With Intelligence</title>
+<meta name="description" content="OfferIQ turns any idea into a complete revenue system — intelligence, copy, funnel, and traffic strategy, built in one session." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#08080D;
+    --bg-alt:#0B0B12;
+    --surface:#14141F;
+    --surface-2:#191927;
+    --surface-3:#1E1E2E;
+    --border:rgba(255,255,255,0.08);
+    --border-strong:rgba(255,255,255,0.14);
+    --text:#F5F5F7;
+    --text-dim:#A6A6B3;
+    --text-faint:#6B6B7B;
+    --violet:#8B5CF6;
+    --violet-soft:#A78BFA;
+    --magenta:#EC4899;
+    --blue:#4F8CFF;
+    --amber:#F5A623;
+    --green:#34D399;
+    --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    --gradient-primary-hover: linear-gradient(135deg, #9B6FF7 0%, #F158A3 100%);
+    --gradient-text: linear-gradient(135deg, #C4B5FD 0%, #F9A8D4 100%);
+    --gradient-bar: linear-gradient(90deg, #8B5CF6 0%, #EC4899 55%, #F5A623 100%);
+    --font-display:'Clash Display', 'General Sans', sans-serif;
+    --font-body:'General Sans', -apple-system, sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --radius-sm:10px;
+    --radius-md:16px;
+    --radius-lg:24px;
+    --container: 1180px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.6;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+  img{max-width:100%; display:block;}
+  ul{list-style:none;}
+
+  ::selection{background:var(--violet); color:#fff;}
+
+  :focus-visible{
+    outline:2px solid var(--violet-soft);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--surface-3); border-radius:10px;}
+
+  .wrap{max-width:var(--container); margin:0 auto; padding:0 28px;}
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--violet-soft);
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--gradient-primary);
+    box-shadow:0 0 12px rgba(236,72,153,0.6);
+  }
+
+  h1,h2,h3,h4{font-family:var(--font-display); font-weight:600; letter-spacing:-0.02em; line-height:1.08;}
+
+  .section{padding:120px 0;}
+  @media (max-width:768px){ .section{padding:76px 0;} }
+
+  .section-head{max-width:680px; margin-bottom:64px;}
+  .section-head.center{margin-left:auto; margin-right:auto; text-align:center;}
+  .section-head h2{font-size:clamp(28px,4vw,44px); margin-bottom:18px;}
+  .section-head p{font-size:17px; color:var(--text-dim); max-width:560px;}
+  .section-head.center p{margin-left:auto; margin-right:auto;}
+
+  .grad-text{
+    background:var(--gradient-text);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:15px 28px;
+    border-radius:100px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:15px;
+    white-space:nowrap;
+    transition:transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .btn-primary{
+    background:var(--gradient-primary);
+    color:#fff;
+    box-shadow:0 8px 30px -8px rgba(139,92,246,0.6);
+  }
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 12px 36px -6px rgba(236,72,153,0.55); background:var(--gradient-primary-hover);}
+  .btn-ghost{
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--border-strong);
+    color:var(--text);
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,0.08); transform:translateY(-2px);}
+  .btn-sm{padding:10px 18px; font-size:13.5px;}
+  .btn svg{width:16px; height:16px; flex-shrink:0;}
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:20px 0;
+    transition:padding 0.3s ease, background 0.3s ease, border 0.3s ease;
+    border-bottom:1px solid transparent;
+  }
+  .nav.scrolled{
+    padding:12px 0;
+    background:rgba(8,8,13,0.82);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav .wrap{display:flex; align-items:center; justify-content:space-between;}
+  .nav-logo{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-size:19px; font-weight:600;}
+  .nav-logo .mark{
+    width:30px; height:30px; border-radius:9px;
+    background:var(--gradient-primary);
+    position:relative;
+    box-shadow:0 4px 16px -4px rgba(139,92,246,0.7);
+  }
+  .nav-logo .mark::after{
+    content:'';
+    position:absolute; inset:0; margin:auto;
+    width:10px; height:10px;
+    background:#fff; border-radius:3px;
+    top:50%; left:50%; transform:translate(-50%,-50%) rotate(45deg);
+  }
+  .nav-links{display:flex; align-items:center; gap:36px;}
+  .nav-links a{font-size:14.5px; color:var(--text-dim); transition:color 0.2s;}
+  .nav-links a:hover{color:var(--text);}
+  .nav-cta{display:flex; align-items:center; gap:14px;}
+  @media (max-width:900px){
+    .nav-links{display:none;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:170px 0 100px;
+    background:
+      radial-gradient(ellipse 900px 500px at 82% 8%, rgba(139,92,246,0.30), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 10% 30%, rgba(236,72,153,0.16), transparent 60%),
+      var(--bg);
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(ellipse 900px 500px at 60% 0%, black, transparent 75%);
+    pointer-events:none;
+  }
+  .hero-grid{
+    position:relative; z-index:1;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:56px;
+    align-items:center;
+  }
+  @media (max-width:980px){ .hero-grid{grid-template-columns:1fr; text-align:center;} }
+
+  .hero-copy h1{font-size:clamp(36px,5.2vw,58px); margin-bottom:24px;}
+  .hero-copy .lede{font-size:18px; color:var(--text-dim); max-width:520px; margin-bottom:34px;}
+  @media (max-width:980px){ .hero-copy .lede{margin-left:auto; margin-right:auto;} }
+
+  .hero-cta-row{display:flex; flex-wrap:wrap; gap:16px; margin-bottom:22px;}
+  @media (max-width:980px){ .hero-cta-row{justify-content:center;} }
+  .hero-micro{font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); letter-spacing:0.02em; line-height:1.8;}
+
+  .hero-visual{position:relative;}
+  .browser-frame{
+    background:var(--surface);
+    border:1px solid var(--border-strong);
+    border-radius:var(--radius-md);
+    overflow:hidden;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
+    transform:perspective(1400px) rotateY(-6deg) rotateX(2deg);
+    transition:transform 0.6s ease;
+  }
+  .browser-frame:hover{transform:perspective(1400px) rotateY(-2deg) rotateX(1deg);}
+  .browser-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:12px 16px;
+    background:var(--surface-2);
+    border-bottom:1px solid var(--border);
+  }
+  .browser-bar span{width:9px; height:9px; border-radius:50%; background:var(--border-strong);}
+  .browser-bar .url{
+    margin-left:10px;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--text-faint);
+    background:rgba(255,255,255,0.04);
+    padding:4px 10px;
+    border-radius:6px;
+  }
+
+  /* ---------- CUSTOM MOCKUP ILLUSTRATIONS (replace screenshots) ---------- */
+  .mock-report{padding:26px 26px 30px;}
+  .mock-report-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;}
+  .mock-report-title{font-family:var(--font-display); font-size:15px; font-weight:600;}
+  .mock-report-title span{display:block; font-family:var(--font-mono); font-size:10.5px; color:var(--text-faint); font-weight:400; letter-spacing:0.06em; text-transform:uppercase; margin-top:3px;}
+  .mock-ring{
+    width:64px; height:64px; border-radius:50%;
+    background:conic-gradient(var(--violet) 0% 82%, rgba(255,255,255,0.08) 82% 100%);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .mock-ring::after{
+    content:'82'; font-family:var(--font-mono); font-weight:600; font-size:16px;
+    width:50px; height:50px; border-radius:50%;
+    background:var(--surface); display:flex; align-items:center; justify-content:center;
+  }
+  .mock-rows{display:flex; flex-direction:column; gap:10px;}
+  .mock-row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:11px 14px; font-size:13px; color:var(--text-dim);
+  }
+  .mock-row .dot{width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0; box-shadow:0 0 0 0 rgba(52,211,153,0.5); animation:pulseDot 2.4s infinite;}
+  .mock-row .dot.pending{background:var(--amber); animation:none;}
+  .mock-row b{color:var(--text); font-weight:600;}
+  .mock-row .pct{margin-left:auto; font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint);}
+
+  .mock-copy{padding:26px;}
+  .mock-copy-line{height:11px; border-radius:5px; background:var(--surface-2); margin-bottom:12px; position:relative; overflow:hidden;}
+  .mock-copy-line::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    animation:shimmer 2.6s infinite;
+  }
+  @keyframes shimmer{ 0%{transform:translateX(-100%);} 100%{transform:translateX(100%);} }
+  .mock-copy-caret{display:inline-block; width:2px; height:14px; background:var(--violet-soft); margin-left:2px; animation:blink 1s step-end infinite; vertical-align:middle;}
+  @keyframes blink{ 50%{opacity:0;} }
+
+  .mock-pages{padding:26px; display:flex; gap:16px;}
+  .mock-page-thumb{flex:1; border-radius:10px; overflow:hidden; border:1px solid var(--border); background:var(--surface-2);}
+  .mock-page-thumb .bar{height:8px; background:var(--gradient-primary);}
+  .mock-page-thumb .body{padding:12px; display:flex; flex-direction:column; gap:6px;}
+  .mock-page-thumb .body div{height:6px; border-radius:3px; background:rgba(255,255,255,0.08);}
+  .mock-page-thumb .body div:nth-child(1){width:70%;}
+  .mock-page-thumb .body div:nth-child(2){width:100%;}
+  .mock-page-thumb .body div:nth-child(3){width:45%;}
+  .mock-swatches{display:flex; gap:6px; padding:0 12px 12px;}
+  .mock-swatch{width:16px; height:16px; border-radius:5px;}
+
+  .mock-traffic{padding:26px;}
+  .mock-bar-row{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+  .mock-bar-row .plat{width:64px; font-family:var(--font-mono); font-size:11.5px; color:var(--text-dim); flex-shrink:0;}
+  .mock-bar-track{flex:1; height:8px; border-radius:6px; background:var(--surface-2); overflow:hidden;}
+  .mock-bar-fill{height:100%; border-radius:6px; background:var(--gradient-primary);}
+  .mock-bar-row .val{font-family:var(--font-mono); font-size:11px; color:var(--text-faint); width:34px; text-align:right;}
+
+  .media-caption{
+    font-family:var(--font-mono); font-size:11px; color:var(--text-faint);
+    padding:12px 16px; border-top:1px solid var(--border); background:var(--surface-2);
+  }
+
+  .float-card{
+    position:absolute;
+    background:var(--surface-2);
+    border:1px solid var(--border-strong);
+    border-radius:14px;
+    padding:14px 16px;
+    box-shadow:0 20px 50px -16px rgba(0,0,0,0.6);
+    animation:floatY 5s ease-in-out infinite;
+  }
+  @keyframes floatY{ 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-10px);} }
+  .float-score{
+    top:-30px; right:-18px;
+    display:flex; align-items:center; gap:12px;
+  }
+  @media (max-width:980px){ .float-score{right:8px;} }
+  .score-ring{
+    width:52px; height:52px; border-radius:50%;
+    background:conic-gradient(var(--violet) 0% 82%, rgba(255,255,255,0.08) 82% 100%);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .score-ring::after{
+    content:'82';
+    font-family:var(--font-mono); font-weight:600; font-size:14px;
+    width:40px; height:40px; border-radius:50%;
+    background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .float-score .label{font-family:var(--font-mono); font-size:11px; color:var(--text-faint); letter-spacing:0.06em; text-transform:uppercase;}
+  .float-score .value{font-size:13.5px; font-weight:600; margin-top:2px;}
+
+  .float-pulse{
+    bottom:-24px; left:-20px;
+    animation-delay:1.2s;
+    display:flex; align-items:center; gap:10px;
+  }
+  @media (max-width:980px){ .float-pulse{left:8px;} }
+  .pulse-dot{width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(52,211,153,0.6); animation:pulseDot 1.8s infinite;}
+  @keyframes pulseDot{ 0%{box-shadow:0 0 0 0 rgba(52,211,153,0.5);} 70%{box-shadow:0 0 0 8px rgba(52,211,153,0);} 100%{box-shadow:0 0 0 0 rgba(52,211,153,0);} }
+  .float-pulse .txt{font-family:var(--font-mono); font-size:12px;}
+  .float-pulse .txt b{color:var(--green); font-weight:600;}
+
+  /* ---------- REVEAL ---------- */
+  .reveal{opacity:0; transform:translateY(28px); transition:opacity 0.8s ease, transform 0.8s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ---------- WHY THIS MATTERS ---------- */
+  .why-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:40px;}
+  @media (max-width:900px){ .why-grid{grid-template-columns:1fr;} }
+  .why-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:32px 28px; transition:border-color 0.3s ease, transform 0.3s ease;
+  }
+  .why-card:hover{border-color:rgba(139,92,246,0.35); transform:translateY(-4px);}
+  .why-icon{
+    width:44px; height:44px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+    background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.25);
+    color:var(--violet-soft);
+  }
+  .why-icon svg{width:22px; height:22px;}
+  .why-card .stat{font-family:var(--font-display); font-size:32px; margin-bottom:6px; background:var(--gradient-text); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .why-card .tag{font-family:var(--font-mono); font-size:11.5px; color:var(--magenta); letter-spacing:0.06em; text-transform:uppercase; display:block; margin-bottom:10px;}
+  .why-card p{color:var(--text-dim); font-size:14.5px; margin-bottom:14px;}
+  .why-card .src{font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint);}
+  .why-close{
+    text-align:center; font-size:17px; font-weight:500; max-width:640px; margin:0 auto; padding-top:8px;
+  }
+  .why-close .accent{color:var(--violet-soft);}
+
+  /* ---------- CHOICE GATE ---------- */
+  .gate-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  @media (max-width:820px){ .gate-grid{grid-template-columns:1fr;} }
+  .gate-card{
+    position:relative;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:36px;
+    overflow:hidden;
+    transition:transform 0.35s ease, border-color 0.35s ease;
+  }
+  .gate-card:hover{transform:translateY(-6px); border-color:rgba(139,92,246,0.4);}
+  .gate-card::before{
+    content:'';
+    position:absolute; top:-60%; right:-40%;
+    width:280px; height:280px; border-radius:50%;
+    background:var(--gradient-primary); opacity:0.14; filter:blur(50px);
+  }
+  .gate-icon{
+    width:46px; height:46px; border-radius:13px; position:relative;
+    background:var(--gradient-primary); display:flex; align-items:center; justify-content:center;
+    margin-bottom:20px; box-shadow:0 10px 26px -10px rgba(139,92,246,0.6);
+  }
+  .gate-icon svg{width:22px; height:22px; color:#fff;}
+  .gate-index{font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); margin-bottom:14px; position:relative;}
+  .gate-card h3{font-size:24px; margin-bottom:14px; position:relative;}
+  .gate-card p{color:var(--text-dim); font-size:15px; margin-bottom:26px; position:relative;}
+  .gate-inputs{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; position:relative;}
+  .chip{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:var(--font-mono); font-size:12px;
+    padding:7px 13px; border-radius:100px;
+    background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    color:var(--text-dim);
+  }
+  .chip svg{width:13px; height:13px;}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .timeline{position:relative; margin-top:20px;}
+  .timeline::before{
+    content:'';
+    position:absolute; left:27px; top:14px; bottom:14px; width:1px;
+    background:linear-gradient(var(--violet), var(--magenta), transparent);
+  }
+  @media (max-width:700px){ .timeline::before{left:19px;} }
+  .tl-item{display:grid; grid-template-columns:56px 1fr; gap:24px; padding-bottom:36px; position:relative;}
+  @media (max-width:700px){ .tl-item{grid-template-columns:40px 1fr; gap:16px;} }
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-num{
+    width:56px; height:56px; border-radius:50%;
+    background:var(--surface-2); border:1px solid var(--border-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:600; font-size:16px;
+    color:var(--violet-soft); position:relative; z-index:1; flex-shrink:0;
+  }
+  @media (max-width:700px){ .tl-num{width:40px; height:40px; font-size:13px;} }
+  .tl-body{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:24px 28px; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
+    transition:border-color 0.3s ease;
+  }
+  .tl-body:hover{border-color:var(--border-strong);}
+  .tl-body h4{font-size:18px; margin-bottom:6px;}
+  .tl-body p{color:var(--text-dim); font-size:14.5px; max-width:560px;}
+  .tl-time{
+    font-family:var(--font-mono); font-size:13px; color:var(--amber);
+    background:rgba(245,166,35,0.1); border:1px solid rgba(245,166,35,0.25);
+    padding:6px 14px; border-radius:100px; white-space:nowrap;
+  }
+  .tl-foot{margin-top:8px; color:var(--text-dim); font-size:14.5px;}
+
+  /* ---------- FEATURE SHOWCASE ---------- */
+  .feature-row{
+    display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;
+    padding:70px 0; border-bottom:1px solid var(--border);
+  }
+  .feature-row:last-of-type{border-bottom:none;}
+  .feature-row.reverse .feature-copy{order:2;}
+  .feature-row.reverse .feature-media{order:1;}
+  @media (max-width:900px){
+    .feature-row{grid-template-columns:1fr; gap:32px; padding:44px 0;}
+    .feature-row.reverse .feature-copy, .feature-row.reverse .feature-media{order:initial;}
+  }
+  .feature-tag{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:12px; color:var(--blue);
+    letter-spacing:0.08em; text-transform:uppercase; margin-bottom:16px;
+  }
+  .feature-copy h3{font-size:clamp(22px,3vw,30px); margin-bottom:18px;}
+  .feature-list{display:flex; flex-direction:column; gap:14px; margin-top:22px;}
+  .feature-list li{display:flex; gap:12px; align-items:flex-start; font-size:15px; color:var(--text-dim);}
+  .feature-list li svg{width:18px; height:18px; flex-shrink:0; margin-top:3px; color:var(--green);}
+  .feature-list li b{color:var(--text); font-weight:600;}
+  .feature-media{
+    background:var(--surface); border:1px solid var(--border-strong); border-radius:var(--radius-md);
+    overflow:hidden; box-shadow:0 30px 70px -30px rgba(0,0,0,0.6);
+    transition:transform 0.4s ease;
+  }
+  .feature-media:hover{transform:translateY(-4px);}
+
+  /* ---------- ASSET BANK ---------- */
+  .vault-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  @media (max-width:900px){ .vault-grid{grid-template-columns:1fr;} }
+  .vault-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+    padding:36px; transition:transform 0.3s ease, border-color 0.3s ease;
+  }
+  .vault-card:hover{transform:translateY(-5px); border-color:var(--border-strong);}
+  .vault-icon{
+    width:48px; height:48px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+    margin-bottom:22px; background:rgba(236,72,153,0.12); border:1px solid rgba(236,72,153,0.25); color:var(--magenta);
+  }
+  .vault-card:nth-child(2) .vault-icon{background:rgba(79,140,255,0.12); border-color:rgba(79,140,255,0.25); color:var(--blue);}
+  .vault-icon svg{width:24px; height:24px;}
+  .vault-card h3{font-size:21px; margin-bottom:12px;}
+  .vault-card > p{color:var(--text-dim); font-size:14.5px; margin-bottom:22px;}
+  .vault-list{display:flex; flex-direction:column; gap:11px; margin-bottom:22px;}
+  .vault-list li{display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:var(--text-dim);}
+  .vault-list li svg{width:15px; height:15px; flex-shrink:0; margin-top:3px; color:var(--violet-soft);}
+  .vault-format-row{display:flex; gap:8px; flex-wrap:wrap;}
+
+  /* ---------- DEMO VIDEO ---------- */
+  .video-shell{
+    position:relative;
+    background:var(--surface);
+    border:1px solid var(--border-strong);
+    border-radius:var(--radius-lg);
+    aspect-ratio:16/8;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    background-image:
+      radial-gradient(ellipse 500px 300px at 30% 20%, rgba(139,92,246,0.25), transparent 60%),
+      radial-gradient(ellipse 500px 300px at 80% 90%, rgba(236,72,153,0.2), transparent 60%);
+  }
+  .video-shell::before{
+    content:'OFFERIQ — LIVE PRODUCT WALKTHROUGH';
+    position:absolute; font-family:var(--font-mono); font-size:11px; color:var(--text-faint); letter-spacing:0.08em;
+    top:20px; left:24px;
+  }
+  .play-btn{
+    width:84px; height:84px; border-radius:50%;
+    background:var(--gradient-primary);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 14px rgba(139,92,246,0.12), 0 20px 50px -12px rgba(139,92,246,0.6);
+    transition:transform 0.3s ease;
+  }
+  .play-btn:hover{transform:scale(1.08);}
+  .play-btn svg{width:28px; height:28px; margin-left:4px; color:#fff;}
+  .video-duration{
+    position:absolute; bottom:20px; right:24px;
+    font-family:var(--font-mono); font-size:12px;
+    background:rgba(0,0,0,0.5); padding:6px 12px; border-radius:6px;
+  }
+  .video-ctas{display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:36px;}
+  .video-note{text-align:center; color:var(--text-faint); font-size:13.5px; margin-top:18px; font-family:var(--font-mono);}
+
+  /* ---------- SCENARIOS ---------- */
+  .scenario-tabs{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:36px;}
+  .scenario-tab{
+    display:flex; align-items:center; gap:9px;
+    padding:11px 18px; border-radius:100px;
+    background:var(--surface); border:1px solid var(--border);
+    font-size:13.5px; color:var(--text-dim); transition:all 0.25s ease;
+  }
+  .scenario-tab .emoji{font-size:16px;}
+  .scenario-tab.active{background:var(--gradient-primary); border-color:transparent; color:#fff;}
+  .scenario-tab:not(.active):hover{border-color:var(--border-strong); color:var(--text);}
+
+  .scenario{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+    padding:52px; display:grid; grid-template-columns:0.9fr 1.1fr; gap:48px; align-items:center;
+  }
+  @media (max-width:900px){ .scenario{grid-template-columns:1fr; padding:30px;} }
+  .scenario-persona{display:flex; align-items:center; gap:14px; margin-bottom:22px;}
+  .avatar-placeholder{
+    width:52px; height:52px; border-radius:50%;
+    background:var(--gradient-primary);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+  }
+  .scenario-persona .who b{display:block; font-size:15.5px;}
+  .scenario-persona .who span{font-size:13px; color:var(--text-faint);}
+  .scenario blockquote{font-family:var(--font-display); font-weight:500; font-size:clamp(17px,2.1vw,22px); line-height:1.4; margin-bottom:18px;}
+  .scenario blockquote .accent{background:var(--gradient-text); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .scenario-body{color:var(--text-dim); font-size:14.5px;}
+  .scenario-stats{display:flex; flex-direction:column; gap:16px;}
+  .scenario-stat{display:flex; align-items:center; gap:16px; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:17px 20px;}
+  .scenario-stat svg{width:20px; height:20px; color:var(--violet-soft); flex-shrink:0;}
+  .scenario-stat .from{color:var(--text-faint); font-size:13.5px; text-decoration:line-through;}
+  .scenario-stat .to{font-size:16.5px; font-weight:600; color:var(--green);}
+  .scenario-stat .single{font-size:16.5px; font-weight:600; color:var(--text);}
+
+  /* ---------- COMPARISON TABLE ---------- */
+  .compare-table{
+    width:100%; border-collapse:collapse;
+    background:var(--surface); border-radius:var(--radius-md); overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .compare-table th, .compare-table td{
+    padding:18px 22px; text-align:left; font-size:14.5px; border-bottom:1px solid var(--border);
+  }
+  .compare-table th{
+    font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text-faint); background:var(--surface-2);
+  }
+  .compare-table tr:last-child td{border-bottom:none;}
+  .compare-table tr.total td{background:rgba(139,92,246,0.08); font-weight:600;}
+  .compare-table .cost-old{color:var(--text-dim);}
+  .compare-table .cost-new{color:var(--green); font-weight:600; display:flex; align-items:center; gap:6px;}
+  .compare-table .cost-new svg{width:15px; height:15px;}
+  .table-scroll{overflow-x:auto;}
+
+  /* ---------- CALCULATOR ---------- */
+  .calc{
+    background:linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%);
+    border:1px solid var(--border-strong); border-radius:var(--radius-lg);
+    padding:48px; display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center;
+  }
+  @media (max-width:900px){ .calc{grid-template-columns:1fr; padding:30px;} }
+  .calc-slider-label{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:13px; color:var(--text-dim); margin-bottom:14px;}
+  .calc-slider-label b{color:var(--text); font-size:15px;}
+  input[type=range]{
+    width:100%; -webkit-appearance:none; height:6px; border-radius:10px;
+    background:linear-gradient(90deg, var(--violet), var(--magenta));
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
+    background:#fff; border:4px solid var(--violet); cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  }
+  .calc-result{display:flex; flex-direction:column; gap:18px;}
+  .calc-line{display:flex; justify-content:space-between; align-items:baseline; padding-bottom:16px; border-bottom:1px solid var(--border);}
+  .calc-line .l{color:var(--text-dim); font-size:14.5px;}
+  .calc-line .v{font-family:var(--font-display); font-size:26px;}
+  .calc-line.old .v{color:var(--text-dim); text-decoration:line-through; font-size:20px;}
+  .calc-line.new .v{color:var(--green);}
+  .calc-save{
+    background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3);
+    border-radius:12px; padding:16px 20px; text-align:center;
+  }
+  .calc-save b{font-family:var(--font-display); font-size:22px; color:var(--green); display:block; margin-bottom:4px;}
+  .calc-save span{font-size:12.5px; color:var(--text-dim);}
+
+  /* ---------- PRICING ---------- */
+  .pricing-toggle-note{
+    text-align:center; margin-bottom:44px; padding:16px 24px; border:1px dashed var(--border-strong);
+    border-radius:14px; max-width:520px; margin-left:auto; margin-right:auto;
+  }
+  .pricing-toggle-note b{display:block; font-size:15px; margin-bottom:4px;}
+  .pricing-toggle-note span{font-size:13px; color:var(--text-dim);}
+  .pricing-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch;}
+  @media (max-width:980px){ .pricing-grid{grid-template-columns:1fr; max-width:440px; margin:0 auto;} }
+  .price-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+    padding:36px 30px; display:flex; flex-direction:column;
+    transition:transform 0.3s ease, border-color 0.3s ease;
+  }
+  .price-card:hover{transform:translateY(-6px);}
+  .price-card.popular{
+    border:1px solid var(--violet);
+    background:linear-gradient(180deg, rgba(139,92,246,0.08), var(--surface) 30%);
+    position:relative;
+  }
+  .popular-badge{
+    position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    background:var(--gradient-primary); color:#fff;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:6px 16px; border-radius:100px; white-space:nowrap;
+  }
+  .price-tier{font-family:var(--font-mono); font-size:12.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:14px;}
+  .price-amount{display:flex; align-items:baseline; gap:6px; margin-bottom:6px;}
+  .price-amount .num{font-family:var(--font-display); font-size:44px;}
+  .price-amount .period{color:var(--text-faint); font-size:14px;}
+  .price-sub{color:var(--text-dim); font-size:13.5px; margin-bottom:26px;}
+  .price-features{display:flex; flex-direction:column; gap:12px; margin-bottom:30px; flex-grow:1;}
+  .price-features li{display:flex; gap:10px; align-items:flex-start; font-size:14px; color:var(--text-dim);}
+  .price-features li svg{width:16px; height:16px; flex-shrink:0; margin-top:3px; color:var(--violet-soft);}
+  .price-features li b{color:var(--text);}
+  .price-best{font-size:12.5px; color:var(--text-faint); border-top:1px solid var(--border); padding-top:16px; margin-top:-6px; margin-bottom:20px;}
+
+  .guarantee-strip{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    margin-top:48px; padding:20px; border:1px dashed var(--border-strong); border-radius:14px;
+    font-size:14px; color:var(--text-dim); flex-wrap:wrap; text-align:center;
+  }
+  .guarantee-strip svg{width:22px; height:22px; color:var(--green); flex-shrink:0;}
+
+  /* ---------- FAQ ---------- */
+  .faq-list{display:flex; flex-direction:column; gap:14px;}
+  .faq-item{background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color 0.25s ease;}
+  .faq-item.open{border-color:var(--border-strong);}
+  .faq-q{
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+    padding:22px 26px; width:100%; text-align:left; font-size:16px; font-weight:500;
+  }
+  .faq-q .plus{
+    width:22px; height:22px; flex-shrink:0; position:relative;
+  }
+  .faq-q .plus::before, .faq-q .plus::after{
+    content:''; position:absolute; background:var(--text-dim);
+    top:50%; left:50%; transform:translate(-50%,-50%);
+  }
+  .faq-q .plus::before{width:14px; height:2px;}
+  .faq-q .plus::after{width:2px; height:14px; transition:transform 0.3s ease;}
+  .faq-item.open .plus::after{transform:translate(-50%,-50%) rotate(90deg) scaleY(0);}
+  .faq-a{
+    max-height:0; overflow:hidden; transition:max-height 0.35s ease;
+  }
+  .faq-a-inner{padding:0 26px 24px; color:var(--text-dim); font-size:14.5px; max-width:640px;}
+
+  /* ---------- FINAL CTA ---------- */
+  .final-cta{
+    text-align:center;
+    background:
+      radial-gradient(ellipse 700px 400px at 50% 0%, rgba(139,92,246,0.28), transparent 65%),
+      var(--surface);
+    border:1px solid var(--border-strong);
+    border-radius:var(--radius-lg);
+    padding:80px 40px;
+  }
+  .final-cta h2{font-size:clamp(28px,4.5vw,46px); margin-bottom:20px;}
+  .final-cta p{color:var(--text-dim); font-size:16px; max-width:520px; margin:0 auto 34px;}
+  .final-cta-row{display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:18px;}
+  .final-urgency{font-family:var(--font-mono); font-size:12.5px; color:var(--amber);}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:60px 0 36px; border-top:1px solid var(--border);}
+  .footer-top{display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; margin-bottom:50px;}
+  .footer-brand .nav-logo{margin-bottom:14px;}
+  .footer-brand p{color:var(--text-faint); font-size:13.5px; max-width:280px;}
+  .footer-cols{display:flex; gap:64px; flex-wrap:wrap;}
+  .footer-col h5{font-family:var(--font-mono); font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); margin-bottom:16px;}
+  .footer-col a{display:block; font-size:14px; color:var(--text-dim); margin-bottom:11px; transition:color 0.2s;}
+  .footer-col a:hover{color:var(--text);}
+  .footer-bottom{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding-top:26px; border-top:1px solid var(--border); font-size:12.5px; color:var(--text-faint);}
+
+  /* ---------- MOBILE STICKY CTA ---------- */
+  .mobile-cta{
+    position:fixed; bottom:0; left:0; right:0; z-index:90;
+    display:none; padding:14px 20px;
+    background:rgba(8,8,13,0.9); backdrop-filter:blur(14px);
+    border-top:1px solid var(--border);
+  }
+  @media (max-width:640px){ .mobile-cta{display:block;} .mobile-cta .btn{width:100%;} }
+
+  .badge-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  .integration-pill{
+    display:flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint);
+    background:var(--surface-2); border:1px solid var(--border);
+    padding:7px 12px; border-radius:100px;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ---------------- ICONS ---------------- */
+const Icon = ({ path, ...props }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    {path}
+  </svg>
+);
+const ArrowRight = (p) => <Icon {...p} path={<path d="M5 12h14M13 5l7 7-7 7" />} />;
+const Check = (p) => <Icon {...p} path={<path d="M20 6L9 17l-5-5" />} />;
+const Play = (p) => <Icon {...p} path={<path d="M8 5v14l11-7z" fill="currentColor" stroke="none" />} />;
+const Shield = (p) => <Icon {...p} path={<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" />} />;
+const Link2 = (p) => <Icon {...p} path={<><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1-1"/></>} />;
+const FileText = (p) => <Icon {...p} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></>} />;
+const PenLine = (p) => <Icon {...p} path={<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>} />;
+const Target = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></>} />;
+const Users = (p) => <Icon {...p} path={<><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>} />;
+const DollarSign = (p) => <Icon {...p} path={<><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>} />;
+const Compass = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></>} />;
+const TrendingUp = (p) => <Icon {...p} path={<><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>} />;
+const Zap = (p) => <Icon {...p} path={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>} />;
+const Clock = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>} />;
+const Globe = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></>} />;
+const Lock = (p) => <Icon {...p} path={<><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>} />;
+const RefreshCw = (p) => <Icon {...p} path={<><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>} />;
+const Layers = (p) => <Icon {...p} path={<><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>} />;
+const Rocket = (p) => <Icon {...p} path={<><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></>} />;
+const Package = (p) => <Icon {...p} path={<><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></>} />;
+const Palette = (p) => <Icon {...p} path={<><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2a10 10 0 1 0 0 20c.93 0 1.5-.8 1.5-1.5a2.4 2.4 0 0 0-.62-1.6 2 2 0 0 1 1.12-3.4h1.28A5.72 5.72 0 0 0 21 10c0-4.42-4.03-8-9-8z"/></>} />;
+
+/* ---------------- SCROLL REVEAL HOOK ---------------- */
+function useReveal(){
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if(!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if(entry.isIntersecting){ setInView(true); obs.unobserve(el); }
+    }, { threshold: 0.15 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, inView];
+}
+const Reveal = ({ children, className = "" }) => {
+  const [ref, inView] = useReveal();
+  return <div ref={ref} className={`reveal ${inView ? 'in' : ''} ${className}`}>{children}</div>;
+};
+
+/* ---------------- NAV ---------------- */
+function Nav(){
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <nav className={`nav ${scrolled ? 'scrolled' : ''}`}>
+      <div className="wrap">
+        <div className="nav-logo"><div className="mark"></div>OfferIQ</div>
+        <div className="nav-links">
+          <a href="#showcase">Product</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#faq">FAQs</a>
+        </div>
+        <div className="nav-cta">
+          <a href="#pricing" className="btn btn-primary btn-sm">Build My Offer Now <ArrowRight/></a>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+/* ---------------- HERO ---------------- */
+function Hero(){
+  return (
+    <header className="hero">
+      <div className="wrap hero-grid">
+        <div className="hero-copy">
+          <span className="eyebrow">Build Profitable Offers With Intelligence</span>
+          <h1>Stop guessing what sells.<br/>Engineer an offer that <span className="grad-text">does.</span></h1>
+          <p className="lede">
+            Upload a URL, a PDF, or a single idea. OfferIQ analyzes it against 35,000+ real converting
+            offers and hands you the complete revenue system: strategy, copy, a live funnel, and a
+            traffic plan — built in one session.
+          </p>
+          <div className="hero-cta-row">
+            <a href="#gate" className="btn btn-primary">Build My Next Offer <ArrowRight/></a>
+            <a href="#pricing" className="btn btn-ghost">Start Your $1 Trial</a>
+          </div>
+          <p className="hero-micro">
+            // $1 for your first 7 days, then $39/mo. Cancel anytime.<br/>
+            // No copywriting or design experience required. 30-day money-back guarantee.
+          </p>
+        </div>
+        <div className="hero-visual">
+          <div className="browser-frame">
+            <div className="browser-bar">
+              <span></span><span></span><span></span>
+              <div className="url">app.offeriq.com</div>
+            </div>
+            <div className="mock-report">
+              <div className="mock-report-top">
+                <div className="mock-report-title">Intelligence Report<span>Generated from your idea</span></div>
+                <div className="mock-ring"></div>
+              </div>
+              <div className="mock-rows">
+                <div className="mock-row"><span className="dot"></span>Offer Positioning <b>locked in</b><span className="pct">✓</span></div>
+                <div className="mock-row"><span className="dot"></span>Target Persona <b>mapped</b><span className="pct">✓</span></div>
+                <div className="mock-row"><span className="dot"></span>Pricing Strategy <b>$497 recommended</b><span className="pct">✓</span></div>
+                <div className="mock-row"><span className="dot pending"></span>Funnel Blueprint <b>assembling</b><span className="pct">92%</span></div>
+              </div>
+            </div>
+          </div>
+          <div className="float-card float-score">
+            <div className="score-ring"></div>
+            <div>
+              <div className="label">Funnel Health</div>
+              <div className="value">Ready to launch</div>
+            </div>
+          </div>
+          <div className="float-card float-pulse">
+            <span className="pulse-dot"></span>
+            <span className="txt">Intelligence Report: <b>Complete</b></span>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ---------------- WHY THIS MATTERS ---------------- */
+function WhyThisMatters(){
+  const cards = [
+    { icon:<Compass/>, tag:"The “Blank Canvas” Trap", stat:"42%", body:"of startups fail simply because they build products with absolutely no market need — chasing demand that was never there until the cash runs out.", src:"— Vincent, Founder of Preuve AI" },
+    { icon:<DollarSign/>, tag:"The Pricing Trap", stat:"18%", body:"of startups collapse due to flawed pricing models — charging too much for the market to bear, or too little to sustain operations.", src:"— ideaproof.io" },
+    { icon:<TrendingUp/>, tag:"The “Acquisition Cost” Trap", stat:"222%+", body:"is how far Customer Acquisition Costs have climbed. Hyper-expensive clicks sent to a slow, pieced-together funnel bleed profit dry before the first sale.", src:"— ProfitWell / Paddle" },
+  ];
+  return (
+    <section className="section" id="why">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Why This Matters Right Now</span>
+            <h2>Three traps quietly kill every offer<br/>before it has a chance to sell.</h2>
+          </div>
+        </Reveal>
+        <div className="why-grid">
+          {cards.map((c,i) => (
+            <Reveal key={i}>
+              <div className="why-card">
+                <div className="why-icon">{c.icon}</div>
+                <span className="tag">{c.tag}</span>
+                <div className="stat">{c.stat}</div>
+                <p>{c.body}</p>
+                <span className="src">{c.src}</span>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal>
+          <p className="why-close">OfferIQ is the end of trial-and-error marketing. <span className="accent">We replace the guesswork with a data-backed blueprint.</span></p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- CHOICE GATE ---------------- */
+function Gate(){
+  return (
+    <section className="section" id="gate">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Two Ways In</span>
+            <h2>Tell OfferIQ where you're starting from.</h2>
+            <p>There's no wrong entry point — just the one that matches what you already have.</p>
+          </div>
+        </Reveal>
+        <div className="gate-grid">
+          <Reveal>
+            <div className="gate-card">
+              <div className="gate-icon"><Link2/></div>
+              <span className="gate-index">01 / HAVE AN OFFER</span>
+              <h3>Analyse &amp; Build My Offer</h3>
+              <p>You already have an offer, a live page, or a rough idea. Paste a URL, upload a PDF, or describe it in your own words — OfferIQ builds the complete intelligence report, copy, and funnel around what you already have.</p>
+              <div className="gate-inputs">
+                <span className="chip"><Link2/> Paste a URL</span>
+                <span className="chip"><FileText/> Upload a PDF</span>
+                <span className="chip"><PenLine/> Describe it</span>
+              </div>
+              <a href="#pricing" className="btn btn-ghost btn-sm">Start here <ArrowRight/></a>
+            </div>
+          </Reveal>
+          <Reveal>
+            <div className="gate-card">
+              <div className="gate-icon"><Target/></div>
+              <span className="gate-index">02 / NO OFFER YET</span>
+              <h3>Build an Offer For Me</h3>
+              <p>You have an audience and expertise, but no product. Give OfferIQ your niche, audience, and price range — get validated offer ideas benchmarked against real converting funnels, ready to build the moment you pick one.</p>
+              <div className="gate-inputs">
+                <span className="chip"><Target/> Pick a niche</span>
+                <span className="chip"><Users/> Define your buyer</span>
+                <span className="chip"><DollarSign/> Set a price range</span>
+              </div>
+              <a href="#pricing" className="btn btn-ghost btn-sm">Start here <ArrowRight/></a>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- HOW IT WORKS ---------------- */
+function HowItWorks(){
+  const steps = [
+    { t:"Intelligence Report", time:"~4 min", d:"Your offer is analyzed against 35,000+ validated funnels — positioning, persona, pricing, hooks, and a full funnel blueprint come back specific to you." },
+    { t:"Copy Engine", time:"~2 min", d:"Lead page, long-form sales page, upsell, downsell, and thank-you copy — written from the intelligence report, in your buyer's exact vocabulary." },
+    { t:"Page Builder", time:"~5 min", d:"Every page assembles automatically using your design direction. Edit inline, or tell the AI copilot what to change in plain language." },
+    { t:"Traffic Intelligence™ & Email", time:"~4 min", d:"A platform priority matrix, ready-to-deploy ad copy, a VSL script, a UGC script, and full email sequences — before you spend a dollar on ads." },
+    { t:"Publish & Go Live", time:"instant", d:"Connect a domain, connect Stripe or PayPal, and deploy. Your funnel is public and payment-enabled." },
+  ];
+  return (
+    <section className="section" id="how-it-works">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head">
+            <span className="eyebrow">From Idea To Live Funnel</span>
+            <h2>The average user goes from first login to a live, payment-enabled funnel in under 30 minutes.</h2>
+            <p className="tl-foot">For a returning user building their second or third offer, it takes under 15.</p>
+          </div>
+        </Reveal>
+        <div className="timeline">
+          {steps.map((s,i) => (
+            <Reveal key={i}>
+              <div className="tl-item">
+                <div className="tl-num">{String(i+1).padStart(2,'0')}</div>
+                <div className="tl-body">
+                  <div>
+                    <h4>{s.t}</h4>
+                    <p>{s.d}</p>
+                  </div>
+                  <span className="tl-time">{s.time}</span>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- FEATURE SHOWCASE ---------------- */
+function FeatureRow({ tag, title, points, media, caption, reverse }){
+  return (
+    <Reveal>
+      <div className={`feature-row ${reverse ? 'reverse' : ''}`}>
+        <div className="feature-copy">
+          <span className="feature-tag">{tag}</span>
+          <h3>{title}</h3>
+          <ul className="feature-list">
+            {points.map((p,i) => (
+              <li key={i}><Check/><span dangerouslySetInnerHTML={{__html:p}}/></li>
+            ))}
+          </ul>
+        </div>
+        <div className="feature-media">
+          {media}
+          <div className="media-caption">{caption}</div>
+        </div>
+      </div>
+    </Reveal>
+  );
+}
+
+function Showcase(){
+  return (
+    <section className="section" id="showcase">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Product Showcase</span>
+            <h2>One workspace. Every phase of the offer, connected.</h2>
+            <p>Each phase reads the one before it — nothing here is generic, because none of it is generated in isolation.</p>
+          </div>
+        </Reveal>
+
+        <FeatureRow
+          tag={<><Compass style={{width:14,height:14}}/> 01 · Choice Gate</>}
+          title="Start from what you have — or start from nothing at all"
+          points={[
+            "<b>Analyse &amp; Build My Offer</b> for a URL, PDF, or idea you already have.",
+            "<b>Build an Offer For Me</b> generates validated offer ideas from your niche, audience, and price range.",
+            "Every path lands in the same place: a complete Intelligence Report, ready in minutes."
+          ]}
+          media={
+            <div className="mock-report">
+              <div className="mock-report-top">
+                <div className="mock-report-title">Choice Gate<span>Two entry points, one report</span></div>
+              </div>
+              <div className="mock-rows">
+                <div className="mock-row"><span className="dot"></span>URL analysed <b>ofiq-demo.com</b><span className="pct">✓</span></div>
+                <div className="mock-row"><span className="dot"></span>Niche selected <b>Online Coaching</b><span className="pct">✓</span></div>
+                <div className="mock-row"><span className="dot pending"></span>Report compiling <b>16 sections</b><span className="pct">76%</span></div>
+              </div>
+            </div>
+          }
+          caption="[ Illustration: OfferIQ choice gate → intelligence report ]"
+        />
+
+        <FeatureRow
+          tag={<><PenLine style={{width:14,height:14}}/> 02 · Copy and Pages Built From Your Data</>}
+          title="Copy and pages built from your data, not a template"
+          points={[
+            "Every word is written from your <b>Intelligence Report</b> — not a generic swipe file, so your copy actually speaks to your specific buyer.",
+            "Full funnel copy in one pass: <b>Lead Capture, Long-Form Sales Page (up to 12,000 words), Upsell, Downsell, and Thank You pages.</b>",
+            "Pages assemble themselves — colors, fonts, and layout pulled straight from your <b>Design Intelligence</b>, no design decisions left to guess at.",
+            "Refine anything by chatting — tell the built-in <b>AI copilot</b> “make this headline punchier” and watch it update in real time.",
+            "Drag-and-drop when you want manual control — reorder sections, swap images, edit inline."
+          ]}
+          media={
+            <div className="mock-copy">
+              <div className="mock-copy-line" style={{width:'88%'}}></div>
+              <div className="mock-copy-line" style={{width:'100%'}}></div>
+              <div className="mock-copy-line" style={{width:'64%'}}></div>
+              <div style={{height:16}}></div>
+              <div className="mock-copy-line" style={{width:'92%'}}></div>
+              <div className="mock-copy-line" style={{width:'40%'}}></div>
+              <p style={{fontFamily:'var(--font-mono)', fontSize:12, color:'var(--text-faint)', marginTop:14}}>Writing downsell copy<span className="mock-copy-caret"></span></p>
+            </div>
+          }
+          caption="[ Illustration: Copy Engine writing live from your Intelligence Report ]"
+          reverse
+        />
+
+        <FeatureRow
+          tag={<><Rocket style={{width:14,height:14}}/> 03 · Launch-Ready Assets, Live Pages, Real Analytics</>}
+          title="Launch-ready assets, live pages, and real analytics"
+          points={[
+            "<b>One-click publishing</b> — go live on an OfferIQ subdomain or connect your own custom domain.",
+            "<b>Stripe and PayPal</b> integration built in — your buy buttons work the moment you publish.",
+            "Built-in <b>CRM</b> for every lead across every funnel — plus per-funnel analytics on traffic, conversion rate, traffic quality, and device breakdown."
+          ]}
+          media={
+            <div className="mock-pages">
+              <div className="mock-page-thumb">
+                <div className="bar"></div>
+                <div className="body"><div></div><div></div><div></div></div>
+                <div className="mock-swatches">
+                  <span className="mock-swatch" style={{background:'#8B5CF6'}}></span>
+                  <span className="mock-swatch" style={{background:'#EC4899'}}></span>
+                  <span className="mock-swatch" style={{background:'#191927'}}></span>
+                </div>
+              </div>
+              <div className="mock-page-thumb">
+                <div className="bar" style={{background:'var(--surface-3)'}}></div>
+                <div className="body"><div></div><div></div><div></div></div>
+                <div className="mock-swatches">
+                  <span className="mock-swatch" style={{background:'#4F8CFF'}}></span>
+                  <span className="mock-swatch" style={{background:'#34D399'}}></span>
+                  <span className="mock-swatch" style={{background:'#191927'}}></span>
+                </div>
+              </div>
+            </div>
+          }
+          caption="[ Illustration: Published pages with design direction applied ]"
+        />
+
+        <FeatureRow
+          tag={<><Target style={{width:14,height:14}}/> 04 · Traffic Intelligence™ + Email</>}
+          title="Stop guessing where your buyers are"
+          points={[
+            "A complete acquisition strategy before you spend a dollar — <b>platform priority matrix</b> built from comparable converting funnels.",
+            "Ready-to-deploy <b>ad copy for Meta and Google</b> — plus a VSL script and a UGC script written from your persona data.",
+            "A <b>3-phase media buying plan</b> — so you know what to test first, second, and third instead of burning budget on random variations.",
+            "Full <b>email sequences</b> included — Lead Nurture, Launch, Re-engagement, Client Onboarding, and Upsell, ready to connect to your leads."
+          ]}
+          media={
+            <div className="mock-traffic">
+              <div className="mock-bar-row"><span className="plat">Meta</span><div className="mock-bar-track"><div className="mock-bar-fill" style={{width:'88%'}}></div></div><span className="val">88</span></div>
+              <div className="mock-bar-row"><span className="plat">Google</span><div className="mock-bar-track"><div className="mock-bar-fill" style={{width:'71%'}}></div></div><span className="val">71</span></div>
+              <div className="mock-bar-row"><span className="plat">Organic</span><div className="mock-bar-track"><div className="mock-bar-fill" style={{width:'54%'}}></div></div><span className="val">54</span></div>
+              <div className="mock-bar-row"><span className="plat">TikTok</span><div className="mock-bar-track"><div className="mock-bar-fill" style={{width:'39%'}}></div></div><span className="val">39</span></div>
+            </div>
+          }
+          caption="[ Illustration: Traffic Intelligence™ platform priority matrix ]"
+          reverse
+        />
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- ASSET BANK & TEMPLATE CLUB ---------------- */
+function Vault(){
+  return (
+    <section className="section" id="vault">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Built-In Vault</span>
+            <h2>Assets and templates, ready the moment you need them.</h2>
+          </div>
+        </Reveal>
+        <div className="vault-grid">
+          <Reveal>
+            <div className="vault-card">
+              <div className="vault-icon"><Package/></div>
+              <h3>Asset Bank — “Generates for you”</h3>
+              <p>The moment your Intelligence Report is ready, the Asset Bank already knows which lead magnets and bonuses will move the needle — and writes them for you as real, downloadable files.</p>
+              <ul className="vault-list">
+                <li><Check/>Auto-populated from your Bonus Stack &amp; Revenue Model — no manual setup.</li>
+                <li><Check/>One click generates a complete, titled, formatted PDF in under 60 seconds.</li>
+                <li><Check/>Covers lead magnets, core bonuses, and fast-action bonuses — each written in your buyer's exact vocabulary.</li>
+              </ul>
+              <div className="vault-format-row">
+                <span className="chip"><FileText/> Ebook</span>
+                <span className="chip"><FileText/> Checklist</span>
+                <span className="chip"><FileText/> Swipe File</span>
+                <span className="chip"><FileText/> Workbook</span>
+              </div>
+            </div>
+          </Reveal>
+          <Reveal>
+            <div className="vault-card">
+              <div className="vault-icon"><Palette/></div>
+              <h3>Template Club — “You choose the start”</h3>
+              <p>A growing library of pre-built funnel and page layouts, organized by niche and offer type — pulled from patterns that already convert. Browse, preview, and drop one straight into your workspace.</p>
+              <ul className="vault-list">
+                <li><Check/>Organized by niche and offer type — course, coaching, digital product, service.</li>
+                <li><Check/>New templates added continuously as a member's library, included with every plan.</li>
+                <li><Check/>Clone a template, then let your Intelligence Report auto-fill it with your own copy and design direction.</li>
+              </ul>
+              <div className="vault-format-row">
+                <span className="chip"><Layers/> Coach</span>
+                <span className="chip"><Layers/> Course</span>
+                <span className="chip"><Layers/> SaaS</span>
+                <span className="chip"><Layers/> Agency</span>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- DEMO VIDEO ---------------- */
+function DemoVideo(){
+  return (
+    <section className="section" id="demo">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">See It Live</span>
+            <h2>Watch OfferIQ build a complete offer, start to finish.</h2>
+            <p>One idea in. A live, payment-enabled funnel out. Real time.</p>
+          </div>
+        </Reveal>
+        <Reveal>
+          <div className="video-shell">
+            <button className="play-btn" aria-label="Watch the demo"><Play/></button>
+            <span className="video-duration">4:12</span>
+          </div>
+        </Reveal>
+        <Reveal>
+          <div className="video-ctas">
+            <a href="#gate" className="btn btn-primary">Build My Next Offer <ArrowRight/></a>
+            <a href="#pricing" className="btn btn-ghost">Start Your $1 Trial</a>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- ILLUSTRATIVE SCENARIOS ---------------- */
+function Scenarios(){
+  const scenarios = [
+    {
+      emoji:"🎓", tab:"Course Creator", who:"Marketing Consultant", meta:"34 · Austin, TX · 14K Instagram followers",
+      quote:<>"I'd researched competitors, taken two copywriting courses, and paid $800 for a coach call. <span className="accent">I still had nothing live.</span>"</>,
+      body:"She uploaded her course idea as a text description. In under a minute, OfferIQ returned her exact persona, a price point $300 higher than she'd planned to charge, five conversion hooks, and a full funnel blueprint — then wrote and built the entire funnel in the same session.",
+      stats:[
+        {from:"6 months stuck", to:"Live in one evening"},
+        {from:"$197 planned price", to:"$497 recommended price"},
+        {single:"5 pages + funnel — written, designed, and published in one session"},
+      ]
+    },
+    {
+      emoji:"🎤", tab:"Business Coach", who:"Executive Life Coach", meta:"41 · Atlanta, GA · $3,500 program",
+      quote:<>"I knew the problem was in the messaging. <span className="accent">I just couldn't see what was wrong with it.</span>"</>,
+      body:"She pasted her existing sales page URL into OfferIQ. The Intelligence Report found the real problem in seconds: her page led with a 12-step curriculum, but her buyer purchases from identity anxiety — they want to stop feeling behind, not learn a curriculum. OfferIQ rewrote the copy around that insight and raised her price to $4,500.",
+      stats:[
+        {from:"0.7% conversion", to:"2.5%+ projected, same ad budget"},
+        {from:"$9,600 spent, unprofitable", to:"Profitable within 30 days (projected)"},
+        {from:"$3,500 price", to:"$4,500 pricing correction"},
+      ]
+    },
+    {
+      emoji:"🏢", tab:"Agency Owner", who:"Digital Marketing Agency Owner", meta:"38 · Denver, CO · 6-person team",
+      quote:<>"Every new service means a new hiring decision. <span className="accent">I couldn't productize this without a repeatable system.</span>"</>,
+      body:"He wanted to add offer strategy and funnel building as a $3,000–$5,000 productized service, without hiring. He now runs each client's offer through OfferIQ — intelligence report, copy, and funnel delivered as a packaged deliverable. What took his team three weeks now takes two hours.",
+      stats:[
+        {from:"3 weeks per client", to:"2 hours per client"},
+        {single:"$15,000–$30,000/month projected new service-line revenue"},
+        {single:"Zero new hires required to deliver it"},
+      ]
+    },
+    {
+      emoji:"🌱", tab:"First-Time Entrepreneur", who:"Corporate HR Professional", meta:"29 · Chicago, IL · 8 yrs experience",
+      quote:<>"I knew I had teachable expertise. <span className="accent">I had no idea what to build, or where to start.</span>"</>,
+      body:"She had 18 months of “how to launch a course” content behind her and nothing live. She selected “Build an Offer For Me,” entered her niche and audience, and received five validated offer ideas. She picked “The 90-Day People Ops Accelerator” at $997 — OfferIQ built the full intelligence report and funnel for it in the same session.",
+      stats:[
+        {from:"18 months, no product", to:"Live funnel in under 3 hours"},
+        {single:"5 validated offer ideas generated from niche + audience + price range"},
+        {single:"$997 price point — market-tested, not guessed"},
+      ]
+    },
+  ];
+  const [active, setActive] = useState(0);
+  const s = scenarios[active];
+  return (
+    <section className="section" id="scenarios">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Illustrative Scenarios</span>
+            <h2>Whoever you are, the wall looks familiar.</h2>
+            <p>Four representative profiles — tap through to see how the same platform solves four different problems.</p>
+          </div>
+        </Reveal>
+        <Reveal>
+          <div className="scenario-tabs">
+            {scenarios.map((sc,i) => (
+              <button key={i} className={`scenario-tab ${active===i ? 'active' : ''}`} onClick={() => setActive(i)}>
+                <span className="emoji">{sc.emoji}</span>{sc.tab}
+              </button>
+            ))}
+          </div>
+        </Reveal>
+        <Reveal key={active}>
+          <div className="scenario">
+            <div>
+              <div className="scenario-persona">
+                <div className="avatar-placeholder">{s.emoji}</div>
+                <div className="who"><b>{s.who}</b><span>{s.meta}</span></div>
+              </div>
+              <blockquote>{s.quote}</blockquote>
+              <p className="scenario-body">{s.body}</p>
+            </div>
+            <div className="scenario-stats">
+              {s.stats.map((st,i) => (
+                <div className="scenario-stat" key={i}>
+                  <TrendingUp/>
+                  <div>
+                    {st.from && <div className="from">{st.from}</div>}
+                    {st.to && <div className="to">{st.to}</div>}
+                    {st.single && <div className="single">{st.single}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+        <Reveal>
+          <p style={{textAlign:'center', fontFamily:'var(--font-mono)', fontSize:12, color:'var(--text-faint)', marginTop:24}}>
+            Illustrative scenarios based on representative buyer profiles — not actual customer accounts.
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- COMPARISON TABLE ---------------- */
+function Compare(){
+  const rows = [
+    ["Offer strategy & positioning consultant", "$2,000 – $10,000 / project"],
+    ["Direct-response sales copywriter", "$2,000 – $15,000 / page"],
+    ["Landing page / funnel builder software", "$99 – $297 / month"],
+    ["Lead magnet & bonus design + writing", "$500 – $2,000 / asset"],
+    ["Paid traffic / media buying strategist", "$1,500 – $5,000 / month"],
+    ["Email sequence writing & tooling", "$50 – $150 / month + writer fees"],
+    ["CRM & lead analytics tool", "$50 – $300 / month"],
+  ];
+  return (
+    <section className="section" id="compare">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Replace The Stack</span>
+            <h2>What this replaces, per offer</h2>
+            <p>Typical market rates for each role, sourced from standard freelance and SaaS pricing ranges — for reference, not a guarantee.</p>
+          </div>
+        </Reveal>
+        <Reveal>
+          <div className="table-scroll">
+            <table className="compare-table">
+              <thead><tr><th>Capability</th><th>Typical Cost Elsewhere</th><th>In OfferIQ</th></tr></thead>
+              <tbody>
+                {rows.map((r,i) => (
+                  <tr key={i}>
+                    <td>{r[0]}</td>
+                    <td className="cost-old">{r[1]}</td>
+                    <td className="cost-new"><Check/> Included</td>
+                  </tr>
+                ))}
+                <tr className="total">
+                  <td>Total to replicate manually, per offer</td>
+                  <td className="cost-old">$21,000 – $172,000+</td>
+                  <td className="cost-new"><Zap/> From $39/mo</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- CALCULATOR ---------------- */
+function Calculator(){
+  const [offers, setOffers] = useState(5);
+  const manualCostPerOffer = 8000; // conservative blended low-end estimate across strategist/copywriter/designer/media-buyer
+  const starterAnnual = 39 * 12; // $468/yr, 5 credits/mo = 60/yr capacity
+  const growthAnnual = 69 * 12; // $828/yr, 10 credits/mo = 120/yr capacity
+  const manualTotal = offers * manualCostPerOffer;
+  const iqTotal = offers <= 60 ? starterAnnual : growthAnnual;
+  const savings = manualTotal - iqTotal;
+  const fmt = (n) => "$" + n.toLocaleString();
+  return (
+    <section className="section" id="calculator">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Do The Math</span>
+            <h2>What would this cost you to build manually?</h2>
+            <p>Drag the slider to your actual launch plan for the year.</p>
+          </div>
+        </Reveal>
+        <Reveal>
+          <div className="calc">
+            <div>
+              <div className="calc-slider-label"><span>Offers you want to launch this year</span><b>{offers}</b></div>
+              <input type="range" min="1" max="30" value={offers} onChange={e => setOffers(parseInt(e.target.value))} />
+              <p style={{marginTop:'22px', fontSize:'13.5px', color:'var(--text-faint)'}}>Based on a conservative blended estimate of $8,000 per offer for a strategist, copywriter, designer, and media buyer working separately.</p>
+            </div>
+            <div className="calc-result">
+              <div className="calc-line old"><span className="l">Hiring it out</span><span className="v">{fmt(manualTotal)}</span></div>
+              <div className="calc-line new"><span className="l">With OfferIQ (annual plan)</span><span className="v">{fmt(iqTotal)}</span></div>
+              <div className="calc-save">
+                <b>{fmt(savings)} saved</b>
+                <span>Across {offers} offer{offers > 1 ? 's' : ''} this year</span>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- PRICING ---------------- */
+function Pricing(){
+  const tiers = [
+    {
+      name:"Starter", price:"$39", period:"/mo", sub:"$1 for your first 7 days, then $39/mo. Cancel anytime.",
+      features:["<b>5 offer credits</b> — refreshed monthly","1 Workspace","Full 4-Phase Engine: Intelligence, Copy, Pages, Traffic","Asset Bank + Template Club access","Email Sequences","OfferIQ subdomain publishing","Payment & Autoresponder integration","Standard support"],
+      best:"Best for testing the platform and launching your first 1–3 offers.",
+      popular:false, cta:"Start Your $1 Trial"
+    },
+    {
+      name:"Growth", price:"$69", period:"/mo", sub:"Billed monthly. Cancel anytime.",
+      features:["Everything in Starter, plus:","<b>10 offer credits</b> — refreshed monthly","3 Workspaces","Remove “Built with OfferIQ” branding","Advanced Analytics dashboard","Custom domain connection","Pixel tracking embed","Priority support"],
+      best:"Best for active creators running multiple offers or brands.",
+      popular:true, cta:"Get Growth"
+    },
+    {
+      name:"Agency", price:"$179", period:"one-time", sub:"A single payment — not a subscription.",
+      features:["Everything in Growth, plus:","<b>30 offer credits</b> — yours forever, never expire","30 Workspaces","30 client sub-accounts for agency delivery","Agency asset pack — proposals & branded covers","Done-For-You onboarding session","Dedicated priority support channel"],
+      best:"Best for agencies and consultants delivering offer strategy as a service.",
+      popular:false, cta:"Get Agency"
+    },
+  ];
+  return (
+    <section className="section" id="pricing">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Pricing</span>
+            <h2>Simple monthly pricing.</h2>
+            <p>Try Starter for $1 over your first 7 days, then $39/mo. Cancel anytime — from your account, in one click.</p>
+          </div>
+        </Reveal>
+        <div className="pricing-grid">
+          {tiers.map((t,i) => (
+            <Reveal key={i}>
+              <div className={`price-card ${t.popular ? 'popular' : ''}`}>
+                {t.popular && <span className="popular-badge">Most Popular</span>}
+                <span className="price-tier">{t.name}</span>
+                <div className="price-amount"><span className="num">{t.price}</span><span className="period">{t.period}</span></div>
+                <p className="price-sub">{t.sub}</p>
+                <ul className="price-features">
+                  {t.features.map((f,j) => <li key={j}><Check/><span dangerouslySetInnerHTML={{__html:f}}/></li>)}
+                </ul>
+                <p className="price-best">{t.best}</p>
+                <a href="#faq" className={`btn ${t.popular ? 'btn-primary' : 'btn-ghost'}`} style={{justifyContent:'center'}}>{t.cta}</a>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal>
+          <div className="guarantee-strip">
+            <Shield/>
+            <span>Backed by a 30-day money-back guarantee. If OfferIQ isn't right for you, get a full refund — no conditions.</span>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- FAQ ---------------- */
+function FaqItem({ q, a, isOpen, onClick }){
+  const ref = useRef(null);
+  return (
+    <div className={`faq-item ${isOpen ? 'open' : ''}`}>
+      <button className="faq-q" onClick={onClick} aria-expanded={isOpen}>
+        <span>{q}</span>
+        <span className="plus"></span>
+      </button>
+      <div className="faq-a" style={{maxHeight: isOpen ? (ref.current ? ref.current.scrollHeight + 'px' : '400px') : '0px'}}>
+        <div className="faq-a-inner" ref={ref}>{a}</div>
+      </div>
+    </div>
+  );
+}
+
+function Faq(){
+  const faqs = [
+    { q:"Is OfferIQ a subscription, or a one-time purchase?", a:"Both structures exist, by tier. Starter and Growth are monthly subscriptions — you're billed each month and can cancel anytime from your account. Agency is a single one-time payment with credits that never expire. Pick whichever fits how you plan to use the platform." },
+    { q:"How does the $1 trial work, exactly?", a:"You get full access to the Starter plan for 7 days for $1. If you don't cancel before day 7, your card is billed the standard $39/mo rate and your subscription continues month to month. You can cancel anytime, including during the trial, with no further charge." },
+    { q:"Do unused offer credits roll over to the next month?", a:"No. Starter and Growth credits refresh monthly and reset at the start of each new billing cycle — unused credits don't carry over. If you consistently need more than your plan's monthly allowance, Growth or a credit top-up is the better fit. Agency credits work differently: they're a fixed pool that never expires and never refreshes, because they're paid for once." },
+    { q:"What happens to my published funnels if I cancel my subscription?", a:"Your funnels are taken offline when your subscription ends, since active publishing and hosting are part of what your monthly plan pays for. Your underlying data — copy, reports, and assets — stays accessible in your account for a limited window so you can export it or reactivate later, but live pages stop serving until you resubscribe." },
+    { q:"What happens when I run out of credits partway through the month?", a:"Your existing offers, pages, and data remain fully accessible — nothing is taken away. To build additional new offers before your next refresh, you can purchase additional credit packs for $10 per credit; one credit builds one complete offer (Intelligence Report + Copy + Pages + Traffic Strategy + Asset Bank)." },
+    { q:"Can I upgrade or downgrade my plan later?", a:"Yes. You can upgrade to a higher tier at any time by paying the price difference for the remainder of your billing cycle. Downgrades take effect at your next renewal date, so you keep your current plan's benefits until then." },
+    { q:"Is there a refund policy?", a:"Yes — a 30-day money-back guarantee applies to every tier, including Agency. If OfferIQ isn't right for you, request a full refund within 30 days of your purchase, no conditions." },
+    { q:"Does OfferIQ work outside the US?", a:"Yes. OfferIQ supports multiple currencies and target countries in the offer creation process, with additional payment integrations (Paystack, Flutterwave) on the roadmap for broader regional support." },
+    { q:"What if I run an agency and need more than 30 client sub-accounts?", a:"Contact support after purchase — additional sub-account packs are available for agencies scaling beyond the Agency tier's built-in allocation." },
+  ];
+  const [open, setOpen] = useState(0);
+  return (
+    <section className="section" id="faq">
+      <div className="wrap">
+        <Reveal>
+          <div className="section-head center">
+            <span className="eyebrow">Questions</span>
+            <h2>Frequently asked questions</h2>
+          </div>
+        </Reveal>
+        <Reveal>
+          <div className="faq-list" style={{maxWidth:'760px', margin:'0 auto'}}>
+            {faqs.map((f,i) => (
+              <FaqItem key={i} q={f.q} a={f.a} isOpen={open===i} onClick={() => setOpen(open===i ? -1 : i)} />
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- FINAL CTA ---------------- */
+function FinalCta(){
+  return (
+    <section className="section" id="cta">
+      <div className="wrap">
+        <Reveal>
+          <div className="final-cta">
+            <span className="eyebrow" style={{justifyContent:'center'}}>Ready When You Are</span>
+            <h2>Your next offer is one click away.</h2>
+            <p>Every month without a validated offer is a month of revenue you don't make. OfferIQ closes the gap between idea and income — in one session.</p>
+            <div className="final-cta-row">
+              <a href="#gate" className="btn btn-primary">Build My Next Offer <ArrowRight/></a>
+              <a href="#pricing" className="btn btn-ghost">See Pricing</a>
+            </div>
+            <p className="final-urgency">// $1 gets you in the door for 7 days. Cancel anytime.</p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- FOOTER ---------------- */
+function Footer(){
+  return (
+    <footer>
+      <div className="wrap">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <div className="nav-logo"><div className="mark"></div>OfferIQ</div>
+            <p>The intelligence layer that should happen before anything gets built — delivered instantly, and connected directly to the copy, pages, and traffic plan that follow from it.</p>
+            <div className="badge-row" style={{marginTop:'18px'}}>
+              <span className="integration-pill">💳 Stripe</span>
+              <span className="integration-pill">💳 PayPal</span>
+              <span className="integration-pill">📣 Meta Ads</span>
+              <span className="integration-pill">🔍 Google Ads</span>
+            </div>
+          </div>
+          <div className="footer-cols">
+            <div className="footer-col">
+              <h5>Product</h5>
+              <a href="#showcase">Feature Showcase</a>
+              <a href="#how-it-works">How It Works</a>
+              <a href="#pricing">Pricing</a>
+            </div>
+            <div className="footer-col">
+              <h5>Company</h5>
+              <a href="#">About Chigisoft</a>
+              <a href="#">Contact Support</a>
+              <a href="#faq">FAQs</a>
+            </div>
+            <div className="footer-col">
+              <h5>Legal</h5>
+              <a href="#">Terms of Service</a>
+              <a href="#">Privacy Policy</a>
+              <a href="#">Refund Policy</a>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <span>© 2026 OfferIQ, a Chigisoft product. All rights reserved.</span>
+          <span>Built for creators who'd rather launch than guess.</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ---------------- MOBILE STICKY CTA ---------------- */
+function MobileCta(){
+  return (
+    <div className="mobile-cta">
+      <a href="#pricing" className="btn btn-primary">Build My Offer Now <ArrowRight/></a>
+    </div>
+  );
+}
+
+/* ---------------- APP ---------------- */
+function App(){
+  return (
+    <React.Fragment>
+      <Nav/>
+      <Hero/>
+      <WhyThisMatters/>
+      <Gate/>
+      <HowItWorks/>
+      <Showcase/>
+      <Vault/>
+      <DemoVideo/>
+      <Scenarios/>
+      <Compare/>
+      <Calculator/>
+      <Pricing/>
+      <Faq/>
+      <FinalCta/>
+      <Footer/>
+      <MobileCta/>
+    </React.Fragment>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
