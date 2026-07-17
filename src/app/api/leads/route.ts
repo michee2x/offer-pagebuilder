@@ -336,7 +336,16 @@ export async function POST(req: Request) {
           niche,
         }),
       }),
-    }).catch(e => console.error('[leads] email send failed:', e));
+    })
+    .then(async (r) => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        console.error('[leads] Resend rejected email — status:', r.status, 'body:', JSON.stringify(body));
+      } else {
+        console.log('[leads] Email sent OK — id:', body.id, 'to:', email.trim());
+      }
+    })
+    .catch(e => console.error('[leads] Resend fetch error:', e));
   }
 
   return Response.json({ success: true, lead }, { status: 201 });
