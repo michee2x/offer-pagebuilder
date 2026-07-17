@@ -279,7 +279,7 @@ export async function POST(req: Request) {
   }
 
   // Send blueprint email (fire-and-forget — don't block the response)
-  if (process.env.RESEND_API_KEY) {
+  if (process.env.RESEND_API_KEY && process.env.RESEND_FROM) {
 
     const offerName =
       blocks.offerContext?.productType ||
@@ -323,7 +323,7 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from:    process.env.RESEND_FROM ?? 'OfferIQ <onboarding@resend.dev>',
+        from:    process.env.RESEND_FROM,
         to:      [email.trim()],
         subject: `Your Blueprint is Here, ${firstName}!`,
         html:    buildBlueprintEmail({
