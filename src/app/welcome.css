@@ -197,17 +197,37 @@
   @media (max-width:980px){ .hero-cta-row{justify-content:center;} }
   .hero-micro{font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); letter-spacing:0.02em; line-height:1.8;}
 
-  .hero-visual{position:relative;}
-  .browser-frame{
-    background:var(--surface);
-    border:1px solid var(--border-strong);
-    border-radius:var(--radius-md);
-    overflow:hidden;
-    box-shadow:0 40px 90px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
-    transform:perspective(1400px) rotateY(-6deg) rotateX(2deg);
-    transition:transform 0.6s ease;
+  .hero-visual{position:relative; z-index:2;}
+  .hero-dashboard-mockup{
+    background: rgba(18, 18, 25, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 40px 90px -20px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    transform: perspective(1200px) rotateY(-4deg) rotateX(2deg);
+    transition: transform 0.5s cubic-bezier(0.1, 0, 0, 1);
   }
-  .browser-frame:hover{transform:perspective(1400px) rotateY(-2deg) rotateX(1deg);}
+  .hero-dashboard-mockup:hover{transform: perspective(1200px) rotateY(-1deg) rotateX(0deg);}
+  .mockup-header{
+    display:flex; align-items:center; justify-content:center;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position:relative;
+  }
+  .mockup-dots{
+    display:flex; gap:8px; position:absolute; left:20px;
+  }
+  .mockup-dots .dot{
+    width:12px; height:12px; border-radius:50%;
+  }
+  .mockup-title{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    letter-spacing: 0.05em;
+  }
   .browser-bar{
     display:flex; align-items:center; gap:8px;
     padding:12px 16px;
@@ -394,11 +414,12 @@
   .chip svg{width:13px; height:13px;}
 
   /* ---------- HOW IT WORKS ---------- */
-  .timeline{position:relative; margin-top:20px;}
+  .timeline{position:relative; margin-top:30px;}
   .timeline::before{
     content:'';
-    position:absolute; left:27px; top:14px; bottom:14px; width:1px;
-    background:linear-gradient(var(--violet), var(--magenta), transparent);
+    position:absolute; left:27px; top:14px; bottom:14px; width:2px;
+    background:linear-gradient(to bottom, var(--violet) 0%, var(--magenta) 50%, transparent 100%);
+    box-shadow: 0 0 10px rgba(236,72,153,0.3);
   }
   @media (max-width:700px){ .timeline::before{left:19px;} }
   .tl-item{display:grid; grid-template-columns:56px 1fr; gap:24px; padding-bottom:36px; position:relative;}
@@ -406,20 +427,27 @@
   .tl-item:last-child{padding-bottom:0;}
   .tl-num{
     width:56px; height:56px; border-radius:50%;
-    background:var(--surface-2); border:1px solid var(--border-strong);
+    background:var(--surface-2); border:1px solid rgba(139,92,246,0.3);
     display:flex; align-items:center; justify-content:center;
     font-family:var(--font-mono); font-weight:600; font-size:16px;
-    color:var(--violet-soft); position:relative; z-index:1; flex-shrink:0;
+    color:#fff; position:relative; z-index:1; flex-shrink:0;
+    box-shadow: 0 0 15px rgba(139,92,246,0.2), inset 0 0 10px rgba(139,92,246,0.1);
   }
   @media (max-width:700px){ .tl-num{width:40px; height:40px; font-size:13px;} }
-  .tl-.welcome-page {
-    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
-    padding:24px 28px; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
-    transition:border-color 0.3s ease;
+  .tl-body {
+    background: rgba(255, 255, 255, 0.015); border:1px solid rgba(255, 255, 255, 0.05); border-radius:var(--radius-md);
+    padding:28px 32px; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
+    transition:all 0.3s ease;
+    box-shadow: 0 4px 20px -2px rgba(0,0,0,0.2);
   }
-  .tl-body:hover{border-color:var(--border-strong);}
-  .tl-body h4{font-size:18px; margin-bottom:6px;}
-  .tl-body p{color:var(--text-dim); font-size:14.5px; max-width:560px;}
+  .tl-body:hover{
+    border-color: rgba(255,255,255,0.15); 
+    background: rgba(255, 255, 255, 0.03); 
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px -4px rgba(0,0,0,0.4);
+  }
+  .tl-body h4{font-size:18px; margin-bottom:10px; font-weight: 600; background: linear-gradient(to right, #fff, var(--text-dim)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+  .tl-body p{font-size:15px; color:var(--text-dim); max-width:600px; line-height: 1.6;}
   .tl-time{
     font-family:var(--font-mono); font-size:13px; color:var(--amber);
     background:rgba(245,166,35,0.1); border:1px solid rgba(245,166,35,0.25);
@@ -480,15 +508,13 @@
   /* ---------- DEMO VIDEO ---------- */
   .video-shell{
     position:relative;
-    background:var(--surface);
-    border:1px solid var(--border-strong);
-    border-radius:var(--radius-lg);
-    aspect-ratio:16/8;
+    background:transparent;
+    aspect-ratio:16/9;
     display:flex; align-items:center; justify-content:center;
     overflow:hidden;
     background-image:
-      radial-gradient(ellipse 500px 300px at 30% 20%, rgba(139,92,246,0.25), transparent 60%),
-      radial-gradient(ellipse 500px 300px at 80% 90%, rgba(236,72,153,0.2), transparent 60%);
+      radial-gradient(ellipse 500px 400px at 30% 20%, rgba(139,92,246,0.15), transparent 60%),
+      radial-gradient(ellipse 500px 400px at 80% 90%, rgba(236,72,153,0.12), transparent 60%);
   }
   .video-shell::before{
     content:'OFFERIQ — LIVE PRODUCT WALKTHROUGH';

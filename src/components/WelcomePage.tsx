@@ -21,7 +21,6 @@ function FaqItem({ q, a, isOpen, onClick }: { q: string, a: string, isOpen: bool
 
 export function WelcomePage() {
   const [activeScenario, setActiveScenario] = useState(0);
-  const [offers, setOffers] = useState(5);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const whyCards = [
@@ -144,14 +143,6 @@ export function WelcomePage() {
     return () => io.disconnect();
   }, []);
 
-  const manualCostPerOffer = 8000;
-  const starterAnnual = 39 * 12;
-  const growthAnnual = 69 * 12;
-  const manualTotal = offers * manualCostPerOffer;
-  const iqTotal = offers <= 60 ? starterAnnual : growthAnnual;
-  const savings = manualTotal - iqTotal;
-  const fmt = (n: number) => "$" + n.toLocaleString();
-
   return (
     <div className="welcome-page-html">
       <div className="welcome-page">
@@ -193,12 +184,22 @@ export function WelcomePage() {
                 // No copywriting or design experience required. 30-day money-back guarantee..</p>
             </div>
             <div className="hero-visual">
-              <div className="video-shell reveal h-full">
-                <button className="play-btn" aria-label="Play demo video">
-                  <Play className="w-7 h-7 text-white ml-1" />
-                </button>
-                <span className="video-label">Product demo</span>
-                <span className="video-duration">4:12</span>
+              <div className="hero-dashboard-mockup reveal h-full">
+                <div className="mockup-header">
+                  <div className="mockup-dots">
+                    <span className="dot" style={{background:'#FF5F56'}}></span>
+                    <span className="dot" style={{background:'#FFBD2E'}}></span>
+                    <span className="dot" style={{background:'#27C93F'}}></span>
+                  </div>
+                  <div className="mockup-title">app.offeriq.com</div>
+                </div>
+                <div className="video-shell">
+                  <button className="play-btn" aria-label="Play demo video">
+                    <Play className="w-7 h-7 text-white ml-1" />
+                  </button>
+                  <span className="video-label">Product demo</span>
+                  <span className="video-duration">4:12</span>
+                </div>
               </div>
             </div>
           </div>
@@ -487,29 +488,7 @@ export function WelcomePage() {
           </div>
         </section>
 
-        <section className="section" id="demo">
-          <div className="wrap">
-            <div className="reveal">
-              <div className="section-head center">
-                <span className="eyebrow">See It Live</span>
-                <h2>Watch OfferIQ build a complete offer, start to finish.</h2>
-                <p>One idea in. A live, payment-enabled funnel out. Real time.</p>
-              </div>
-            </div>
-            <div className="reveal">
-              <div className="video-shell">
-                <button className="play-btn" aria-label="Watch the demo"><Play className="w-7 h-7 ml-1 text-white"/></button>
-                <span className="video-duration">4:12</span>
-              </div>
-            </div>
-            <div className="reveal">
-              <div className="video-ctas mt-8 flex justify-center gap-4 flex-wrap">
-                <a href="/login" className="btn btn-primary">Build My Next Offer <ArrowRight className="w-4 h-4"/></a>
-                <a href="/login" className="btn btn-ghost">Start Your $1 Trial</a>
-              </div>
-            </div>
-          </div>
-        </section>
+
 
         <section className="section" id="scenarios">
           <div className="wrap">
@@ -594,34 +573,7 @@ export function WelcomePage() {
           </div>
         </section>
 
-        <section className="section" id="calculator">
-          <div className="wrap">
-            <div className="reveal">
-              <div className="section-head center">
-                <span className="eyebrow">Do The Math</span>
-                <h2>What would this cost you to build manually?</h2>
-                <p>Drag the slider to your actual launch plan for the year.</p>
-              </div>
-            </div>
-            <div className="reveal">
-              <div className="calc">
-                <div>
-                  <div className="calc-slider-label"><span>Offers you want to launch this year</span><b>{offers}</b></div>
-                  <input type="range" min="1" max="30" value={offers} onChange={e => setOffers(parseInt(e.target.value))} />
-                  <p style={{ marginTop: '22px', fontSize: '13.5px', color: 'var(--text-faint)' }}>Based on a conservative blended estimate of $8,000 per offer for a strategist, copywriter, designer, and media buyer working separately.</p>
-                </div>
-                <div className="calc-result">
-                  <div className="calc-line old"><span className="l">Hiring it out</span><span className="v">{fmt(manualTotal)}</span></div>
-                  <div className="calc-line new"><span className="l">With OfferIQ (annual plan)</span><span className="v">{fmt(iqTotal)}</span></div>
-                  <div className="calc-save">
-                    <b>{fmt(savings)} saved</b>
-                    <span>Across {offers} offer{offers > 1 ? 's' : ''} this year</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+
 
         <section className="section" id="pricing">
           <div className="wrap">
