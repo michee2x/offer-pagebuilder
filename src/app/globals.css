@@ -1105,3 +1105,424 @@ input:focus {
   outline: 2px solid hsl(221 83% 53%);
   border-radius: 4px;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   OfferIQ Login Page — Split-panel wave design
+────────────────────────────────────────────────────────────────────────────── */
+
+/* Page wrapper */
+.oiq-login-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: #000;
+  font-family: 'Inter', 'DM Sans Local', 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+/* Full-bleed fixed wave background */
+.oiq-wave-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.oiq-wave-bg svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1600px;
+  height: 1600px;
+  transform: translate(-50%, -50%);
+}
+
+/* Main card */
+.oiq-login-card {
+  position: relative;
+  z-index: 1;
+  width: min(960px, 96vw);
+  min-height: 660px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 24px;
+  display: flex;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+  animation: oiq-card-in 0.6s ease both;
+}
+
+/* opacity-only animation — NO transform, because any transform on a parent
+   creates a new stacking context and breaks background-attachment:fixed in children */
+@keyframes oiq-card-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Left panel ──
+   Fully rounded child box with a fixed background to show the starry sky through it */
+.oiq-left-panel {
+  position: relative;
+  width: 46%;
+  flex-shrink: 0;
+  border-radius: 16px;
+  background: url('https://framerusercontent.com/images/76arLcPQRCXlPw9OuPhZo37CtFY.jpg?scale-down-to=2048&width=3200&height=2506') center/cover no-repeat fixed;
+  overflow: hidden;
+}
+
+/* This is the dark translucent block inside the left panel */
+.oiq-left-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15, 15, 20, 0.35), rgba(30, 30, 45, 0.55));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1;
+}
+
+/* Inner window element is no longer needed */
+.oiq-left-window { display: none; }
+
+.oiq-left-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 44px 40px;
+  color: #fff;
+}
+
+.oiq-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 10.5px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+}
+.oiq-eyebrow-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0));
+  max-width: 120px;
+}
+
+.oiq-headline-block {
+  max-width: 340px;
+}
+.oiq-headline-block h1 {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-weight: 600;
+  font-size: 42px;
+  line-height: 1.08;
+  margin: 0 0 14px;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+.oiq-headline-block p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.72);
+  margin: 0;
+  max-width: 270px;
+}
+
+.oiq-trust-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.oiq-trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 100px;
+  padding: 5px 12px;
+  width: fit-content;
+  backdrop-filter: blur(6px);
+}
+
+/* ── Right panel ── white form area */
+.oiq-right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 44px 56px;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+/* Brand */
+.oiq-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-end;
+  margin-bottom: 48px;
+}
+.oiq-brand-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #ff2f9e, #6d3bf5, #2f6dfa);
+}
+.oiq-brand span {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #111;
+  letter-spacing: -0.3px;
+}
+
+/* Form wrapper */
+.oiq-form-wrap {
+  width: 100%;
+  max-width: 340px;
+  margin: auto 0;
+}
+
+.oiq-form-wrap h2 {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-weight: 600;
+  font-size: 30px;
+  text-align: center;
+  margin: 0 0 7px;
+  color: #111;
+  letter-spacing: -0.4px;
+}
+.oiq-subtitle {
+  text-align: center;
+  font-size: 12.5px;
+  color: #8a8a8a;
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+/* Labels */
+.oiq-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 5px;
+  letter-spacing: 0.1px;
+}
+
+/* Inputs */
+.oiq-field-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+.oiq-field-wrap input {
+  width: 100%;
+  background: #f6f6f8;
+  border: 1px solid #e7e7ec;
+  border-radius: 9px;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111;
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  box-sizing: border-box;
+}
+.oiq-field-wrap input::placeholder { color: #b0b0bb; }
+.oiq-field-wrap input:focus {
+  border-color: #9b7bf5;
+  box-shadow: 0 0 0 3px rgba(109,59,245,0.1);
+}
+
+/* Password field */
+.oiq-pw-wrap input { padding-right: 44px; }
+.oiq-pw-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9a9aa4;
+  cursor: pointer;
+  display: flex;
+  padding: 4px;
+  transition: color 0.15s;
+}
+.oiq-pw-toggle:hover { color: #555; }
+.oiq-pw-toggle svg { width: 16px; height: 16px; }
+
+/* Row — remember me + forgot */
+.oiq-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.oiq-remember {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #444;
+  cursor: pointer;
+  user-select: none;
+}
+.oiq-remember input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #6d3bf5;
+  cursor: pointer;
+}
+.oiq-forgot {
+  font-size: 12px;
+  color: #6d3bf5;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.oiq-forgot:hover { color: #5a2fd4; }
+
+/* Sign In button */
+.oiq-signin-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #6d3bf5, #2f6dfa);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 4px 20px rgba(109,59,245,0.35);
+  letter-spacing: 0.2px;
+}
+.oiq-signin-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(109,59,245,0.42);
+}
+.oiq-signin-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.oiq-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: oiq-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes oiq-spin { to { transform: rotate(360deg); } }
+
+/* Divider */
+.oiq-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  color: #bbb;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.oiq-divider::before,
+.oiq-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e8e8ee;
+}
+
+/* Google button */
+.oiq-google-btn {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e2e2e8;
+  border-radius: 10px;
+  padding: 11.5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.oiq-google-btn:hover {
+  background: #fafafa;
+  border-color: #ccc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Sign-up hint */
+.oiq-signup-hint {
+  text-align: center;
+  font-size: 12.5px;
+  color: #666;
+  margin-top: 24px;
+}
+.oiq-signup-hint a {
+  color: #6d3bf5;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.oiq-signup-hint a:hover { color: #5a2fd4; }
+
+/* ── Responsive ── */
+@media (max-width: 780px) {
+  .oiq-login-card {
+    flex-direction: column;
+    min-height: auto;
+    width: 94vw;
+  }
+  .oiq-left-panel {
+    width: 100%;
+    height: 240px;
+    flex-shrink: 0;
+    border-right: none;             /* no right border when stacked */
+    border-bottom: 10px solid #fff; /* white gap between top wave & bottom form */
+  }
+  .oiq-right-panel {
+    padding: 36px 28px 44px;
+  }
+  .oiq-brand {
+    align-self: center;
+    margin-bottom: 32px;
+  }
+  .oiq-headline-block h1 {
+    font-size: 32px;
+  }
+}
+
+/* Suppress the root body mesh-gradient overlay on the login page */
+.oiq-login-page ~ * .fixed,
+body:has(.oiq-login-page) > div.fixed {
+  display: none;
+}

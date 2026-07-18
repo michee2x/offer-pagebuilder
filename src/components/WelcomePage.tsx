@@ -24,9 +24,39 @@ export function WelcomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const whyCards = [
-    { icon: <Compass />, tag: "The “Blank Canvas” Trap", stat: "42%", body: "of startups fail simply because they build products with absolutely no market need — chasing demand that was never there until the cash runs out.", src: "— Vincent, Founder of Preuve AI" },
-    { icon: <DollarSign />, tag: "The Pricing Trap", stat: "18%", body: "of startups collapse due to flawed pricing models — charging too much for the market to bear, or too little to sustain operations.", src: "— ideaproof.io" },
-    { icon: <TrendingUp />, tag: "The “Acquisition Cost” Trap", stat: "222%+", body: "is how far Customer Acquisition Costs have climbed. Hyper-expensive clicks sent to a slow, pieced-together funnel bleed profit dry before the first sale.", src: "— ProfitWell / Paddle" },
+    { 
+      index: "01",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        </svg>
+      ),
+      bg: "https://images.unsplash.com/photo-1747311585699-d7a659864cac?auto=format&fit=crop&w=1200&q=80",
+      tag: "The \"Blank Canvas\" Trap", stat: "42%", body: "of startups fail simply because they build products with absolutely no market need — chasing demand that was never there until the cash runs out.", src: "— Vincent, Founder of Preuve AI" 
+    },
+    {
+      index: "02",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      ),
+      bg: "https://images.unsplash.com/photo-1550490652-ce6a20d4ee76?auto=format&fit=crop&w=1200&q=80",
+      tag: "The Pricing Trap", stat: "18%", body: "of startups collapse due to flawed pricing models — charging too much for the market to bear, or too little to sustain operations.", src: "— ideaproof.io" 
+    },
+    {
+      index: "03",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+      ),
+      bg: "https://images.unsplash.com/photo-1745270917449-c2e2c5806586?auto=format&fit=crop&w=1200&q=80",
+      tag: "The \"Acquisition Cost\" Trap", stat: "222%+", body: "is how far Customer Acquisition Costs have climbed. Hyper-expensive clicks sent to a slow, pieced-together funnel bleed profit dry before the first sale.", src: "— ProfitWell / Paddle" 
+    }
   ];
 
   const scenarios = [
@@ -165,72 +195,110 @@ export function WelcomePage() {
           </div>
         </nav>
 
-        {/* EXISTING HERO */}
-        <header className="hero">
-          <div className="wrap hero-grid">
-            <div className="hero-copy">
-              <span className="eyebrow">Intelligence-First Offer OS</span>
-              <h1>Stop guessing what sells.<br />Engineer an offer that <span className="grad-text">does.</span></h1>
-              <p className="lede">
-                Upload a URL, a PDF, or a single idea. OfferIQ analyzes it against 35,000+ real converting offers and hands you the complete revenue system: strategy, copy, a live funnel, and a traffic plan — built in one session
-              </p>
-              <div className="hero-cta-row">
-                <a href="/login" className="btn btn-primary">Build My Next Offer
-                  <ArrowRight className="icon-inline w-4 h-4" />
-                </a>
-                <a href="/login" className="btn btn-ghost">Start Your $1 Trial</a>
+        {/* HERO — split, text left / video right */}
+        <section className="hero-split">
+          <div className="hero-split-inner">
+            <div className="hero-left">
+              <div className="hero-badge">
+                <span className="badge-pulse"></span>
+                <span className="badge-text">New: Intelligence-First Offer OS v2.0</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </div>
-              <p className="hero-micro">// $1 for your first 7 days, then $39/mo. Cancel anytime. <br />
-                // No copywriting or design experience required. 30-day money-back guarantee..</p>
+
+              <h1 className="hero-h1">Stop guessing what sells.<br />Engineer an offer that <span className="grad-text">does</span>.</h1>
+
+              <p className="hero-lede">Upload a URL, a PDF, or a single idea. OfferIQ analyzes it against 35,000+ real converting offers and hands you the complete revenue system: strategy, copy, a live funnel, and a traffic plan — built in one session.</p>
+
+              <div className="hero-cta-row">
+                <a href="/login" className="btn-primary-lg">
+                  Build My Next Offer
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </a>
+                <a href="/login" className="btn-secondary-lg">Start Your $1 Trial</a>
+              </div>
+
+              <p className="hero-fine-print">
+                $1 for your first 7 days, then $39/mo. Cancel anytime.<br />
+                No copywriting or design experience required. 30-day money-back guarantee.
+              </p>
             </div>
-            <div className="hero-visual">
-              <div className="hero-dashboard-mockup reveal h-full">
-                <div className="mockup-header">
-                  <div className="mockup-dots">
-                    <span className="dot" style={{background:'#FF5F56'}}></span>
-                    <span className="dot" style={{background:'#FFBD2E'}}></span>
-                    <span className="dot" style={{background:'#27C93F'}}></span>
-                  </div>
-                  <div className="mockup-title">app.offeriq.com</div>
+
+            <div className="hero-right">
+              <div className="demo-card window-frame">
+                <div className="window-chrome">
+                  <div className="traffic-lights"><span></span><span></span><span></span></div>
+                  <div className="address-bar">app.offeriq.com/build</div>
                 </div>
-                <div className="video-shell">
-                  <button className="play-btn" aria-label="Play demo video">
-                    <Play className="w-7 h-7 text-white ml-1" />
-                  </button>
-                  <span className="video-label">Product demo</span>
-                  <span className="video-duration">4:12</span>
+                <div className="video-wrapper">
+                  <video autoPlay muted loop playsInline>
+                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+                  </video>
+                  <div
+                    className="demo-overlay"
+                    onClick={(e) => {
+                      const v = (e.currentTarget as HTMLElement).previousElementSibling as HTMLVideoElement;
+                      if (v && v.paused) { v.play(); } else if (v) { v.pause(); }
+                    }}
+                  >
+                    <div className="demo-play-btn">
+                      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+                    </div>
+                  </div>
+                  <div className="demo-duration">4:12</div>
                 </div>
               </div>
             </div>
           </div>
-        </header>
+        </section>
 
         {/* CLONED SECTIONS BEGIN */}
 
         <section className="section" id="why">
           <div className="wrap">
-            <div className="reveal">
-              <div className="section-head center">
-                <span className="eyebrow">Why This Matters Right Now</span>
-                <h2>Three traps quietly kill every offer<br/>before it has a chance to sell.</h2>
-              </div>
-            </div>
+            
             <div className="why-grid">
-              {whyCards.map((c, i) => (
-                <div className="reveal" key={i}>
-                  <div className="why-card">
-                    <div className="why-icon">{c.icon}</div>
-                    <span className="tag">{c.tag}</span>
-                    <div className="stat">{c.stat}</div>
-                    <p>{c.body}</p>
-                    <span className="src">{c.src}</span>
+              
+              <div className="why-intro reveal">
+                <span className="eyebrow">Why This Matters Right Now</span>
+                <h2>Three traps quietly kill every offer before it sells.</h2>
+                <p className="sub">Most offers don't fail because the idea was bad. They fail in one of three predictable, well-documented places — before a single ad ever runs.</p>
+                <div className="why-pull">OfferIQ exists to catch all three before you spend a dollar building or promoting anything.</div>
+              </div>
+
+              <div className="why-cards">
+                {whyCards.map((c, i) => (
+                  <div className="why-card reveal" key={i} style={{backgroundImage: `url('${c.bg}')`}}>
+                    <div className="why-card-top">
+                      <div className="why-index-badge">
+                        <span className="why-icon-mini">
+                          {c.icon}
+                        </span>
+                        {c.index}
+                      </div>
+                    </div>
+                    <div className="why-card-body">
+                      <div className="why-row-head">
+                        <span className="why-tag">{c.tag}</span>
+                        <span className="why-stat">{c.stat}</span>
+                      </div>
+                      <p className="why-body">{c.body}</p>
+                      <span className="why-src">{c.src}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+
             </div>
-            <div className="reveal">
-              <p className="why-close">OfferIQ is the end of trial-and-error marketing. <span className="accent">We replace the guesswork with a data-backed blueprint.</span></p>
+
+            <div className="why-banner reveal">
+              <div className="why-banner-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+              </div>
+              <p>OfferIQ is the end of trial-and-error marketing. <span className="grad-text">We replace the guesswork with a data-backed blueprint.</span></p>
             </div>
+
           </div>
         </section>
 
