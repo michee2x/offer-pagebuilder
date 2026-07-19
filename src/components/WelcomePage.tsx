@@ -353,8 +353,8 @@ export function WelcomePage() {
               <ArrowRight style={{ width: 12, height: 12, marginLeft: 4, flexShrink: 0, color: '#60A5FA' }} />
             </div>
 
-            <h1 className="mb-6 text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,6vw,56px)', lineHeight: 1.05, fontWeight: 800, letterSpacing: '-3px' }}>
-              <span className="text-neutral-500">Stop guessing what sells.</span><br />
+            <h1 className="mb-6 text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,6vw,56px)', lineHeight: 1.05, fontWeight: 800, letterSpacing: '-2px' }}>
+              <span className="text-white">Stop guessing what sells.</span><br />
               Engineer an offer that{' '}
               <span style={{ background: 'linear-gradient(135deg,#60A5FA 0%,#818CF8 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>converts</span>.
             </h1>
@@ -389,10 +389,13 @@ export function WelcomePage() {
               boxShadow: '0 0 #0000004d,0 9px 20px #0000004a,0 37px 37px #00000042,0 84px 50px #00000026,0 149px 60px #0000000a,0 233px 65px #00000003',
             }}
           >
-            <div className="h-full w-full rounded-[18px] overflow-hidden bg-[#18181b] p-3.5">
-              <video autoPlay muted loop playsInline className="w-full h-full object-cover rounded-[10px] block">
-                <source src="https://videos.pexels.com/video-files/7710230/7710230-hd_1280_720_25fps.mp4" type="video/mp4" />
-              </video>
+            <div className="h-full w-full rounded-[18px] overflow-hidden bg-[#18181b] p-3.5 relative pointer-events-none" style={{ height: '100%' }}>
+              <iframe
+                src="https://www.youtube.com/embed/TX9qSaGXFyU?autoplay=1&mute=1&loop=1&playlist=TX9qSaGXFyU&controls=0&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=10"
+                className="rounded-[10px] block"
+                allow="autoplay; encrypted-media"
+                style={{ border: 0, width: '100%', height: '100%' }}
+              ></iframe>
             </div>
           </motion.div>
         </div>
