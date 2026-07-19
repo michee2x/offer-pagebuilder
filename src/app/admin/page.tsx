@@ -1,230 +1,82 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { LayoutTemplate, Plus, Trash2, Edit2, Zap, X } from "lucide-react";
-import Link from "next/link";
+import { 
+  BarChart3, Users, LayoutTemplate, 
+  CreditCard, Magnet, Eye, ArrowUpRight, Globe
+} from "lucide-react";
 import { toast } from "sonner";
 
-export default function AdminDashboard() {
-  const router = useRouter();
-  const [templates, setTemplates] = useState<any[]>([]);
+export default function SuperAdminDashboard() {
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [workspaces, setWorkspaces] = useState<any[]>([]);
-  
-  // Modal State
-  const [selectedWorkspace, setSelectedWorkspace] = useState("");
-  const [category, setCategory] = useState("SaaS");
-  const [tags, setTags] = useState("");
-
-  const categories = [
-    "SaaS",
-    "Coaching",
-    "E-commerce",
-    "Agency",
-    "Local Business",
-    "Course",
-    "Other"
-  ];
 
   useEffect(() => {
-    fetchTemplates();
-    fetchWorkspaces();
+    fetchStats();
   }, []);
 
-  const fetchTemplates = async () => {
+  const fetchStats = async () => {
     try {
-      const res = await fetch("/api/templates");
+      const res = await fetch("/api/admin/stats");
       const data = await res.json();
-      if (data.templates) setTemplates(data.templates);
+      if (res.ok) {
+        setStats(data);
+      } else {
+        toast.error("Failed to load statistics");
+      }
     } catch (error) {
-      console.error("Error fetching templates:", error);
+      console.error("Stats fetch error:", error);
+      toast.error("Failed to fetch stats");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchWorkspaces = async () => {
-    try {
-      const res = await fetch("/api/workspaces");
-      const data = await res.json();
-      if (data.workspaces) {
-        setWorkspaces(data.workspaces);
-        if (data.workspaces.length > 0) {
-          setSelectedWorkspace(data.workspaces[0].id);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching workspaces:", error);
-    }
-  };
+  const cards = [
+    { title: "Total Revenue", value: stats?.revenue ? `$${stats.revenue.toLocaleString()}` : "$0", icon: CreditCard, color: "text-emerald-400", bg: "bg-emerald-400/10" },
+    { title: "Total Purchases", value: stats?.purchases || 0, icon: BarChart3, color: "text-blue-400", bg: "bg-blue-400/10" },
+    { title: "Total Funnels", value: stats?.funnels || 0, icon: LayoutTemplate, color: "text-purple-400", bg: "bg-purple-400/10" },
+    { title: "Total Leads", value: stats?.leads || 0, icon: Magnet, color: "text-pink-400", bg: "bg-pink-400/10" },
+    { title: "Page Views", value: stats?.pageViews?.toLocaleString() || 0, icon: Eye, color: "text-orange-400", bg: "bg-orange-400/10" },
+    { title: "Total Users", value: stats?.users || 0, icon: Users, color: "text-indigo-400", bg: "bg-indigo-400/10" },
+    { title: "Workspaces", value: stats?.workspaces || 0, icon: Globe, color: "text-cyan-400", bg: "bg-cyan-400/10" },
+  ];
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this template? (This will unmark it as a template, but won't delete the funnel).")) return;
-    try {
-      const res = await fetch(`/api/admin/templates/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
-      toast.success("Template removed");
-      fetchTemplates();
-    } catch (error) {
-      toast.error("Failed to remove template");
-    }
-  };
-
-  const handleCreateTemplate = () => {
-    if (!selectedWorkspace) {
-      toast.error("Please select a workspace");
-      return;
-    }
-    const url = `/analyze?workspace=${selectedWorkspace}&isTemplate=true&templateCategory=${encodeURIComponent(category)}&templateTags=${encodeURIComponent(tags)}`;
-    router.push(url);
-  };
+  if (loading) {
+    return <div className="text-white/50 text-center py-20">Loading statistics...</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-[#030712] flex flex-col overflow-hidden relative">
-      {/* Background Gradients */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)', transform: 'rotate(-30deg)' }} />
-        <div className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)', transform: 'rotate(30deg)' }} />
+    <div className="max-w-6xl mx-auto space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Overview</h1>
+          <p className="text-white/50 mt-1 text-sm">Global statistics across all workspaces and funnels.</p>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between px-6 h-16 border-b border-white/10 bg-[#030712]/50 backdrop-blur-xl relative z-10">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white">
-              <Zap className="w-5 h-5" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {cards.map((card, i) => (
+          <div key={i} className="bg-[#131826] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all group">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${card.bg}`}>
+                <card.icon className={`w-6 h-6 ${card.color}`} />
+              </div>
+              <ArrowUpRight className="w-5 h-5 text-white/20 group-hover:text-white/50 transition-colors" />
             </div>
-            <span className="font-bold text-lg text-white">Offer<span className="text-brand-blue">IQ</span> Admin</span>
+            <h3 className="text-white/50 font-medium text-sm mb-1">{card.title}</h3>
+            <div className="text-3xl font-bold text-white tracking-tight">
+              {card.value}
+            </div>
           </div>
-          <div className="flex items-center gap-4 ml-4">
-            <Link href="/admin" className="text-white text-sm font-medium border-b-2 border-brand-blue py-5">Templates</Link>
-            <Link href="/admin/users" className="text-white/50 hover:text-white text-sm font-medium py-5">Users</Link>
-          </div>
-        </div>
-        <Link href="/" className="text-white/50 hover:text-white transition-colors text-sm font-medium">Back to App</Link>
+        ))}
       </div>
-
-      <main className="flex-1 overflow-y-auto p-8 relative z-10">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">Template Management</h1>
-              <p className="text-white/50 mt-1 text-sm">Manage global templates available to all users.</p>
-            </div>
-            <button 
-              onClick={() => setShowModal(true)}
-              className="h-10 px-4 rounded-xl bg-white text-black font-bold flex items-center gap-2 hover:bg-white/90 transition-all text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              Create Template
-            </button>
-          </div>
-
-          {loading ? (
-            <div className="text-white/50 text-center py-20">Loading templates...</div>
-          ) : templates.length === 0 ? (
-            <div className="border border-white/10 rounded-2xl p-16 text-center bg-white/[0.02]">
-              <LayoutTemplate className="w-10 h-10 text-white/20 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white">No templates found</h3>
-              <p className="text-white/50 mt-1">Create your first template to get started.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {templates.map(template => (
-                <div key={template.id} className="bg-white/[0.02] border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all">
-                  <div className="aspect-[16/9] bg-[#1a1a2e] relative group">
-                    {(template.og_image_url || (template.blocks as any)?.og_image_url) ? (
-                      <img src={template.og_image_url || (template.blocks as any).og_image_url} alt={template.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center opacity-30 text-white gap-3">
-                        <LayoutTemplate className="w-12 h-12" />
-                        <span className="text-sm font-medium">No Preview</span>
-                      </div>
-                    )}
-                    <div className="absolute top-3 right-3 flex gap-2">
-                      <span className="px-2 py-1 rounded bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-bold text-white uppercase tracking-wider">
-                        {template.template_category || 'Uncategorized'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="text-lg font-bold text-white truncate">{template.name}</h3>
-                    <div className="flex gap-2 mt-3 flex-wrap">
-                      {(template.template_tags || []).map((tag: string, i: number) => (
-                        <span key={i} className="text-xs text-brand-blue bg-brand-blue/10 px-2 py-1 rounded-md">#{tag}</span>
-                      ))}
-                    </div>
-                    <div className="mt-5 pt-4 border-t border-white/10 flex justify-between">
-                      <Link href={`/funnels/${template.id}`} className="text-sm text-white/70 hover:text-white flex items-center gap-1.5">
-                        <Edit2 className="w-4 h-4" /> Edit Funnel
-                      </Link>
-                      <button onClick={() => handleDelete(template.id)} className="text-red-400 hover:text-red-300">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Create Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="relative bg-[#131826] border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-white">Create Template</h2>
-              <button onClick={() => setShowModal(false)} className="text-white/50 hover:text-white"><X className="w-5 h-5"/></button>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5 block">Workspace to generate in</label>
-                <select 
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-blue"
-                  value={selectedWorkspace}
-                  onChange={(e) => setSelectedWorkspace(e.target.value)}
-                >
-                  {workspaces.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5 block">Template Category</label>
-                <select 
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-blue"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5 block">Tags (comma separated)</label>
-                <input 
-                  type="text" 
-                  placeholder="webinar, course, high-ticket"
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-blue"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                />
-              </div>
-
-              <button 
-                onClick={handleCreateTemplate}
-                className="w-full h-12 rounded-xl bg-white text-black font-bold mt-4 hover:bg-white/90 transition-all"
-              >
-                Start Campaign Flow
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
+      <div className="bg-[#131826] border border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[300px]">
+         <BarChart3 className="w-12 h-12 text-white/10 mb-4" />
+         <h3 className="text-white/70 font-medium">More analytics coming soon</h3>
+         <p className="text-white/40 text-sm mt-2">Charts and historical data comparison will appear here.</p>
+      </div>
     </div>
   );
 }

@@ -262,25 +262,33 @@ export async function POST(req: Request) {
     funnelName: page?.name || 'Unknown Funnel'
   };
 
+  // Gather all async side-effects into an array so we can await them
+  // If we don't await them, Next.js serverless functions will abruptly terminate the execution context
+  // and cancel the outgoing network requests before they finish.
+  const sideEffects: Promise<any>[] = [];
+
   if (integrations.makeWebhookUrl) {
-    fetch(integrations.makeWebhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(e => console.error('[leads] make webhook failed:', e));
+    sideEffects.push(
+      fetch(integrations.makeWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(e => console.error('[leads] make webhook failed:', e))
+    );
   }
 
   if (integrations.zapierWebhookUrl) {
-    fetch(integrations.zapierWebhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(e => console.error('[leads] zapier webhook failed:', e));
+    sideEffects.push(
+      fetch(integrations.zapierWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(e => console.error('[leads] zapier webhook failed:', e))
+    );
   }
 
-  // Send blueprint email (fire-and-forget — don't block the response)
+  // Send blueprint email
   if (process.env.RESEND_API_KEY && process.env.RESEND_FROM) {
-
     const offerName =
       blocks.offerContext?.productType ||
       blocks.copy?.productName ||
@@ -316,37 +324,42 @@ export async function POST(req: Request) {
 
     const firstName = name.trim().split(' ')[0];
 
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization:  `Bearer ${process.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from:    process.env.RESEND_FROM,
-        to:      [email.trim()],
-        subject: `Your Blueprint is Here, ${firstName}!`,
-        html:    buildBlueprintEmail({
-          firstName,
-          offerName,
-          blueprintUrl: leadMagnet.url,
-          blueprintTopic: leadMagnet.topic,
-          upsellHook,
-          upsellUrl,
-          niche,
+    sideEffects.push(
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization:  `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from:    process.env.RESEND_FROM,
+          to:      [email.trim()],
+          subject: `Your Blueprint is Here, ${firstName}!`,
+          html:    buildBlueprintEmail({
+            firstName,
+            offerName,
+            blueprintUrl: leadMagnet.url,
+            blueprintTopic: leadMagnet.topic,
+            upsellHook,
+            upsellUrl,
+            niche,
+          }),
         }),
-      }),
-    })
-    .then(async (r) => {
-      const body = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        console.error('[leads] Resend rejected email — status:', r.status, 'body:', JSON.stringify(body));
-      } else {
-        console.log('[leads] Email sent OK — id:', body.id, 'to:', email.trim());
-      }
-    })
-    .catch(e => console.error('[leads] Resend fetch error:', e));
+      })
+      .then(async (r) => {
+        const body = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          console.error('[leads] Resend rejected email — status:', r.status, 'body:', JSON.stringify(body));
+        } else {
+          console.log('[leads] Email sent OK — id:', body.id, 'to:', email.trim());
+        }
+      })
+      .catch(e => console.error('[leads] Resend fetch error:', e))
+    );
   }
+
+  // Await all side-effects to guarantee delivery before closing the response
+  await Promise.allSettled(sideEffects);
 
   return Response.json({ success: true, lead }, { status: 201 });
 }

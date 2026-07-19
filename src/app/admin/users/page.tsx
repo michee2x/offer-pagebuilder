@@ -61,31 +61,7 @@ export default function AdminUsersDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] flex flex-col overflow-hidden relative">
-      {/* Background Gradients */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)', transform: 'rotate(-30deg)' }} />
-        <div className="absolute top-[80px] left-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(59, 130, 246) 0%, rgba(59, 130, 246, 0) 100%)', transform: 'rotate(30deg)' }} />
-      </div>
-
-      <div className="flex items-center justify-between px-6 h-16 border-b border-white/10 bg-[#030712]/50 backdrop-blur-xl relative z-10">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white">
-              <Zap className="w-5 h-5" />
-            </div>
-            <span className="font-bold text-lg text-white">Offer<span className="text-brand-blue">IQ</span> Admin</span>
-          </div>
-          <div className="flex items-center gap-4 ml-4">
-            <Link href="/admin" className="text-white/50 hover:text-white text-sm font-medium py-5">Templates</Link>
-            <Link href="/admin/users" className="text-white text-sm font-medium border-b-2 border-brand-blue py-5">Users</Link>
-          </div>
-        </div>
-        <Link href="/" className="text-white/50 hover:text-white transition-colors text-sm font-medium">Back to App</Link>
-      </div>
-
-      <main className="flex-1 overflow-y-auto p-8 relative z-10">
-        <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-white tracking-tight">User Management</h1>
@@ -154,7 +130,5 @@ export default function AdminUsersDashboard() {
             </div>
           )}
         </div>
-      </main>
-    </div>
   );
 }
