@@ -1277,7 +1277,19 @@ input:focus {
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: linear-gradient(135deg, #ff2f9e, #6d3bf5, #2f6dfa);
+  background: linear-gradient(135deg, #0066FF 0%, #4338CA 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.oiq-brand-mark::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  opacity: 0.9;
 }
 .oiq-brand span {
   font-family: 'Playfair Display', 'Georgia', serif;
@@ -1341,8 +1353,8 @@ input:focus {
 }
 .oiq-field-wrap input::placeholder { color: #b0b0bb; }
 .oiq-field-wrap input:focus {
-  border-color: #9b7bf5;
-  box-shadow: 0 0 0 3px rgba(109,59,245,0.1);
+  border-color: #0066FF;
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
 }
 
 /* Password field */
@@ -1382,22 +1394,22 @@ input:focus {
 .oiq-remember input[type="checkbox"] {
   width: 14px;
   height: 14px;
-  accent-color: #6d3bf5;
+  accent-color: #0066FF;
   cursor: pointer;
 }
 .oiq-forgot {
   font-size: 12px;
-  color: #6d3bf5;
+  color: #0066FF;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.15s;
 }
-.oiq-forgot:hover { color: #5a2fd4; }
+.oiq-forgot:hover { color: #0052cc; }
 
 /* Sign In button */
 .oiq-signin-btn {
   width: 100%;
-  background: linear-gradient(135deg, #6d3bf5, #2f6dfa);
+  background: linear-gradient(135deg, #0066FF 0%, #4338CA 100%);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -1411,13 +1423,13 @@ input:focus {
   justify-content: center;
   gap: 8px;
   transition: opacity 0.18s, transform 0.18s, box-shadow 0.18s;
-  box-shadow: 0 4px 20px rgba(109,59,245,0.35);
+  box-shadow: 0 4px 20px rgba(0, 102, 255, 0.35);
   letter-spacing: 0.2px;
 }
 .oiq-signin-btn:hover:not(:disabled) {
   opacity: 0.92;
   transform: translateY(-1px);
-  box-shadow: 0 8px 28px rgba(109,59,245,0.42);
+  box-shadow: 0 8px 28px rgba(0, 102, 255, 0.42);
 }
 .oiq-signin-btn:disabled {
   opacity: 0.65;
@@ -1488,12 +1500,12 @@ input:focus {
   margin-top: 24px;
 }
 .oiq-signup-hint a {
-  color: #6d3bf5;
+  color: #0066FF;
   font-weight: 700;
   text-decoration: none;
   transition: color 0.15s;
 }
-.oiq-signup-hint a:hover { color: #5a2fd4; }
+.oiq-signup-hint a:hover { color: #0052cc; }
 
 /* ── Responsive ── */
 @media (max-width: 780px) {

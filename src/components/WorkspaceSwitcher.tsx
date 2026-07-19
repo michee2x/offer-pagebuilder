@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { useUIStore } from "@/store/uiStore";
 import {
   Select,
@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 
 export function WorkspaceSwitcher({
   workspaces,
@@ -21,6 +22,7 @@ export function WorkspaceSwitcher({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { activeWorkspaceId, setActiveWorkspaceId } = useUIStore();
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const urlWorkspace = searchParams.get("workspace");
@@ -55,20 +57,30 @@ export function WorkspaceSwitcher({
         value={activeWorkspaceId || activeId || ""}
         onValueChange={(val) => {
           if (val === "create-workspace") {
-            router.push("/onboard");
+            startTransition(() => {
+              router.push("/onboard");
+            });
             return;
           }
           if (val === "manage-workspace") {
-            router.push("/workspaces");
+            startTransition(() => {
+              router.push("/workspaces");
+            });
             return;
           }
           setActiveWorkspaceId(val);
-          router.push(`/?workspace=${val}`);
-          router.refresh();
+          startTransition(() => {
+            router.push(`/?workspace=${val}`);
+            router.refresh();
+          });
         }}
+        disabled={isPending}
       >
         <SelectTrigger className="min-w-[190px] h-10 rounded-full border border-border bg-muted/10 px-3 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted/20">
-          <SelectValue placeholder="Workspace" />
+          <div className="flex items-center gap-2">
+            {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+            <SelectValue placeholder="Workspace" />
+          </div>
         </SelectTrigger>
         <SelectContent className="rounded-xl border border-border bg-background shadow-xl">
           {workspaces.map((w) => (

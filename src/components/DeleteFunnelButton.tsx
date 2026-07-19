@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 
 interface DeleteFunnelButtonProps {
   funnelId: string;
@@ -54,7 +54,11 @@ export function DeleteFunnelButton({
       onClick={handleDelete}
       disabled={isDeleting}
     >
-      <Trash2 className="w-4 h-4" />
+      {isDeleting ? (
+        <Loader2 className="w-4 h-4 animate-spin" />
+      ) : (
+        <Trash2 className="w-4 h-4" />
+      )}
     </Button>
   );
 }

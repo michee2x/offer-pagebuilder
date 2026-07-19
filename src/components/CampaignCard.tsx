@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { MoreVertical, ExternalLink, Trash2, Link2, Eye } from "lucide-react";
+import React, { useState, useTransition } from "react";
+import { MoreVertical, ExternalLink, Trash2, Link2, Eye, Loader2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +13,15 @@ import { toast } from "sonner";
 
 export function CampaignCard({ funnel }: { funnel: any }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     
     if (confirm("Are you sure you want to delete this campaign?")) {
+      setIsDeleting(true);
       try {
         const response = await fetch(`/api/funnels/${funnel.id}`, {
           method: "DELETE",
@@ -33,8 +36,20 @@ export function CampaignCard({ funnel }: { funnel: any }) {
       } catch (error) {
         console.error("Delete error:", error);
         toast.error("An error occurred");
+      } finally {
+        setIsDeleting(false);
       }
     }
+  };
+
+  const handleNavigate = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    startTransition(() => {
+      router.push(`/funnels/${funnel.id}`);
+    });
   };
 
   const handleCopyLink = (e: React.MouseEvent) => {
@@ -59,8 +74,8 @@ export function CampaignCard({ funnel }: { funnel: any }) {
 
   return (
     <div 
-      className="group cursor-pointer"
-      onClick={() => router.push(`/funnels/${funnel.id}`)}
+      className={`group cursor-pointer ${isPending || isDeleting ? 'pointer-events-none opacity-80' : ''}`}
+      onClick={handleNavigate}
     >
       <div className="flex flex-col">
         {/* Image Container - Exact Gallereee Style */}
@@ -79,6 +94,14 @@ export function CampaignCard({ funnel }: { funnel: any }) {
             />
           )}
           
+          {/* Loading Overlay */}
+          {(isPending || isDeleting) && (
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-40 flex flex-col items-center justify-center text-white">
+              <Loader2 className="w-8 h-8 animate-spin mb-2" />
+              <span className="text-sm font-medium">{isDeleting ? 'Deleting...' : 'Loading...'}</span>
+            </div>
+          )}
+          
           {/* Floating Action Menu (Replacing the badge) */}
           <div className="absolute bottom-4 right-4 z-30">
             <DropdownMenu>
@@ -89,10 +112,8 @@ export function CampaignCard({ funnel }: { funnel: any }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-[#1a1a1a] border-white/10 text-white p-1.5 rounded-xl backdrop-blur-xl">
                 <DropdownMenuItem 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/funnels/${funnel.id}`);
-                  }}
+                  onClick={handleNavigate}
+                  disabled={isPending || isDeleting}
                   className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-white/10 cursor-pointer transition-colors"
                 >
                   <Eye className="w-4 h-4 text-blue-400" />
@@ -108,6 +129,7 @@ export function CampaignCard({ funnel }: { funnel: any }) {
                 <div className="h-[1px] bg-white/5 my-1" />
                 <DropdownMenuItem 
                   onClick={handleDelete}
+                  disabled={isPending || isDeleting}
                   className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-red-500/20 text-red-400 cursor-pointer transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
