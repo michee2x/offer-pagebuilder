@@ -30,7 +30,8 @@ export default async function middleware(req: NextRequest) {
   // <WelcomePage /> automatically for unauthenticated visitors.
   const welcomeOnlyDomains = ['useofferiq.com', 'www.useofferiq.com']
   if (welcomeOnlyDomains.includes(hostnameWithoutPort)) {
-    if (url.pathname !== '/') {
+    const allowedWelcomePaths = ['/', '/terms', '/policy', '/refund'];
+    if (!allowedWelcomePaths.includes(url.pathname)) {
       return NextResponse.rewrite(new URL('/', req.url))
     }
     return NextResponse.next()
