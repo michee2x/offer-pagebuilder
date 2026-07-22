@@ -9,12 +9,6 @@ const providers: Record<string, any> = {
   paystack: PaystackProvider,
 };
 
-// We disable body parsing to access the raw body for signature verification
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 export async function POST(req: Request, { params }: { params: Promise<{ gateway: string; funnelId: string }> }) {
   try {
