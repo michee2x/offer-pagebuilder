@@ -14,16 +14,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Verify user is an admin
   const { data: userData } = await supabase
     .from("users")
-    .select("role")
+    .select("is_admin")
     .eq("id", session.user.id)
     .single();
 
-  if (userData?.role !== "admin") {
+  if (!userData?.is_admin) {
     if (process.env.NODE_ENV === "development") {
       // Automatically upgrade local dev users to admin for testing
       const { createAdminClient } = await import("@/utils/supabase/admin");
       const adminSupabase = createAdminClient();
-      await adminSupabase.from("users").update({ role: "admin" }).eq("id", session.user.id);
+      await adminSupabase.from("users").update({ is_admin: true }).eq("id", session.user.id);
     } else {
       redirect("/");
     }
