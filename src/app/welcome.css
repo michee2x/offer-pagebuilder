@@ -1,3 +1,35 @@
+@font-face {
+  font-family: 'Host Grotesk';
+  src: url('/fonts/heymessage/HostGrotesk-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FramerHeroDisplay';
+  src: url('/fonts/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9SIejYBxPigs.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FramerHeroBody';
+  src: url('/fonts/GrgcKwrN6d3Uz8EwcLHZxwEfC4.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FramerHeroAccent';
+  src: url('/fonts/xn7gYHE41ni1AdIRggexSg.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 .welcome-page {
   --bg: #08080D;
   --bg-alt: #0B0B12;
@@ -9,18 +41,20 @@
   --text: #F5F5F7;
   --text-dim: #A6A6B3;
   --text-faint: #6B6B7B;
-  --violet: #0066FF;
-  --violet-soft: #60A5FA;
+  --violet: #8B5CF6;
+  --violet-soft: #A78BFA;
   --magenta: #EC4899;
-  --blue: #0066FF;
+  --blue: #3B82F6;
   --amber: #F5A623;
   --green: #34D399;
-  --gradient-primary: linear-gradient(135deg, #0066FF 0%, #4338CA 100%);
-  --gradient-primary-hover: linear-gradient(135deg, #1a75ff 0%, #4F46E5 100%);
-  --gradient-text: linear-gradient(135deg, #60A5FA 0%, #818CF8 100%);
-  --gradient-bar: linear-gradient(90deg, #0066FF 0%, #4338CA 55%, #818CF8 100%);
-  --font-display: 'Clash Display', 'General Sans', sans-serif;
-  --font-body: 'General Sans', -apple-system, sans-serif;
+  --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #9333EA 0%, #2563EB 100%);
+  --gradient-purple-blue: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+  --gradient-text: linear-gradient(135deg, #C4B5FD 0%, #93C5FD 100%);
+  --gradient-bar: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 55%, #60A5FA 100%);
+  --font-display: 'Host Grotesk', 'Clash Display', 'General Sans', sans-serif;
+  --font-body: 'Host Grotesk', 'General Sans', -apple-system, sans-serif;
+  --font-accent: 'Host Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius-sm: 10px;
   --radius-md: 16px;
@@ -342,9 +376,9 @@
   flex-shrink: 0;
 }
 
-/* Log In — Framer glow-blue */
+/* Log In — purple-blue gradient */
 .nav-btn-login {
-  background: #0066FF !important;
+  background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%) !important;
   border: none !important;
   color: #fff !important;
   font-size: 13.5px !important;
@@ -356,18 +390,18 @@
   /* inner highlight + outer bloom */
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 0 0 1px rgba(0, 102, 255, 0.5),
-    0 4px 20px -4px rgba(0, 102, 255, 0.75) !important;
+    0 0 0 1px rgba(139, 92, 246, 0.5),
+    0 4px 20px -4px rgba(139, 92, 246, 0.75) !important;
   transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, filter 0.18s ease !important;
 }
 
 .nav-btn-login:hover {
-  background: #1a75ff !important;
+  background: linear-gradient(135deg, #9333EA 0%, #2563EB 100%) !important;
   transform: translateY(-1px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    0 0 0 1px rgba(0, 102, 255, 0.6),
-    0 8px 28px -4px rgba(0, 102, 255, 0.85) !important;
+    0 0 0 1px rgba(139, 92, 246, 0.6),
+    0 8px 28px -4px rgba(139, 92, 246, 0.85) !important;
   filter: brightness(1.06);
 }
 
@@ -381,11 +415,117 @@
 .hero-section {
   position: relative;
   overflow: hidden;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 1100px 600px at 50% 0%, rgba(139, 92, 246, 0.28) 0%, rgba(59, 130, 246, 0.16) 45%, transparent 70%),
+    linear-gradient(to bottom, rgba(8, 8, 13, 0.72) 0%, rgba(8, 8, 13, 0.90) 100%),
+    url("https://framerusercontent.com/images/tNr9II3jZ7nSELI0b7PCG4TjJs.png?scale-down-to=4096&width=5760&height=3232");
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
   min-height: 160vh;
 }
 
-/* Single centered blue glow orb */
+/* Framer Layout & Typography Styling */
+.framer-1nctip6 {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: min-content;
+  gap: 56px;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.framer-n851dn {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: min-content;
+  gap: 20px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ssr-variant {
+  display: contents;
+  box-sizing: border-box;
+}
+
+.framer-t2w3o5 {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  max-width: 705px;
+  box-sizing: border-box;
+  font-weight: 400;
+}
+
+.framer-t2w3o5 h1 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5.5vw, 62px);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  text-align: center;
+  color: var(--text);
+  margin-bottom: 0;
+}
+
+.framer-gdfpn4 {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+.framer-gdfpn4 p {
+  font-family: var(--font-body);
+  font-size: clamp(16px, 2vw, 18.5px);
+  line-height: 1.65;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.framer-fd9w86 {
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  min-height: 60px;
+  gap: 12px;
+  padding: 12px 24px;
+  box-sizing: border-box;
+  font-family: var(--font-accent);
+  color: var(--text-dim);
+}
+
+.hidden-1b1hla4 {
+  display: none;
+}
+
+/* Single centered purple-blue glow orb */
 .hero-orb {
   position: absolute;
   border-radius: 50%;
@@ -397,8 +537,8 @@
   left: 50%;
   transform: translateX(-50%);
   background: radial-gradient(ellipse at center,
-      rgba(0, 102, 255, 0.16) 0%,
-      rgba(67, 56, 202, 0.10) 45%,
+      rgba(139, 92, 246, 0.22) 0%,
+      rgba(59, 130, 246, 0.14) 45%,
       transparent 70%);
   filter: blur(50px);
 }
@@ -442,8 +582,8 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0, 102, 255, 0.08);
-  border: 1px solid rgba(0, 102, 255, 0.22);
+  background: rgba(139, 92, 246, 0.10);
+  border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: 100px;
   padding: 6px 14px 6px 10px;
   margin-bottom: 28px;
@@ -452,55 +592,59 @@
 }
 
 .hero-badge:hover {
-  background: rgba(0, 102, 255, 0.13);
-  border-color: rgba(0, 102, 255, 0.4);
+  background: rgba(139, 92, 246, 0.17);
+  border-color: rgba(139, 92, 246, 0.42);
 }
 
 .hero-badge .badge-pulse {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #0066FF;
-  box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.5);
+  background: #8B5CF6;
+  box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.5);
   animation: pulseBadge 2s infinite;
 }
 
 @keyframes pulseBadge {
   0% {
-    box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.4);
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
   }
 
   70% {
-    box-shadow: 0 0 0 6px rgba(0, 102, 255, 0);
+    box-shadow: 0 0 0 6px rgba(139, 92, 246, 0);
   }
 
   100% {
-    box-shadow: 0 0 0 0 rgba(0, 102, 255, 0);
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
   }
 }
 
 .hero-badge .badge-text {
   font-size: 13px;
   font-weight: 500;
-  color: var(--violet-soft);
+  font-family: var(--font-accent);
+  color: #C4B5FD;
 }
 
 .hero-h1 {
-  font-size: clamp(28px, 6vw, 56px);
-  line-height: 1.05;
-  font-weight: 800;
-  letter-spacing: -3px;
+  font-size: clamp(32px, 5.8vw, 62px);
+  line-height: 1.06;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   color: var(--text);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   font-family: var(--font-display);
 }
 
+
+
 .hero-lede {
-  font-size: 17px;
-  line-height: 1.7;
+  font-size: clamp(16px, 2vw, 18.5px);
+  line-height: 1.65;
   color: var(--text-dim);
-  max-width: 580px;
+  max-width: 600px;
   margin: 0 auto 36px;
+  font-family: var(--font-body);
 }
 
 .hero-cta-row {

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { FunnelSwitcher } from "./FunnelSwitcher";
 import { usePathname } from "next/navigation";
 import {
   BarChart2,
@@ -16,6 +17,7 @@ import {
   BookOpen,
   Plug,
   Package,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +43,18 @@ export function FunnelSidebar({
 }: FunnelSidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setSwitcherOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const navItems: FunnelNavItem[] = [
     { label: "Overview", href: `/funnels/${funnelId}`, icon: BarChart2 },
@@ -105,32 +119,35 @@ export function FunnelSidebar({
           {/* Top gradient accent */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent flex-shrink-0" />
 
-          {/* Back / funnel name */}
+          {/* Funnel switcher trigger */}
           <div className="px-2 pt-3 pb-2 border-b border-white/[0.07] flex-shrink-0">
-            <Link
-              href={`/funnels/${funnelId}`}
-              title={funnelName}
-              className="flex items-center gap-2.5 text-white/40 hover:text-white/80 transition-colors rounded-xl p-1.5 hover:bg-white/[0.05] group/back"
+            <button
+              onClick={() => setSwitcherOpen(true)}
+              title={open ? "Switch Funnel (Ctrl+K)" : funnelName}
+              className="w-full flex items-center justify-between text-white/40 hover:text-white/80 transition-colors rounded-xl p-1.5 hover:bg-white/[0.05] group/back"
             >
-              <div
-                style={{ width: 32, height: 32, flexShrink: 0 }}
-                className="flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06] group-hover/back:bg-white/[0.08] transition-all"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  style={{ width: 32, height: 32, flexShrink: 0 }}
+                  className="flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06] group-hover/back:bg-white/[0.08] transition-all text-brand-blue"
+                >
+                  <span className="text-[10px] font-black uppercase text-white/80">{funnelName.slice(0,2)}</span>
+                </div>
+                <div
+                  className="text-left min-w-0"
+                  style={{
+                    opacity: open ? 1 : 0,
+                    transition: "opacity 160ms ease",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden"
+                  }}
+                >
+                  <div className="text-[11px] font-bold text-white tracking-wide truncate pr-2">{funnelName}</div>
+                  <div className="text-[9px] text-white/40 flex items-center gap-1 mt-0.5"><kbd className="px-1 bg-white/10 rounded font-mono">⌘K</kbd> to switch</div>
+                </div>
               </div>
-              <span
-                style={{
-                  opacity: open ? 1 : 0,
-                  transition: "opacity 160ms ease",
-                  whiteSpace: "nowrap",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.01em",
-                }}
-              >
-                {funnelName}
-              </span>
-            </Link>
+              {open && <ChevronDown className="w-3.5 h-3.5 mr-1 shrink-0" />}
+            </button>
           </div>
 
           {/* Nav */}
@@ -224,6 +241,7 @@ export function FunnelSidebar({
             </Link>
           </div>
         </div>
+        <FunnelSwitcher isOpen={switcherOpen} onClose={() => setSwitcherOpen(false)} />
       </div>
     );
   }
@@ -241,14 +259,23 @@ export function FunnelSidebar({
           <ArrowLeft className="w-3.5 h-3.5" />
           All Funnels
         </Link>
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-brand-blue flex items-center justify-center flex-shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.4)]">
-            <span className="text-white text-[10px] font-black uppercase">
-              {funnelName.slice(0, 2)}
-            </span>
+        <button 
+          onClick={() => setSwitcherOpen(true)}
+          className="w-full flex items-center justify-between gap-2 p-1.5 -ml-1.5 rounded-xl hover:bg-white/5 transition-colors group text-left"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-brand-blue flex items-center justify-center flex-shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.4)]">
+              <span className="text-white text-[10px] font-black uppercase">
+                {funnelName.slice(0, 2)}
+              </span>
+            </div>
+            <div className="min-w-0 truncate">
+              <p className="text-sm font-bold text-white truncate">{funnelName}</p>
+              <div className="text-[10px] text-white/40 mt-0.5">Switch Funnel (Cmd+K)</div>
+            </div>
           </div>
-          <p className="text-sm font-bold text-white truncate">{funnelName}</p>
-        </div>
+          <ChevronDown className="w-4 h-4 text-white/40 group-hover:text-white/80 shrink-0" />
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
@@ -297,6 +324,7 @@ export function FunnelSidebar({
           Funnel Builder
         </Link>
       </div>
+      <FunnelSwitcher isOpen={switcherOpen} onClose={() => setSwitcherOpen(false)} />
     </div>
   );
 }

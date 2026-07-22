@@ -22,6 +22,38 @@ html {
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Host Grotesk';
+  src: url('/fonts/heymessage/HostGrotesk-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FramerHeroDisplay';
+  src: url('/fonts/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9SIejYBxPigs.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FramerHeroBody';
+  src: url('/fonts/GrgcKwrN6d3Uz8EwcLHZxwEfC4.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FramerHeroAccent';
+  src: url('/fonts/xn7gYHE41ni1AdIRggexSg.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -1119,7 +1151,7 @@ input:focus {
   justify-content: center;
   padding: 40px 20px;
   background: #000;
-  font-family: 'Inter', 'DM Sans Local', 'DM Sans', sans-serif;
+  font-family: 'Host Grotesk', sans-serif;
   overflow: hidden;
 }
 
@@ -1217,7 +1249,7 @@ input:focus {
   max-width: 340px;
 }
 .oiq-headline-block h1 {
-  font-family: 'Playfair Display', 'Georgia', serif;
+  font-family: 'Host Grotesk', sans-serif;
   font-weight: 600;
   font-size: 42px;
   line-height: 1.08;
@@ -1292,7 +1324,7 @@ input:focus {
   opacity: 0.9;
 }
 .oiq-brand span {
-  font-family: 'Playfair Display', 'Georgia', serif;
+  font-family: 'Host Grotesk', sans-serif;
   font-weight: 600;
   font-size: 18px;
   color: #111;
@@ -1307,7 +1339,7 @@ input:focus {
 }
 
 .oiq-form-wrap h2 {
-  font-family: 'Playfair Display', 'Georgia', serif;
+  font-family: 'Host Grotesk', sans-serif;
   font-weight: 600;
   font-size: 30px;
   text-align: center;
