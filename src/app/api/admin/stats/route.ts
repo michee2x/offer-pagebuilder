@@ -12,13 +12,15 @@ export async function GET() {
   const supabase = createAdminClient();
 
   // Validate admin role
+  const adminEmails = ["access@ofiq.com", "access@ofiq.app"];
   const { data: user } = await supabase
     .from("users")
-    .select("role")
+    .select("is_admin")
     .eq("id", session.user.id)
     .single();
 
-  if (user?.role !== "admin") {
+  const isAdmin = user?.is_admin || adminEmails.includes(session.user.email ?? "");
+  if (!isAdmin) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 

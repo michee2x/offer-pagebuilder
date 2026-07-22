@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { 
-  BarChart3, Users, LayoutTemplate, 
-  CreditCard, Magnet, Eye, ArrowUpRight, Globe
+import {
+  BarChart3, Users, LayoutTemplate,
+  CreditCard, Magnet, Eye, Globe, TrendingUp
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,49 +33,113 @@ export default function SuperAdminDashboard() {
   };
 
   const cards = [
-    { title: "Total Revenue", value: stats?.revenue ? `$${stats.revenue.toLocaleString()}` : "$0", icon: CreditCard, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-    { title: "Total Purchases", value: stats?.purchases || 0, icon: BarChart3, color: "text-blue-400", bg: "bg-blue-400/10" },
-    { title: "Total Funnels", value: stats?.funnels || 0, icon: LayoutTemplate, color: "text-purple-400", bg: "bg-purple-400/10" },
-    { title: "Total Leads", value: stats?.leads || 0, icon: Magnet, color: "text-pink-400", bg: "bg-pink-400/10" },
-    { title: "Page Views", value: stats?.pageViews?.toLocaleString() || 0, icon: Eye, color: "text-orange-400", bg: "bg-orange-400/10" },
-    { title: "Total Users", value: stats?.users || 0, icon: Users, color: "text-indigo-400", bg: "bg-indigo-400/10" },
-    { title: "Workspaces", value: stats?.workspaces || 0, icon: Globe, color: "text-cyan-400", bg: "bg-cyan-400/10" },
+    {
+      title: "Total Revenue",
+      value: stats?.revenue ? `$${stats.revenue.toLocaleString()}` : "$0",
+      icon: CreditCard,
+      sub: "All-time earnings",
+    },
+    {
+      title: "Total Purchases",
+      value: stats?.purchases ?? 0,
+      icon: TrendingUp,
+      sub: "Completed transactions",
+    },
+    {
+      title: "Total Funnels",
+      value: stats?.funnels ?? 0,
+      icon: LayoutTemplate,
+      sub: "Published & drafts",
+    },
+    {
+      title: "Total Leads",
+      value: stats?.leads ?? 0,
+      icon: Magnet,
+      sub: "Captured across funnels",
+    },
+    {
+      title: "Page Views",
+      value: stats?.pageViews?.toLocaleString() ?? 0,
+      icon: Eye,
+      sub: "Funnel page impressions",
+    },
+    {
+      title: "Total Users",
+      value: stats?.users ?? 0,
+      icon: Users,
+      sub: "Registered accounts",
+    },
+    {
+      title: "Workspaces",
+      value: stats?.workspaces ?? 0,
+      icon: Globe,
+      sub: "Active workspaces",
+    },
   ];
 
-  if (loading) {
-    return <div className="text-white/50 text-center py-20">Loading statistics...</div>;
-  }
-
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Overview</h1>
-          <p className="text-white/50 mt-1 text-sm">Global statistics across all workspaces and funnels.</p>
-        </div>
+    <div className="max-w-6xl mx-auto space-y-10">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-black text-white tracking-tight">Overview</h1>
+        <p className="text-white/40 mt-1 text-sm">Global statistics across all workspaces and funnels.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {cards.map((card, i) => (
-          <div key={i} className="bg-[#131826] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all group">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${card.bg}`}>
-                <card.icon className={`w-6 h-6 ${card.color}`} />
+      {/* Stat Cards */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-[120px] rounded-2xl bg-white/[0.03] border border-white/[0.06] animate-pulse"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {cards.map((card, i) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={i}
+                className="relative group rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm overflow-hidden hover:border-white/[0.14] hover:bg-white/[0.05] transition-all duration-300"
+              >
+                {/* Subtle top shimmer line */}
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                <div className="p-6">
+                  {/* Icon */}
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center mb-5 group-hover:bg-white/[0.10] transition-colors">
+                    <Icon className="w-4 h-4 text-white/60" />
+                  </div>
+
+                  {/* Value */}
+                  <div className="text-3xl font-black text-white tracking-tight tabular-nums">
+                    {card.value}
+                  </div>
+
+                  {/* Title + sub */}
+                  <div className="mt-1.5">
+                    <p className="text-sm font-semibold text-white/70">{card.title}</p>
+                    <p className="text-xs text-white/30 mt-0.5">{card.sub}</p>
+                  </div>
+                </div>
               </div>
-              <ArrowUpRight className="w-5 h-5 text-white/20 group-hover:text-white/50 transition-colors" />
-            </div>
-            <h3 className="text-white/50 font-medium text-sm mb-1">{card.title}</h3>
-            <div className="text-3xl font-bold text-white tracking-tight">
-              {card.value}
-            </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Coming soon chart area */}
+      <div className="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="flex flex-col items-center justify-center min-h-[260px] py-16">
+          <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-4">
+            <BarChart3 className="w-5 h-5 text-white/20" />
           </div>
-        ))}
-      </div>
-      
-      <div className="bg-[#131826] border border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[300px]">
-         <BarChart3 className="w-12 h-12 text-white/10 mb-4" />
-         <h3 className="text-white/70 font-medium">More analytics coming soon</h3>
-         <p className="text-white/40 text-sm mt-2">Charts and historical data comparison will appear here.</p>
+          <h3 className="text-white/50 font-semibold text-sm">Analytics coming soon</h3>
+          <p className="text-white/25 text-xs mt-1.5">Charts and historical comparisons will appear here.</p>
+        </div>
       </div>
     </div>
   );
