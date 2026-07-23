@@ -67,23 +67,28 @@ function LogoMark() {
 function FaqItem({ q, a, isOpen, onClick }: { q: string; a: string; isOpen: boolean; onClick: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   return (
-    <div className="border-b border-white/[0.07]">
-      <button
-        className="w-full flex items-center justify-between gap-4 py-6 text-left text-[#F5F5F7] font-medium text-[17px] hover:text-white/80 transition-colors cursor-pointer bg-transparent border-none"
-        onClick={onClick}
-        aria-expanded={isOpen}
+    <div
+      className="py-5 px-1 flex flex-col w-full cursor-pointer border-b border-white/10 transition-colors hover:border-white/25 bg-transparent"
+      onClick={onClick}
+      aria-expanded={isOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+    >
+      <div className="flex justify-between items-center w-full gap-4">
+        <h4 className="text-[#F5F5F7] text-[17px] md:text-[18px] font-semibold tracking-tight m-0 leading-snug">{q}</h4>
+        <div className="w-6 h-6 rounded-full bg-white/10 shrink-0 relative flex items-center justify-center transition-transform duration-300">
+          <span className="absolute bg-[#F5F5F7] w-3 h-[2px]" />
+          <span className={`absolute bg-[#F5F5F7] w-[2px] h-3 transition-transform duration-300 ${isOpen ? 'rotate-90 opacity-0' : ''}`} />
+        </div>
+      </div>
+      <div
+        className="overflow-hidden transition-all duration-300 ease-in-out"
+        style={{ maxHeight: isOpen ? (ref.current ? ref.current.scrollHeight + 24 + 'px' : '500px') : '0px' }}
       >
-        <span>{q}</span>
-        <span className={`w-6 h-6 rounded-full border border-white/20 flex items-center justify-center flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}>
-          <svg viewBox="0 0 10 10" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="5" y1="1" x2="5" y2="9" />
-            <line x1="1" y1="5" x2="9" y2="5" />
-          </svg>
-        </span>
-      </button>
-      <div className="overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ maxHeight: isOpen ? (ref.current ? ref.current.scrollHeight + 'px' : '500px') : '0px' }}>
-        <div ref={ref} className="pb-6 text-[#A6A6B3] text-[15px] leading-relaxed">{a}</div>
+        <div ref={ref} className="pt-4 text-[#A6A6B3] text-[15px] leading-relaxed mt-3">
+          {a}
+        </div>
       </div>
     </div>
   );
@@ -216,6 +221,25 @@ const CheckIcon = () => {
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 2c-.218 0 -.432 .002 -.642 .005l-.616 .017l-.299 .013l-.579 .034l-.553 .046c-4.785 .464 -6.732 2.411 -7.196 7.196l-.046 .553l-.034 .579c-.005 .098 -.01 .198 -.013 .299l-.017 .616l-.004 .318l-.001 .324c0 .218 .002 .432 .005 .642l.017 .616l.013 .299l.034 .579l.046 .553c.464 4.785 2.411 6.732 7.196 7.196l.553 .046l.579 .034c.098 .005 .198 .01 .299 .013l.616 .017l.642 .005l.642 -.005l.616 -.017l.299 -.013l.579 -.034l.553 -.046c4.785 -.464 6.732 -2.411 7.196 -7.196l.046 -.553l.034 -.579c.005 -.098 .01 -.198 .013 -.299l.017 -.616l.005 -.642l-.005 -.642l-.017 -.616l-.013 -.299l-.034 -.579l-.046 -.553c-.464 -4.785 -2.411 -6.732 -7.196 -7.196l-.553 -.046l-.579 -.034a28.058 28.058 0 0 0 -.299 -.013l-.616 -.017l-.318 -.004l-.324 -.001zm2.293 7.293a1 1 0 0 1 1.497 1.32l-.083 .094l-4 4a1 1 0 0 1 -1.32 .083l-.094 -.083l-2 -2a1 1 0 0 1 1.32 -1.497l.094 .083l1.293 1.292l3.293 -3.292z" fill="currentColor" strokeWidth="0" />
     </svg>
+  );
+};
+
+const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
+  const isWebP = src.endsWith('.webp');
+  return (
+    <div className="w-full max-w-[440px] mx-auto aspect-[16/10] bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
+      {isWebP ? (
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-full object-cover pointer-events-none"
+        />
+      ) : (
+        <video autoPlay loop muted playsInline className="w-full h-full object-cover pointer-events-none">
+          <source src={src} type="video/mp4" />
+        </video>
+      )}
+    </div>
   );
 };
 
@@ -374,25 +398,29 @@ export function WelcomePage() {
 
   const scenarios = [
     {
-      icon: GraduationCap, tab: 'Course Creator', who: 'Marketing Consultant', meta: '34 · Austin, TX · 14K Instagram followers',
+      tab: 'Course Creator', who: 'Marketing Consultant', meta: '34 · Austin, TX · 14K Instagram followers',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=face',
       quote: <>"I'd researched competitors, taken two copywriting courses, and paid $800 for a coach call. <span style={{ color: '#60A5FA' }}>I still had nothing live.</span>"</>,
       body: "She uploaded her course idea as a text description. In under a minute, OfferIQ returned her exact persona, a price point $300 higher than she'd planned to charge, five conversion hooks, and a full funnel blueprint — then wrote and built the entire funnel in the same session.",
       stats: [{ from: '6 months stuck', to: 'Live in one evening' }, { from: '$197 planned price', to: '$497 recommended price' }, { single: '5 pages + funnel — written, designed, and published in one session' }],
     },
     {
-      icon: Mic, tab: 'Business Coach', who: 'Executive Life Coach', meta: '41 · Atlanta, GA · $3,500 program',
+      tab: 'Business Coach', who: 'Executive Life Coach', meta: '41 · Atlanta, GA · $3,500 program',
+      avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=96&h=96&fit=crop&crop=face',
       quote: <>"I knew the problem was in the messaging. <span style={{ color: '#60A5FA' }}>I just couldn't see what was wrong with it.</span>"</>,
       body: "She pasted her existing sales page URL into OfferIQ. The Intelligence Report found the real problem in seconds: her page led with a 12-step curriculum, but her buyer purchases from identity anxiety. OfferIQ rewrote the copy around that insight and raised her price to $4,500.",
       stats: [{ from: '0.7% conversion', to: '2.5%+ projected, same ad budget' }, { from: '$9,600 spent, unprofitable', to: 'Profitable within 30 days (projected)' }, { from: '$3,500 price', to: '$4,500 pricing correction' }],
     },
     {
-      icon: Building2, tab: 'Agency Owner', who: 'Digital Marketing Agency Owner', meta: '38 · Denver, CO · 6-person team',
+      tab: 'Agency Owner', who: 'Digital Marketing Agency Owner', meta: '38 · Denver, CO · 6-person team',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&h=96&fit=crop&crop=face',
       quote: <>"Every new service means a new hiring decision. <span style={{ color: '#60A5FA' }}>I couldn't productize this without a repeatable system.</span>"</>,
       body: "He wanted to add offer strategy and funnel building as a $3,000–$5,000 productized service, without hiring. He now runs each client's offer through OfferIQ. What took his team three weeks now takes two hours.",
       stats: [{ from: '3 weeks per client', to: '2 hours per client' }, { single: '$15,000–$30,000/month projected new service-line revenue' }, { single: 'Zero new hires required to deliver it' }],
     },
     {
-      icon: Sprout, tab: 'First-Time Entrepreneur', who: 'Corporate HR Professional', meta: '29 · Chicago, IL · 8 yrs experience',
+      tab: 'First-Time Entrepreneur', who: 'Corporate HR Professional', meta: '29 · Chicago, IL · 8 yrs experience',
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=96&h=96&fit=crop&crop=face',
       quote: <>"I knew I had teachable expertise. <span style={{ color: '#60A5FA' }}>I had no idea what to build, or where to start.</span>"</>,
       body: 'She had 18 months of "how to launch a course" content behind her and nothing live. She selected "Build an Offer For Me," entered her niche and audience, and received five validated offer ideas. She picked "The 90-Day People Ops Accelerator" at $997 — OfferIQ built the full intelligence report and funnel for it in the same session.',
       stats: [{ from: '18 months, no product', to: 'Live funnel in under 3 hours' }, { single: '5 validated offer ideas generated from niche + audience + price range' }, { single: '$997 price point — market-tested, not guessed' }],
@@ -430,19 +458,19 @@ export function WelcomePage() {
     {
       name: 'Growth', price: '$69', period: '/mo', sub: 'Billed monthly. Cancel anytime.',
       features: ['Everything in Starter, plus:', '<b>10 offer credits</b> — refreshed monthly', '3 Workspaces', 'Remove "Built with OfferIQ" branding', 'Advanced Analytics dashboard', 'Custom domain connection', 'Pixel tracking embed', 'Priority support'],
-      best: 'Best for active creators running multiple offers or brands.', popular: true, cta: 'Get Growth',
+      best: 'Best for active creators running multiple offers or brands.', popular: true, cta: 'Start Your $1 Trial',
     },
     {
-      name: 'Agency', price: '$179', period: 'one-time', sub: 'A single payment — not a subscription.',
-      features: ['Everything in Growth, plus:', '<b>30 offer credits</b> — yours forever, never expire', '30 Workspaces', '30 client sub-accounts for agency delivery', 'Agency asset pack — proposals & branded covers', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
-      best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: 'Get Agency',
+      name: 'Agency', price: '$179', period: '/mo', sub: 'Billed monthly. Cancel anytime.',
+      features: ['Everything in Growth, plus:', '<b>30 offer credits</b> — refreshed monthly', '30 Workspaces', '30 client sub-accounts for agency delivery', 'Agency asset pack — proposals & branded covers', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
+      best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: 'Start Your $1 Trial',
     },
   ];
 
   const s = scenarios[activeScenario];
 
   return (
-    <div className="dark antialiased overflow-x-hidden" style={{ background: '#08080D', color: '#F5F5F7', fontFamily: "'FramerHeroBody', 'General Sans', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6, WebkitFontSmoothing: 'antialiased' }}>
+    <div className="dark antialiased overflow-x-hidden" style={{ background: 'rgb(11,11,11)', color: '#F5F5F7', fontFamily: "'FramerHeroBody', 'General Sans', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6, WebkitFontSmoothing: 'antialiased' }}>
 
       {/* ── NAV ── */}
       <nav
@@ -533,20 +561,21 @@ export function WelcomePage() {
 
           {/* 3D Card */}
           <motion.div
-            className="w-full max-w-[1040px] rounded-[30px] relative z-[1] p-5"
+            className="w-full max-w-[1040px] rounded-[20px] md:rounded-[30px] relative z-[1] p-2 md:p-5"
             style={{
-              height: 580,
+              height: 'clamp(220px, 45vw, 580px)',
               border: '1px solid rgba(139,92,246,0.25)',
               background: 'linear-gradient(180deg, #1A1020 0%, #111118 100%)',
               rotateX: cardRotate, scale: cardScale, transformOrigin: 'center top',
               boxShadow: '0 0 0 1px rgba(59,130,246,0.08), 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 40px 80px -20px rgba(139,92,246,0.15)',
             }}
           >
-            <div className="h-full w-full rounded-[18px] overflow-hidden bg-[#18181b] p-3.5 relative pointer-events-none" style={{ height: '100%' }}>
+            <div className="h-full w-full rounded-[12px] md:rounded-[18px] overflow-hidden bg-[#18181b] p-1 md:p-3.5 relative pointer-events-none" style={{ height: '100%' }}>
               <iframe
-                src="https://www.youtube.com/embed/TX9qSaGXFyU?autoplay=1&mute=1&loop=1&playlist=TX9qSaGXFyU&controls=0&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=10"
-                className="rounded-[10px] block"
+                src="https://www.youtube.com/embed/PYnfJl2OSic?autoplay=1&mute=1&loop=1&playlist=PYnfJl2OSic&controls=0&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=30"
+                className="rounded-[8px] md:rounded-[10px] block"
                 allow="autoplay; encrypted-media"
+                title="Apple Event — September 2024"
                 style={{ border: 0, width: '100%', height: '100%' }}
               ></iframe>
             </div>
@@ -554,10 +583,83 @@ export function WelcomePage() {
         </div>
       </section>
 
-      {/* ── WHY IT MATTERS ── */}
-      <section className="py-[60px]" id="why">
-        <div className="relative w-full overflow-clip">
-          <Timeline data={whyTimelineData} />
+      {/* ── WHY THIS MATTERS ── */}
+      <section className="py-[120px] md:py-[76px]" id="why">
+        <div className="max-w-[1180px] mx-auto px-7">
+          <Reveal>
+            <div className="w-full flex flex-col gap-[48px] md:gap-[60px]">
+              
+              {/* Header */}
+              <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
+                <div
+                  className="inline-block px-3 py-1 rounded-md text-[12px] font-bold uppercase tracking-widest text-black mb-1"
+                  style={{ background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' }}
+                >
+                  Why This Matters Right Now
+                </div>
+                <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                  Three traps quietly kill every offer<br/>before it has a chance to sell.
+                </h2>
+              </div>
+
+              {/* Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  {
+                    icon: Compass,
+                    tag: 'The “Blank Canvas” Trap',
+                    stat: '42%',
+                    body: 'of startups fail simply because they build products with absolutely no market need — chasing demand that was never there until the cash runs out.',
+                    src: '— Vincent, Founder of Preuve AI',
+                  },
+                  {
+                    icon: DollarSign,
+                    tag: 'The Pricing Trap',
+                    stat: '18%',
+                    body: 'of startups collapse due to flawed pricing models — charging too much for the market to bear, or too little to sustain operations.',
+                    src: '— ideaproof.io',
+                  },
+                  {
+                    icon: TrendingUp,
+                    tag: 'The “Acquisition Cost” Trap',
+                    stat: '222%+',
+                    body: 'is how far Customer Acquisition Costs have climbed. Hyper-expensive clicks sent to a slow, pieced-together funnel bleed profit dry before the first sale.',
+                    src: '— ProfitWell / Paddle',
+                  },
+                ].map((c, i) => {
+                  const IconComp = c.icon;
+                  return (
+                    <div key={i} className="flex flex-col p-7 rounded-[14px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-all duration-300 group">
+                      <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 mb-6 group-hover:scale-105 transition-transform shrink-0">
+                        <IconComp className="w-5 h-5" />
+                      </div>
+                      <span className="font-mono text-[11px] text-white/40 tracking-widest uppercase block mb-2">
+                        {c.tag}
+                      </span>
+                      <div className="text-[32px] font-semibold mb-3 bg-gradient-to-br from-white to-white/70 bg-clip-text text-transparent tracking-tight leading-none">
+                        {c.stat}
+                      </div>
+                      <p className="text-[#A6A6B3] text-[15px] leading-relaxed mb-5 flex-grow">
+                        {c.body}
+                      </p>
+                      <span className="font-mono text-[11px] text-white/30 italic">
+                        {c.src}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Footer */}
+              <div className="pt-2 border-t border-white/5">
+                <p className="text-center text-[16px] md:text-[17px] font-medium max-w-[640px] mx-auto text-[#A6A6B3] m-0">
+                  OfferIQ is the end of trial-and-error marketing.{' '}
+                  <span className="text-white">We replace the guesswork with a data-backed blueprint.</span>
+                </p>
+              </div>
+
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -642,35 +744,79 @@ export function WelcomePage() {
       <section className="py-[120px] md:py-[76px]" id="how-it-works">
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
-            <div className="max-w-[680px] mb-16">
-              <Eyebrow>From Idea To Live Funnel</Eyebrow>
-              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>The average user goes from first login to a live, payment-enabled funnel in under 30 minutes.</h2>
-              <p className="text-[17px] text-[#A6A6B3]">For a returning user building their second or third offer, it takes under 15.</p>
+            <div className="max-w-[680px] mb-16 mx-auto text-center">
+              <Eyebrow center>From Idea To Live Funnel</Eyebrow>
+              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                The average user goes from first login to a live, payment-enabled funnel in under 30 minutes.
+              </h2>
+              <p className="text-[17px] text-[#A6A6B3]">
+                For a returning user building their second or third offer, it takes under 15.
+              </p>
             </div>
           </Reveal>
-          <div className="flex flex-col gap-5">
+
+          <div className="flex flex-col gap-3 w-full">
             {[
-              { t: 'Intelligence Report', time: '~4 min', d: 'Your offer is analyzed against 35,000+ validated funnels — positioning, persona, pricing, hooks, and a full funnel blueprint come back specific to you.' },
-              { t: 'Copy Engine', time: '~2 min', d: "Lead page, long-form sales page, upsell, downsell, and thank-you copy — written from the intelligence report, in your buyer's exact vocabulary." },
-              { t: 'Page Builder', time: '~5 min', d: 'Every page assembles automatically using your design direction. Edit inline, or tell the AI copilot what to change in plain language.' },
-              { t: 'Traffic Intelligence™ & Email', time: '~4 min', d: 'A platform priority matrix, ready-to-deploy ad copy, a VSL script, a UGC script, and full email sequences — before you spend a dollar on ads.' },
-              { t: 'Publish & Go Live', time: 'instant', d: 'Connect a domain, connect Stripe or PayPal, and deploy. Your funnel is public and payment-enabled.' },
+              {
+                num: '01',
+                title: 'Intelligence Report',
+                sub: 'Validated Positioning & Offer Blueprint',
+                time: '~4 min',
+                desc: 'Your offer is analyzed against 35,000+ validated funnels — positioning, persona, pricing, hooks, and a full funnel blueprint come back specific to you.',
+              },
+              {
+                num: '02',
+                title: 'Copy Engine',
+                sub: 'Full Funnel Copy Written In Your Buyer’s Vocabulary',
+                time: '~2 min',
+                desc: 'Lead page, long-form sales page (up to 12,000 words), upsell, downsell, and thank-you copy written live from your intelligence report.',
+              },
+              {
+                num: '03',
+                title: 'Page Builder',
+                sub: 'Automated Page Assembly & Copilot Edits',
+                time: '~5 min',
+                desc: 'Every page assembles automatically using your design direction. Edit inline, or tell the AI copilot what to change in plain language.',
+              },
+              {
+                num: '04',
+                title: 'Traffic Intelligence™',
+                sub: 'Media Matrix, Ad Scripts & Email Nurture',
+                time: '~4 min',
+                desc: 'A platform priority matrix, ready-to-deploy ad copy, VSL script, UGC script, and full email sequences — before spending a dollar on ads.',
+              },
+              {
+                num: '05',
+                title: 'Publish & Scale',
+                sub: 'Live Subdomain / Custom Domain & Stripe Payments',
+                time: 'Instant',
+                desc: 'Connect a domain, connect Stripe or PayPal, and deploy. Your funnel is public, payment-enabled, and tracking analytics instantly.',
+              },
             ].map((step, i) => (
               <Reveal key={i}>
-                <div className="relative flex flex-col md:flex-row gap-6 md:gap-8 p-6 md:p-8 items-start group bg-[#11111A] border border-white/[0.04] rounded-3xl transition-all duration-300 hover:bg-[#14141F] hover:border-white/[0.08] hover:shadow-2xl overflow-hidden">
-                  <div className="relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center font-mono text-[16px] font-bold text-[#A6A6B3] group-hover:text-violet-400 flex-shrink-0 transition-colors duration-300"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 flex-1 w-full pt-1">
-                    <div>
-                      <h4 className="text-[20px] font-semibold text-[#F5F5F7] mb-2.5 tracking-tight group-hover:text-white transition-colors">{step.t}</h4>
-                      <p className="text-[15.5px] text-[#A6A6B3] leading-relaxed max-w-[640px] group-hover:text-[#D4D4E0] transition-colors">{step.d}</p>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-8 px-6 py-5 rounded-[10px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-colors">
+                  
+                  {/* Left: Number & Title */}
+                  <div className="flex flex-col gap-1 w-full lg:w-[280px] shrink-0">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-[13px] text-white/40">{step.num}</span>
+                      <span className="text-[15px] text-white/85 font-medium">{step.title}</span>
                     </div>
-                    <div className="flex items-center px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 whitespace-nowrap flex-shrink-0 transition-all">
-                      <span className="font-mono text-[13px] font-bold text-emerald-400 tracking-wide uppercase">{step.time}</span>
-                    </div>
+                    <span className="text-[13px] text-white/50 pl-7">{step.sub}</span>
                   </div>
+
+                  {/* Middle: Description */}
+                  <span className="text-[14px] text-white/60 leading-relaxed flex-1">
+                    {step.desc}
+                  </span>
+
+                  {/* Right: Time (Matching "Included" style) */}
+                  <span className="flex items-center gap-2 text-emerald-400 text-[14px] font-medium shrink-0 lg:w-[100px] lg:justify-end mt-2 lg:mt-0">
+                    <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                      <Check className="w-3 h-3" />
+                    </div>
+                    {step.time}
+                  </span>
                 </div>
               </Reveal>
             ))}
@@ -682,126 +828,178 @@ export function WelcomePage() {
       <section className="py-[120px] md:py-[76px]" id="showcase">
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
-            <div className="max-w-[680px] mb-16 mx-auto text-center">
-              <Eyebrow center>Product Showcase</Eyebrow>
-              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>One workspace. Every phase of the offer, connected.</h2>
-              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">Each phase reads the one before it — nothing here is generic, because none of it is generated in isolation.</p>
+            <div
+              className="w-full rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-[60px] p-[32px] md:p-[60px]"
+            >
+              {/* Header — same style as Illustrative Scenarios / Replace The Stack */}
+              <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
+                <div
+                  className="inline-block px-3 py-1 rounded-md text-[12px] font-bold uppercase tracking-widest text-black mb-1"
+                  style={{ background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' }}
+                >
+                  Product Showcase
+                </div>
+                <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                  One workspace. Every phase of the offer, connected.
+                </h2>
+                <p className="text-[17px] text-[#A6A6B3] max-w-[560px] m-0">
+                  Each phase reads the one before it — nothing here is generic, because none of it is generated in isolation.
+                </p>
+              </div>
+
+              {/* Timeline rows */}
+              <div className="relative">
+                {/* Thin vertical center line — hidden on mobile */}
+                <div
+                  className="hidden md:block absolute left-1/2 top-4 bottom-4 w-px -translate-x-1/2 bg-white/10 pointer-events-none"
+                />
+
+                <div className="flex flex-col gap-0">
+
+                  {/* ── Row 1: text LEFT · spine · video RIGHT ── */}
+                  <Reveal>
+                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
+                      {/* Left — copy */}
+                      <div className="flex flex-col pr-0 md:pr-4">
+                        <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
+                          <Compass className="w-3.5 h-3.5 text-amber-400" /> Choice Gate
+                        </span>
+                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Start from what you have — or start from nothing at all</h3>
+                        <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
+                          You already have an offer, a live page, or a rough idea. Paste a URL, upload a PDF, or describe it in your own words — OfferIQ builds the complete report, copy, and funnel around what you already have.
+                        </p>
+                        <ul className="flex flex-col gap-2.5">
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>Analyse &amp; Build My Offer</b> for a URL, PDF, or idea.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>Build an Offer For Me</b> generates validated offer ideas.' }} /></li>
+                        </ul>
+                      </div>
+
+                      {/* Spine circle */}
+                      <div className="hidden md:flex flex-col items-center justify-center self-stretch relative">
+                        <div className="w-7 h-7 rounded-full bg-[#1F1F24] border border-white/15 text-white/70 font-mono text-[12px] font-medium flex items-center justify-center z-10 shadow-md">
+                          1
+                        </div>
+                      </div>
+
+                      {/* Right — video */}
+                      <div className="pl-0 md:pl-4">
+                        <ProductVideo
+                          src="/videos/choice-gate.webp"
+                          alt="OfferIQ choice gate to intelligence report"
+                        />
+                      </div>
+                    </div>
+                  </Reveal>
+
+                  {/* ── Row 2: video LEFT · spine · text RIGHT ── */}
+                  <Reveal>
+                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
+                      {/* Left — video */}
+                      <div className="pr-0 md:pr-4 order-2 md:order-1">
+                        <ProductVideo
+                          src="/videos/copy-engine.mp4"
+                          alt="Copy Engine writing live from your Intelligence Report"
+                        />
+                      </div>
+
+                      {/* Spine circle */}
+                      <div className="hidden md:flex flex-col items-center justify-center self-stretch relative order-2">
+                        <div className="w-7 h-7 rounded-full bg-[#1F1F24] border border-white/15 text-white/70 font-mono text-[12px] font-medium flex items-center justify-center z-10 shadow-md">
+                          2
+                        </div>
+                      </div>
+
+                      {/* Right — copy */}
+                      <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
+                        <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
+                          <PenTool className="w-3.5 h-3.5 text-amber-400" /> Copy &amp; Page Builder
+                        </span>
+                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Copy and pages built from your data, not a template</h3>
+                        <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
+                          Every word is written directly from your Intelligence Report. Lead Capture, Sales Page, Upsell, Downsell, and Thank You copy — all generated in one pass.
+                        </p>
+                        <ul className="flex flex-col gap-2.5">
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Full funnel copy in one pass: <b>Lead, Sales, Upsell, Downsell</b>.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Built-in <b>AI Copilot</b> to refine copy on demand in real time.' }} /></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </Reveal>
+
+                  {/* ── Row 3: text LEFT · spine · video RIGHT ── */}
+                  <Reveal>
+                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
+                      {/* Left — copy */}
+                      <div className="flex flex-col pr-0 md:pr-4">
+                        <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
+                          <Rocket className="w-3.5 h-3.5 text-amber-400" /> Publish &amp; Analytics
+                        </span>
+                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Launch-ready assets, live pages, and real analytics</h3>
+                        <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
+                          Publish in one click on an OfferIQ subdomain or custom domain. Stripe and PayPal buy buttons work instantly with integrated lead CRM and analytics.
+                        </p>
+                        <ul className="flex flex-col gap-2.5">
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>One-click publishing</b> with Stripe &amp; PayPal payments.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14.5px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Built-in <b>CRM &amp; funnel analytics</b> tracking traffic &amp; conversion.' }} /></li>
+                        </ul>
+                      </div>
+
+                      {/* Spine circle */}
+                      <div className="hidden md:flex flex-col items-center justify-center self-stretch relative">
+                        <div className="w-7 h-7 rounded-full bg-[#1F1F24] border border-white/15 text-white/70 font-mono text-[12px] font-medium flex items-center justify-center z-10 shadow-md">
+                          3
+                        </div>
+                      </div>
+
+                      {/* Right — video */}
+                      <div className="pl-0 md:pl-4">
+                        <ProductVideo
+                          src="/videos/live-pages.mp4"
+                          alt="Published pages with design direction applied"
+                        />
+                      </div>
+                    </div>
+                  </Reveal>
+
+                  {/* ── Row 4: video LEFT · spine · text RIGHT ── */}
+                  <Reveal>
+                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-x-8 gap-y-8 items-center">
+                      {/* Left — video */}
+                      <div className="pr-0 md:pr-4 order-2 md:order-1">
+                        <ProductVideo
+                          src="/videos/traffic-intelligence.mp4"
+                          alt="Traffic Intelligence platform priority matrix"
+                        />
+                      </div>
+
+                      {/* Spine circle */}
+                      <div className="hidden md:flex flex-col items-center justify-center self-stretch relative order-2">
+                        <div className="w-7 h-7 rounded-full bg-[#1F1F24] border border-white/15 text-white/70 font-mono text-[12px] font-medium flex items-center justify-center z-10 shadow-md">
+                          4
+                        </div>
+                      </div>
+
+                      {/* Right — copy */}
+                      <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
+                        <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
+                          <Target className="w-3.5 h-3.5 text-amber-400" /> Traffic Intelligence™
+                        </span>
+                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Stop guessing where your buyers are</h3>
+                        <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
+                          Get a platform priority matrix, ready-to-deploy ad copy for Meta and Google, VSL &amp; UGC scripts, plus full email sequences before spending a dollar on ads.
+                        </p>
+                        <ul className="flex flex-col gap-2.5">
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Platform priority matrix &amp; Meta/Google ad copy.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Full <b>email sequences</b> — Lead Nurture, Launch &amp; Upsell.' }} /></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </Reveal>
+
+                </div>
+              </div>
             </div>
           </Reveal>
-
-          <div className="flex flex-col gap-8 md:gap-16">
-            {/* Row 1 */}
-            <Reveal>
-              <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-center py-[40px] md:py-[70px] border-b border-white/10">
-                <div className="flex flex-col flex-1 w-full">
-                  <span className="inline-flex items-center gap-2 font-mono text-[12px] text-blue-400 tracking-[0.08em] uppercase mb-4">
-                    <Compass className="w-3.5 h-3.5" /> 01 · Choice Gate
-                  </span>
-                  <h3 className="text-[clamp(22px,3vw,30px)] font-semibold mb-[18px] text-[#F5F5F7]">Start from what you have — or start from nothing at all</h3>
-                  <ul className="flex flex-col gap-[14px] mt-[22px]">
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: '<b>Analyse & Build My Offer</b> for a URL, PDF, or idea you already have.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: '<b>Build an Offer For Me</b> generates validated offer ideas from your niche, audience, and price range.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Every path lands in the same place: a complete Intelligence Report, ready in minutes.' }} /></li>
-                  </ul>
-                </div>
-                <div className="flex-1 w-full">
-                  <div className="bg-[#14141F] border border-white/10 rounded-[16px] overflow-hidden shadow-[0_30px_70px_-30px_rgba(0,0,0,0.6)] transition-transform duration-500 hover:-translate-y-1">
-                    <video autoPlay loop muted playsInline className="w-full h-auto object-cover pointer-events-none">
-                      <source src="/videos/choice-gate.mp4" type="video/mp4" />
-                    </video>
-                    <div className="font-mono text-[11px] text-[#6B6B7B] p-3 px-4 border-t border-white/10 bg-[#191927]">
-                      [ Product Video: OfferIQ choice gate → intelligence report ]
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Row 2 (Reverse) */}
-            <Reveal>
-              <div className="flex flex-col md:flex-row-reverse gap-12 md:gap-16 items-center py-[40px] md:py-[70px] border-b border-white/10">
-                <div className="flex flex-col flex-1 w-full">
-                  <span className="inline-flex items-center gap-2 font-mono text-[12px] text-blue-400 tracking-[0.08em] uppercase mb-4">
-                    <PenTool className="w-3.5 h-3.5" /> 02 · Copy and Pages Built From Your Data
-                  </span>
-                  <h3 className="text-[clamp(22px,3vw,30px)] font-semibold mb-[18px] text-[#F5F5F7]">Copy and pages built from your data, not a template</h3>
-                  <ul className="flex flex-col gap-[14px] mt-[22px]">
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Every word is written from your <b>Intelligence Report</b> — not a generic swipe file, so your copy actually speaks to your specific buyer.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Full funnel copy in one pass: <b>Lead Capture, Long-Form Sales Page (up to 12,000 words), Upsell, Downsell, and Thank You pages.</b>' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Pages assemble themselves — colors, fonts, and layout pulled straight from your <b>Design Intelligence</b>, no design decisions left to guess at.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Refine anything by chatting — tell the built-in <b>AI copilot</b> “make this headline punchier” and watch it update in real time.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Drag-and-drop when you want manual control — reorder sections, swap images, edit inline.' }} /></li>
-                  </ul>
-                </div>
-                <div className="flex-1 w-full">
-                  <div className="bg-[#14141F] border border-white/10 rounded-[16px] overflow-hidden shadow-[0_30px_70px_-30px_rgba(0,0,0,0.6)] transition-transform duration-500 hover:-translate-y-1">
-                    <video autoPlay loop muted playsInline className="w-full h-auto object-cover pointer-events-none">
-                      <source src="/videos/copy-engine.mp4" type="video/mp4" />
-                    </video>
-                    <div className="font-mono text-[11px] text-[#6B6B7B] p-3 px-4 border-t border-white/10 bg-[#191927]">
-                      [ Product Video: Copy Engine writing live from your Intelligence Report ]
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Row 3 */}
-            <Reveal>
-              <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-center py-[40px] md:py-[70px] border-b border-white/10">
-                <div className="flex flex-col flex-1 w-full">
-                  <span className="inline-flex items-center gap-2 font-mono text-[12px] text-blue-400 tracking-[0.08em] uppercase mb-4">
-                    <Rocket className="w-3.5 h-3.5" /> 03 · Launch-Ready Assets, Live Pages, Real Analytics
-                  </span>
-                  <h3 className="text-[clamp(22px,3vw,30px)] font-semibold mb-[18px] text-[#F5F5F7]">Launch-ready assets, live pages, and real analytics</h3>
-                  <ul className="flex flex-col gap-[14px] mt-[22px]">
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: '<b>One-click publishing</b> — go live on an OfferIQ subdomain or connect your own custom domain.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: '<b>Stripe and PayPal</b> integration built in — your buy buttons work the moment you publish.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Built-in <b>CRM</b> for every lead across every funnel — plus per-funnel analytics on traffic, conversion rate, traffic quality, and device breakdown.' }} /></li>
-                  </ul>
-                </div>
-                <div className="flex-1 w-full">
-                  <div className="bg-[#14141F] border border-white/10 rounded-[16px] overflow-hidden shadow-[0_30px_70px_-30px_rgba(0,0,0,0.6)] transition-transform duration-500 hover:-translate-y-1">
-                    <video autoPlay loop muted playsInline className="w-full h-auto object-cover pointer-events-none">
-                      <source src="/videos/live-pages.mp4" type="video/mp4" />
-                    </video>
-                    <div className="font-mono text-[11px] text-[#6B6B7B] p-3 px-4 border-t border-white/10 bg-[#191927]">
-                      [ Product Video: Published pages with design direction applied ]
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Row 4 (Reverse) */}
-            <Reveal>
-              <div className="flex flex-col md:flex-row-reverse gap-12 md:gap-16 items-center py-[40px] md:py-[70px] border-b-0">
-                <div className="flex flex-col flex-1 w-full">
-                  <span className="inline-flex items-center gap-2 font-mono text-[12px] text-blue-400 tracking-[0.08em] uppercase mb-4">
-                    <Target className="w-3.5 h-3.5" /> 04 · Traffic Intelligence™ + Email
-                  </span>
-                  <h3 className="text-[clamp(22px,3vw,30px)] font-semibold mb-[18px] text-[#F5F5F7]">Stop guessing where your buyers are</h3>
-                  <ul className="flex flex-col gap-[14px] mt-[22px]">
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'A complete acquisition strategy before you spend a dollar — <b>platform priority matrix</b> built from comparable converting funnels.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Ready-to-deploy <b>ad copy for Meta and Google</b> — plus a VSL script and a UGC script written from your persona data.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'A <b>3-phase media buying plan</b> — so you know what to test first, second, and third instead of burning budget on random variations.' }} /></li>
-                    <li className="flex gap-3 items-start text-[15px] text-[#A6A6B3]"><Check className="w-[18px] h-[18px] shrink-0 mt-1 text-emerald-400" /> <span dangerouslySetInnerHTML={{ __html: 'Full <b>email sequences</b> included — Lead Nurture, Launch, Re-engagement, Client Onboarding, and Upsell, ready to connect to your leads.' }} /></li>
-                  </ul>
-                </div>
-                <div className="flex-1 w-full">
-                  <div className="bg-[#14141F] border border-white/10 rounded-[16px] overflow-hidden shadow-[0_30px_70px_-30px_rgba(0,0,0,0.6)] transition-transform duration-500 hover:-translate-y-1">
-                    <video autoPlay loop muted playsInline className="w-full h-auto object-cover pointer-events-none">
-                      <source src="/videos/traffic-intelligence.mp4" type="video/mp4" />
-                    </video>
-                    <div className="font-mono text-[11px] text-[#6B6B7B] p-3 px-4 border-t border-white/10 bg-[#191927]">
-                      [ Product Video: Traffic Intelligence™ platform priority matrix ]
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-          </div>
         </div>
       </section>
 
@@ -811,62 +1009,120 @@ export function WelcomePage() {
           <Reveal>
             <div className="max-w-[680px] mb-16 mx-auto text-center">
               <Eyebrow center>Built-In Vault</Eyebrow>
-              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>Assets and templates, ready the moment you need them.</h2>
+              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                Assets and templates, ready the moment you need them.
+              </h2>
+              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">
+                Auto-populated lead magnets, bonus stacks, and a library of proven converting funnel templates.
+              </p>
             </div>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          <div className="flex flex-col gap-10">
+            {/* Card 1: Asset Bank */}
             <Reveal>
-              <CardSpotlight className="h-full p-8 flex flex-col justify-start" color="rgba(124, 58, 237, 0.15)">
-                <div className="flex items-center gap-3 mb-6 relative z-20">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/20">
-                    <Package className="w-6 h-6 text-violet-400" />
+              <div className="w-full rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] overflow-hidden relative group">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center p-8 md:p-12 min-h-[420px]">
+                  {/* Half 1: Copy & Features */}
+                  <div className="flex flex-col relative z-20 max-w-[480px]">
+                    <div className="flex items-center gap-3.5 mb-5">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/20 shrink-0">
+                        <Package className="w-6 h-6 text-violet-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Asset Bank</h3>
+                        <span className="font-mono text-[11px] text-violet-400 font-medium tracking-widest uppercase block mt-0.5">
+                          Generates for you
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-[#A6A6B3] text-[15px] leading-relaxed mb-6">
+                      The moment your Intelligence Report is ready, the Asset Bank already knows which lead magnets and bonuses will move the needle — and writes them for you as real, downloadable files.
+                    </p>
+
+                    <ul className="list-none space-y-3 mb-8">
+                      <Step title="Auto-populated from your Bonus Stack & Revenue Model — no manual setup." />
+                      <Step title="One click generates a complete, formatted PDF in under 60 seconds." />
+                      <Step title="Covers lead magnets, core bonuses, and fast-action bonuses." />
+                    </ul>
+
+                    <div className="flex flex-wrap gap-2 pt-5 border-t border-white/10">
+                      {['Ebook', 'Checklist', 'Swipe File', 'Workbook'].map((label, i) => (
+                        <Chip key={i}>
+                          <FileText className="w-3.5 h-3.5 text-violet-400" /> {label}
+                        </Chip>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-[22px] font-semibold tracking-tight text-[#F5F5F7]">Asset Bank</h3>
-                    <p className="text-xs text-violet-400/80 font-mono tracking-widest uppercase mt-1">Generates for you</p>
+
+                  {/* Half 2: Tilted Offset Image Visual (Positioned safely away from text) */}
+                  <div className="relative flex items-center justify-end min-h-[280px] lg:min-h-[340px] pointer-events-none">
+                    <div className="relative w-full max-w-[420px] h-[240px]">
+                      <div className="absolute inset-0 bg-violet-500/10 rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
+                      <img
+                        src="https://assets.aceternity.com/pro/bento-grids.png"
+                        alt="Asset Bank preview"
+                        className="absolute -right-12 lg:-right-24 -bottom-16 md:-bottom-24 w-[115%] max-w-[480px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right group-hover:scale-[1.02] transition-transform duration-500 z-10"
+                      />
+                    </div>
                   </div>
                 </div>
-                <p className="text-[#A6A6B3] relative z-20 text-[15px] leading-relaxed mb-8">
-                  The moment your Intelligence Report is ready, the Asset Bank already knows which lead magnets and bonuses will move the needle — and writes them for you as real, downloadable files.
-                </p>
-                <div className="mt-auto relative z-20">
-                  <ul className="list-none space-y-4">
-                    <Step title="Auto-populated from your Bonus Stack & Revenue Model — no manual setup." />
-                    <Step title="One click generates a complete, titled, formatted PDF in under 60 seconds." />
-                    <Step title="Covers lead magnets, core bonuses, and fast-action bonuses." />
-                  </ul>
-                  <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-white/5">
-                    {['Ebook', 'Checklist', 'Swipe File', 'Workbook'].map((label, i) => (<Chip key={i}><FileText className="w-3.5 h-3.5" /> {label}</Chip>))}
-                  </div>
-                </div>
-              </CardSpotlight>
+              </div>
             </Reveal>
+
+            {/* Card 2: Template Club (Reversed Split) */}
             <Reveal>
-              <CardSpotlight className="h-full p-8 flex flex-col justify-start" color="rgba(79, 140, 255, 0.15)">
-                <div className="flex items-center gap-3 mb-6 relative z-20">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-500/10 border border-blue-500/20">
-                    <Palette className="w-6 h-6 text-blue-400" />
+              <div className="w-full rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] overflow-hidden relative group">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center p-8 md:p-12 min-h-[420px]">
+                  {/* Half 1: Tilted Offset Image Visual (Positioned safely away from text) */}
+                  <div className="relative flex items-center justify-start min-h-[280px] lg:min-h-[340px] order-2 lg:order-1 pointer-events-none">
+                    <div className="relative w-full max-w-[420px] h-[240px]">
+                      <div className="absolute inset-0 bg-blue-500/10 rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
+                      <img
+                        src="https://assets.aceternity.com/pro/hero-sections.png"
+                        alt="Template Club preview"
+                        className="absolute -left-12 lg:-left-24 -bottom-16 md:-bottom-24 w-[115%] max-w-[480px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform rotate-[7deg] origin-bottom-left group-hover:scale-[1.02] transition-transform duration-500 z-10"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-[22px] font-semibold tracking-tight text-[#F5F5F7]">Template Club</h3>
-                    <p className="text-xs text-blue-400/80 font-mono tracking-widest uppercase mt-1">You choose the start</p>
+
+                  {/* Half 2: Copy & Features */}
+                  <div className="flex flex-col relative z-20 max-w-[480px] order-1 lg:order-2">
+                    <div className="flex items-center gap-3.5 mb-5">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-500/10 border border-blue-500/20 shrink-0">
+                        <Palette className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Template Club</h3>
+                        <span className="font-mono text-[11px] text-blue-400 font-medium tracking-widest uppercase block mt-0.5">
+                          You choose the start
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-[#A6A6B3] text-[15px] leading-relaxed mb-6">
+                      A growing library of pre-built funnel and page layouts, organized by niche and offer type — pulled from patterns that already convert. Browse, preview, and drop one straight into your workspace.
+                    </p>
+
+                    <ul className="list-none space-y-3 mb-8">
+                      <Step title="Organized by niche and offer type — course, coaching, digital product, service." />
+                      <Step title="New templates added continuously as a member's library." />
+                      <Step title="Clone a template, then let your Intelligence Report auto-fill it with your copy." />
+                    </ul>
+
+                    <div className="flex flex-wrap gap-2 pt-5 border-t border-white/10">
+                      {['Coach', 'Course', 'SaaS', 'Agency'].map((label, i) => (
+                        <Chip key={i}>
+                          <Layers className="w-3.5 h-3.5 text-blue-400" /> {label}
+                        </Chip>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <p className="text-[#A6A6B3] relative z-20 text-[15px] leading-relaxed mb-8">
-                  A growing library of pre-built funnel and page layouts, organized by niche and offer type — pulled from patterns that already convert. Browse, preview, and drop one straight into your workspace.
-                </p>
-                <div className="mt-auto relative z-20">
-                  <ul className="list-none space-y-4">
-                    <Step title="Organized by niche and offer type — course, coaching, digital product, service." />
-                    <Step title="New templates added continuously as a member's library." />
-                    <Step title="Clone a template, then let your Intelligence Report auto-fill it with your own copy." />
-                  </ul>
-                  <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-white/5">
-                    {['Coach', 'Course', 'SaaS', 'Agency'].map((label, i) => (<Chip key={i}><Layers className="w-3.5 h-3.5" /> {label}</Chip>))}
-                  </div>
-                </div>
-              </CardSpotlight>
+              </div>
             </Reveal>
+
           </div>
         </div>
       </section>
@@ -875,242 +1131,294 @@ export function WelcomePage() {
       <section className="py-[120px] md:py-[76px]" id="scenarios">
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
-            <div className="max-w-[680px] mb-12 mx-auto text-center">
-              <Eyebrow center>Illustrative Scenarios</Eyebrow>
-              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>Whoever you are, the wall looks familiar.</h2>
-              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">Four representative profiles — tap through to see how the same platform solves four different problems.</p>
-            </div>
-          </Reveal>
-          <Reveal>
-            <div className="flex gap-2 flex-wrap mb-8">
-              {scenarios.map((sc, i) => (
-                <button key={i}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-medium transition-all cursor-pointer border ${activeScenario === i ? 'text-white' : 'text-[#A6A6B3] hover:text-white'}`}
-                  style={{ background: activeScenario === i ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', borderColor: activeScenario === i ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.07)' }}
-                  onClick={() => setActiveScenario(i)}>
-                  {React.createElement(sc.icon, { className: "w-4 h-4 opacity-80" })} {sc.tab}
-                </button>
-              ))}
-            </div>
-          </Reveal>
-          <div key={activeScenario} className="relative w-full rounded-[24px] p-8 md:p-10 lg:p-12 overflow-hidden flex flex-col md:flex-row gap-12 items-center justify-between mx-auto shadow-2xl">
-            {/* Background Image Layer */}
-            <div className="absolute inset-0 z-0">
-              <img src="https://framerusercontent.com/images/SDsAJ6I8XsFKBVPdZDedEUUvJE4.png" alt="Background" className="w-full h-full object-cover hue-rotate-[220deg]" />
-            </div>
-
-            <div className="relative z-10 flex flex-col gap-[76px] w-full md:w-1/2">
-              <div className="flex flex-col gap-7">
-                <div className="w-[56px] h-[47px] rounded-[12.5px] flex items-center justify-center text-[20px] shadow-sm" style={{ background: 'rgba(12, 12, 12, 0.82)' }}>
-                  {React.createElement(s.icon, { className: "w-6 h-6 text-white" })}
+            <div
+              className="w-full max-w-[1180px] mx-auto rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-[48px] p-[50px]"
+            >
+              {/* Header */}
+              <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
+                <div
+                  className="inline-block px-3 py-1 rounded-md text-[12px] font-bold uppercase tracking-widest text-black mb-1"
+                  style={{ background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' }}
+                >
+                  Illustrative Scenarios
                 </div>
-                <div className="flex flex-col gap-4">
-                  <h3 className="text-[24px] text-white font-normal leading-tight">{s.who}</h3>
-                  <p className="text-[14px] leading-relaxed" style={{ color: 'rgba(255, 255, 255, 0.64)' }}>
-                    {s.meta}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4 w-full">
-                <div className="flex justify-between items-center w-full">
-                  <p className="text-[14px] m-0 font-medium" style={{ color: 'rgba(255, 255, 255, 0.64)' }}>The Problem</p>
-                </div>
-                <div className="w-full h-px" style={{ background: 'rgba(255, 255, 255, 0.2)' }} />
-                <p className="text-[14px] text-white leading-relaxed mt-2 italic font-medium">
-                  {s.quote}
-                </p>
-                <p className="text-[14px] leading-relaxed mt-2" style={{ color: 'rgba(255, 255, 255, 0.64)' }}>
-                  {s.body}
+                <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                  Whoever you are, the wall looks familiar.
+                </h2>
+                <p className="text-[17px] text-[#A6A6B3] max-w-[560px] m-0">
+                  Four representative profiles — tap through to see how the same platform solves four different problems.
                 </p>
               </div>
-            </div>
 
-            <div className="relative z-10 flex flex-col gap-7 w-full md:w-1/2">
-              <div className="flex flex-col gap-0">
-                <h4 className="text-[40px] text-white font-normal m-0 tracking-tight leading-none">The</h4>
-                <h4 className="text-[40px] font-normal m-0 tracking-tight leading-none text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #60A5FA 0%, #818CF8 100%)' }}>Transformation</h4>
-              </div>
-              
-              <div className="w-full h-px" style={{ background: 'rgba(255, 255, 255, 0.2)' }} />
-
-              <div className="flex flex-col gap-4 w-full mt-2">
-                {s.stats.map((st, i) => (
-                  <div key={i} className="flex items-center gap-3 w-full">
-                    <div className="flex w-[20px] h-[20px] rounded-full justify-center items-center shrink-0" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
-                      <svg viewBox="0 0 24 24" className="w-[14px] h-[14px]" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 0 5.25 L 3.75 9 L 12.75 0" fill="transparent" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" stroke="white" transform="translate(6 7.5)" />
-                      </svg>
-                    </div>
-                    <div className="flex flex-col gap-1 w-full">
-                      {'from' in st && st.from ? (
-                        <p className="text-[14px] text-white m-0 leading-tight">
-                          <span style={{ color: 'rgba(255, 255, 255, 0.64)' }} className="line-through mr-2">{st.from}</span>
-                          {st.to}
-                        </p>
-                      ) : (
-                        <p className="text-[14px] text-white m-0 leading-tight">
-                          {'single' in st ? st.single : ''}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+              {/* Tabs */}
+              <div className="flex gap-2 flex-wrap">
+                {scenarios.map((sc, i) => (
+                  <button
+                    key={i}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-medium transition-all cursor-pointer border ${activeScenario === i ? 'text-white border-white/20 bg-white/10' : 'text-[#A6A6B3] hover:text-white border-white/[0.07] bg-white/[0.03]'}`}
+                    onClick={() => setActiveScenario(i)}
+                  >
+                    <img src={sc.avatar} alt={sc.tab} className="w-5 h-5 rounded-full object-cover shrink-0" /> {sc.tab}
+                  </button>
                 ))}
               </div>
 
-              <a href="/login" className="flex w-full h-[44px] rounded-[50px] justify-center items-center gap-2 no-underline relative overflow-hidden mt-3 group" style={{ background: 'rgba(12, 12, 12, 0.82)' }}>
-                <span className="text-[14px] text-white z-10">See How It Works</span>
-                <svg className="w-[20px] h-[20px] fill-white z-10 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20">
-                  <path d="M 13.477 9.167 L 9.007 4.697 L 10.185 3.518 L 16.667 10 L 10.185 16.482 L 9.007 15.303 L 13.477 10.833 L 3.334 10.833 L 3.334 9.167 Z" />
-                </svg>
-                {/* Hover overlay from user's CSS */}
-                <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: 'rgba(255, 255, 255, 0.16)' }} />
-              </a>
+              {/* Content */}
+              <div key={activeScenario} className="flex flex-col md:flex-row gap-6">
+
+                {/* Left Panel — Problem */}
+                <div className="flex-1 flex flex-col gap-5 p-7 rounded-[14px] bg-white/[0.03] border border-white/[0.08]">
+                  {/* Avatar + Name */}
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={s.avatar}
+                      alt={s.who}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-white/10 shrink-0"
+                    />
+                    <div className="flex flex-col gap-0.5">
+                      <h3 className="text-[17px] text-white font-semibold m-0 leading-tight">{s.who}</h3>
+                      <p className="text-[13px] text-white/50 m-0">{s.meta}</p>
+                    </div>
+                  </div>
+
+                  <div className="w-full h-px bg-white/10" />
+
+                  {/* Problem */}
+                  <div className="flex flex-col gap-3">
+                    <span className="text-[11px] font-mono uppercase tracking-[0.12em] text-white/40">The Problem</span>
+                    <p className="text-[15px] text-white leading-relaxed italic font-medium m-0">{s.quote}</p>
+                    <p className="text-[14px] text-white/60 leading-relaxed m-0">{s.body}</p>
+                  </div>
+                </div>
+
+                {/* Right Panel — Transformation */}
+                <div className="flex-1 flex flex-col gap-5 p-7 rounded-[14px] bg-white/[0.03] border border-white/[0.08]">
+                  <div className="flex flex-col gap-0">
+                    <span className="text-[11px] font-mono uppercase tracking-[0.12em] text-white/40 mb-3">The Transformation</span>
+                    <h4 className="text-[32px] text-white font-semibold m-0 tracking-tight leading-none">The</h4>
+                    <h4 className="text-[32px] font-semibold m-0 tracking-tight leading-none text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, rgb(124,92,255) 0%, #818CF8 100%)' }}>Transformation</h4>
+                  </div>
+
+                  <div className="w-full h-px bg-white/10" />
+
+                  <div className="flex flex-col gap-3 flex-1">
+                    {s.stats.map((st, i) => (
+                      <div key={i} className="flex items-start gap-3 px-4 py-3 rounded-[10px] bg-white/[0.03] border border-white/[0.07]">
+                        <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="w-3 h-3 text-emerald-400" />
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                          {'from' in st && st.from ? (
+                            <p className="text-[14px] text-white m-0 leading-tight">
+                              <span className="text-white/40 line-through mr-2">{st.from}</span>
+                              {st.to}
+                            </p>
+                          ) : (
+                            <p className="text-[14px] text-white m-0 leading-tight">
+                              {'single' in st ? st.single : ''}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <a
+                    href="/login"
+                    className="group relative overflow-hidden w-full h-12 bg-[rgb(124,92,255)] hover:bg-[rgb(110,78,245)] text-white rounded-full font-semibold text-[14px] uppercase tracking-wider flex items-center justify-center shadow-[0_4px_24px_rgba(124,92,255,0.3)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover:before:translate-x-full before:transition-transform before:duration-1000 before:ease-in-out"
+                  >
+                    <div className="relative flex items-center justify-center overflow-hidden h-5">
+                      <span className="flex items-center gap-2 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full">
+                        See How It Works <ArrowRight className="w-4 h-4" />
+                      </span>
+                      <span className="absolute flex items-center gap-2 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] translate-y-full group-hover:translate-y-0">
+                        See How It Works <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              <p className="text-center font-mono text-[12px] text-white/25 m-0">
+                Illustrative scenarios based on representative buyer profiles — not actual customer accounts.
+              </p>
             </div>
-          </div>
-          <p className="text-center font-mono text-[12px] text-[#505060] mt-6">
-            Illustrative scenarios based on representative buyer profiles — not actual customer accounts.
-          </p>
+          </Reveal>
         </div>
       </section>
+
 
       {/* ── COMPARE ── */}
       <section className="py-[120px] md:py-[76px]" id="compare">
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
-            <div className="max-w-[680px] mb-16 mx-auto text-center">
-              <Eyebrow center>Replace The Stack</Eyebrow>
-              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>What this replaces, per offer</h2>
-              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">Typical market rates for each role, sourced from standard freelance and SaaS pricing ranges — for reference, not a guarantee.</p>
-            </div>
-          </Reveal>
-          <Reveal>
-            <div className="relative w-full rounded-[24px] overflow-hidden shadow-2xl border border-white/10 mx-auto" style={{ maxWidth: '960px' }}>
-              {/* Background Image Layer */}
-              <div className="absolute inset-0 z-0">
-                <img src="https://framerusercontent.com/images/SDsAJ6I8XsFKBVPdZDedEUUvJE4.png" alt="Background" className="w-full h-full object-cover hue-rotate-[220deg]" />
-                <div className="absolute inset-0 bg-[#0C0C0C]/85 mix-blend-multiply" />
+            <div
+              className="w-full max-w-[1000px] mx-auto rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col items-center gap-[60px] p-[50px]"
+            >
+              {/* Header */}
+              <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px]">
+                <div
+                  className="inline-block px-3 py-1 rounded-md text-[12px] font-bold uppercase tracking-widest text-black mb-1"
+                  style={{ background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' }}
+                >
+                  Replace The Stack
+                </div>
+                <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                  What this replaces, per offer
+                </h2>
+                <p className="text-[17px] text-[#A6A6B3] max-w-[560px] m-0">
+                  Typical market rates for each role, sourced from standard freelance and SaaS pricing ranges — for reference, not a guarantee.
+                </p>
               </div>
 
-              <div className="relative z-10 w-full overflow-x-auto">
-                <table className="w-full text-[14px]">
-                  <thead>
-                    <tr className="border-b border-white/10 bg-[#0C0C0C]/50 backdrop-blur-md">
-                      <th className="text-left py-5 px-8 font-mono text-[12px] text-white/50 uppercase tracking-[0.1em] font-medium">Capability</th>
-                      <th className="text-left py-5 px-8 font-mono text-[12px] text-white/50 uppercase tracking-[0.1em] font-medium">Typical Cost Elsewhere</th>
-                      <th className="text-left py-5 px-8 font-mono text-[12px] text-white/50 uppercase tracking-[0.1em] font-medium">In OfferIQ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {compareRows.map((r, i) => (
-                      <tr key={i} className="border-b border-white/5 bg-[#0C0C0C]/30 hover:bg-[#0C0C0C]/60 transition-colors backdrop-blur-sm">
-                        <td className="py-4 px-8 text-white/80 text-[15px]">{r[0]}</td>
-                        <td className="py-4 px-8 text-white/40 text-[15px] line-through decoration-white/20">{r[1]}</td>
-                        <td className="py-4 px-8 text-emerald-400 text-[15px] font-medium"><span className="flex items-center gap-2"><div className="flex w-[20px] h-[20px] rounded-full justify-center items-center shrink-0" style={{ background: 'rgba(255, 255, 255, 0.2)' }}><Check className="w-3.5 h-3.5 text-white" /></div> Included</span></td>
-                      </tr>
-                    ))}
-                    <tr className="bg-[#0C0C0C]/80 border-t border-violet-500/30">
-                      <td className="py-6 px-8 text-white font-semibold text-[16px]">Total to replicate manually, per offer</td>
-                      <td className="py-6 px-8 text-white/40 text-[15px] line-through decoration-white/20">$21,000 – $172,000+</td>
-                      <td className="py-6 px-8 text-violet-400 font-semibold text-[16px]"><span className="flex items-center gap-2"><div className="flex w-[20px] h-[20px] rounded-full justify-center items-center shrink-0" style={{ background: 'rgba(255, 255, 255, 0.2)' }}><Zap className="w-3.5 h-3.5 text-white" /></div> From $39/mo</span></td>
-                    </tr>
-                  </tbody>
-                </table>
+              {/* Rows */}
+              <div className="flex flex-col gap-3 w-full">
+                {compareRows.map((r, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between gap-6 px-6 py-4 rounded-[10px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-colors"
+                  >
+                    <span className="text-[15px] text-white/85 font-medium flex-1">{r[0]}</span>
+                    <span className="text-[14px] text-white/35 line-through decoration-white/20 shrink-0">{r[1]}</span>
+                    <span className="flex items-center gap-2 text-emerald-400 text-[14px] font-medium shrink-0">
+                      <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                        <Check className="w-3 h-3" />
+                      </div>
+                      Included
+                    </span>
+                  </div>
+                ))}
+
+                {/* Total Row */}
+                <div className="flex items-center justify-between gap-6 px-6 py-5 rounded-[10px] bg-white/[0.02] border border-white/[0.12] mt-2">
+                  <span className="text-white font-semibold text-[15px] flex-1">Total to replicate manually, per offer</span>
+                  <span className="text-[14px] text-white/35 line-through decoration-white/20 shrink-0">$21,000 – $172,000+</span>
+                  <span className="flex items-center gap-2 text-[rgb(124,92,255)] font-semibold text-[14px] shrink-0">
+                    <div className="w-5 h-5 rounded-full bg-[rgba(124,92,255,0.15)] border border-[rgba(124,92,255,0.3)] flex items-center justify-center shrink-0">
+                      <Zap className="w-3 h-3 text-[rgb(124,92,255)]" />
+                    </div>
+                    From $39/mo
+                  </span>
+                </div>
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
+
       {/* ── PRICING ── */}
-      <section className="py-[120px] md:py-[76px]" id="pricing">
+      <section className="py-[120px] md:py-[80px]" id="pricing">
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div className="max-w-[680px] mb-16 mx-auto text-center">
               <Eyebrow center>Pricing</Eyebrow>
-              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>Simple monthly pricing.</h2>
+              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                Simple <span className="text-[rgb(124,92,255)]">transparent</span> pricing.
+              </h2>
               <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">Try Starter for $1 over your first 7 days, then $39/mo. Cancel anytime — from your account, in one click.</p>
             </div>
           </Reveal>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 w-full max-w-[1180px] mx-auto items-stretch">
             {pricingTiers.map((t, i) => (
               <Reveal key={i}>
-                <div className="relative w-full rounded-[24px] p-8 md:p-10 overflow-hidden flex flex-col justify-between h-full border shadow-2xl transition-transform hover:-translate-y-2 duration-300" style={{ borderColor: t.popular ? 'rgba(96,165,250,0.4)' : 'rgba(255,255,255,0.1)' }}>
-                  {/* Background Image Layer */}
-                  <div className="absolute inset-0 z-0">
-                    <img src="https://framerusercontent.com/images/SDsAJ6I8XsFKBVPdZDedEUUvJE4.png" alt="Background" className="w-full h-full object-cover hue-rotate-[220deg]" />
-                    <div className="absolute inset-0 bg-[#0C0C0C]/85 mix-blend-multiply" />
-                    {t.popular && <div className="absolute inset-0 bg-blue-500/10 pointer-events-none" />}
-                  </div>
-
-                  {/* Top Section */}
-                  <div className="relative z-10 flex flex-col gap-10 w-full">
-                    <div className="flex flex-col gap-6">
+                <div
+                  className={`relative w-full rounded-[14px] p-7 md:p-8 overflow-hidden flex flex-col justify-between h-full border bg-white/[0.03] ${
+                    i === 2 
+                      ? 'border-[#E1A427]/40' 
+                      : 'border-white/[0.08]'
+                  }`}
+                >
+                  {/* Content Container */}
+                  <div className="relative z-10 flex flex-col justify-between h-full gap-8">
+                    {/* Top Group: Name, Badge, Best For, Price */}
+                    <div className="flex flex-col gap-5">
                       <div className="flex justify-between items-start">
-                        <div className="w-[56px] h-[47px] rounded-[12.5px] flex items-center justify-center text-[20px] shadow-sm" style={{ background: 'rgba(12, 12, 12, 0.82)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                          {i === 0 ? <Rocket className="w-5 h-5 text-white" /> : i === 1 ? <Zap className="w-5 h-5 text-white" /> : <Crown className="w-5 h-5 text-white" />}
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                          i === 0 ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' :
+                          i === 1 ? 'bg-purple-500/10 border border-purple-500/20 text-purple-300' :
+                          'bg-[#E1A427]/10 border border-[#E1A427]/20 text-[#E1A427]'
+                        }`}>
+                          {i === 0 ? <Rocket className="w-5 h-5" /> : i === 1 ? <Zap className="w-5 h-5" /> : <Crown className="w-5 h-5" />}
                         </div>
                         {t.popular && (
-                          <div className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-white shadow-[0_0_15px_rgba(96,165,250,0.4)]" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #4338CA 100%)' }}>
+                          <div className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-[0_2px_10px_rgba(124,92,255,0.4)]">
                             Most Popular
                           </div>
                         )}
+                        {i === 2 && (
+                          <div 
+                            className="px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-widest text-black shadow-[0_2px_10px_rgba(225,164,39,0.4)]"
+                            style={{ background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' }}
+                          >
+                            Agency Scale
+                          </div>
+                        )}
                       </div>
-                      <div className="flex flex-col gap-4">
-                        <h3 className="text-[24px] text-white font-normal m-0 leading-tight">{t.name} Plan</h3>
-                        <p className="text-[14px] leading-relaxed m-0 h-10" style={{ color: 'rgba(255, 255, 255, 0.64)' }}>
+
+                      <div className="flex flex-col gap-2">
+                        <h3 className="text-[26px] text-white font-semibold m-0 leading-tight">
+                          {t.name} Plan
+                        </h3>
+                        <p className="text-[#A6A6B3] text-[15px] leading-relaxed m-0 min-h-[40px]">
                           {t.best}
                         </p>
                       </div>
-                    </div>
 
-                    <div className="flex flex-col gap-4 w-full">
-                      <div className="flex justify-between items-center w-full">
-                        <p className="text-[14px] m-0" style={{ color: 'rgba(255, 255, 255, 0.64)' }}>Commitment</p>
-                        <p className="text-[14px] m-0 text-white font-medium">{t.period === '/mo' ? 'Monthly' : 'One-time'}</p>
+                      <div className="flex flex-col gap-1 pt-4 border-t border-white/10">
+                        <div className="flex items-baseline gap-2 mb-2">
+                          <span className={`text-[42px] font-semibold tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-br ${
+                            i === 2 ? 'from-[#F8DF42] to-[#E1A427]' : 'from-white to-white/70'
+                          }`}>
+                            {t.price}
+                          </span>
+                          <span className="text-[16px] text-white/50 font-medium">{t.period}</span>
+                        </div>
+                        <p className={`text-[13px] font-mono italic m-0 leading-relaxed ${i === 2 ? 'text-[#E1A427]/80' : 'text-white/30'}`}>{t.sub}</p>
                       </div>
-                      <div className="w-full h-px" style={{ background: 'rgba(255, 255, 255, 0.2)' }} />
                     </div>
-                  </div>
 
-                  {/* Bottom Section */}
-                  <div className="relative z-10 flex flex-col gap-7 w-full mt-10">
-                    <div className="flex flex-col gap-0">
-                      <h4 className="text-[40px] text-white font-normal m-0 tracking-tight leading-none" style={{ letterSpacing: '-1px' }}>{t.price}</h4>
-                      <p className="text-[14px] m-0 mt-2 h-10 leading-relaxed" style={{ color: '#60A5FA' }}>{t.sub}</p>
-                    </div>
-                    
-                    <div className="w-full h-px" style={{ background: 'rgba(255, 255, 255, 0.2)' }} />
-
-                    <div className="flex flex-col gap-4 w-full mt-2 flex-1">
+                    {/* Features List */}
+                    <div className="flex flex-col gap-3 flex-1 pt-4 border-t border-white/10">
                       {t.features.map((f, j) => (
                         <div key={j} className="flex items-start gap-3 w-full">
-                          <div className="flex w-[20px] h-[20px] rounded-full justify-center items-center shrink-0 mt-0.5" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
-                            <svg viewBox="0 0 24 24" className="w-[14px] h-[14px]" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M 0 5.25 L 3.75 9 L 12.75 0" fill="transparent" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" stroke="white" transform="translate(6 7.5)" />
-                            </svg>
-                          </div>
-                          <p className="text-[14px] text-white m-0 leading-relaxed" dangerouslySetInnerHTML={{ __html: f }}></p>
+                          <Check className={`w-4 h-4 shrink-0 mt-0.5 ${i === 2 ? 'text-[#E1A427]' : 'text-emerald-400'}`} />
+                          <p className="text-[15px] text-[#A6A6B3] m-0 leading-relaxed" dangerouslySetInnerHTML={{ __html: f }}></p>
                         </div>
                       ))}
                     </div>
 
-                    <a href="/login" className="flex w-full h-[44px] rounded-[50px] justify-center items-center gap-2 no-underline relative overflow-hidden mt-6 group" style={{ background: 'rgba(12, 12, 12, 0.82)', border: t.popular ? '1px solid rgba(96,165,250,0.4)' : 'none' }}>
-                      <span className="text-[14px] text-white z-10 font-medium">{t.cta}</span>
-                      <svg className="w-[20px] h-[20px] fill-white z-10 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20">
-                        <path d="M 13.477 9.167 L 9.007 4.697 L 10.185 3.518 L 16.667 10 L 10.185 16.482 L 9.007 15.303 L 13.477 10.833 L 3.334 10.833 L 3.334 9.167 Z" />
-                      </svg>
-                      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: 'rgba(255, 255, 255, 0.16)' }} />
+                    {/* CTA Button */}
+                    <a
+                      href="/login"
+                      className={`group/btn relative overflow-hidden w-full h-12 rounded-full font-semibold text-[14px] uppercase tracking-wider flex items-center justify-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline mt-4 shrink-0 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover/btn:before:translate-x-full before:transition-transform before:duration-1000 before:ease-in-out ${
+                        i === 2
+                          ? 'text-black shadow-[0_4px_24px_rgba(225,164,39,0.4)] hover:shadow-[0_8px_32px_rgba(225,164,39,0.6)]'
+                          : 'text-white bg-[rgb(124,92,255)] hover:bg-[rgb(110,78,245)] shadow-[0_4px_24px_rgba(124,92,255,0.35)] hover:shadow-[0_8px_32px_rgba(124,92,255,0.55)]'
+                      }`}
+                      style={i === 2 ? { background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' } : {}}
+                    >
+                      <div className="relative flex items-center justify-center overflow-hidden h-5">
+                        <span className="flex items-center gap-2 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover/btn:-translate-y-full">
+                          <span>{t.cta}</span>
+                          <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
+                        </span>
+                        <span className="absolute flex items-center gap-2 transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] translate-y-full group-hover/btn:translate-y-0">
+                          <span>{t.cta}</span>
+                          <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
+                        </span>
+                      </div>
                     </a>
                   </div>
                 </div>
               </Reveal>
             ))}
           </div>
+
           <Reveal>
-            <div className="flex items-center gap-3 mt-12 max-w-[600px] mx-auto p-4 rounded-xl text-[14px] text-[#A6A6B3]"
-              style={{ background: 'rgba(59,130,246,0.05)', border: '1px solid rgba(59,130,246,0.2)' }}>
-              <Shield className="w-5 h-5 shrink-0" style={{ color: '#60A5FA' }} />
+            <div className="flex items-center gap-3 mt-12 max-w-[600px] mx-auto p-4 rounded-xl text-[14px] text-[#A6A6B3] bg-white/[0.03] border border-white/10">
+              <Shield className="w-5 h-5 shrink-0 text-emerald-400" />
               <span>Backed by a 30-day money-back guarantee. If OfferIQ isn't right for you, get a full refund — no conditions.</span>
             </div>
           </Reveal>
@@ -1118,19 +1426,45 @@ export function WelcomePage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="py-[120px] md:py-[76px]" id="faq">
+      <section className="py-[120px] md:py-[76px] w-full relative overflow-hidden" id="faq">
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
-            <div className="max-w-[680px] mb-16 mx-auto text-center">
-              <Eyebrow center>Questions</Eyebrow>
-              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>Frequently asked questions</h2>
-            </div>
-          </Reveal>
-          <Reveal>
-            <div className="max-w-[760px] mx-auto">
-              {faqs.map((f, i) => (
-                <FaqItem key={i} q={f.q} a={f.a} isOpen={openFaq === i} onClick={() => setOpenFaq(openFaq === i ? null : i)} />
-              ))}
+            <div className="flex flex-col md:flex-row justify-between items-start gap-12 md:gap-16">
+              {/* Left Column - Headers */}
+              <div className="flex flex-col justify-start items-start gap-5 md:w-[380px] shrink-0">
+                <div
+                  className="inline-block px-3 py-1 rounded-md text-[12px] font-bold uppercase tracking-widest text-black mb-1"
+                  style={{ background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' }}
+                >
+                  Good To Know
+                </div>
+                <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                  Everything you need before you start
+                </h2>
+                <p className="text-[17px] text-[#A6A6B3] leading-relaxed m-0">
+                  Answers to the most common questions. If something is missing, we'll be happy to help.
+                </p>
+                <a
+                  href="mailto:help@ofiq.app"
+                  className="inline-flex items-center gap-2 px-7 py-[12px] mt-4 rounded-full text-[15px] font-semibold text-[#F5F5F7] transition-all hover:bg-white/[0.08]"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.14)' }}
+                >
+                  Contact Us
+                </a>
+              </div>
+
+              {/* Right Column - Accordions */}
+              <div className="flex flex-col flex-1 w-full gap-2">
+                {faqs.map((f, i) => (
+                  <FaqItem
+                    key={i}
+                    q={f.q}
+                    a={f.a}
+                    isOpen={openFaq === i}
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  />
+                ))}
+              </div>
             </div>
           </Reveal>
         </div>
@@ -1201,13 +1535,7 @@ export function WelcomePage() {
         </div>
       </footer>
 
-      {/* ── Mobile sticky CTA ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 flex md:hidden" style={{ background: 'rgba(8,8,13,0.95)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <a href="/login" className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-white font-semibold text-[15px]"
-          style={{ background: 'linear-gradient(135deg,#0066FF 0%,#4338CA 100%)' }}>
-          Start Building <ArrowRight className="w-4 h-4" />
-        </a>
-      </div>
+
 
     </div>
   );
