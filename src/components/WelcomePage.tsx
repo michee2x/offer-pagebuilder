@@ -676,29 +676,37 @@ export function WelcomePage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-7xl mx-auto w-full">
             <WobbleCard
-              containerClassName="col-span-1 lg:col-span-2 h-full bg-pink-800 min-h-[500px] lg:min-h-[300px]"
+              containerClassName="col-span-1 lg:col-span-2 h-full bg-pink-800 min-h-[300px] overflow-hidden"
               className=""
             >
-              <div className="max-w-xs relative z-20">
-                <h2 className="text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
-                  Analyse & Build My Offer
-                </h2>
-                <p className="mt-4 text-left text-base/6 text-neutral-200">
-                  You already have an offer, a live page, or a rough idea. Paste a URL, upload a PDF, or describe it in your own words — OfferIQ builds the complete intelligence report, copy, and funnel around what you already have.
-                </p>
-                <div className="flex flex-col gap-3 mt-6">
-                  <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><LinkIcon className="w-4 h-4" /> Paste a URL</span>
-                  <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><FileText className="w-4 h-4" /> Upload a PDF</span>
-                  <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><PenTool className="w-4 h-4" /> Describe it</span>
+              <div className="flex flex-col lg:flex-row lg:items-center gap-0 w-full h-full">
+                {/* Text */}
+                <div className="relative z-20 max-w-xs shrink-0">
+                  <h2 className="text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
+                    Analyse &amp; Build My Offer
+                  </h2>
+                  <p className="mt-4 text-left text-base/6 text-neutral-200">
+                    You already have an offer, a live page, or a rough idea. Paste a URL, upload a PDF, or describe it in your own words — OfferIQ builds the complete intelligence report, copy, and funnel around what you already have.
+                  </p>
+                  <div className="flex flex-col gap-3 mt-6">
+                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><LinkIcon className="w-4 h-4" /> Paste a URL</span>
+                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><FileText className="w-4 h-4" /> Upload a PDF</span>
+                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><PenTool className="w-4 h-4" /> Describe it</span>
+                  </div>
+                </div>
+                {/* Image container — reserves its own space so image never climbs over text */}
+                <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
+                  <div className="relative w-full max-w-[360px] h-[220px]">
+                    <img
+                      src="https://assets.aceternity.com/pro/bento-grids.png"
+                      width={500}
+                      height={500}
+                      alt="platform demo"
+                      className="absolute -right-8 lg:-right-16 -bottom-12 md:-bottom-16 w-[115%] max-w-[420px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right grayscale filter z-10"
+                    />
+                  </div>
                 </div>
               </div>
-              <img
-                src="https://assets.aceternity.com/pro/bento-grids.png"
-                width={500}
-                height={500}
-                alt="platform demo"
-                className="absolute -right-4 lg:-right-[40%] grayscale filter -bottom-10 object-contain rounded-2xl"
-              />
             </WobbleCard>
             
             <WobbleCard containerClassName="col-span-1 min-h-[300px]">
@@ -714,27 +722,35 @@ export function WelcomePage() {
               </a>
             </WobbleCard>
             
-            <WobbleCard containerClassName="col-span-1 lg:col-span-3 bg-blue-900 min-h-[500px] lg:min-h-[600px] xl:min-h-[300px]">
-              <div className="max-w-sm relative z-20">
-                <h2 className="max-w-sm md:max-w-lg text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
-                  Build an Offer For Me
-                </h2>
-                <p className="mt-4 max-w-[26rem] text-left text-base/6 text-neutral-200">
-                  You have an audience and expertise, but no product. Give OfferIQ your niche, audience, and price range — get validated offer ideas benchmarked against real converting funnels, ready to build the moment you pick one.
-                </p>
-                <div className="flex gap-3 mt-6 flex-wrap">
-                  <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><Target className="w-4 h-4" /> Pick a niche</span>
-                  <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><Users className="w-4 h-4" /> Define buyer</span>
-                  <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><DollarSign className="w-4 h-4" /> Set price range</span>
+            <WobbleCard containerClassName="col-span-1 lg:col-span-3 bg-blue-900 min-h-[300px] overflow-hidden">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-0 w-full h-full">
+                {/* Text */}
+                <div className="max-w-sm relative z-20 shrink-0">
+                  <h2 className="max-w-sm md:max-w-lg text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
+                    Build an Offer For Me
+                  </h2>
+                  <p className="mt-4 max-w-[26rem] text-left text-base/6 text-neutral-200">
+                    You have an audience and expertise, but no product. Give OfferIQ your niche, audience, and price range — get validated offer ideas benchmarked against real converting funnels, ready to build the moment you pick one.
+                  </p>
+                  <div className="flex gap-3 mt-6 flex-wrap">
+                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><Target className="w-4 h-4" /> Pick a niche</span>
+                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><Users className="w-4 h-4" /> Define buyer</span>
+                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><DollarSign className="w-4 h-4" /> Set price range</span>
+                  </div>
+                </div>
+                {/* Image container — reserves its own space so image never climbs over text */}
+                <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
+                  <div className="relative w-full max-w-[420px] h-[220px]">
+                    <img
+                      src="https://assets.aceternity.com/pro/hero-sections.png"
+                      width={500}
+                      height={500}
+                      alt="platform demo"
+                      className="absolute -right-8 lg:-right-20 -bottom-12 md:-bottom-16 w-[115%] max-w-[480px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform rotate-[7deg] origin-bottom-right z-10"
+                    />
+                  </div>
                 </div>
               </div>
-              <img
-                src="https://assets.aceternity.com/pro/hero-sections.png"
-                width={500}
-                height={500}
-                alt="platform demo"
-                className="absolute -right-10 md:-right-[40%] lg:-right-[20%] -bottom-10 object-contain rounded-2xl"
-              />
             </WobbleCard>
           </div>
         </div>
@@ -1132,7 +1148,7 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div
-              className="w-full max-w-[1180px] mx-auto rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-[48px] p-[50px]"
+              className="w-full max-w-[1180px] mx-auto rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-6 md:gap-[48px] p-5 sm:p-8 md:p-[50px]"
             >
               {/* Header */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
@@ -1253,7 +1269,7 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div
-              className="w-full max-w-[1000px] mx-auto rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col items-center gap-[60px] p-[50px]"
+              className="w-full max-w-[1000px] mx-auto rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col items-center gap-8 md:gap-[60px] p-5 sm:p-8 md:p-[50px]"
             >
               {/* Header */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px]">
@@ -1276,29 +1292,33 @@ export function WelcomePage() {
                 {compareRows.map((r, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between gap-6 px-6 py-4 rounded-[10px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-6 px-4 sm:px-6 py-3 sm:py-4 rounded-[10px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-colors"
                   >
                     <span className="text-[15px] text-white/85 font-medium flex-1">{r[0]}</span>
-                    <span className="text-[14px] text-white/35 line-through decoration-white/20 shrink-0">{r[1]}</span>
-                    <span className="flex items-center gap-2 text-emerald-400 text-[14px] font-medium shrink-0">
-                      <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0">
-                        <Check className="w-3 h-3" />
-                      </div>
-                      Included
-                    </span>
+                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6">
+                      <span className="text-[13px] sm:text-[14px] text-white/35 line-through decoration-white/20">{r[1]}</span>
+                      <span className="flex items-center gap-2 text-emerald-400 text-[13px] sm:text-[14px] font-medium shrink-0">
+                        <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                          <Check className="w-3 h-3" />
+                        </div>
+                        Included
+                      </span>
+                    </div>
                   </div>
                 ))}
 
                 {/* Total Row */}
-                <div className="flex items-center justify-between gap-6 px-6 py-5 rounded-[10px] bg-white/[0.02] border border-white/[0.12] mt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-6 px-4 sm:px-6 py-4 sm:py-5 rounded-[10px] bg-white/[0.02] border border-white/[0.12] mt-2">
                   <span className="text-white font-semibold text-[15px] flex-1">Total to replicate manually, per offer</span>
-                  <span className="text-[14px] text-white/35 line-through decoration-white/20 shrink-0">$21,000 – $172,000+</span>
-                  <span className="flex items-center gap-2 text-[rgb(124,92,255)] font-semibold text-[14px] shrink-0">
-                    <div className="w-5 h-5 rounded-full bg-[rgba(124,92,255,0.15)] border border-[rgba(124,92,255,0.3)] flex items-center justify-center shrink-0">
-                      <Zap className="w-3 h-3 text-[rgb(124,92,255)]" />
-                    </div>
-                    From $39/mo
-                  </span>
+                  <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6">
+                    <span className="text-[13px] sm:text-[14px] text-white/35 line-through decoration-white/20">$21,000 – $172,000+</span>
+                    <span className="flex items-center gap-2 text-[rgb(124,92,255)] font-semibold text-[13px] sm:text-[14px] shrink-0">
+                      <div className="w-5 h-5 rounded-full bg-[rgba(124,92,255,0.15)] border border-[rgba(124,92,255,0.3)] flex items-center justify-center shrink-0">
+                        <Zap className="w-3 h-3 text-[rgb(124,92,255)]" />
+                      </div>
+                      From $39/mo
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
