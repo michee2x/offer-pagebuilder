@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/
 import { Timeline } from "@/components/ui/timeline";
 import { WobbleCard } from "@/components/ui/wobble-card";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
+import { TracingBeam } from "@/components/ui/tracing-beam";
+import Spline from '@splinetool/react-spline';
 
 /* ─── Reveal wrapper ─────────────────────────────────────────────── */
 function Reveal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -398,41 +400,41 @@ export function WelcomePage() {
 
   const scenarios = [
     {
-      tab: 'Course Creator', who: 'Marketing Consultant', meta: '34 · Austin, TX · 14K Instagram followers',
+      tab: 'Course Creator', who: 'Course Creator', meta: '34 · Austin, TX · 14K Instagram followers',
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=face',
-      quote: <>"I'd researched competitors, taken two copywriting courses, and paid $800 for a coach call. <span style={{ color: '#60A5FA' }}>I still had nothing live.</span>"</>,
-      body: "She uploaded her course idea as a text description. In under a minute, OfferIQ returned her exact persona, a price point $300 higher than she'd planned to charge, five conversion hooks, and a full funnel blueprint — then wrote and built the entire funnel in the same session.",
-      stats: [{ from: '6 months stuck', to: 'Live in one evening' }, { from: '$197 planned price', to: '$497 recommended price' }, { single: '5 pages + funnel — written, designed, and published in one session' }],
+      quote: <>"The situation: you've researched competitors, maybe even taken a course or paid for a coaching call — <span style={{ color: '#60A5FA' }}>and you still don't have anything live.</span>"</>,
+      body: "You describe your course idea in your own words. OfferIQ comes back with a suggested buyer persona, a benchmarked price point, a handful of conversion angles, and a full-funnel blueprint — then builds the pages from that same analysis, in the same session.",
+      stats: [{ from: 'Months of feeling stuck', to: 'A working funnel by the end of one sitting' }, { from: 'A price you picked on instinct', to: 'A benchmarked price' }, { single: 'A full set of funnel pages drafted and assembled in one session' }],
     },
     {
-      tab: 'Business Coach', who: 'Executive Life Coach', meta: '41 · Atlanta, GA · $3,500 program',
+      tab: 'Business Coach', who: 'Coach with an Existing Offer', meta: '41 · Atlanta, GA · $3,500 program',
       avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=96&h=96&fit=crop&crop=face',
-      quote: <>"I knew the problem was in the messaging. <span style={{ color: '#60A5FA' }}>I just couldn't see what was wrong with it.</span>"</>,
-      body: "She pasted her existing sales page URL into OfferIQ. The Intelligence Report found the real problem in seconds: her page led with a 12-step curriculum, but her buyer purchases from identity anxiety. OfferIQ rewrote the copy around that insight and raised her price to $4,500.",
-      stats: [{ from: '0.7% conversion', to: '2.5%+ projected, same ad budget' }, { from: '$9,600 spent, unprofitable', to: 'Profitable within 30 days (projected)' }, { from: '$3,500 price', to: '$4,500 pricing correction' }],
+      quote: <>"The situation: you know something in your messaging isn't landing, <span style={{ color: '#60A5FA' }}>but you can't quite see what.</span>"</>,
+      body: "You paste in your existing sales page URL. OfferIQ's report flags the actual mismatch, often that the page is selling a curriculum when the buyer is actually buying relief from a feeling and rewrites the copy around that insight.",
+      stats: [{ from: 'A page built around features', to: 'A page built around what the buyer actually feels' }, { single: 'A stalled or underperforming funnel → a clearer read on why, and a rewritten page to test' }],
     },
     {
-      tab: 'Agency Owner', who: 'Digital Marketing Agency Owner', meta: '38 · Denver, CO · 6-person team',
+      tab: 'Agency Owner', who: 'Agency Owner', meta: '38 · Denver, CO · 6-person team',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&h=96&fit=crop&crop=face',
-      quote: <>"Every new service means a new hiring decision. <span style={{ color: '#60A5FA' }}>I couldn't productize this without a repeatable system.</span>"</>,
-      body: "He wanted to add offer strategy and funnel building as a $3,000–$5,000 productized service, without hiring. He now runs each client's offer through OfferIQ. What took his team three weeks now takes two hours.",
-      stats: [{ from: '3 weeks per client', to: '2 hours per client' }, { single: '$15,000–$30,000/month projected new service-line revenue' }, { single: 'Zero new hires required to deliver it' }],
+      quote: <>"The situation: you want to offer offer-strategy and funnel-building as a service, <span style={{ color: '#60A5FA' }}>without hiring a strategist and copywriter for every client.</span>"</>,
+      body: "You run each client's offer through OfferIQ instead — intelligence report, copy, and funnel delivered as one packaged deliverable.",
+      stats: [{ from: 'A task that used to take a team multiple weeks', to: 'A task one person can turn around in a single session' }, { single: 'A new productized service line, without new headcount' }],
     },
     {
-      tab: 'First-Time Entrepreneur', who: 'Corporate HR Professional', meta: '29 · Chicago, IL · 8 yrs experience',
+      tab: 'First-Time Entrepreneur', who: 'First-Time Entrepreneur', meta: '29 · Chicago, IL · 8 yrs experience',
       avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=96&h=96&fit=crop&crop=face',
-      quote: <>"I knew I had teachable expertise. <span style={{ color: '#60A5FA' }}>I had no idea what to build, or where to start.</span>"</>,
-      body: 'She had 18 months of "how to launch a course" content behind her and nothing live. She selected "Build an Offer For Me," entered her niche and audience, and received five validated offer ideas. She picked "The 90-Day People Ops Accelerator" at $997 — OfferIQ built the full intelligence report and funnel for it in the same session.',
-      stats: [{ from: '18 months, no product', to: 'Live funnel in under 3 hours' }, { single: '5 validated offer ideas generated from niche + audience + price range' }, { single: '$997 price point — market-tested, not guessed' }],
+      quote: <>"The situation: you have real expertise and an audience, <span style={{ color: '#60A5FA' }}>but no idea what to actually build or price.</span>"</>,
+      body: 'You choose "Build an Offer For Me," enter your niche, audience, and price range, and get back several validated offer ideas benchmarked against real converting funnels.',
+      stats: [{ single: 'Months of "I know I should launch something" → a validated offer idea and a live funnel built from it in one session' }],
     },
   ];
 
   const compareRows = [
-    ['Offer strategy & positioning consultant', '$2,000 – $10,000 / project'],
+    ['Offer strategy & positioning, consultant', '$2,000 – $10,000 / project'],
     ['Direct-response sales copywriter', '$2,000 – $15,000 / page'],
-    ['Landing page / funnel builder software', '$99 – $297 / month'],
+    ['Landing page/funnel builder software', '$99 – $297 / month'],
     ['Lead magnet & bonus design + writing', '$500 – $2,000 / asset'],
-    ['Paid traffic / media buying strategist', '$1,500 – $5,000 / month'],
+    ['Paid traffic/media, buying strategist', '$1,500 – $5,000 / month'],
     ['Email sequence writing & tooling', '$50 – $150 / month + writer fees'],
     ['CRM & lead analytics tool', '$50 – $300 / month'],
   ];
@@ -451,18 +453,18 @@ export function WelcomePage() {
 
   const pricingTiers = [
     {
-      name: 'Starter', price: '$39', period: '/mo', sub: '$1 for your first 7 days, then $39/mo. Cancel anytime.',
-      features: ['<b>5 offer credits</b> — refreshed monthly', '1 Workspace', 'Full 4-Phase Engine: Intelligence, Copy, Pages, Traffic', 'Asset Bank + Template Club access', 'Email Sequences', 'OfferIQ subdomain publishing', 'Payment & Autoresponder integration', 'Standard support'],
+      name: 'Starter', price: '$39', period: '/mo', sub: '[$1 for your first 7 days, then $39/mo. Cancel anytime.]',
+      features: ['<b>5 offer credits</b> — Refreshed Monthly', '1 Workspace', 'Full 4-Phase Engine: Strategy, Copy, Funnel (All 5 Funnel Pages), Traffic Plan', 'Asset Bank + Template Library access', 'Email Engagement Sequences', 'OfferIQ subdomain publishing', 'Payment & Autoresponder integration', 'Standard support'],
       best: 'Best for testing the platform and launching your first 1–3 offers.', popular: false, cta: 'Start Your $1 Trial',
     },
     {
-      name: 'Growth', price: '$69', period: '/mo', sub: 'Billed monthly. Cancel anytime.',
-      features: ['Everything in Starter, plus:', '<b>10 offer credits</b> — refreshed monthly', '3 Workspaces', 'Remove "Built with OfferIQ" branding', 'Advanced Analytics dashboard', 'Custom domain connection', 'Pixel tracking embed', 'Priority support'],
+      name: 'Growth', price: '$69', period: '/mo', sub: '[$1 for your first 7 days, then $69/mo. Cancel anytime.]',
+      features: ['Everything in Starter, plus:', '<b>10 offer credits</b> — Refreshed monthly.', '3 Workspaces', 'Remove "Built with OfferIQ" branding', 'Advanced Analytics dashboard', 'Custom domain connection', 'Pixel tracking embed', 'Priority support'],
       best: 'Best for active creators running multiple offers or brands.', popular: true, cta: 'Start Your $1 Trial',
     },
     {
-      name: 'Agency', price: '$179', period: '/mo', sub: 'Billed monthly. Cancel anytime.',
-      features: ['Everything in Growth, plus:', '<b>30 offer credits</b> — refreshed monthly', '30 Workspaces', '30 client sub-accounts for agency delivery', 'Agency asset pack — proposals & branded covers', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
+      name: 'Agency', price: '$179', period: '/mo', sub: '[$1 for your first 7 days, then $179/mo. Cancel anytime.]',
+      features: ['Everything in Growth, plus:', '<b>30 offer credits</b> — Refreshed monthly.', '30 Workspaces', 'Agency Dashboard to manage your users', '30 client sub-accounts for agency delivery', 'Agency Marketing Assets - Agency Website, proposal, Commercial/Ads Graphics, Legal Contract Agreement', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
       best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: 'Start Your $1 Trial',
     },
   ];
@@ -517,45 +519,48 @@ export function WelcomePage() {
           {/* Framer Container for text block */}
           <motion.div className="framer-1nctip6 w-full max-w-[840px] text-center mx-auto mb-[60px] relative z-[2]" style={{ translateY: titleTranslate }}>
             <section className="framer-n851dn">
-              {/* Badge */}
+              {/* Audience Rotator Badge */}
               <div className="inline-flex items-center gap-2.5 mb-2 cursor-default transition-all hover:scale-[1.02]"
                 style={{ background: 'rgba(139,92,246,0.10)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: '100px', padding: '6px 14px 6px 10px' }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#8B5CF6' }} />
-                <span className="text-[13px] font-medium text-[#C4B5FD]" style={{ fontFamily: "'FramerHeroAccent', sans-serif" }}>New: Intelligence-First Offer OS v2.0</span>
-                <ArrowRight style={{ width: 12, height: 12, marginLeft: 4, flexShrink: 0, color: '#A78BFA' }} />
+                <span className="text-[13px] font-medium text-[#C4B5FD]" style={{ fontFamily: "'FramerHeroAccent', sans-serif" }}>Creators | Product Owners | Coaches | Newbies</span>
               </div>
 
               {/* Framer Main Headline */}
               <div className="framer-t2w3o5 mt-4">
                 <h1 className="hero-h1 text-[#F5F5F7]" style={{ fontFamily: "'FramerHeroAccent', 'Clash Display', 'General Sans', sans-serif", fontSize: 'clamp(32px, 4.5vw, 52px)', lineHeight: 1.15, fontWeight: 700, letterSpacing: '-0.02em', maxWidth: '800px', margin: '0 auto' }}>
-                  <span className="text-white">Stop guessing what sells.</span><br />
-                  Engineer an offer that{' '}
-                  <span style={{ color: '#34D399' }}>converts</span>.
+                  Turn Any Idea Into Something People{' '}
+                  <span style={{ 
+                    backgroundImage: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    filter: 'drop-shadow(0 8px 32px rgba(99,68,245,0.4))'
+                  }}>Actually Want to Buy</span>{' '}
+                  — Using OfferIQ.
                 </h1>
               </div>
 
               {/* Framer Subtext / Description */}
               <div className="framer-gdfpn4 mt-5">
                 <p style={{ fontFamily: "'Host Grotesk', 'General Sans', sans-serif", fontSize: 'clamp(14px, 1.5vw, 16px)', lineHeight: 1.55, color: '#A6A6B3', maxWidth: '640px', margin: '0 auto' }}>
-                  Upload a URL, PDF, or a single idea. OfferIQ benchmarks it against 35,000+ real converting offers and returns your complete revenue system — strategy, copy, a live funnel, and a traffic plan. All in one session.
+                  Upload a URL, a PDF, or a single idea. OfferIQ analyzes it against 35,000+ real converting offers and hands you the complete revenue system: strategy, copy, live funnel, and traffic plan — built in one session.
                 </p>
               </div>
             </section>
 
             <div className="flex items-center justify-center gap-4 mt-8 mb-4 flex-wrap">
               <a href="/login" className="inline-flex items-center gap-2 px-[32px] py-[14px] rounded-full text-white text-[14.5px] font-bold transition-all hover:-translate-y-0.5"
-                style={{ background: 'radial-gradient(150% 150% at 50% 0%, #D946EF 0%, #8B5CF6 50%, #4F46E5 100%)', boxShadow: '0 14px 30px rgba(192, 132, 252, 0.35)', fontFamily: "'Host Grotesk', sans-serif" }}>
-                Build My Offer Now
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="w-3.5 h-3.5"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                style={{ background: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)', boxShadow: '0 8px 32px rgba(99,68,245,0.4)', fontFamily: "'Host Grotesk', sans-serif" }}>
+                Build My Offer →
               </a>
-              <a href="/login" className="inline-flex items-center gap-2 px-[32px] py-[14px] rounded-full text-[14.5px] font-semibold text-[#F5F5F7] transition-all hover:bg-white/[0.08] hover:border-white/25"
-                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Host Grotesk', sans-serif" }}>
+              <a href="/login" className="inline-flex items-center gap-2 px-[32px] py-[14px] rounded-full text-[14.5px] font-semibold text-[#F5F5F7] transition-all hover:-translate-y-0.5 hover:brightness-110"
+                style={{ background: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)', boxShadow: '0 8px 32px rgba(99,68,245,0.4)', border: '1px solid transparent', fontFamily: "'Host Grotesk', sans-serif" }}>
                 Start Your $1 Trial
               </a>
             </div>
 
             <p className="text-[12px] text-[#6B6B7B] leading-[1.7] font-mono tracking-wide" style={{ fontFamily: "'Host Grotesk', monospace" }}>
-              $1 for your first 7 days &middot; $39/mo after &middot; Cancel anytime &middot; 30-day money-back guarantee
+              7-day $1 trial &middot; No marketing experience required &middot; 30-day money-back guarantee
             </p>
           </motion.div>
 
@@ -607,44 +612,62 @@ export function WelcomePage() {
                 {[
                   {
                     icon: Compass,
-                    tag: 'The “Blank Canvas” Trap',
+                    tag: 'The "Blank Canvas" Trap',
                     stat: '42%',
-                    body: 'of startups fail simply because they build products with absolutely no market need — chasing demand that was never there until the cash runs out.',
-                    src: '— Vincent, Founder of Preuve AI',
+                    body: 'of startups fail simply because they build products with absolutely no market need. They build something nobody needed, and the cash runs out chasing demand that was never there.',
+                    src: '— CB Insights',
                   },
                   {
                     icon: DollarSign,
                     tag: 'The Pricing Trap',
                     stat: '18%',
-                    body: 'of startups collapse due to flawed pricing models — charging too much for the market to bear, or too little to sustain operations.',
-                    src: '— ideaproof.io',
+                    body: 'of startups collapse due to flawed pricing models. They either charge too much for the market or too little to sustain operations.',
+                    src: '— CB Insights',
                   },
                   {
                     icon: TrendingUp,
                     tag: 'The “Acquisition Cost” Trap',
                     stat: '222%+',
-                    body: 'is how far Customer Acquisition Costs have climbed. Hyper-expensive clicks sent to a slow, pieced-together funnel bleed profit dry before the first sale.',
+                    body: 'Customer Acquisition Costs have skyrocketed by over 222%, making paid traffic more expensive than ever. Sending hyper-expensive clicks to a slow, pieced-together funnel will bleed your profit margins dry before you make a single sale.',
                     src: '— ProfitWell / Paddle',
                   },
                 ].map((c, i) => {
                   const IconComp = c.icon;
                   return (
-                    <div key={i} className="flex flex-col p-7 rounded-[14px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-all duration-300 group">
-                      <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 mb-6 group-hover:scale-105 transition-transform shrink-0">
-                        <IconComp className="w-5 h-5" />
+                    <div key={i} 
+                      className={`relative flex flex-col p-7 rounded-[14px] transition-all duration-500 group overflow-hidden ${
+                        i === 1 
+                          ? 'border-transparent shadow-[0_8px_32px_rgba(99,68,245,0.4)]' 
+                          : 'bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14]'
+                      }`}
+                      style={i === 1 ? { background: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)' } : {}}
+                    >
+                      {/* Spline 3D Asset */}
+                      <div className="absolute -bottom-12 -right-12 w-[260px] h-[260px] opacity-20 group-hover:opacity-100 transition-all duration-700 z-0 hover:scale-110 -rotate-[15deg] pointer-events-auto mix-blend-screen">
+                        <Spline scene="https://prod.spline.design/IYMKvgqnK80K9V2W/scene.splinecode" />
                       </div>
-                      <span className="font-mono text-[11px] text-white/40 tracking-widest uppercase block mb-2">
-                        {c.tag}
-                      </span>
-                      <div className="text-[32px] font-semibold mb-3 bg-gradient-to-br from-white to-white/70 bg-clip-text text-transparent tracking-tight leading-none">
-                        {c.stat}
+
+                      <div className="relative z-10 flex flex-col h-full pointer-events-none">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shrink-0 ${
+                          i === 1 
+                            ? 'bg-white/20 border border-white/30 text-white' 
+                            : 'bg-violet-500/10 border border-violet-500/20 text-violet-400'
+                        }`}>
+                          <IconComp className="w-5 h-5" />
+                        </div>
+                        <span className={`font-mono text-[11px] tracking-widest uppercase block mb-2 ${i === 1 ? 'text-white/80' : 'text-white/40'}`}>
+                          {c.tag}
+                        </span>
+                        <div className="text-[32px] font-semibold mb-3 bg-gradient-to-br from-white to-white/70 bg-clip-text text-transparent tracking-tight leading-none">
+                          {c.stat}
+                        </div>
+                        <p className={`text-[15px] leading-relaxed mb-5 flex-grow ${i === 1 ? 'text-white/90' : 'text-[#A6A6B3]'}`}>
+                          {c.body}
+                        </p>
+                        <span className={`font-mono text-[11px] italic ${i === 1 ? 'text-white/70' : 'text-white/30'}`}>
+                          {c.src}
+                        </span>
                       </div>
-                      <p className="text-[#A6A6B3] text-[15px] leading-relaxed mb-5 flex-grow">
-                        {c.body}
-                      </p>
-                      <span className="font-mono text-[11px] text-white/30 italic">
-                        {c.src}
-                      </span>
                     </div>
                   );
                 })}
@@ -653,8 +676,8 @@ export function WelcomePage() {
               {/* Footer */}
               <div className="pt-2 border-t border-white/5">
                 <p className="text-center text-[16px] md:text-[17px] font-medium max-w-[640px] mx-auto text-[#A6A6B3] m-0">
-                  OfferIQ is the end of trial-and-error marketing.{' '}
-                  <span className="text-white">We replace the guesswork with a data-backed blueprint.</span>
+                  OfferIQ ends the guesswork.{' '}
+                  <span className="text-white">It shows you what's already working, then builds the complete offer for you.</span>
                 </p>
               </div>
 
@@ -670,7 +693,7 @@ export function WelcomePage() {
             <div className="max-w-[680px] mb-16 mx-auto text-center">
               <Eyebrow center>Two Ways In</Eyebrow>
               <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>Tell OfferIQ where you're starting from.</h2>
-              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">There's no wrong entry point — just the one that matches what you already have.</p>
+              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">No Matter Where You're Starting, OfferIQ Meets You There.</p>
             </div>
           </Reveal>
           
@@ -682,17 +705,22 @@ export function WelcomePage() {
               <div className="flex flex-col lg:flex-row lg:items-center gap-0 w-full h-full">
                 {/* Text */}
                 <div className="relative z-20 max-w-xs shrink-0">
+                  <p className="text-left text-xs font-mono text-white/40 tracking-widest uppercase mb-3">01 / I Already Have An Idea Or Existing Offer</p>
                   <h2 className="text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
-                    Analyse &amp; Build My Offer
+                    You already have an offer. Perfect. Let's make it stronger.
                   </h2>
                   <p className="mt-4 text-left text-base/6 text-neutral-200">
-                    You already have an offer, a live page, or a rough idea. Paste a URL, upload a PDF, or describe it in your own words — OfferIQ builds the complete intelligence report, copy, and funnel around what you already have.
+                    Paste a URL, upload a PDF, or describe it in your own words — OfferIQ builds a full Strategy Report, copy, and funnel around what you already have.
                   </p>
                   <div className="flex flex-col gap-3 mt-6">
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><LinkIcon className="w-4 h-4" /> Paste a URL</span>
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><FileText className="w-4 h-4" /> Upload a PDF</span>
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><PenTool className="w-4 h-4" /> Describe it</span>
                   </div>
+                  <a href="/login" className="mt-6 inline-flex items-center gap-2 text-[13.5px] font-semibold text-white rounded-full px-[18px] py-2.5 transition-all hover:-translate-y-0.5 relative z-20"
+                    style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}>
+                    Improve My Offer <ArrowRight className="w-4 h-4" />
+                  </a>
                 </div>
                 {/* Image container — reserves its own space so image never climbs over text */}
                 <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
@@ -714,29 +742,34 @@ export function WelcomePage() {
                 Two entry points. One destination.
               </h2>
               <p className="mt-4 max-w-[26rem] text-left text-base/6 text-neutral-200">
-                Every path lands in the exact same place: a complete, validated Intelligence Report ready to scale.
+                No matter where you start, every path ends with a complete, validated offer ready to scale.
               </p>
               <a href="/login" className="mt-8 inline-flex items-center gap-2 text-[13.5px] font-semibold text-[#F5F5F7] rounded-full px-[18px] py-2.5 transition-all hover:-translate-y-0.5 hover:bg-white/[0.1] relative z-20"
                 style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                Start here <ArrowRight className="w-4 h-4" />
+                Get Started <ArrowRight className="w-4 h-4" />
               </a>
             </WobbleCard>
             
-            <WobbleCard containerClassName="col-span-1 lg:col-span-3 bg-blue-900 min-h-[300px] overflow-hidden">
+            <WobbleCard containerClassName="col-span-1 lg:col-span-3 bg-[linear-gradient(135deg,#18CCFC,#6344F5_32.5%,#AE48FF)] min-h-[300px] overflow-hidden">
               <div className="flex flex-col lg:flex-row lg:items-center gap-0 w-full h-full">
                 {/* Text */}
                 <div className="max-w-sm relative z-20 shrink-0">
+                  <p className="text-left text-xs font-mono text-white/40 tracking-widest uppercase mb-3">02 / I Don't Have Anything Yet</p>
                   <h2 className="max-w-sm md:max-w-lg text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
-                    Build an Offer For Me
+                    You have valuable skills and expertise, but no product.
                   </h2>
                   <p className="mt-4 max-w-[26rem] text-left text-base/6 text-neutral-200">
-                    You have an audience and expertise, but no product. Give OfferIQ your niche, audience, and price range — get validated offer ideas benchmarked against real converting funnels, ready to build the moment you pick one.
+                    Give OfferIQ your niche, audience, and price range — get offer ideas that are already proven to work. Pick one, and OfferIQ builds it.
                   </p>
                   <div className="flex gap-3 mt-6 flex-wrap">
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><Target className="w-4 h-4" /> Pick a niche</span>
-                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><Users className="w-4 h-4" /> Define buyer</span>
-                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><DollarSign className="w-4 h-4" /> Set price range</span>
+                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><Users className="w-4 h-4" /> Define your buyer</span>
+                    <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><DollarSign className="w-4 h-4" /> Set a price range</span>
                   </div>
+                  <a href="/login" className="mt-6 inline-flex items-center gap-2 text-[13.5px] font-semibold text-white rounded-full px-[18px] py-2.5 transition-all hover:-translate-y-0.5 relative z-20"
+                    style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}>
+                    Let's Build Your Offer <ArrowRight className="w-4 h-4" />
+                  </a>
                 </div>
                 {/* Image container — reserves its own space so image never climbs over text */}
                 <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
@@ -761,82 +794,84 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div className="max-w-[680px] mb-16 mx-auto text-center">
-              <Eyebrow center>From Idea To Live Funnel</Eyebrow>
+              <Eyebrow center>From Idea To Ready-To-Sell Business</Eyebrow>
               <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
-                The average user goes from first login to a live, payment-enabled funnel in under 30 minutes.
+                You don't need to figure everything out before you begin.
               </h2>
               <p className="text-[17px] text-[#A6A6B3]">
-                For a returning user building their second or third offer, it takes under 15.
+                Just bring what you have — OfferIQ will do the rest. Most people go from idea to a launch-ready business in less than 30 minutes.
               </p>
             </div>
           </Reveal>
 
-          <div className="flex flex-col gap-3 w-full">
-            {[
-              {
-                num: '01',
-                title: 'Intelligence Report',
-                sub: 'Validated Positioning & Offer Blueprint',
-                time: '~4 min',
-                desc: 'Your offer is analyzed against 35,000+ validated funnels — positioning, persona, pricing, hooks, and a full funnel blueprint come back specific to you.',
-              },
-              {
-                num: '02',
-                title: 'Copy Engine',
-                sub: 'Full Funnel Copy Written In Your Buyer’s Vocabulary',
-                time: '~2 min',
-                desc: 'Lead page, long-form sales page (up to 12,000 words), upsell, downsell, and thank-you copy written live from your intelligence report.',
-              },
-              {
-                num: '03',
-                title: 'Page Builder',
-                sub: 'Automated Page Assembly & Copilot Edits',
-                time: '~5 min',
-                desc: 'Every page assembles automatically using your design direction. Edit inline, or tell the AI copilot what to change in plain language.',
-              },
-              {
-                num: '04',
-                title: 'Traffic Intelligence™',
-                sub: 'Media Matrix, Ad Scripts & Email Nurture',
-                time: '~4 min',
-                desc: 'A platform priority matrix, ready-to-deploy ad copy, VSL script, UGC script, and full email sequences — before spending a dollar on ads.',
-              },
-              {
-                num: '05',
-                title: 'Publish & Scale',
-                sub: 'Live Subdomain / Custom Domain & Stripe Payments',
-                time: 'Instant',
-                desc: 'Connect a domain, connect Stripe or PayPal, and deploy. Your funnel is public, payment-enabled, and tracking analytics instantly.',
-              },
-            ].map((step, i) => (
-              <Reveal key={i}>
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-8 px-6 py-5 rounded-[10px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-colors">
-                  
-                  {/* Left: Number & Title */}
-                  <div className="flex flex-col gap-1 w-full lg:w-[280px] shrink-0">
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-[13px] text-white/40">{step.num}</span>
-                      <span className="text-[15px] text-white/85 font-medium">{step.title}</span>
+          <TracingBeam className="px-6 pb-6">
+            <div className="flex flex-col gap-3 w-full relative z-10">
+              {[
+                {
+                  num: '01',
+                  title: 'Strategy Report',
+                  sub: 'Positioning, Pricing & Full Funnel Blueprint',
+                  time: '~4 min',
+                  desc: 'Start with a URL, PDF, or description of your idea. OfferIQ turns that rough idea into something people understand and want — who to target, what to charge, and how to grab their attention, plus a full plan for every page.',
+                },
+                {
+                  num: '02',
+                  title: 'Copy Engine',
+                  sub: 'Full Funnel Copy In Your Buyer’s Exact Vocabulary',
+                  time: '~2 min',
+                  desc: 'Long-form sales page, upsell, downsell, and thank-you copy — written from the Strategy Report, in your buyer’s exact vocabulary.',
+                },
+                {
+                  num: '03',
+                  title: 'Funnel Builder',
+                  sub: 'Automated Page Assembly & AI Agent Edits',
+                  time: '~5 min',
+                  desc: 'Every page (Lead Magnet, Sales page, Upsell, Downsell & Thank-You Page) assembles automatically using your design direction. Edit inline, or tell the AI Agent what to change in plain language.',
+                },
+                {
+                  num: '04',
+                  title: 'Lead Generation & Engagement Plan',
+                  sub: 'Ad Copy, Video Scripts & Email Sequences',
+                  time: '~4 min',
+                  desc: 'A clear plan for which platforms to try first, ready-to-use ad copy, a video sales script, a UGC script, and full email sequences — all before you spend a dollar on ads.',
+                },
+                {
+                  num: '05',
+                  title: 'Publish & Go Live',
+                  sub: 'Custom Domain & Stripe / PayPal Payments',
+                  time: 'Instant',
+                  desc: 'Connect a domain, connect Stripe or PayPal, and go live. Your page is public and ready to take payments.',
+                },
+              ].map((step, i) => (
+                <Reveal key={i}>
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-8 px-6 py-5 rounded-[10px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-colors bg-[rgb(20,20,20)] relative z-10">
+                    
+                    {/* Left: Number & Title */}
+                    <div className="flex flex-col gap-1 w-full lg:w-[280px] shrink-0">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[13px] text-white/40">{step.num}</span>
+                        <span className="text-[15px] text-white/85 font-medium">{step.title}</span>
+                      </div>
+                      <span className="text-[13px] text-white/50 pl-7">{step.sub}</span>
                     </div>
-                    <span className="text-[13px] text-white/50 pl-7">{step.sub}</span>
+
+                    {/* Middle: Description */}
+                    <span className="text-[14px] text-white/60 leading-relaxed flex-1">
+                      {step.desc}
+                    </span>
+
+                    {/* Right: Time (Matching "Included" style) */}
+                    <span className="flex items-center gap-2 text-emerald-400 text-[14px] font-medium shrink-0 lg:w-[100px] lg:justify-end mt-2 lg:mt-0">
+                      <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0">
+                        <Check className="w-3 h-3" />
+                      </div>
+                      {step.time}
+                    </span>
                   </div>
-
-                  {/* Middle: Description */}
-                  <span className="text-[14px] text-white/60 leading-relaxed flex-1">
-                    {step.desc}
-                  </span>
-
-                  {/* Right: Time (Matching "Included" style) */}
-                  <span className="flex items-center gap-2 text-emerald-400 text-[14px] font-medium shrink-0 lg:w-[100px] lg:justify-end mt-2 lg:mt-0">
-                    <div className="w-5 h-5 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3" />
-                    </div>
-                    {step.time}
-                  </span>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+                </Reveal>
+              ))}
+            </div>
+          </TracingBeam>
         </div>
       </section>
 
@@ -845,7 +880,11 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div
-              className="w-full rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-[60px] p-[32px] md:p-[60px]"
+              className="w-full rounded-[25px] shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-[60px] p-[32px] md:p-[60px]"
+              style={{
+                border: '1.25px solid transparent',
+                background: 'linear-gradient(rgb(20,20,20), rgb(20,20,20)) padding-box, linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF) border-box'
+              }}
             >
               {/* Header — same style as Illustrative Scenarios / Replace The Stack */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
@@ -856,10 +895,10 @@ export function WelcomePage() {
                   Product Showcase
                 </div>
                 <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
-                  One workspace. Every phase of the offer, connected.
+                  One workspace, every phase of the offer, connected.
                 </h2>
                 <p className="text-[17px] text-[#A6A6B3] max-w-[560px] m-0">
-                  Each phase reads the one before it — nothing here is generic, because none of it is generated in isolation.
+                  Each phase builds on the one before it — nothing here is generic.
                 </p>
               </div>
 
@@ -878,15 +917,15 @@ export function WelcomePage() {
                       {/* Left — copy */}
                       <div className="flex flex-col pr-0 md:pr-4">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <Compass className="w-3.5 h-3.5 text-amber-400" /> Choice Gate
+                          <Compass className="w-3.5 h-3.5 text-amber-400" /> 01 · Two Ways to Start
                         </span>
-                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Start from what you have — or start from nothing at all</h3>
+                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Start from what you have, or start from nothing at all.</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
-                          You already have an offer, a live page, or a rough idea. Paste a URL, upload a PDF, or describe it in your own words — OfferIQ builds the complete report, copy, and funnel around what you already have.
+                          Every path lands in the same place: a complete Revenue Strategy Report, ready in minutes.
                         </p>
                         <ul className="flex flex-col gap-2.5">
-                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>Analyse &amp; Build My Offer</b> for a URL, PDF, or idea.' }} /></li>
-                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>Build an Offer For Me</b> generates validated offer ideas.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>Analyse &amp; Build</b> a profitable revenue system from a URL, PDF, or idea you already have.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>Build an Offer From Nothing</b> — generate validated offer ideas from your niche, audience, and price range.' }} /></li>
                         </ul>
                       </div>
 
@@ -928,15 +967,16 @@ export function WelcomePage() {
                       {/* Right — copy */}
                       <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <PenTool className="w-3.5 h-3.5 text-amber-400" /> Copy &amp; Page Builder
+                          <PenTool className="w-3.5 h-3.5 text-amber-400" /> 02 · Copy &amp; Funnel Builder
                         </span>
-                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Copy and pages built from your data, not a template</h3>
+                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Copy and Funnel Built from Your Data, Not a Template</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
-                          Every word is written directly from your Intelligence Report. Lead Capture, Sales Page, Upsell, Downsell, and Thank You copy — all generated in one pass.
+                          Every word is written from your Strategy Report — not a generic swipe, so your copy actually speaks to your specific buyers.
                         </p>
                         <ul className="flex flex-col gap-2.5">
-                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Full funnel copy in one pass: <b>Lead, Sales, Upsell, Downsell</b>.' }} /></li>
-                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Built-in <b>AI Copilot</b> to refine copy on demand in real time.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Full-funnel copy in one pass: <b>Long-Form Sales Pages (up to 12,000 words)</b>, lead page, Upsell, Downsell, and Thank You pages.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Pages assemble themselves — colours, fonts, and layout are pulled from what we learned about your brand and buyer.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Refine anything by chatting — tell the <b>built-in AI copilot</b> what to change and watch it update in real time.' }} /></li>
                         </ul>
                       </div>
                     </div>
@@ -948,15 +988,15 @@ export function WelcomePage() {
                       {/* Left — copy */}
                       <div className="flex flex-col pr-0 md:pr-4">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <Rocket className="w-3.5 h-3.5 text-amber-400" /> Publish &amp; Analytics
+                          <Rocket className="w-3.5 h-3.5 text-amber-400" /> 03 · Publish &amp; Analytics
                         </span>
-                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Launch-ready assets, live pages, and real analytics</h3>
+                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Launch With Confidence: Live Pages and Real Analytics</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
-                          Publish in one click on an OfferIQ subdomain or custom domain. Stripe and PayPal buy buttons work instantly with integrated lead CRM and analytics.
+                          One-click publishing; go live on an OfferIQ subdomain or connect your own custom domain. Stripe and PayPal buy buttons work the moment you publish.
                         </p>
                         <ul className="flex flex-col gap-2.5">
-                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>One-click publishing</b> with Stripe &amp; PayPal payments.' }} /></li>
-                          <li className="flex gap-2.5 items-start text-[14.5px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Built-in <b>CRM &amp; funnel analytics</b> tracking traffic &amp; conversion.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: '<b>Stripe and PayPal</b> integration built in — your buy buttons work the moment you publish.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14.5px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Built-in <b>CRM</b> to collect and manage leads — plus track traffic source, conversion rate, and traffic quality in real time.' }} /></li>
                         </ul>
                       </div>
 
@@ -998,15 +1038,16 @@ export function WelcomePage() {
                       {/* Right — copy */}
                       <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <Target className="w-3.5 h-3.5 text-amber-400" /> Traffic Intelligence™
+                          <Target className="w-3.5 h-3.5 text-amber-400" /> 04 · Lead Generation &amp; Engagement
                         </span>
-                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Stop guessing where your buyers are</h3>
+                        <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Stop Guessing Where Your Buyers Are.</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
-                          Get a platform priority matrix, ready-to-deploy ad copy for Meta and Google, VSL &amp; UGC scripts, plus full email sequences before spending a dollar on ads.
+                          A complete plan for where to spend your ad budget, built by comparing funnels like yours that already convert.
                         </p>
                         <ul className="flex flex-col gap-2.5">
-                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Platform priority matrix &amp; Meta/Google ad copy.' }} /></li>
-                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Full <b>email sequences</b> — Lead Nurture, Launch &amp; Upsell.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Ready-to-use <b>ad copy for Meta and Google</b>, plus a video sales script and a UGC video script, in your buyer’s own words.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'A simple <b>3-step testing plan</b> — know what to try first, second, and third instead of guessing with your budget.' }} /></li>
+                          <li className="flex gap-2.5 items-start text-[14px] text-[#A6A6B3]"><Check className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" /><span dangerouslySetInnerHTML={{ __html: 'Full <b>email sequences</b> included — Lead Nurture, Launch, Re-engagement, Client Onboarding, and Upsell.' }} /></li>
                         </ul>
                       </div>
                     </div>
@@ -1026,10 +1067,10 @@ export function WelcomePage() {
             <div className="max-w-[680px] mb-16 mx-auto text-center">
               <Eyebrow center>Built-In Vault</Eyebrow>
               <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
-                Assets and templates, ready the moment you need them.
+                Everything You Need To Launch Fast
               </h2>
               <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">
-                Auto-populated lead magnets, bonus stacks, and a library of proven converting funnel templates.
+                OfferIQ builds all the assets you need to launch, build trust, capture leads, and help customers succeed after they purchase.
               </p>
             </div>
           </Reveal>
@@ -1046,21 +1087,21 @@ export function WelcomePage() {
                         <Package className="w-6 h-6 text-violet-400" />
                       </div>
                       <div>
-                        <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Asset Bank</h3>
+                        <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Launch Toolkit</h3>
                         <span className="font-mono text-[11px] text-violet-400 font-medium tracking-widest uppercase block mt-0.5">
-                          Generates for you
+                          Generated for you
                         </span>
                       </div>
                     </div>
 
                     <p className="text-[#A6A6B3] text-[15px] leading-relaxed mb-6">
-                      The moment your Intelligence Report is ready, the Asset Bank already knows which lead magnets and bonuses will move the needle — and writes them for you as real, downloadable files.
+                      The moment your Strategy Report is ready, the Asset Bank already knows which lead magnets and bonuses will move the needle and builds them for you as real, downloadable files.
                     </p>
 
                     <ul className="list-none space-y-3 mb-8">
-                      <Step title="Auto-populated from your Bonus Stack & Revenue Model — no manual setup." />
-                      <Step title="One click generates a complete, formatted PDF in under 60 seconds." />
-                      <Step title="Covers lead magnets, core bonuses, and fast-action bonuses." />
+                      <Step title="Auto-populated from your offer's bonuses and pricing — no manual setup needed." />
+                      <Step title="One click generates a complete, titled, formatted PDF in under 60 seconds." />
+                      <Step title="Covers lead magnets, fast-action bonuses and the main Offer Development Guide — each written specifically for your buyers." />
                     </ul>
 
                     <div className="flex flex-wrap gap-2 pt-5 border-t border-white/10">
@@ -1110,25 +1151,24 @@ export function WelcomePage() {
                         <Palette className="w-6 h-6 text-blue-400" />
                       </div>
                       <div>
-                        <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Template Club</h3>
+                        <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Template Library</h3>
                         <span className="font-mono text-[11px] text-blue-400 font-medium tracking-widest uppercase block mt-0.5">
-                          You choose the start
+                          Start Fast — Not from Scratch
                         </span>
                       </div>
                     </div>
 
                     <p className="text-[#A6A6B3] text-[15px] leading-relaxed mb-6">
-                      A growing library of pre-built funnel and page layouts, organized by niche and offer type — pulled from patterns that already convert. Browse, preview, and drop one straight into your workspace.
+                      OfferIQ gives you professionally designed offers, so you never have to start from scratch. Choose the one that best fits your business — then let OfferIQ fill it with your own messaging.
                     </p>
 
                     <ul className="list-none space-y-3 mb-8">
-                      <Step title="Organized by niche and offer type — course, coaching, digital product, service." />
-                      <Step title="New templates added continuously as a member's library." />
-                      <Step title="Clone a template, then let your Intelligence Report auto-fill it with your copy." />
+                      <Step title="Make It Yours — every template automatically adapts to your messaging, your positioning and your audience." />
+                      <Step title="Everything is Connected — every resource is tied to the strategy you created earlier." />
                     </ul>
 
                     <div className="flex flex-wrap gap-2 pt-5 border-t border-white/10">
-                      {['Coach', 'Course', 'SaaS', 'Agency'].map((label, i) => (
+                      {['Coach', 'Course', 'SaaS', 'Digital', 'Service', 'Agency'].map((label, i) => (
                         <Chip key={i}>
                           <Layers className="w-3.5 h-3.5 text-blue-400" /> {label}
                         </Chip>
@@ -1148,7 +1188,11 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div
-              className="w-full max-w-[1180px] mx-auto rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-6 md:gap-[48px] p-5 sm:p-8 md:p-[50px]"
+              className="w-full max-w-[1180px] mx-auto rounded-[25px] shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-6 md:gap-[48px] p-5 sm:p-8 md:p-[50px]"
+              style={{
+                border: '1.25px solid transparent',
+                background: 'linear-gradient(rgb(20,20,20), rgb(20,20,20)) padding-box, linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF) border-box'
+              }}
             >
               {/* Header */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
@@ -1156,10 +1200,10 @@ export function WelcomePage() {
                   className="inline-block px-3 py-1 rounded-md text-[12px] font-bold uppercase tracking-widest text-black mb-1"
                   style={{ background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' }}
                 >
-                  Illustrative Scenarios
+                  WHO IS OFFERIQ FOR?
                 </div>
                 <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
-                  Whoever you are, the wall looks familiar.
+                  As long as you have something Valuable To Share, OfferIQ Can Help You Turn It Into A Business.
                 </h2>
                 <p className="text-[17px] text-[#A6A6B3] max-w-[560px] m-0">
                   Four representative profiles — tap through to see how the same platform solves four different problems.
@@ -1269,7 +1313,11 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div
-              className="w-full max-w-[1000px] mx-auto rounded-[25px] bg-[rgb(20,20,20)] border border-white/10 shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col items-center gap-8 md:gap-[60px] p-5 sm:p-8 md:p-[50px]"
+              className="w-full max-w-[1000px] mx-auto rounded-[25px] shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col items-center gap-8 md:gap-[60px] p-5 sm:p-8 md:p-[50px]"
+              style={{
+                border: '1.25px solid transparent',
+                background: 'linear-gradient(rgb(20,20,20), rgb(20,20,20)) padding-box, linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF) border-box'
+              }}
             >
               {/* Header */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px]">
@@ -1280,10 +1328,10 @@ export function WelcomePage() {
                   Replace The Stack
                 </div>
                 <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
-                  What this replaces, per offer
+                  You Don't Need to Hire an Entire Team.
                 </h2>
                 <p className="text-[17px] text-[#A6A6B3] max-w-[560px] m-0">
-                  Typical market rates for each role, sourced from standard freelance and SaaS pricing ranges — for reference, not a guarantee.
+                  It's Not Just About Saving Money, It's About Saving Time And Making Better Decisions.
                 </p>
               </div>
 
@@ -1311,7 +1359,7 @@ export function WelcomePage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-6 px-4 sm:px-6 py-4 sm:py-5 rounded-[10px] bg-white/[0.02] border border-white/[0.12] mt-2">
                   <span className="text-white font-semibold text-[15px] flex-1">Total to replicate manually, per offer</span>
                   <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6">
-                    <span className="text-[13px] sm:text-[14px] text-white/35 line-through decoration-white/20">$21,000 – $172,000+</span>
+                    <span className="text-[13px] sm:text-[14px] text-white/35 line-through decoration-white/20">$6,200 – $32,747+</span>
                     <span className="flex items-center gap-2 text-[rgb(124,92,255)] font-semibold text-[13px] sm:text-[14px] shrink-0">
                       <div className="w-5 h-5 rounded-full bg-[rgba(124,92,255,0.15)] border border-[rgba(124,92,255,0.3)] flex items-center justify-center shrink-0">
                         <Zap className="w-3 h-3 text-[rgb(124,92,255)]" />
@@ -1333,10 +1381,10 @@ export function WelcomePage() {
           <Reveal>
             <div className="max-w-[680px] mb-16 mx-auto text-center">
               <Eyebrow center>Pricing</Eyebrow>
-              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
-                Simple <span className="text-[rgb(124,92,255)]">transparent</span> pricing.
+              <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7] uppercase" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
+                Simple Pricing. <span className="text-[rgb(124,92,255)]">No Surprises.</span>
               </h2>
-              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">Try Starter for $1 over your first 7 days, then $39/mo. Cancel anytime — from your account, in one click.</p>
+              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">$1 for your first 7 days - Cancel anytime from your account, in one click.</p>
             </div>
           </Reveal>
 
@@ -1344,11 +1392,18 @@ export function WelcomePage() {
             {pricingTiers.map((t, i) => (
               <Reveal key={i}>
                 <div
-                  className={`relative w-full rounded-[14px] p-7 md:p-8 overflow-hidden flex flex-col justify-between h-full border bg-white/[0.03] ${
+                  className={`relative w-full rounded-[14px] p-7 md:p-8 overflow-hidden flex flex-col justify-between h-full border ${
                     i === 2 
-                      ? 'border-[#E1A427]/40' 
-                      : 'border-white/[0.08]'
+                      ? 'border-[#E1A427]/40 bg-white/[0.03]' 
+                      : i === 1
+                      ? 'border-transparent'
+                      : 'border-white/[0.08] bg-white/[0.03]'
                   }`}
+                  style={
+                    i === 1 
+                      ? { background: 'linear-gradient(rgb(18,18,18), rgb(18,18,18)) padding-box, linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF) border-box', borderWidth: '1.25px' }
+                      : {}
+                  }
                 >
                   {/* Content Container */}
                   <div className="relative z-10 flex flex-col justify-between h-full gap-8">
@@ -1437,9 +1492,16 @@ export function WelcomePage() {
           </div>
 
           <Reveal>
-            <div className="flex items-center gap-3 mt-12 max-w-[600px] mx-auto p-4 rounded-xl text-[14px] text-[#A6A6B3] bg-white/[0.03] border border-white/10">
-              <Shield className="w-5 h-5 shrink-0 text-emerald-400" />
-              <span>Backed by a 30-day money-back guarantee. If OfferIQ isn't right for you, get a full refund — no conditions.</span>
+            <div className="flex flex-col gap-8 mt-12 max-w-[700px] mx-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-4 p-5 rounded-xl text-[15px] text-emerald-50 bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_20px_rgba(52,211,153,0.15)] text-center sm:text-left">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5 text-emerald-400" />
+                </div>
+                <span className="font-medium">Backed by a 30-day money-back guarantee. If OfferIQ isn't right for you, get a full refund — no conditions.</span>
+              </div>
+              <div className="text-center text-[18px] md:text-[20px] text-white/90 font-medium leading-relaxed italic border-x-4 border-[rgb(124,92,255)] px-6 py-2 bg-gradient-to-r from-transparent via-[rgba(124,92,255,0.05)] to-transparent">
+                "OfferIQ isn't just another software - OfferIQ is helping you move from an idea to a launched business - to a growing business."
+              </div>
             </div>
           </Reveal>
         </div>
