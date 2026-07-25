@@ -23,10 +23,17 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Email is required' }, { status: 400 });
     }
 
+    const host = req.headers.get('host') || 'www.ofiq.app';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     // Generate a magic link
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: email,
+      options: {
+        redirectTo: `${baseUrl}/auth/callback`
+      }
     });
 
     if (error) {
