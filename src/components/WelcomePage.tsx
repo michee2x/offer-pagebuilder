@@ -553,8 +553,8 @@ export function WelcomePage() {
                 style={{ background: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)', boxShadow: '0 8px 32px rgba(99,68,245,0.4)', fontFamily: "'Host Grotesk', sans-serif" }}>
                 Build My Offer →
               </a>
-              <a href="/login" className="inline-flex items-center gap-2 px-[32px] py-[14px] rounded-full text-[14.5px] font-semibold text-[#F5F5F7] transition-all hover:-translate-y-0.5 hover:brightness-110"
-                style={{ background: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)', boxShadow: '0 8px 32px rgba(99,68,245,0.4)', border: '1px solid transparent', fontFamily: "'Host Grotesk', sans-serif" }}>
+              <a href="/login" className="inline-flex items-center gap-2 px-[32px] py-[14px] rounded-full text-[14.5px] font-semibold text-[#F5F5F7] transition-all hover:bg-white/[0.08]"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.14)', fontFamily: "'Host Grotesk', sans-serif" }}>
                 Start Your $1 Trial
               </a>
             </div>

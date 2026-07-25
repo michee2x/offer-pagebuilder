@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { User, MoreVertical, Eye, Edit2, Trash2, LogIn, Activity, LayoutTemplate, Settings, Flag } from "lucide-react";
 import { toast } from "sonner";
+import { createClient } from "@/utils/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -106,6 +107,7 @@ export default function AdminUsersDashboard() {
 
   const handleLoginAsUser = async (email: string) => {
     try {
+      toast.loading("Switching to user account...");
       const res = await fetch("/api/admin/users/login-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -114,7 +116,9 @@ export default function AdminUsersDashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to get login link");
       if (data.link) {
-        window.open(data.link, "_blank");
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        window.location.href = data.link;
       }
     } catch (error: any) {
       toast.error(error.message);
