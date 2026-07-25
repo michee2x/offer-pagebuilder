@@ -1564,15 +1564,7 @@ export function WelcomePage() {
                 <LogoMark />
                 OfferIQ
               </div>
-              <p className="text-[15px] text-[#A6A6B3] leading-relaxed">The intelligence layer that should happen before anything gets built — delivered instantly, and connected directly to the copy, pages, and traffic plan that follow from it.</p>
-              <div className="flex flex-wrap gap-2 mt-5">
-                {[['CreditCard','Stripe'],['CreditCard','PayPal'],['Megaphone','Meta Ads'],['Music','TikTok']].map(([icon, label], i) => (
-                  <Chip key={i}>
-                    {icon === 'CreditCard' ? <CreditCard className="w-3.5 h-3.5" /> : icon === 'Megaphone' ? <Megaphone className="w-3.5 h-3.5" /> : <Music className="w-3.5 h-3.5" />}
-                    {label}
-                  </Chip>
-                ))}
-              </div>
+              <p className="text-[15px] text-[#A6A6B3] leading-relaxed">OfferIQ helps entrepreneurs, creators, coaches, consultants, agencies, and businesses turn ideas into launch-ready offers — all from one guided workflow.</p>
             </div>
             <div className="grid grid-cols-3 gap-8 flex-1">
               {[
@@ -1590,7 +1582,7 @@ export function WelcomePage() {
             </div>
           </div>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 text-[13px] text-[#505060]">
-            <span>© 2026 OfferIQ, a Chigisoft product. All rights reserved.</span>
+            <span>© 2026 OfferIQ, a Tendrils Solution product. All rights reserved.</span>
             <span>Built for creators who'd rather launch than guess.</span>
           </div>
         </div>
