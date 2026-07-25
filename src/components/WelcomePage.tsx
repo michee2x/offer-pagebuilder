@@ -730,11 +730,11 @@ export function WelcomePage() {
                 <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
                   <div className="relative w-full max-w-[420px] h-[280px]">
                     <img
-                      src="https://assets.aceternity.com/pro/bento-grids.png"
+                      src="/card-imgs/I%20have%20an%20Offer%20-%20Colored.png"
                       width={500}
                       height={500}
                       alt="platform demo"
-                      className="absolute -right-8 lg:-right-16 -bottom-12 md:-bottom-16 w-[130%] max-w-[520px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right grayscale filter z-10"
+                      className="absolute -right-8 lg:-right-16 -bottom-12 md:-bottom-16 w-[130%] max-w-[520px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right filter z-10"
                     />
                   </div>
                 </div>
