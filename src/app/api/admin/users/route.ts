@@ -53,18 +53,30 @@ export async function POST(req: Request) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    // Try to update or insert into the users table
+    // Build the base record (columns we know always exist)
+    const baseRecord = {
+      id: data.user.id,
+      email: data.user.email,
+      name: name || '',
+      is_admin: role === 'admin',
+    };
+
+    // Try upsert with role column first
     const { error: dbError } = await supabaseAdmin
       .from('users')
-      .upsert({
-        id: data.user.id,
-        email: data.user.email,
-        name: name || '',
-        role: role,
-      }, { onConflict: 'id' });
+      .upsert({ ...baseRecord, role }, { onConflict: 'id' });
 
     if (dbError) {
-      console.error('Error upserting user record:', dbError);
+      if (dbError.code === 'PGRST204') {
+        // role column doesn't exist yet — upsert without it
+        console.warn('role column missing, upserting without it. Run add_role_column.sql in Supabase.');
+        const { error: fallbackError } = await supabaseAdmin
+          .from('users')
+          .upsert(baseRecord, { onConflict: 'id' });
+        if (fallbackError) console.error('Error upserting user record (fallback):', fallbackError);
+      } else {
+        console.error('Error upserting user record:', dbError);
+      }
     }
 
     return Response.json({ success: true, user: data.user });
@@ -88,9 +100,14 @@ export async function PATCH(req: Request) {
       return Response.json({ error: 'User ID is required' }, { status: 400 });
     }
 
+    // Keep is_admin in sync with role
+    const updatePayload: Record<string, unknown> = { role };
+    if (role === 'admin') updatePayload.is_admin = true;
+    if (role === 'user' || role === 'agency') updatePayload.is_admin = false;
+
     const { data: updatedUser, error } = await supabaseAdmin
       .from('users')
-      .update({ role })
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single();

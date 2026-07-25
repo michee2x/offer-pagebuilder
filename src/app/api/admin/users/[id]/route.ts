@@ -92,9 +92,13 @@ export async function PUT(
     const { name, email, role } = body;
 
     // Build the public users-table update payload
-    const tableUpdates: Record<string, string> = {};
+    const tableUpdates: Record<string, unknown> = {};
     if (name !== undefined) tableUpdates.name = name;
-    if (role !== undefined) tableUpdates.role = role;
+    if (role !== undefined) {
+      tableUpdates.role = role;
+      // keep is_admin in sync
+      tableUpdates.is_admin = role === 'admin';
+    }
     if (email) tableUpdates.email = email;
 
     if (Object.keys(tableUpdates).length > 0) {
