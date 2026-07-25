@@ -118,12 +118,10 @@ export default function AdminUsersDashboard() {
       
       if (data.token) {
         const supabase = createClient();
-        await supabase.auth.signOut();
         
         // Verify the token directly without a redirect
         const { error } = await supabase.auth.verifyOtp({
-          email,
-          token: data.token,
+          token_hash: data.token,
           type: 'magiclink'
         });
         
