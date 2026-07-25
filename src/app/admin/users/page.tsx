@@ -129,7 +129,7 @@ export default function AdminUsersDashboard() {
         
         // Successfully logged in as the user, redirect to dashboard
         toast.success("Successfully logged in");
-        window.location.href = "/workspaces";
+        window.location.href = "/";
       }
     } catch (error: any) {
       toast.error(error.message);

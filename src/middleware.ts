@@ -100,8 +100,8 @@ export default async function middleware(req: NextRequest) {
   }
 
   if (isAuthRoute && user) {
-    // Redirect to workspaces if already authenticated
-    return NextResponse.redirect(new URL('/workspaces', req.url))
+    // Redirect to dashboard if already authenticated
+    return NextResponse.redirect(new URL('/', req.url))
   }
 
   if (!isBaseDomain) {
