@@ -15,6 +15,8 @@ import { WobbleCard } from "@/components/ui/wobble-card";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
 import { TracingBeam } from "@/components/ui/tracing-beam";
 import Spline from '@splinetool/react-spline';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 /* ─── Reveal wrapper ─────────────────────────────────────────────── */
 function Reveal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -247,6 +249,7 @@ const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
 
 /* ─── WelcomePage ───────────────────────────────────────────────── */
 export function WelcomePage() {
+  const router = useRouter();
   const [navScrolled, setNavScrolled] = useState(false);
   const [activeScenario, setActiveScenario] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -256,6 +259,24 @@ export function WelcomePage() {
   const cardRotate = useTransform(heroProgress, [0, 0.55], [20, 0]);
   const cardScale = useTransform(heroProgress, [0, 0.55], [1.06, 1]);
   const titleTranslate = useTransform(heroProgress, [0, 0.55], [0, -80]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        router.push('/workspaces');
+      }
+    });
+    
+    // Also check immediately in case the session is already established
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.push('/workspaces');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     const handleScroll = () => setNavScrolled(window.scrollY > 30);
