@@ -59,10 +59,11 @@ function Chip({ children }: { children: React.ReactNode }) {
 /* ─── Nav logo mark ─────────────────────────────────────────────── */
 function LogoMark() {
   return (
-    <div className="w-7 h-7 rounded-lg relative flex items-center justify-center flex-shrink-0"
-      style={{ background: 'linear-gradient(135deg,#8B5CF6 0%,#3B82F6 100%)', boxShadow: '0 3px 14px -3px rgba(139,92,246,0.65)' }}>
-      <div className="w-[10px] h-[10px] bg-white rounded-[2.5px] rotate-45 opacity-90" />
-    </div>
+    <img
+      src="https://i.imgur.com/ifv8m6Y.png"
+      alt="OfferIQ logo"
+      className="h-14 w-auto object-contain flex-shrink-0"
+    />
   );
 }
 
@@ -107,7 +108,7 @@ function ChoiceGateContent() {
         OfferIQ meets you exactly where you are. Paste a URL. Upload a PDF. Describe an idea in plain language. Or tell us your niche and your audience and let us build the offer from scratch.
       </p>
       <ul className="space-y-4">
-        {['Analyse & Build My Offer — for a URL, PDF, or idea you already have.','Build an Offer For Me — generates validated offer ideas from your niche, audience, and price range.','Every path lands in the same place: a complete Intelligence Report, ready in minutes.'].map((item, i) => (
+        {['Analyse & Build My Offer — for a URL, PDF, or idea you already have.', 'Build an Offer For Me — generates validated offer ideas from your niche, audience, and price range.', 'Every path lands in the same place: a complete Intelligence Report, ready in minutes.'].map((item, i) => (
           <li key={i} className="flex items-start gap-3 text-[#A6A6B3] text-base"><Check className="w-5 h-5 mt-0.5 text-emerald-500 shrink-0" /><span>{item}</span></li>
         ))}
       </ul>
@@ -123,7 +124,7 @@ function CopyEngineContent() {
         Every word OfferIQ writes is pulled directly from your Intelligence Report — your buyer's vocabulary, your positioning, your angles.
       </p>
       <ul className="space-y-4">
-        {["Every word written from your Intelligence Report — so your copy actually speaks to your specific buyer.","Full funnel in one pass: Lead Capture, Long-Form Sales Page (up to 12,000 words), Upsell, Downsell, and Thank You pages.","Pages assemble themselves — colors, fonts, and layout pulled straight from your Design Intelligence.","Refine anything by chatting — tell the AI copilot 'make this headline punchier' and watch it update in real time.","Drag-and-drop when you want manual control — reorder sections, swap images, edit inline."].map((item, i) => (
+        {["Every word written from your Intelligence Report — so your copy actually speaks to your specific buyer.", "Full funnel in one pass: Lead Capture, Long-Form Sales Page (up to 12,000 words), Upsell, Downsell, and Thank You pages.", "Pages assemble themselves — colors, fonts, and layout pulled straight from your Design Intelligence.", "Refine anything by chatting — tell the AI copilot 'make this headline punchier' and watch it update in real time.", "Drag-and-drop when you want manual control — reorder sections, swap images, edit inline."].map((item, i) => (
           <li key={i} className="flex items-start gap-3 text-[#A6A6B3] text-base"><Check className="w-5 h-5 mt-0.5 text-emerald-500 shrink-0" /><span>{item}</span></li>
         ))}
       </ul>
@@ -139,7 +140,7 @@ function LaunchContent() {
         Your funnel goes live payment-enabled, analytics-ready, and CRM-connected — the moment you hit deploy.
       </p>
       <ul className="space-y-4">
-        {["One-click publishing — go live on an OfferIQ subdomain or connect your own custom domain.","Stripe and PayPal integration built in — your buy buttons work the moment you publish.","Built-in CRM for every lead across every funnel — plus per-funnel analytics on traffic, conversion rate, traffic quality, and device breakdown."].map((item, i) => (
+        {["One-click publishing — go live on an OfferIQ subdomain or connect your own custom domain.", "Stripe and PayPal integration built in — your buy buttons work the moment you publish.", "Built-in CRM for every lead across every funnel — plus per-funnel analytics on traffic, conversion rate, traffic quality, and device breakdown."].map((item, i) => (
           <li key={i} className="flex items-start gap-3 text-[#A6A6B3] text-base"><Check className="w-5 h-5 mt-0.5 text-emerald-500 shrink-0" /><span>{item}</span></li>
         ))}
       </ul>
@@ -155,7 +156,7 @@ function TrafficContent() {
         OfferIQ benchmarks your offer against real converting funnels and tells you exactly which platforms to hit first, what to run, and in what sequence — with the copy already written.
       </p>
       <ul className="space-y-4">
-        {["A complete acquisition strategy before you spend a dollar — platform priority matrix built from comparable converting funnels.","Ready-to-deploy ad copy for Meta and Google — plus a VSL script and a UGC script written from your persona data.","A 3-phase media buying plan — so you know what to test first, second, and third instead of burning budget on random variations.","Full email sequences included — Lead Nurture, Launch, Re-engagement, Client Onboarding, and Upsell."].map((item, i) => (
+        {["A complete acquisition strategy before you spend a dollar — platform priority matrix built from comparable converting funnels.", "Ready-to-deploy ad copy for Meta and Google — plus a VSL script and a UGC script written from your persona data.", "A 3-phase media buying plan — so you know what to test first, second, and third instead of burning budget on random variations.", "Full email sequences included — Lead Nurture, Launch, Re-engagement, Client Onboarding, and Upsell."].map((item, i) => (
           <li key={i} className="flex items-start gap-3 text-[#A6A6B3] text-base"><Check className="w-5 h-5 mt-0.5 text-emerald-500 shrink-0" /><span>{item}</span></li>
         ))}
       </ul>
@@ -266,7 +267,7 @@ export function WelcomePage() {
         router.push('/');
       }
     });
-    
+
     // Also check immediately in case the session is already established
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -292,7 +293,7 @@ export function WelcomePage() {
             The "Blank Canvas" Trap
           </p>
           <p className="mb-8 text-sm font-normal text-[#A6A6B3] md:text-[17px] leading-relaxed">
-            <span className="font-mono tracking-tight text-[#F5F5F7] text-2xl md:text-3xl font-light mr-2">42%</span> 
+            <span className="font-mono tracking-tight text-[#F5F5F7] text-2xl md:text-3xl font-light mr-2">42%</span>
             of startups fail simply because they build products with absolutely no market need — chasing demand that was never there until the cash runs out.
           </p>
           <div className="grid grid-cols-2 gap-4">
@@ -336,7 +337,7 @@ export function WelcomePage() {
             The Pricing Trap
           </p>
           <p className="mb-8 text-sm font-normal text-[#A6A6B3] md:text-[17px] leading-relaxed">
-            <span className="font-mono tracking-tight text-[#F5F5F7] text-2xl md:text-3xl font-light mr-2">18%</span> 
+            <span className="font-mono tracking-tight text-[#F5F5F7] text-2xl md:text-3xl font-light mr-2">18%</span>
             of startups collapse due to flawed pricing models — charging too much for the market to bear, or too little to sustain operations.
           </p>
           <div className="grid grid-cols-2 gap-4">
@@ -380,7 +381,7 @@ export function WelcomePage() {
             The "Acquisition Cost" Trap
           </p>
           <p className="mb-4 text-sm font-normal text-[#A6A6B3] md:text-[17px] leading-relaxed">
-            <span className="font-mono tracking-tight text-[#F5F5F7] text-2xl md:text-3xl font-light mr-2">222%+</span> 
+            <span className="font-mono tracking-tight text-[#F5F5F7] text-2xl md:text-3xl font-light mr-2">222%+</span>
             is how far Customer Acquisition Costs have climbed. Hyper-expensive clicks sent to a slow, pieced-together funnel bleed profit dry before the first sale.
           </p>
           <div className="grid grid-cols-2 gap-4">
@@ -501,12 +502,11 @@ export function WelcomePage() {
         style={{ background: navScrolled ? 'rgba(8,8,13,0.80)' : 'transparent', backdropFilter: navScrolled ? 'blur(20px) saturate(160%)' : 'none', boxShadow: navScrolled ? '0 1px 0 rgba(255,255,255,0.04),0 4px 24px -4px rgba(0,0,0,0.4)' : 'none' }}
       >
         <div className="max-w-[1180px] mx-auto px-7 flex items-center justify-between gap-6">
-          <a href="/" className="flex items-center gap-[9px] font-semibold text-[18px] tracking-[-0.01em] text-[#F5F5F7] no-underline flex-shrink-0 hover:opacity-85 transition-opacity">
+          <a href="/" className="flex items-center no-underline flex-shrink-0 hover:opacity-85 transition-opacity">
             <LogoMark />
-            OfferIQ
           </a>
           <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
-            {[['#showcase','Product'],['#how-it-works','How It Works'],['#pricing','Pricing'],['#faq','FAQ']].map(([href, label]) => (
+            {[['#showcase', 'Product'], ['#how-it-works', 'How It Works'], ['#pricing', 'Pricing'], ['#faq', 'FAQ']].map(([href, label]) => (
               <a key={href} href={href} className="text-[14px] font-[450] text-[#A6A6B3] px-[13px] py-1.5 rounded-lg hover:text-[#F5F5F7] hover:bg-white/[0.055] transition-all tracking-[-0.01em]">{label}</a>
             ))}
           </div>
@@ -550,7 +550,7 @@ export function WelcomePage() {
               <div className="framer-t2w3o5 mt-4">
                 <h1 className="hero-h1 text-[#F5F5F7]" style={{ fontFamily: "'FramerHeroAccent', 'Clash Display', 'General Sans', sans-serif", fontSize: 'clamp(32px, 4.5vw, 52px)', lineHeight: 1.15, fontWeight: 700, letterSpacing: '-0.02em', maxWidth: '800px', margin: '0 auto' }}>
                   Turn Any Idea Into Something People{' '}
-                  <span style={{ 
+                  <span style={{
                     backgroundImage: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
@@ -613,7 +613,7 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div className="w-full flex flex-col gap-[48px] md:gap-[60px]">
-              
+
               {/* Header */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
                 <div
@@ -623,7 +623,7 @@ export function WelcomePage() {
                   Why This Matters Right Now
                 </div>
                 <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] text-[#F5F5F7] m-0" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
-                  Three traps quietly kill every offer<br/>before it has a chance to sell.
+                  Three traps quietly kill every offer<br />before it has a chance to sell.
                 </h2>
               </div>
 
@@ -653,7 +653,7 @@ export function WelcomePage() {
                   },
                 ].map((c, i) => {
                   return (
-                    <div key={i} 
+                    <div key={i}
                       className="relative flex flex-col p-7 rounded-[14px] transition-all duration-500 group overflow-hidden bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14]"
                     >
                       <div className="relative z-10 flex flex-col h-full pointer-events-none">
@@ -701,7 +701,7 @@ export function WelcomePage() {
               <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">No Matter Where You're Starting, OfferIQ Meets You There.</p>
             </div>
           </Reveal>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-7xl mx-auto w-full">
             <WobbleCard
               containerClassName="col-span-1 lg:col-span-3 h-full bg-pink-800 min-h-[300px] overflow-hidden"
@@ -740,7 +740,7 @@ export function WelcomePage() {
                 </div>
               </div>
             </WobbleCard>
-            
+
             <WobbleCard containerClassName="col-span-1 lg:col-span-3 bg-[linear-gradient(135deg,#18CCFC,#6344F5_32.5%,#AE48FF)] min-h-[300px] overflow-hidden">
               <div className="flex flex-col lg:flex-row lg:items-center gap-0 w-full h-full">
                 {/* Text */}
@@ -835,7 +835,7 @@ export function WelcomePage() {
               ].map((step, i) => (
                 <Reveal key={i}>
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-8 px-6 py-5 rounded-[10px] bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-colors bg-[rgb(20,20,20)] relative z-10">
-                    
+
                     {/* Left: Number & Title */}
                     <div className="flex flex-col gap-1 w-full lg:w-[280px] shrink-0">
                       <div className="flex items-center gap-3">
@@ -1371,15 +1371,14 @@ export function WelcomePage() {
             {pricingTiers.map((t, i) => (
               <Reveal key={i}>
                 <div
-                  className={`relative w-full rounded-[14px] p-7 md:p-8 overflow-hidden flex flex-col justify-between h-full border ${
-                    i === 2 
-                      ? 'border-[#E1A427]/40 bg-white/[0.03]' 
-                      : i === 1
+                  className={`relative w-full rounded-[14px] p-7 md:p-8 overflow-hidden flex flex-col justify-between h-full border ${i === 2
+                    ? 'border-[#E1A427]/40 bg-white/[0.03]'
+                    : i === 1
                       ? 'border-transparent'
                       : 'border-white/[0.08] bg-white/[0.03]'
-                  }`}
+                    }`}
                   style={
-                    i === 1 
+                    i === 1
                       ? { background: 'linear-gradient(rgb(18,18,18), rgb(18,18,18)) padding-box, linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF) border-box', borderWidth: '1.25px' }
                       : {}
                   }
@@ -1389,11 +1388,10 @@ export function WelcomePage() {
                     {/* Top Group: Name, Badge, Best For, Price */}
                     <div className="flex flex-col gap-5">
                       <div className="flex justify-between items-start">
-                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${
-                          i === 0 ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' :
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${i === 0 ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' :
                           i === 1 ? 'bg-purple-500/10 border border-purple-500/20 text-purple-300' :
-                          'bg-[#E1A427]/10 border border-[#E1A427]/20 text-[#E1A427]'
-                        }`}>
+                            'bg-[#E1A427]/10 border border-[#E1A427]/20 text-[#E1A427]'
+                          }`}>
                           {i === 0 ? <img src="/3d-icons/3dicons-rocket-dynamic-color.png" className="w-12 h-12 object-contain drop-shadow-md" alt="Starter" /> : i === 1 ? <img src="/3d-icons/3dicons-chart-dynamic-color.png" className="w-11 h-11 object-contain drop-shadow-md" alt="Growth" /> : <img src="/3d-icons/3dicons-crown-dynamic-color.png" className="w-12 h-12 object-contain drop-shadow-md" alt="Agency" />}
                         </div>
                         {t.popular && (
@@ -1402,7 +1400,7 @@ export function WelcomePage() {
                           </div>
                         )}
                         {i === 2 && (
-                          <div 
+                          <div
                             className="px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-widest text-black shadow-[0_2px_10px_rgba(225,164,39,0.4)]"
                             style={{ background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' }}
                           >
@@ -1422,9 +1420,8 @@ export function WelcomePage() {
 
                       <div className="flex flex-col gap-1 pt-4 border-t border-white/10">
                         <div className="flex items-baseline gap-2 mb-2">
-                          <span className={`text-[42px] font-semibold tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-br ${
-                            i === 2 ? 'from-[#F8DF42] to-[#E1A427]' : 'from-white to-white/70'
-                          }`}>
+                          <span className={`text-[42px] font-semibold tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-br ${i === 2 ? 'from-[#F8DF42] to-[#E1A427]' : 'from-white to-white/70'
+                            }`}>
                             {t.price}
                           </span>
                           <span className="text-[16px] text-white/50 font-medium">{t.period}</span>
@@ -1446,11 +1443,10 @@ export function WelcomePage() {
                     {/* CTA Button */}
                     <a
                       href="/login"
-                      className={`group/btn relative overflow-hidden w-full h-12 rounded-full font-semibold text-[14px] uppercase tracking-wider flex items-center justify-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline mt-4 shrink-0 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover/btn:before:translate-x-full before:transition-transform before:duration-1000 before:ease-in-out ${
-                        i === 2
-                          ? 'text-black shadow-[0_4px_24px_rgba(225,164,39,0.4)] hover:shadow-[0_8px_32px_rgba(225,164,39,0.6)]'
-                          : 'text-white bg-[rgb(124,92,255)] hover:bg-[rgb(110,78,245)] shadow-[0_4px_24px_rgba(124,92,255,0.35)] hover:shadow-[0_8px_32px_rgba(124,92,255,0.55)]'
-                      }`}
+                      className={`group/btn relative overflow-hidden w-full h-12 rounded-full font-semibold text-[14px] uppercase tracking-wider flex items-center justify-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline mt-4 shrink-0 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover/btn:before:translate-x-full before:transition-transform before:duration-1000 before:ease-in-out ${i === 2
+                        ? 'text-black shadow-[0_4px_24px_rgba(225,164,39,0.4)] hover:shadow-[0_8px_32px_rgba(225,164,39,0.6)]'
+                        : 'text-white bg-[rgb(124,92,255)] hover:bg-[rgb(110,78,245)] shadow-[0_4px_24px_rgba(124,92,255,0.35)] hover:shadow-[0_8px_32px_rgba(124,92,255,0.55)]'
+                        }`}
                       style={i === 2 ? { background: 'linear-gradient(168deg, rgb(248,223,66) 16%, rgb(255,245,153) 40%, rgb(225,164,39) 100%)' } : {}}
                     >
                       <div className="relative flex items-center justify-center overflow-hidden h-5">
@@ -1560,17 +1556,16 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7 py-16">
           <div className="flex flex-col lg:flex-row gap-16 pb-16" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
             <div className="max-w-sm">
-              <div className="flex items-center gap-[9px] font-semibold text-[18px] text-[#F5F5F7] mb-4">
+              <div className="flex items-center mb-4">
                 <LogoMark />
-                OfferIQ
               </div>
               <p className="text-[15px] text-[#A6A6B3] leading-relaxed">OfferIQ helps entrepreneurs, creators, coaches, consultants, agencies, and businesses turn ideas into launch-ready offers — all from one guided workflow.</p>
             </div>
             <div className="grid grid-cols-3 gap-8 flex-1">
               {[
-                { title: 'Product', links: [['#showcase','Feature Showcase'],['#vault','Asset Bank & Templates'],['/login','Pricing']] },
-                { title: 'Company', links: [['help.ofiq.app','Knowledge base'],['mailto:help@ofiq.app','Contact Support'],['#faq','FAQ']] },
-                { title: 'Legal', links: [['#','Terms of Service'],['#','Privacy Policy'],['#','Refund Policy']] },
+                { title: 'Product', links: [['#showcase', 'Feature Showcase'], ['#vault', 'Asset Bank & Templates'], ['/login', 'Pricing']] },
+                { title: 'Company', links: [['help.ofiq.app', 'Knowledge base'], ['mailto:help@ofiq.app', 'Contact Support'], ['#faq', 'FAQ']] },
+                { title: 'Legal', links: [['#', 'Terms of Service'], ['#', 'Privacy Policy'], ['#', 'Refund Policy']] },
               ].map((col, i) => (
                 <div key={i}>
                   <h5 className="font-semibold text-[#F5F5F7] mb-4 text-[14px]">{col.title}</h5>
