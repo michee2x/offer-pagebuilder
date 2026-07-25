@@ -35,8 +35,7 @@ const parentPaths = [
     title: "Analyse & Build My Offer →",
     description:
       "I have an offer or idea — build me the complete intelligence report, copy, and funnel.",
-    image:
-      "https://framerusercontent.com/images/ocTUXzjdGN7azeFQ4br4ScyHbYA.jpg?scale-down-to=1024&width=1440&height=1080",
+    image: "/card-imgs/I%20don't%20Have%20an%20Offer%20-%20Color.png",
     gradient: "from-blue-500 via-indigo-500 to-violet-500",
     shadow: "shadow-[0_0_50px_rgba(59,130,246,0.15)]",
   },
@@ -60,8 +59,7 @@ const subPaths = [
     title: "Describe Your Offer",
     description:
       "Answer a few questions. OfferIQ uses your answers to build the complete intelligence report — no technical knowledge needed.",
-    image:
-      "https://framerusercontent.com/images/ocTUXzjdGN7azeFQ4br4ScyHbYA.jpg?scale-down-to=1024&width=1440&height=1080",
+    image: "/card-imgs/Describe%20Your%20Offer.png",
     gradient: "from-blue-500 to-indigo-500",
     shadow: "shadow-[0_0_30px_rgba(59,130,246,0.1)]",
   },
@@ -71,8 +69,7 @@ const subPaths = [
     title: "From a Website",
     description:
       "Paste any live URL - your own sales page or a competitor's offer. OfferIQ reads it and builds your intelligence report from what it finds.",
-    image:
-      "https://framerusercontent.com/images/5RoHhzBwXKlzmqGgZlmjqnERe5s.jpeg?scale-down-to=1024&width=1600&height=1200",
+    image: "/card-imgs/Enter%20Website%20URL.png",
     gradient: "from-indigo-500 to-cyan-500",
     shadow: "shadow-[0_0_30px_rgba(99,102,241,0.1)]",
   },
@@ -82,8 +79,7 @@ const subPaths = [
     title: "Upload a DOC/PDF",
     description:
       "Upload a pitch doc, offer summary or any file that describes your offer. OfferIQ extracts what it needs and builds from there.",
-    image:
-      "https://framerusercontent.com/images/Gs177VTHhuZMszsLfkXbl7X30Cg.jpg?scale-down-to=1024&width=1440&height=1080",
+    image: "/card-imgs/Input%20PDF.png",
     gradient: "from-violet-500 to-pink-500",
     shadow: "shadow-[0_0_30px_rgba(168,85,247,0.1)]",
   },

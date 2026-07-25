@@ -14,7 +14,6 @@ import { Timeline } from "@/components/ui/timeline";
 import { WobbleCard } from "@/components/ui/wobble-card";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
 import { TracingBeam } from "@/components/ui/tracing-beam";
-import Spline from '@splinetool/react-spline';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 
@@ -432,7 +431,7 @@ export function WelcomePage() {
       avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=96&h=96&fit=crop&crop=face',
       quote: <>"The situation: you know something in your messaging isn't landing, <span style={{ color: '#60A5FA' }}>but you can't quite see what.</span>"</>,
       body: "You paste in your existing sales page URL. OfferIQ's report flags the actual mismatch, often that the page is selling a curriculum when the buyer is actually buying relief from a feeling and rewrites the copy around that insight.",
-      stats: [{ from: 'A page built around features', to: 'A page built around what the buyer actually feels' }, { single: 'A stalled or underperforming funnel → a clearer read on why, and a rewritten page to test' }],
+      stats: [{ from: 'A page built around features', to: 'A page built around what the buyer actually feels' }, { from: 'A stalled or underperforming funnel', to: 'a clearer read on why, and a rewritten page to test' }],
     },
     {
       tab: 'Agency Owner', who: 'Agency Owner', meta: '38 · Denver, CO · 6-person team',
@@ -446,7 +445,7 @@ export function WelcomePage() {
       avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=96&h=96&fit=crop&crop=face',
       quote: <>"The situation: you have real expertise and an audience, <span style={{ color: '#60A5FA' }}>but no idea what to actually build or price.</span>"</>,
       body: 'You choose "Build an Offer For Me," enter your niche, audience, and price range, and get back several validated offer ideas benchmarked against real converting funnels.',
-      stats: [{ single: 'Months of "I know I should launch something" → a validated offer idea and a live funnel built from it in one session' }],
+      stats: [{ from: 'Months of "I know I should launch something"', to: 'a validated offer idea and a live funnel built from it in one session' }],
     },
   ];
 
@@ -632,60 +631,45 @@ export function WelcomePage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                   {
-                    icon: Compass,
+                    icon: '/3d-icons/3dicons-target-dynamic-color.png',
                     tag: 'The "Blank Canvas" Trap',
                     stat: '42%',
                     body: 'of startups fail simply because they build products with absolutely no market need. They build something nobody needed, and the cash runs out chasing demand that was never there.',
                     src: '— CB Insights',
                   },
                   {
-                    icon: DollarSign,
+                    icon: '/3d-icons/3dicons-3d-coin-dynamic-color.png',
                     tag: 'The Pricing Trap',
                     stat: '18%',
                     body: 'of startups collapse due to flawed pricing models. They either charge too much for the market or too little to sustain operations.',
                     src: '— CB Insights',
                   },
                   {
-                    icon: TrendingUp,
+                    icon: '/3d-icons/3dicons-chart-dynamic-color.png',
                     tag: 'The “Acquisition Cost” Trap',
                     stat: '222%+',
                     body: 'Customer Acquisition Costs have skyrocketed by over 222%, making paid traffic more expensive than ever. Sending hyper-expensive clicks to a slow, pieced-together funnel will bleed your profit margins dry before you make a single sale.',
                     src: '— ProfitWell / Paddle',
                   },
                 ].map((c, i) => {
-                  const IconComp = c.icon;
                   return (
                     <div key={i} 
-                      className={`relative flex flex-col p-7 rounded-[14px] transition-all duration-500 group overflow-hidden ${
-                        i === 1 
-                          ? 'border-transparent shadow-[0_8px_32px_rgba(99,68,245,0.4)]' 
-                          : 'bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14]'
-                      }`}
-                      style={i === 1 ? { background: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)' } : {}}
+                      className="relative flex flex-col p-7 rounded-[14px] transition-all duration-500 group overflow-hidden bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14]"
                     >
-                      {/* Spline 3D Asset */}
-                      <div className="absolute -bottom-12 -right-12 w-[260px] h-[260px] opacity-20 group-hover:opacity-100 transition-all duration-700 z-0 hover:scale-110 -rotate-[15deg] pointer-events-auto mix-blend-screen">
-                        <Spline scene="https://prod.spline.design/IYMKvgqnK80K9V2W/scene.splinecode" />
-                      </div>
-
                       <div className="relative z-10 flex flex-col h-full pointer-events-none">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shrink-0 ${
-                          i === 1 
-                            ? 'bg-white/20 border border-white/30 text-white' 
-                            : 'bg-violet-500/10 border border-violet-500/20 text-violet-400'
-                        }`}>
-                          <IconComp className="w-5 h-5" />
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform shrink-0 bg-violet-500/10 border border-violet-500/20 text-violet-400">
+                          <img src={c.icon} className="w-10 h-10 object-contain drop-shadow-sm" alt="" />
                         </div>
-                        <span className={`font-mono text-[11px] tracking-widest uppercase block mb-2 ${i === 1 ? 'text-white/80' : 'text-white/40'}`}>
+                        <span className="font-mono text-[11px] tracking-widest uppercase block mb-2 text-white/40">
                           {c.tag}
                         </span>
                         <div className="text-[32px] font-semibold mb-3 bg-gradient-to-br from-white to-white/70 bg-clip-text text-transparent tracking-tight leading-none">
                           {c.stat}
                         </div>
-                        <p className={`text-[15px] leading-relaxed mb-5 flex-grow ${i === 1 ? 'text-white/90' : 'text-[#A6A6B3]'}`}>
+                        <p className="text-[15px] leading-relaxed mb-5 flex-grow text-[#A6A6B3]">
                           {c.body}
                         </p>
-                        <span className={`font-mono text-[11px] italic ${i === 1 ? 'text-white/70' : 'text-white/30'}`}>
+                        <span className="font-mono text-[11px] italic text-white/30">
                           {c.src}
                         </span>
                       </div>
@@ -720,7 +704,7 @@ export function WelcomePage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-7xl mx-auto w-full">
             <WobbleCard
-              containerClassName="col-span-1 lg:col-span-2 h-full bg-pink-800 min-h-[300px] overflow-hidden"
+              containerClassName="col-span-1 lg:col-span-3 h-full bg-pink-800 min-h-[300px] overflow-hidden"
               className=""
             >
               <div className="flex flex-col lg:flex-row lg:items-center gap-0 w-full h-full">
@@ -733,42 +717,28 @@ export function WelcomePage() {
                   <p className="mt-4 text-left text-base/6 text-neutral-200">
                     Paste a URL, upload a PDF, or describe it in your own words — OfferIQ builds a full Strategy Report, copy, and funnel around what you already have.
                   </p>
-                  <div className="flex flex-col gap-3 mt-6">
+                  <div className="flex gap-3 mt-6 flex-wrap">
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><LinkIcon className="w-4 h-4" /> Paste a URL</span>
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><FileText className="w-4 h-4" /> Upload a PDF</span>
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><PenTool className="w-4 h-4" /> Describe it</span>
                   </div>
-                  <a href="/login" className="mt-6 inline-flex items-center gap-2 text-[13.5px] font-semibold text-white rounded-full px-[18px] py-2.5 transition-all hover:-translate-y-0.5 relative z-20"
-                    style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}>
+                  <a href="/login" className="mt-6 inline-flex items-center gap-2 text-[14px] font-bold text-black bg-white rounded-full px-[24px] py-[12px] transition-all hover:-translate-y-0.5 relative z-20 hover:shadow-[0_8px_20px_rgba(255,255,255,0.25)]">
                     Improve My Offer <ArrowRight className="w-4 h-4" />
                   </a>
                 </div>
                 {/* Image container — reserves its own space so image never climbs over text */}
                 <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
-                  <div className="relative w-full max-w-[360px] h-[220px]">
+                  <div className="relative w-full max-w-[420px] h-[280px]">
                     <img
                       src="https://assets.aceternity.com/pro/bento-grids.png"
                       width={500}
                       height={500}
                       alt="platform demo"
-                      className="absolute -right-8 lg:-right-16 -bottom-12 md:-bottom-16 w-[115%] max-w-[420px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right grayscale filter z-10"
+                      className="absolute -right-8 lg:-right-16 -bottom-12 md:-bottom-16 w-[130%] max-w-[520px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right grayscale filter z-10"
                     />
                   </div>
                 </div>
               </div>
-            </WobbleCard>
-            
-            <WobbleCard containerClassName="col-span-1 min-h-[300px]">
-              <h2 className="max-w-80 text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
-                Two entry points. One destination.
-              </h2>
-              <p className="mt-4 max-w-[26rem] text-left text-base/6 text-neutral-200">
-                No matter where you start, every path ends with a complete, validated offer ready to scale.
-              </p>
-              <a href="/login" className="mt-8 inline-flex items-center gap-2 text-[13.5px] font-semibold text-[#F5F5F7] rounded-full px-[18px] py-2.5 transition-all hover:-translate-y-0.5 hover:bg-white/[0.1] relative z-20"
-                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                Get Started <ArrowRight className="w-4 h-4" />
-              </a>
             </WobbleCard>
             
             <WobbleCard containerClassName="col-span-1 lg:col-span-3 bg-[linear-gradient(135deg,#18CCFC,#6344F5_32.5%,#AE48FF)] min-h-[300px] overflow-hidden">
@@ -787,20 +757,19 @@ export function WelcomePage() {
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><Users className="w-4 h-4" /> Define your buyer</span>
                     <span className="flex items-center gap-2 text-sm text-white/80 bg-white/10 w-fit px-3 py-1.5 rounded-full"><DollarSign className="w-4 h-4" /> Set a price range</span>
                   </div>
-                  <a href="/login" className="mt-6 inline-flex items-center gap-2 text-[13.5px] font-semibold text-white rounded-full px-[18px] py-2.5 transition-all hover:-translate-y-0.5 relative z-20"
-                    style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}>
+                  <a href="/login" className="mt-6 inline-flex items-center gap-2 text-[14px] font-bold text-black bg-white rounded-full px-[24px] py-[12px] transition-all hover:-translate-y-0.5 relative z-20 hover:shadow-[0_8px_20px_rgba(255,255,255,0.25)]">
                     Let's Build Your Offer <ArrowRight className="w-4 h-4" />
                   </a>
                 </div>
                 {/* Image container — reserves its own space so image never climbs over text */}
                 <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
-                  <div className="relative w-full max-w-[420px] h-[220px]">
+                  <div className="relative w-full max-w-[480px] h-[280px]">
                     <img
-                      src="https://assets.aceternity.com/pro/hero-sections.png"
+                      src="/card-imgs/I%20don't%20Have%20an%20Offer%20-%20Color.png"
                       width={500}
                       height={500}
                       alt="platform demo"
-                      className="absolute -right-8 lg:-right-20 -bottom-12 md:-bottom-16 w-[115%] max-w-[480px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform rotate-[7deg] origin-bottom-right z-10"
+                      className="absolute -right-8 lg:-right-20 -bottom-12 md:-bottom-16 w-[130%] max-w-[560px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform rotate-[7deg] origin-bottom-right z-10"
                     />
                   </div>
                 </div>
@@ -901,11 +870,7 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div
-              className="w-full rounded-[25px] shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col gap-[60px] p-[32px] md:p-[60px]"
-              style={{
-                border: '1.25px solid transparent',
-                background: 'linear-gradient(rgb(20,20,20), rgb(20,20,20)) padding-box, linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF) border-box'
-              }}
+              className="w-full flex flex-col gap-[60px] p-[32px] md:p-[60px]"
             >
               {/* Header — same style as Illustrative Scenarios / Replace The Stack */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
@@ -938,7 +903,7 @@ export function WelcomePage() {
                       {/* Left — copy */}
                       <div className="flex flex-col pr-0 md:pr-4">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <Compass className="w-3.5 h-3.5 text-amber-400" /> 01 · Two Ways to Start
+                          <img src="/3d-icons/3dicons-map-pin-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 01 · Two Ways to Start
                         </span>
                         <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Start from what you have, or start from nothing at all.</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
@@ -988,7 +953,7 @@ export function WelcomePage() {
                       {/* Right — copy */}
                       <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <PenTool className="w-3.5 h-3.5 text-amber-400" /> 02 · Copy &amp; Funnel Builder
+                          <img src="/3d-icons/3dicons-pencil-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 02 · Copy &amp; Funnel Builder
                         </span>
                         <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Copy and Funnel Built from Your Data, Not a Template</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
@@ -1009,7 +974,7 @@ export function WelcomePage() {
                       {/* Left — copy */}
                       <div className="flex flex-col pr-0 md:pr-4">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <Rocket className="w-3.5 h-3.5 text-amber-400" /> 03 · Publish &amp; Analytics
+                          <img src="/3d-icons/3dicons-rocket-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 03 · Publish &amp; Analytics
                         </span>
                         <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Launch With Confidence: Live Pages and Real Analytics</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
@@ -1059,7 +1024,7 @@ export function WelcomePage() {
                       {/* Right — copy */}
                       <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <Target className="w-3.5 h-3.5 text-amber-400" /> 04 · Lead Generation &amp; Engagement
+                          <img src="/3d-icons/3dicons-megaphone-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 04 · Lead Generation &amp; Engagement
                         </span>
                         <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Stop Guessing Where Your Buyers Are.</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
@@ -1105,10 +1070,10 @@ export function WelcomePage() {
                   <div className="flex flex-col relative z-20 max-w-[480px]">
                     <div className="flex items-center gap-3.5 mb-5">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/20 shrink-0">
-                        <Package className="w-6 h-6 text-violet-400" />
+                        <img src="/3d-icons/3dicons-folder-dynamic-color.png" className="w-8 h-8 object-contain drop-shadow-md" alt="Asset Bank" />
                       </div>
                       <div>
-                        <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Launch Toolkit</h3>
+                        <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Asset Bank</h3>
                         <span className="font-mono text-[11px] text-violet-400 font-medium tracking-widest uppercase block mt-0.5">
                           Generated for you
                         </span>
@@ -1139,7 +1104,7 @@ export function WelcomePage() {
                     <div className="relative w-full max-w-[420px] h-[240px]">
                       <div className="absolute inset-0 bg-violet-500/10 rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
                       <img
-                        src="https://assets.aceternity.com/pro/bento-grids.png"
+                        src="/card-imgs/Asset%20bank.png"
                         alt="Asset Bank preview"
                         className="absolute -right-12 lg:-right-24 -bottom-16 md:-bottom-24 w-[115%] max-w-[480px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right group-hover:scale-[1.02] transition-transform duration-500 z-10"
                       />
@@ -1158,7 +1123,7 @@ export function WelcomePage() {
                     <div className="relative w-full max-w-[420px] h-[240px]">
                       <div className="absolute inset-0 bg-blue-500/10 rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
                       <img
-                        src="https://assets.aceternity.com/pro/hero-sections.png"
+                        src="/card-imgs/tempate.png"
                         alt="Template Club preview"
                         className="absolute -left-12 lg:-left-24 -bottom-16 md:-bottom-24 w-[115%] max-w-[480px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform rotate-[7deg] origin-bottom-left group-hover:scale-[1.02] transition-transform duration-500 z-10"
                       />
@@ -1169,7 +1134,7 @@ export function WelcomePage() {
                   <div className="flex flex-col relative z-20 max-w-[480px] order-1 lg:order-2">
                     <div className="flex items-center gap-3.5 mb-5">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-500/10 border border-blue-500/20 shrink-0">
-                        <Palette className="w-6 h-6 text-blue-400" />
+                        <img src="/3d-icons/3dicons-color-palette-dynamic-color.png" className="w-8 h-8 object-contain drop-shadow-md" alt="Template Library" />
                       </div>
                       <div>
                         <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Template Library</h3>
@@ -1320,9 +1285,6 @@ export function WelcomePage() {
                 </div>
               </div>
 
-              <p className="text-center font-mono text-[12px] text-white/25 m-0">
-                Illustrative scenarios based on representative buyer profiles — not actual customer accounts.
-              </p>
             </div>
           </Reveal>
         </div>
@@ -1334,11 +1296,7 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div
-              className="w-full max-w-[1000px] mx-auto rounded-[25px] shadow-[rgba(0,0,0,0.3)_0px_3px_6px_0px] flex flex-col items-center gap-8 md:gap-[60px] p-5 sm:p-8 md:p-[50px]"
-              style={{
-                border: '1.25px solid transparent',
-                background: 'linear-gradient(rgb(20,20,20), rgb(20,20,20)) padding-box, linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF) border-box'
-              }}
+              className="w-full max-w-[1000px] mx-auto flex flex-col items-center gap-8 md:gap-[60px] p-5 sm:p-8 md:p-[50px]"
             >
               {/* Header */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px]">
@@ -1431,12 +1389,12 @@ export function WelcomePage() {
                     {/* Top Group: Name, Badge, Best For, Price */}
                     <div className="flex flex-col gap-5">
                       <div className="flex justify-between items-start">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${
                           i === 0 ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' :
                           i === 1 ? 'bg-purple-500/10 border border-purple-500/20 text-purple-300' :
                           'bg-[#E1A427]/10 border border-[#E1A427]/20 text-[#E1A427]'
                         }`}>
-                          {i === 0 ? <Rocket className="w-5 h-5" /> : i === 1 ? <Zap className="w-5 h-5" /> : <Crown className="w-5 h-5" />}
+                          {i === 0 ? <img src="/3d-icons/3dicons-rocket-dynamic-color.png" className="w-12 h-12 object-contain drop-shadow-md" alt="Starter" /> : i === 1 ? <img src="/3d-icons/3dicons-chart-dynamic-color.png" className="w-11 h-11 object-contain drop-shadow-md" alt="Growth" /> : <img src="/3d-icons/3dicons-crown-dynamic-color.png" className="w-12 h-12 object-contain drop-shadow-md" alt="Agency" />}
                         </div>
                         {t.popular && (
                           <div className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-[0_2px_10px_rgba(124,92,255,0.4)]">
@@ -1520,9 +1478,9 @@ export function WelcomePage() {
                 </div>
                 <span className="font-medium">Backed by a 30-day money-back guarantee. If OfferIQ isn't right for you, get a full refund — no conditions.</span>
               </div>
-              <div className="text-center text-[18px] md:text-[20px] text-white/90 font-medium leading-relaxed italic border-x-4 border-[rgb(124,92,255)] px-6 py-2 bg-gradient-to-r from-transparent via-[rgba(124,92,255,0.05)] to-transparent">
-                "OfferIQ isn't just another software - OfferIQ is helping you move from an idea to a launched business - to a growing business."
-              </div>
+              <p className="text-center text-[15px] text-[#A6A6B3] leading-relaxed">
+                OfferIQ isn't just another software - OfferIQ is helping you move from an idea to a launched business - to a growing business.
+              </p>
             </div>
           </Reveal>
         </div>
