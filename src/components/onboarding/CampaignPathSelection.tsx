@@ -35,7 +35,7 @@ const parentPaths = [
     title: "Analyse & Build My Offer →",
     description:
       "I have an offer or idea — build me the complete intelligence report, copy, and funnel.",
-    image: "/card-imgs/I%20don't%20Have%20an%20Offer%20-%20Color.png",
+    image: "/card-imgs/I%20have%20an%20Offer%20-%20Colored.png",
     gradient: "from-blue-500 via-indigo-500 to-violet-500",
     shadow: "shadow-[0_0_50px_rgba(59,130,246,0.15)]",
   },
@@ -46,7 +46,7 @@ const parentPaths = [
     description:
       "I don't have an offer yet — show me validated ideas I can deploy and start selling immediately.",
     image:
-      "https://framerusercontent.com/images/JHKo9Ag0unotBN7sVIks5pWsQg.webp?width=1600&height=1200",
+      "/card-imgs/I%20don't%20Have%20an%20Offer%20-%20Color.png",
     gradient: "from-violet-500 via-purple-500 to-pink-500",
     shadow: "shadow-[0_0_50px_rgba(168,85,247,0.15)]",
   },
