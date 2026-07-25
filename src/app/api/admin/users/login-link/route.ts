@@ -27,13 +27,10 @@ export async function POST(req: Request) {
     const protocol = host.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
 
-    // Generate a magic link
+    // Generate a magic link to get the token
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: email,
-      options: {
-        redirectTo: `${baseUrl}/auth/callback`
-      }
     });
 
     if (error) {
@@ -41,10 +38,12 @@ export async function POST(req: Request) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    if (data && data.properties && data.properties.action_link) {
-      return Response.json({ link: data.properties.action_link });
+    // Instead of using the action_link (which causes redirect issues), 
+    // we return the raw token for the frontend to verify directly.
+    if (data && data.properties && data.properties.hashed_token) {
+      return Response.json({ token: data.properties.hashed_token });
     } else {
-      return Response.json({ error: 'Failed to generate action link' }, { status: 500 });
+      return Response.json({ error: 'Failed to generate token' }, { status: 500 });
     }
   } catch (e: any) {
     console.error('Error in login-link route:', e);

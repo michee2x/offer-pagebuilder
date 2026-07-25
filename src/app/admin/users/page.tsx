@@ -114,11 +114,24 @@ export default function AdminUsersDashboard() {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to get login link");
-      if (data.link) {
+      if (!res.ok) throw new Error(data.error || "Failed to get login token");
+      
+      if (data.token) {
         const supabase = createClient();
         await supabase.auth.signOut();
-        window.location.href = data.link;
+        
+        // Verify the token directly without a redirect
+        const { error } = await supabase.auth.verifyOtp({
+          email,
+          token: data.token,
+          type: 'magiclink'
+        });
+        
+        if (error) throw error;
+        
+        // Successfully logged in as the user, redirect to dashboard
+        toast.success("Successfully logged in");
+        window.location.href = "/workspaces";
       }
     } catch (error: any) {
       toast.error(error.message);
