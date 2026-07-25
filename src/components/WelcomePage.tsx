@@ -461,15 +461,16 @@ export function WelcomePage() {
   ];
 
   const faqs = [
-    { q: 'Is OfferIQ a subscription, or a one-time purchase?', a: 'Both structures exist, by tier. Starter and Growth are monthly subscriptions — you\'re billed each month and can cancel anytime from your account. Agency is a single one-time payment with credits that never expire.' },
-    { q: 'How does the $1 trial work, exactly?', a: 'You get full access to the Starter plan for 7 days for $1. If you don\'t cancel before day 7, your card is billed the standard $39/mo rate and your subscription continues month to month.' },
-    { q: 'Do unused offer credits roll over to the next month?', a: 'No. Starter and Growth credits refresh monthly and reset at the start of each new billing cycle. Agency credits are a fixed pool that never expires and never refreshes, because they\'re paid for once.' },
-    { q: 'What happens to my published funnels if I cancel my subscription?', a: 'Your funnels are taken offline when your subscription ends. Your underlying data — copy, reports, and assets — stays accessible in your account for a limited window so you can export it or reactivate later.' },
-    { q: 'What happens when I run out of credits partway through the month?', a: 'Your existing offers, pages, and data remain fully accessible. To build additional new offers before your next refresh, you can purchase additional credit packs for $10 per credit.' },
-    { q: 'Can I upgrade or downgrade my plan later?', a: 'Yes. You can upgrade to a higher tier at any time by paying the price difference for the remainder of your billing cycle. Downgrades take effect at your next renewal date.' },
-    { q: 'Is there a refund policy?', a: 'Yes — a 30-day money-back guarantee applies to every tier, including Agency. If OfferIQ isn\'t right for you, request a full refund within 30 days of your purchase, no conditions.' },
-    { q: 'Does OfferIQ work outside the US?', a: 'Yes. OfferIQ supports multiple currencies and target countries in the offer creation process, with additional payment integrations (Paystack, Flutterwave) on the roadmap.' },
-    { q: 'What if I run an agency and need more than 30 client sub-accounts?', a: 'Contact support after purchase — additional sub-account packs are available for agencies scaling beyond the Agency tier\'s built-in allocation.' },
+    { q: 'What if I run an agency and need more than 30 client sub-accounts?', a: 'Contact support after purchase; additional sub-account packs are available for agencies scaling beyond the Agency tier allocation.' },
+    { q: 'What happens when I use all my credits?', a: 'Your existing offers, pages, and data remain fully accessible forever - your credits refresh every month with your plan. If you need more before your next refresh, you can buy extra credits for $10 each — one credit builds one complete offer (Intelligence Report + Copy + Pages + Traffic Strategy + Asset Bank).' },
+    { q: 'Why is OfferIQ different from a funnel builder?', a: 'Most funnel builders help you build pages. OfferIQ helps you decide what to sell, who to sell it to, how to position it, what to charge, how to explain it, and then builds the pages around that strategy. In other words: funnel builders start with pages - OfferIQ starts with the offer.' },
+    { q: 'Can I use my own domain?', a: 'Yes. You can publish using an OfferIQ subdomain or connect your own custom domain, depending on your plan. That means your business always looks professional and stays on-brand.' },
+    { q: 'Do I get future updates?', a: 'Yes. All new features released for your tier are included automatically for as long as your subscription is active.' },
+    { q: 'Is there a refund policy?', a: "Yes - a 30-day money-back guarantee applies. If OfferIQ isn't right for you, request a full refund within 30 days of purchase." },
+    { q: 'Can I upgrade my tier later?', a: 'Yes. You can upgrade to a higher tier at any time by paying the price difference.' },
+    { q: 'Is this a subscription?', a: "Yes. OfferIQ runs on a monthly plan. You're billed monthly for the tier you choose, and you can cancel anytime from your account in one click." },
+    { q: 'Can agencies use OfferIQ for client work?', a: "Absolutely. OfferIQ was designed to help agencies create a repeatable delivery process. Instead of rebuilding every project from scratch, your team can follow the same guided workflow for every client, improving speed, consistency, and quality. Agency plans include dedicated workspaces and client-focused features to support this workflow." },
+    { q: 'Can I edit what OfferIQ creates?', a: "Absolutely. You're always in control. Think of OfferIQ as your first draft — not your final decision." },
   ];
 
   const pricingTiers = [
@@ -1535,17 +1536,13 @@ export function WelcomePage() {
               <Eyebrow center>Ready When You Are</Eyebrow>
               <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7]" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>Your next offer is one click away.</h2>
               <p className="text-[17px] text-[#A6A6B3] leading-relaxed mb-8">Every month without a validated offer is a month of revenue you don't make. OfferIQ closes the gap between idea and income — in one session.</p>
-              <div className="flex items-center justify-center gap-4 flex-wrap mb-6">
+              <p className="text-[15px] text-white/50 font-medium mb-4">Still deciding?</p>
+              <div className="flex items-center justify-center gap-4 flex-wrap">
                 <a href="/login" className="inline-flex items-center gap-2 px-7 py-[15px] rounded-full text-white text-[15px] font-semibold transition-all hover:-translate-y-0.5"
                   style={{ background: 'linear-gradient(135deg,#0066FF 0%,#4338CA 100%)', boxShadow: '0 8px 30px -8px rgba(139,92,246,0.6)' }}>
-                  Build My Next Offer <ArrowRight className="w-4 h-4" />
-                </a>
-                <a href="#pricing" className="inline-flex items-center gap-2 px-7 py-[15px] rounded-full text-[15px] font-semibold text-[#F5F5F7] transition-all hover:bg-white/[0.08]"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.14)' }}>
-                  See Pricing
+                  Try it for $1 - cancel anytime <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
-              <p className="font-mono text-[12.5px] text-[#505060]">// $1 gets you in the door for 7 days. Cancel anytime.</p>
             </div>
           </Reveal>
         </div>
