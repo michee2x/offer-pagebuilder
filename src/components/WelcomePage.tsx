@@ -1562,7 +1562,7 @@ export function WelcomePage() {
               {[
                 { title: 'Product', links: [['#showcase', 'Feature Showcase'], ['#vault', 'Asset Bank & Templates'], ['/login', 'Pricing']] },
                 { title: 'Company', links: [['help.ofiq.app', 'Knowledge base'], ['mailto:help@ofiq.app', 'Contact Support'], ['#faq', 'FAQ']] },
-                { title: 'Legal', links: [['/terms', 'Terms of Service'], ['/privacy', 'Privacy Policy'], ['/refund', 'Refund Policy']] },
+                { title: 'Legal', links: [['/terms', 'Terms of Service'], ['/policy', 'Privacy Policy'], ['/refund', 'Refund Policy']] },
               ].map((col, i) => (
                 <div key={i}>
                   <h5 className="font-semibold text-[#F5F5F7] mb-4 text-[14px]">{col.title}</h5>
