@@ -87,9 +87,9 @@ export async function PUT(
 
   const { id } = await params;
 
-  try {
+    try {
     const body = await req.json();
-    const { name, email, role } = body;
+    const { name, email, role, plan } = body;
 
     // Build the public users-table update payload
     const tableUpdates: Record<string, unknown> = {};
@@ -98,6 +98,18 @@ export async function PUT(
       tableUpdates.role = role;
       // keep is_admin in sync
       tableUpdates.is_admin = role === 'admin';
+    }
+    if (plan !== undefined) {
+      tableUpdates.plan = plan;
+      
+      let credits = 0;
+      if (plan === 'starter') credits = 5;
+      else if (plan === 'growth') credits = 10;
+      else if (plan === 'agency') credits = 30;
+      
+      tableUpdates.credits_remaining = credits;
+      tableUpdates.credits_total = credits;
+      tableUpdates.credits_reset_at = new Date().toISOString();
     }
     if (email) tableUpdates.email = email;
 

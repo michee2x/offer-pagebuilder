@@ -62,7 +62,36 @@ export async function POST(req: Request) {
   // Create or reuse the builder_pages record
   let funnelId = existingFunnelId;
 
+  // Check and consume credit if creating a new funnel
   if (!funnelId) {
+    const { data: dbUser, error: userErr } = await supabaseAdmin
+      .from('users')
+      .select('credits_remaining, is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (userErr || !dbUser) {
+      console.error('[call1] Failed to fetch user credits:', userErr);
+      return Response.json({ error: 'Failed to verify credits' }, { status: 500 });
+    }
+
+    if (!dbUser.is_admin && dbUser.credits_remaining <= 0) {
+      console.error('[call1] User out of credits');
+      return Response.json({ error: 'Out of credits' }, { status: 403 });
+    }
+
+    // Deduct credit
+    if (!dbUser.is_admin) {
+      const { error: deductErr } = await supabaseAdmin
+        .from('users')
+        .update({ credits_remaining: dbUser.credits_remaining - 1 })
+        .eq('id', user.id);
+
+      if (deductErr) {
+        console.error('[call1] Failed to deduct credit:', deductErr);
+      }
+    }
+
     console.log('[call1] Creating new funnel record');
 
     const funnelData: any = {

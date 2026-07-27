@@ -94,16 +94,38 @@ export async function PATCH(req: Request) {
 
   try {
     const body = await req.json();
-    const { id, role } = body;
+    const { id, role, plan } = body;
 
     if (!id) {
       return Response.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    // Keep is_admin in sync with role
-    const updatePayload: Record<string, unknown> = { role };
-    if (role === 'admin') updatePayload.is_admin = true;
-    if (role === 'user' || role === 'agency') updatePayload.is_admin = false;
+    const updatePayload: Record<string, unknown> = {};
+    
+    // Handle role
+    if (role !== undefined) {
+      updatePayload.role = role;
+      if (role === 'admin') updatePayload.is_admin = true;
+      if (role === 'user' || role === 'agency') updatePayload.is_admin = false;
+    }
+    
+    // Handle plan & credits
+    if (plan !== undefined) {
+      updatePayload.plan = plan;
+      
+      let credits = 0;
+      if (plan === 'starter') credits = 5;
+      else if (plan === 'growth') credits = 10;
+      else if (plan === 'agency') credits = 30;
+      
+      updatePayload.credits_remaining = credits;
+      updatePayload.credits_total = credits;
+      updatePayload.credits_reset_at = new Date().toISOString();
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
+      return Response.json({ error: 'Nothing to update' }, { status: 400 });
+    }
 
     const { data: updatedUser, error } = await supabaseAdmin
       .from('users')

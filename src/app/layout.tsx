@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { PostHogProvider } from "./providers";
+import { PaddleProvider } from "@/components/PaddleProvider";
 
 export const metadata: Metadata = {
   title: "OfferIQ AI Builder",
@@ -42,10 +43,12 @@ export default function RootLayout({
         </div>
         
         <PostHogProvider>
-          <div className="relative z-0 min-h-screen flex flex-col">
-            {children}
-          </div>
-          <Toaster theme="dark" position="bottom-right" />
+          <PaddleProvider>
+            <div className="relative z-0 min-h-screen flex flex-col">
+              {children}
+            </div>
+            <Toaster theme="dark" position="bottom-right" />
+          </PaddleProvider>
         </PostHogProvider>
       </body>
     </html>

@@ -34,6 +34,7 @@ type UserRow = {
   role: string;
   created_at: string;
   is_admin?: boolean;
+  plan?: string;
 };
 
 type UserDetails = UserRow & {
@@ -77,7 +78,7 @@ export default function AdminUsersDashboard() {
   /* --- Edit ---------------------------------------------------- */
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<UserRow | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", email: "", role: "user" });
+  const [editForm, setEditForm] = useState({ name: "", email: "", role: "user", plan: "free" });
   const [editing, setEditing] = useState(false);
 
   /* ── fetch list ─────────────────────────────────────────────── */
@@ -128,7 +129,7 @@ export default function AdminUsersDashboard() {
   /* ── Edit ────────────────────────────────────────────────────── */
   const openEdit = (user: UserRow) => {
     setEditTarget(user);
-    setEditForm({ name: user.name ?? "", email: user.email, role: user.role ?? "user" });
+    setEditForm({ name: user.name ?? "", email: user.email, role: user.role ?? "user", plan: user.plan ?? "free" });
     setIsEditOpen(true);
   };
 
@@ -297,9 +298,16 @@ export default function AdminUsersDashboard() {
 
                     {/* Plan / role */}
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.cls}`}>
-                        {badge.label}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.cls}`}>
+                          {badge.label}
+                        </span>
+                        {user.plan && user.plan !== 'free' && (
+                          <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+                            {user.plan} plan
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Quick-action icon buttons */}
@@ -515,6 +523,20 @@ export default function AdminUsersDashboard() {
                 <option value="user">User (Free)</option>
                 <option value="agency">Agency</option>
                 <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-plan" className="text-gray-700">Plan (Billing)</Label>
+              <select
+                id="edit-plan"
+                value={editForm.plan}
+                onChange={(e) => setEditForm({ ...editForm, plan: e.target.value })}
+                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+              >
+                <option value="free">Free</option>
+                <option value="starter">Starter</option>
+                <option value="growth">Growth</option>
+                <option value="agency">Agency</option>
               </select>
             </div>
             <DialogFooter className="pt-4">

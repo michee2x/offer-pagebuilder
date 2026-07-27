@@ -247,8 +247,11 @@ const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
   );
 };
 
+import { PaddleProvider, usePaddle } from '@/components/PaddleProvider';
+
 /* ─── WelcomePage ───────────────────────────────────────────────── */
 export function WelcomePage() {
+  const { openCheckout } = usePaddle();
   const router = useRouter();
   const [navScrolled, setNavScrolled] = useState(false);
   const [activeScenario, setActiveScenario] = useState(0);
@@ -478,16 +481,19 @@ export function WelcomePage() {
       name: 'Starter', price: '$39', period: '/mo', sub: '[$1 for your first 7 days, then $39/mo. Cancel anytime.]',
       features: ['<b>5 offer credits</b> — Refreshed Monthly', '1 Workspace', 'Full 4-Phase Engine: Strategy, Copy, Funnel (All 5 Funnel Pages), Traffic Plan', 'Asset Bank + Template Library access', 'Email Engagement Sequences', 'OfferIQ subdomain publishing', 'Payment & Autoresponder integration', 'Standard support'],
       best: 'Best for testing the platform and launching your first 1–3 offers.', popular: false, cta: 'Start Your $1 Trial',
+      priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER!,
     },
     {
       name: 'Growth', price: '$69', period: '/mo', sub: '[$1 for your first 7 days, then $69/mo. Cancel anytime.]',
       features: ['Everything in Starter, plus:', '<b>10 offer credits</b> — Refreshed monthly.', '3 Workspaces', 'Remove "Built with OfferIQ" branding', 'Advanced Analytics dashboard', 'Custom domain connection', 'Pixel tracking embed', 'Priority support'],
       best: 'Best for active creators running multiple offers or brands.', popular: true, cta: 'Start Your $1 Trial',
+      priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!,
     },
     {
       name: 'Agency', price: '$179', period: '/mo', sub: '[$1 for your first 7 days, then $179/mo. Cancel anytime.]',
       features: ['Everything in Growth, plus:', '<b>30 offer credits</b> — Refreshed monthly.', '30 Workspaces', 'Agency Dashboard to manage your users', '30 client sub-accounts for agency delivery', 'Agency Marketing Assets - Agency Website, proposal, Commercial/Ads Graphics, Legal Contract Agreement', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
       best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: 'Start Your $1 Trial',
+      priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY!,
     },
   ];
 
@@ -1442,8 +1448,8 @@ export function WelcomePage() {
                     </div>
 
                     {/* CTA Button */}
-                    <a
-                      href="/login"
+                    <button
+                      onClick={() => openCheckout(t.priceId)}
                       className={`group/btn relative overflow-hidden w-full h-12 rounded-full font-semibold text-[14px] uppercase tracking-wider flex items-center justify-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline mt-4 shrink-0 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover/btn:before:translate-x-full before:transition-transform before:duration-1000 before:ease-in-out ${i === 2
                         ? 'text-black shadow-[0_4px_24px_rgba(225,164,39,0.4)] hover:shadow-[0_8px_32px_rgba(225,164,39,0.6)]'
                         : 'text-white bg-[rgb(124,92,255)] hover:bg-[rgb(110,78,245)] shadow-[0_4px_24px_rgba(124,92,255,0.35)] hover:shadow-[0_8px_32px_rgba(124,92,255,0.55)]'
@@ -1460,7 +1466,7 @@ export function WelcomePage() {
                           <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
                         </span>
                       </div>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </Reveal>

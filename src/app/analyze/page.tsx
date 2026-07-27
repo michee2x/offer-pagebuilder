@@ -21,6 +21,8 @@ import { PdfUploadForm } from "@/components/onboarding/PdfUploadForm";
 import { WebsiteUrlForm } from "@/components/onboarding/WebsiteUrlForm";
 import { CreativitySelection } from "@/components/onboarding/CreativitySelection";
 import { CreativityLevel } from "@/lib/creativity";
+import { useCredits } from "@/hooks/useCredits";
+import { UpgradeModal } from "@/components/UpgradeModal";
 
 type CurrentStep = "path" | "idea_subpath" | "form" | "B1" | "B2" | "B3" | "pdf_upload" | "website_url" | "creativity" | "loading";
 
@@ -96,6 +98,9 @@ function AnalyzeContent() {
   const [generatedIdeas, setGeneratedIdeas] = useState<GeneratedIdea[]>([]);
   const [pickedIdea, setPickedIdea] = useState(-1);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  const { hasCredits, loading: creditsLoading } = useCredits();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -223,6 +228,11 @@ function AnalyzeContent() {
 
     if (!workspaceId) return;
 
+    if (!creditsLoading && !hasCredits) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     setIsSubmitting(true);
     setCurrentStep("loading");
 
@@ -240,6 +250,11 @@ function AnalyzeContent() {
           creativityLevel,
         }),
       });
+
+      if (response.status === 403) {
+        setShowUpgradeModal(true);
+        throw new Error("Out of credits");
+      }
 
       if (!response.ok) {
         throw new Error("Failed to submit form");
@@ -406,6 +421,7 @@ function AnalyzeContent() {
 
   return (
     <div className="min-h-screen bg-[#030712] flex flex-col items-center p-6 md:p-12 overflow-hidden relative">
+      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
       {/* Gallereee Background Elements (Exact Framer Styles) */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         {/* Radial - Pink */}

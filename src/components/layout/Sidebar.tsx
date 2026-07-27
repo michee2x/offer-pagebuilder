@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/uiStore";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePaddle } from "@/components/PaddleProvider";
 
 interface SidebarLink {
   label: string;
@@ -34,6 +35,9 @@ export function Sidebar() {
   const router = useRouter();
   const supabase = createClient();
   const { isSidebarOpen, setSidebarOpen, activeWorkspaceId, setActiveWorkspaceId } = useUIStore();
+  const { openCheckout } = usePaddle();
+  const [userEmail, setUserEmail] = React.useState<string | undefined>();
+  const [userId, setUserId] = React.useState<string | undefined>();
 
   const pathWorkspaceId = React.useMemo(() => {
     const parts = pathname?.split("/") || [];
@@ -78,6 +82,8 @@ export function Sidebar() {
         if (data.user?.is_admin) {
           setIsAdmin(true);
         }
+        if (data.user?.email) setUserEmail(data.user.email);
+        if (data.user?.id) setUserId(data.user.id);
       })
       .catch(err => console.error("Error fetching user status", err));
   }, []);
@@ -240,7 +246,10 @@ export function Sidebar() {
                     <p className="text-[10px] font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400 drop-shadow-md mb-1">OfferIQ Pro</p>
                     <h4 className="text-white font-bold text-sm leading-tight drop-shadow-md">Unlock AI Strategy & Custom Domains</h4>
                   </div>
-                  <button className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 hover:opacity-90 text-white shadow-[0_0_15px_rgba(217,70,239,0.4)] text-[10px] font-bold py-1.5 px-3 rounded-full transition-opacity self-start">
+                  <button 
+                    onClick={() => openCheckout(process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!, userEmail, userId)}
+                    className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 hover:opacity-90 text-white shadow-[0_0_15px_rgba(217,70,239,0.4)] text-[10px] font-bold py-1.5 px-3 rounded-full transition-opacity self-start"
+                  >
                     Upgrade Now →
                   </button>
                 </div>
