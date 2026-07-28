@@ -41,7 +41,16 @@ export function WebsiteUrlForm({ onBack, onSubmit }: WebsiteUrlFormProps) {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to process website content.");
+        let errorMessage = "Failed to process website content.";
+        try {
+          const errorData = await res.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // ignore json parse error
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();

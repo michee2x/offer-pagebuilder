@@ -13,10 +13,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No URL provided" }, { status: 400 });
     }
 
-    // Fetch the website content
-    const response = await fetch(url, {
+    // Use Jina AI Reader to bypass JS rendering and extract clean markdown text
+    const response = await fetch(`https://r.jina.ai/${url}`, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'Accept': 'text/plain',
       }
     });
 
@@ -24,14 +24,7 @@ export async function POST(req: Request) {
       throw new Error(`Failed to fetch website: ${response.statusText}`);
     }
 
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    // Remove script, style, and noscript tags to clean up the text
-    $('script, style, noscript, iframe, img, svg, video').remove();
-
-    // Extract text
-    const text = $('body').text().replace(/\s+/g, ' ').trim();
+    const text = await response.text();
 
     if (!text || text.length === 0) {
       return NextResponse.json({ error: "Could not extract readable text from the website." }, { status: 400 });
