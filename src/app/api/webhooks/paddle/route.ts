@@ -26,23 +26,54 @@ const PRICE_TO_PLAN: Record<string, string> = {
 };
 
 // ── Paddle webhook signature verification ─────────────────────
-function verifyPaddleSignature(rawBody: string, signatureHeader: string | null, secret: string): boolean {
-  if (!signatureHeader) return false;
-
+// Correctly parses: ts=TIMESTAMP;h1=HASH (h1 may appear multiple times)
+function parsePaddleSignatureHeader(header: string): { ts: string; h1Values: string[] } | null {
   try {
-    // Paddle-Signature header format: ts=TIMESTAMP;h1=HMAC_SHA256
-    const parts = Object.fromEntries(
-      signatureHeader.split(';').map(p => p.split('=') as [string, string])
-    );
-    const { ts, h1 } = parts;
-    if (!ts || !h1) return false;
-
-    const payload = `${ts}:${rawBody}`;
-    const expected = createHmac('sha256', secret).update(payload).digest('hex');
-    return expected === h1;
+    const parts = header.split(';');
+    let ts = '';
+    const h1Values: string[] = [];
+    for (const part of parts) {
+      const eqIdx = part.indexOf('=');
+      if (eqIdx === -1) continue;
+      const key = part.slice(0, eqIdx).trim();
+      const val = part.slice(eqIdx + 1).trim();
+      if (key === 'ts') ts = val;
+      if (key === 'h1') h1Values.push(val);
+    }
+    if (!ts || h1Values.length === 0) return null;
+    return { ts, h1Values };
   } catch {
+    return null;
+  }
+}
+
+function verifyPaddleSignature(
+  rawBody: string,
+  signatureHeader: string | null,
+  // Supports comma-separated secrets (for multiple active notification settings)
+  secretsEnv: string
+): boolean {
+  if (!signatureHeader || !secretsEnv) return false;
+
+  const parsed = parsePaddleSignatureHeader(signatureHeader);
+  if (!parsed) {
+    console.error('[paddle] Could not parse Paddle-Signature header:', signatureHeader);
     return false;
   }
+
+  const { ts, h1Values } = parsed;
+  const payload = `${ts}:${rawBody}`;
+  const secrets = secretsEnv.split(',').map(s => s.trim()).filter(Boolean);
+
+  for (const secret of secrets) {
+    const expected = createHmac('sha256', secret).update(payload).digest('hex');
+    if (h1Values.includes(expected)) {
+      return true;
+    }
+    // Diagnostic: log partial match info (safe — only first 8 chars)
+    console.log(`[paddle] sig check: expected=${expected.slice(0,8)}... got=[${h1Values.map(v=>v.slice(0,8)).join(', ')}...]`);
+  }
+  return false;
 }
 
 // ── Handlers ──────────────────────────────────────────────────
@@ -212,12 +243,17 @@ async function handleTransactionCompleted(data: any) {
 
 // ── Main route handler ─────────────────────────────────────────
 export async function POST(req: Request) {
-  const rawBody  = await req.text();
+  const rawBody   = await req.text();
   const sigHeader = req.headers.get('paddle-signature');
-  const secret   = process.env.PADDLE_WEBHOOK_SECRET ?? '';
+  const secretsEnv = process.env.PADDLE_WEBHOOK_SECRET ?? '';
+
+  // Diagnostics — visible in Vercel function logs
+  console.log('[paddle] incoming webhook');
+  console.log('[paddle] Paddle-Signature header:', sigHeader ?? '(missing)');
+  console.log('[paddle] Secret env set:', secretsEnv ? `yes (${secretsEnv.length} chars)` : 'NO — ENV VAR MISSING');
 
   // 1. Verify signature
-  if (!verifyPaddleSignature(rawBody, sigHeader, secret)) {
+  if (!verifyPaddleSignature(rawBody, sigHeader, secretsEnv)) {
     console.error('[paddle] webhook signature verification failed');
     return Response.json({ error: 'Invalid signature' }, { status: 401 });
   }
