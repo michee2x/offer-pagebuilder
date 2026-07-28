@@ -100,8 +100,10 @@ export default async function middleware(req: NextRequest) {
   }
 
   if (isAuthRoute && user) {
-    // Redirect to dashboard if already authenticated
-    return NextResponse.redirect(new URL('/', req.url))
+    // If they came from a pricing plan, send to checkout; otherwise dashboard
+    const plan = url.searchParams.get('plan');
+    const dest = plan ? `/checkout-now?plan=${plan}` : '/';
+    return NextResponse.redirect(new URL(dest, req.url));
   }
 
   if (!isBaseDomain) {

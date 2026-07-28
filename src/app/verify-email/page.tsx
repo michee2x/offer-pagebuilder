@@ -16,6 +16,7 @@ function VerifyEmailContent() {
 
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
+  const plan = searchParams.get("plan") ?? "";
   const hasError = Boolean(error);
 
   useEffect(() => {
@@ -36,7 +37,8 @@ function VerifyEmailContent() {
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
         setIsVerifying(true);
-        router.push("/onboard");
+        // If user came from a pricing plan, go to checkout; otherwise onboard
+        router.push(plan ? `/checkout-now?plan=${plan}` : "/onboard");
       }
     });
 

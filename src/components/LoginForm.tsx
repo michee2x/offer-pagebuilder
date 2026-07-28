@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export function LoginForm() {
+function LoginFormInner() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan") ?? "";
   const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,7 +25,8 @@ export function LoginForm() {
         password,
       });
       if (error) throw error;
-      router.push("/");
+      // If user came from a pricing plan, route to checkout; otherwise dashboard
+      router.push(plan ? `/checkout-now?plan=${plan}` : "/");
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -149,10 +152,18 @@ export function LoginForm() {
 
           <p className="oiq-signup-hint">
             Don&apos;t have an account?{" "}
-            <Link href="/signup">Sign up free</Link>
+            <Link href={plan ? `/signup?plan=${plan}` : "/signup"}>Sign up free</Link>
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export function LoginForm() {
+  return (
+    <Suspense fallback={null}>
+      <LoginFormInner />
+    </Suspense>
   );
 }

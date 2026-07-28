@@ -1449,7 +1449,7 @@ export function WelcomePage() {
 
                     {/* CTA Button */}
                     <button
-                      onClick={() => openCheckout(t.priceId)}
+                      onClick={() => router.push(`/signup?plan=${t.priceId}`)}
                       className={`group/btn relative overflow-hidden w-full h-12 rounded-full font-semibold text-[14px] uppercase tracking-wider flex items-center justify-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] no-underline mt-4 shrink-0 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover/btn:before:translate-x-full before:transition-transform before:duration-1000 before:ease-in-out ${i === 2
                         ? 'text-black shadow-[0_4px_24px_rgba(225,164,39,0.4)] hover:shadow-[0_8px_32px_rgba(225,164,39,0.6)]'
                         : 'text-white bg-[rgb(124,92,255)] hover:bg-[rgb(110,78,245)] shadow-[0_4px_24px_rgba(124,92,255,0.35)] hover:shadow-[0_8px_32px_rgba(124,92,255,0.55)]'

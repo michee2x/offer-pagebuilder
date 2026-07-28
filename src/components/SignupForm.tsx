@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
 
-export function SignupForm() {
+function SignupFormInner() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +17,8 @@ export function SignupForm() {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const captchaRef = useRef<ReCAPTCHA | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan") ?? "";
   const supabase = createClient();
 
   const isLocalhost =
@@ -59,16 +61,19 @@ export function SignupForm() {
         }
       }
 
+      const verifyUrl = new URL(`${window.location.origin}/verify-email`);
+      if (plan) verifyUrl.searchParams.set("plan", plan);
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/verify-email`,
+          emailRedirectTo: verifyUrl.toString(),
           data: { name: fullName },
         },
       });
       if (error) throw error;
-      router.push("/verify-email");
+      router.push(verifyUrl.pathname + verifyUrl.search);
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -242,7 +247,7 @@ export function SignupForm() {
 
           <p className="oiq-signup-hint">
             Already have an account?{" "}
-            <Link href="/login">Sign in</Link>
+            <Link href={plan ? `/login?plan=${plan}` : "/login"}>Sign in</Link>
           </p>
 
           <p style={{ textAlign: "center", fontSize: "11px", color: "#aaa", marginTop: "16px", lineHeight: 1.5 }}>
@@ -254,5 +259,13 @@ export function SignupForm() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function SignupForm() {
+  return (
+    <Suspense fallback={null}>
+      <SignupFormInner />
+    </Suspense>
   );
 }
