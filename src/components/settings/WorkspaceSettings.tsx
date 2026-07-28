@@ -85,13 +85,13 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
           <div className="space-y-2">
             <Label className="text-[#999] text-xs font-semibold ml-1">Workspace Name</Label>
             <div className="relative group">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-yellow transition-colors">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-blue transition-colors">
                 <Layout className="w-4 h-4" />
               </div>
               <Input 
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-yellow/40 transition-all rounded-xl" 
+                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="My Awesome Team"
               />
             </div>
@@ -100,13 +100,13 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
           <div className="space-y-2">
             <Label className="text-[#999] text-xs font-semibold ml-1">Subdomain</Label>
             <div className="relative group">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-yellow transition-colors">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-blue transition-colors">
                 <Globe className="w-4 h-4" />
               </div>
               <Input 
                 value={formData.domain}
                 onChange={e => setFormData({...formData, domain: e.target.value})}
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-yellow/40 transition-all rounded-xl" 
+                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="my-team"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-mono text-[#444]">
@@ -123,7 +123,7 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
           <Button 
             onClick={handleSave} 
             disabled={isSaving}
-            className="h-11 px-8 rounded-xl bg-brand-yellow hover:bg-brand-yellow/90 text-black font-bold transition-all hover:shadow-[0_8px_24px_rgba(245,166,35,0.25)] active:scale-95"
+            className="h-11 px-8 rounded-xl bg-gradient-to-r from-brand-blue to-brand-indigo hover:opacity-90 text-white font-bold transition-all hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)] active:scale-95 border-0"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>

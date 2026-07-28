@@ -77,13 +77,13 @@ export function ProfileSettings() {
           <div className="space-y-2">
             <Label className="text-[#999] text-xs font-semibold ml-1">Full Name</Label>
             <div className="relative group">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-yellow transition-colors">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-blue transition-colors">
                 <User className="w-4 h-4" />
               </div>
               <Input 
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-yellow/40 transition-all rounded-xl" 
+                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="Enter your name"
               />
             </div>
@@ -98,7 +98,7 @@ export function ProfileSettings() {
               <Input 
                 value={formData.email}
                 disabled
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 rounded-xl cursor-not-allowed" 
+                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 rounded-xl cursor-not-allowed text-white" 
                 placeholder="email@example.com"
               />
             </div>
@@ -108,13 +108,13 @@ export function ProfileSettings() {
           <div className="space-y-2 md:col-span-2">
             <Label className="text-[#999] text-xs font-semibold ml-1">Job Title / Role</Label>
             <div className="relative group">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-yellow transition-colors">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-blue transition-colors">
                 <Briefcase className="w-4 h-4" />
               </div>
               <Input 
                 value={formData.role}
                 onChange={e => setFormData({...formData, role: e.target.value})}
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-yellow/40 transition-all rounded-xl" 
+                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="e.g. Founder, Marketing Lead"
               />
             </div>
@@ -125,7 +125,7 @@ export function ProfileSettings() {
           <Button 
             onClick={handleSave} 
             disabled={isSaving}
-            className="h-11 px-8 rounded-xl bg-brand-yellow hover:bg-brand-yellow/90 text-black font-bold transition-all hover:shadow-[0_8px_24px_rgba(245,166,35,0.25)] active:scale-95"
+            className="h-11 px-8 rounded-xl bg-gradient-to-r from-brand-blue to-brand-indigo hover:opacity-90 text-white font-bold transition-all hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)] active:scale-95 border-0"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>

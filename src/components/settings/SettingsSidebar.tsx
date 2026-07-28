@@ -82,11 +82,11 @@ export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps
                     className={cn(
                       "w-full flex items-center gap-3 px-3 h-10 rounded-xl text-sm font-medium transition-all group",
                       isActive
-                        ? "bg-brand-yellow/10 text-brand-yellow"
+                        ? "bg-brand-blue/10 text-brand-blue"
                         : "text-[#777] hover:bg-white/5 hover:text-white"
                     )}
                   >
-                    <item.icon className={cn("w-4 h-4 shrink-0", isActive ? "text-brand-yellow" : "text-[#555] group-hover:text-white")} />
+                    <item.icon className={cn("w-4 h-4 shrink-0", isActive ? "text-brand-blue" : "text-[#555] group-hover:text-white")} />
                     {item.label}
                   </button>
                 );

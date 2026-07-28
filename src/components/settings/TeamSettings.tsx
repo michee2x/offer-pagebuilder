@@ -81,20 +81,20 @@ export function TeamSettings({ workspace }: TeamSettingsProps) {
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 mb-12">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative group">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-yellow transition-colors">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-brand-blue transition-colors">
                 <Mail className="w-4 h-4" />
               </div>
               <Input 
                 value={inviteEmail}
                 onChange={e => setInviteEmail(e.target.value)}
-                className="pl-11 h-12 bg-black border-white/5 focus:border-brand-yellow/40 transition-all rounded-xl" 
+                className="pl-11 h-12 bg-black border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="colleague@example.com"
               />
             </div>
             <Button 
               onClick={handleInvite}
               disabled={isInviting || !inviteEmail}
-              className="h-12 px-6 rounded-xl bg-brand-yellow hover:bg-brand-yellow/90 text-black font-bold transition-all active:scale-95 shrink-0"
+              className="h-12 px-6 rounded-xl bg-gradient-to-r from-brand-blue to-brand-indigo hover:opacity-90 text-white font-bold transition-all active:scale-95 shrink-0 border-0"
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Invite Member
@@ -139,7 +139,7 @@ export function TeamSettings({ workspace }: TeamSettingsProps) {
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 min-w-[100px]">
                       {member.role === "owner" ? (
-                        <ShieldCheck className="w-3.5 h-3.5 text-brand-yellow" />
+                        <ShieldCheck className="w-3.5 h-3.5 text-brand-blue" />
                       ) : member.role === "admin" ? (
                         <Shield className="w-3.5 h-3.5 text-white/40" />
                       ) : (

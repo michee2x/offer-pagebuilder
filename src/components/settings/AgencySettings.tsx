@@ -146,7 +146,7 @@ export function AgencySettings() {
             <button
               type="submit"
               disabled={isSubmitting || subUsers.length >= 20}
-              className="h-12 px-6 rounded-xl bg-brand-blue text-white font-bold flex items-center justify-center gap-2 hover:bg-brand-blue/90 transition-all disabled:opacity-50"
+              className="h-12 px-6 rounded-xl bg-gradient-to-r from-brand-blue to-brand-indigo hover:opacity-90 text-white font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 border-0"
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               {isSubmitting ? "Creating..." : "Create Account"}
