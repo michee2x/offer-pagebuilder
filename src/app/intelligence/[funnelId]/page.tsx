@@ -621,12 +621,11 @@ export default function IntelligencePage({
     "DESIGN_INTELLIGENCE_RECOMMENDATION",
   ];
 
-  // Always return the fixed 4 sections for the sidebar.
-  // Content area will show a loading placeholder if data hasn't arrived yet.
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+
   const availableSections: string[] = React.useMemo(
-    () => ALLOWED_SECTIONS,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    () => isAdvancedMode ? Object.keys(SECTION_CONFIG) : ALLOWED_SECTIONS,
+    [isAdvancedMode]
   );
 
   useEffect(() => {
@@ -852,10 +851,21 @@ export default function IntelligencePage({
 
           {/* Left Sidebar Sections Navigation */}
           <div className="w-64 shrink-0 border-r border-border bg-card flex flex-col h-full hidden md:flex overflow-hidden">
-            <div className="p-4 border-b border-border bg-card sticky top-0 z-10 flex-shrink-0">
+            <div className="p-4 border-b border-border bg-card sticky top-0 z-10 flex-shrink-0 flex items-center justify-between">
               <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Report Sections
               </div>
+              <button
+                onClick={() => setIsAdvancedMode(!isAdvancedMode)}
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded transition-colors",
+                  isAdvancedMode 
+                    ? "bg-indigo-500/20 text-indigo-400"
+                    : "bg-white/5 text-muted-foreground hover:bg-white/10"
+                )}
+              >
+                Advanced
+              </button>
             </div>
 
             <nav className="p-2 overflow-y-auto space-y-1 flex-1 custom-scrollbar pb-6 text-sm">
