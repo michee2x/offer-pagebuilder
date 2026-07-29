@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
+import { UpgradeModal } from "@/components/UpgradeModal";
 
 type Step = "name" | "domain" | "team" | "review";
 
@@ -41,6 +43,7 @@ function OnboardContent() {
   });
   const [typedHeadline, setTypedHeadline] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const prevStepRef = useRef<Step>("name");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -140,7 +143,7 @@ function OnboardContent() {
   const nextStep = () => {
     if (currentStep === "name") {
       if (!workspaceData.name.trim()) {
-        alert("Please name your workspace to continue.");
+        toast.error("Please name your workspace to continue.");
         return;
       }
       setCurrentStep("domain");
@@ -148,7 +151,7 @@ function OnboardContent() {
       const domain = workspaceData.domain.trim().toLowerCase();
       const validDomain = /^[a-z0-9-]{3,30}$/.test(domain);
       if (!validDomain) {
-        alert(
+        toast.error(
           "Choose a valid workspace domain using letters, numbers, and hyphens.",
         );
         return;
@@ -167,7 +170,7 @@ function OnboardContent() {
 
   const createWorkspace = async () => {
     if (!workspaceData.name.trim() || !workspaceData.domain.trim()) {
-      alert("Workspace name and domain are required.");
+      toast.error("Workspace name and domain are required.");
       return;
     }
 
@@ -186,12 +189,16 @@ function OnboardContent() {
 
       const result = await response.json();
       if (!response.ok) {
+        if (response.status === 403) {
+          setShowUpgradeModal(true);
+          return;
+        }
         throw new Error(result.error || "Failed to create workspace");
       }
 
       router.push(`/?workspace=${result.workspace.id}`);
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setIsCreating(false);
     }
@@ -227,6 +234,12 @@ function OnboardContent() {
 
   return (
     <div className="min-h-screen bg-[#030712] text-white flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      <UpgradeModal 
+        isOpen={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)}
+        title="Workspace Limit Reached"
+        description="You've reached the maximum number of workspaces allowed on your current plan. Upgrade your plan to create more workspaces and scale your offers."
+      />
       {/* Background Gradients */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[80px] right-[-480px] w-[994px] h-[800px] opacity-40" style={{ background: 'radial-gradient(50% 50% at 50% 50%, rgb(236, 72, 153) 0%, rgba(236, 72, 153, 0) 100%)', transform: 'rotate(-30deg)' }} />
@@ -237,7 +250,7 @@ function OnboardContent() {
       </div>
 
       <div className="w-full max-w-[640px] relative z-10">
-        <div className="absolute -top-16 left-10">
+        <div className="absolute -top-16 left-10 right-10 flex items-center justify-between">
           <div className="h-12 w-12 rounded-2xl flex items-center justify-center text-black shadow-lg">
             <svg
               className="h-6 w-6"
@@ -251,6 +264,13 @@ function OnboardContent() {
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
+          <Button 
+            variant="ghost" 
+            className="text-slate-400 hover:text-white"
+            onClick={() => router.push('/')}
+          >
+            Cancel
+          </Button>
         </div>
 
         <div className="content-shell w-full px-10">

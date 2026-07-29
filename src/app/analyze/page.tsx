@@ -466,17 +466,28 @@ function AnalyzeContent() {
       </div>
 
       <div className="w-full max-w-4xl relative z-10">
-        {currentStep !== "path" && currentStep !== "loading" && (
+        <div className="mb-10 flex items-center justify-between min-h-[40px]">
+          {currentStep !== "path" && currentStep !== "loading" ? (
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2.5 text-[#555] hover:text-white transition group"
+            >
+              <div className="h-8 w-8 rounded-full border border-white/5 flex items-center justify-center group-hover:border-white/10 transition-all bg-[#1a1a1a]/50">
+                <ChevronLeft className="h-4 w-4" />
+              </div>
+              <span className="text-[13px] font-semibold tracking-tight">Back</span>
+            </button>
+          ) : (
+            <div></div>
+          )}
+          
           <button
-            onClick={handleBack}
-            className="mb-10 flex items-center gap-2.5 text-[#555] hover:text-white transition group"
+            onClick={() => router.push('/')}
+            className="text-[13px] font-medium text-[#555] hover:text-white transition-colors"
           >
-            <div className="h-8 w-8 rounded-full border border-white/5 flex items-center justify-center group-hover:border-white/10 transition-all bg-[#1a1a1a]/50">
-              <ChevronLeft className="h-4 w-4" />
-            </div>
-            <span className="text-[13px] font-semibold tracking-tight">Back</span>
+            Cancel
           </button>
-        )}
+        </div>
 
         <AnimatePresence mode="wait">
           {(currentStep === "path" || currentStep === "idea_subpath") && (

@@ -8,9 +8,11 @@ import { createClient } from '@/utils/supabase/client';
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  title?: string;
+  description?: string;
 }
 
-export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
+export function UpgradeModal({ isOpen, onClose, title, description }: UpgradeModalProps) {
   const { openCheckout } = usePaddle();
   const [userEmail, setUserEmail] = React.useState<string>();
   const [userId, setUserId] = React.useState<string>();
@@ -44,9 +46,9 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-fuchsia-500/30 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(217,70,239,0.15)]">
               <Sparkles className="w-7 h-7 text-fuchsia-400" />
             </div>
-            <DialogTitle className="text-2xl font-bold tracking-tight mb-2 text-white">Out of Credits</DialogTitle>
+            <DialogTitle className="text-2xl font-bold tracking-tight mb-2 text-white">{title || "Out of Credits"}</DialogTitle>
             <DialogDescription className="text-[15px] text-gray-400 leading-relaxed">
-              You've used all your available offer credits. Upgrade to a premium plan to continue generating high-converting funnels, intelligent copy, and traffic strategies.
+              {description || "You've used all your available offer credits. Upgrade to a premium plan to continue generating high-converting funnels, intelligent copy, and traffic strategies."}
             </DialogDescription>
           </DialogHeader>
 

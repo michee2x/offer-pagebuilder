@@ -64,33 +64,37 @@ export function PlanGate({ requiredPlan, feature, children }: PlanGateProps) {
         style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)' }}
       />
 
-      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-        {/* Lock icon */}
-        <div className="w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0">
-          <Lock className="w-5 h-5 text-violet-400" />
+      <div className="relative z-10 flex flex-col items-start gap-4">
+        {/* Lock icon & Title */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0">
+            <Lock className="w-4 h-4 text-violet-400" />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-violet-400 mb-0.5">
+              {PLAN_LABELS[requiredPlan]} Plan Feature
+            </p>
+            <h3 className="text-white font-semibold text-[15px] leading-tight">
+              {feature}
+            </h3>
+          </div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold uppercase tracking-widest text-violet-400 mb-1">
-            {PLAN_LABELS[requiredPlan]} Plan Feature
-          </p>
-          <h3 className="text-white font-semibold text-[16px] leading-tight mb-1">
-            {feature}
-          </h3>
-          <p className="text-[#A6A6B3] text-[13px] leading-relaxed">
+        <div className="w-full">
+          <p className="text-[#A6A6B3] text-[13px] leading-relaxed mb-4">
             Upgrade to the{' '}
             <span className="text-white font-medium">{PLAN_LABELS[requiredPlan]}</span> plan
             {PLAN_PRICES[requiredPlan] ? ` (${PLAN_PRICES[requiredPlan]})` : ''} to unlock this feature.
           </p>
-        </div>
 
-        <button
-          onClick={() => router.push('/settings?tab=billing')}
-          className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white text-[13px] font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5"
-          style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)' }}
-        >
-          Upgrade <ArrowRight className="w-4 h-4" />
-        </button>
+          <button
+            onClick={() => router.push('/settings?tab=billing')}
+            className="w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl text-white text-[13px] font-semibold transition-all hover:opacity-90 hover:-translate-y-0.5"
+            style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)' }}
+          >
+            Upgrade <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
