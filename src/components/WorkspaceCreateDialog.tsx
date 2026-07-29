@@ -50,7 +50,7 @@ export function WorkspaceCreateDialog() {
       setIsOpen(false);
       setName("");
       // Navigate to the newly created workspace
-      router.push(`/workspaces/${result.workspace.id}`);
+      router.push(`/?workspace=${result.workspace.id}`);
     } catch (err) {
       setError("Failed to create workspace. Please try again.");
       console.error(err);

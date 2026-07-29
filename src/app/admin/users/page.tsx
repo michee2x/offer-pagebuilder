@@ -35,6 +35,8 @@ type UserRow = {
   created_at: string;
   is_admin?: boolean;
   plan?: string;
+  credits_total?: number;
+  workspace_limit?: number;
 };
 
 type UserDetails = UserRow & {
@@ -78,7 +80,7 @@ export default function AdminUsersDashboard() {
   /* --- Edit ---------------------------------------------------- */
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<UserRow | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", email: "", role: "user", plan: "free" });
+  const [editForm, setEditForm] = useState({ name: "", email: "", role: "user", plan: "free", credits_limit: 0, workspace_limit: 1 });
   const [editing, setEditing] = useState(false);
 
   /* ── fetch list ─────────────────────────────────────────────── */
@@ -129,7 +131,14 @@ export default function AdminUsersDashboard() {
   /* ── Edit ────────────────────────────────────────────────────── */
   const openEdit = (user: UserRow) => {
     setEditTarget(user);
-    setEditForm({ name: user.name ?? "", email: user.email, role: user.role ?? "user", plan: user.plan ?? "free" });
+    setEditForm({ 
+      name: user.name ?? "", 
+      email: user.email, 
+      role: user.role ?? "user", 
+      plan: user.plan ?? "free",
+      credits_limit: user.credits_total ?? 0,
+      workspace_limit: user.workspace_limit ?? 1,
+    });
     setIsEditOpen(true);
   };
 
@@ -539,6 +548,35 @@ export default function AdminUsersDashboard() {
                 <option value="agency">Agency</option>
               </select>
             </div>
+            
+            {editForm.plan === 'free' && (
+              <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-2">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-credits-limit" className="text-gray-700">Monthly Credits</Label>
+                  <Input
+                    id="edit-credits-limit"
+                    type="number"
+                    min="0"
+                    value={editForm.credits_limit}
+                    onChange={(e) => setEditForm({ ...editForm, credits_limit: parseInt(e.target.value) || 0 })}
+                    className="border-gray-300 text-gray-900 bg-white"
+                  />
+                  <p className="text-[11px] text-gray-400">Admin override for free plan</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-workspace-limit" className="text-gray-700">Workspace Limit</Label>
+                  <Input
+                    id="edit-workspace-limit"
+                    type="number"
+                    min="1"
+                    value={editForm.workspace_limit}
+                    onChange={(e) => setEditForm({ ...editForm, workspace_limit: parseInt(e.target.value) || 1 })}
+                    className="border-gray-300 text-gray-900 bg-white"
+                  />
+                  <p className="text-[11px] text-gray-400">Default is 1</p>
+                </div>
+              </div>
+            )}
             <DialogFooter className="pt-4">
               <Button
                 type="button"

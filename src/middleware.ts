@@ -100,7 +100,8 @@ export default async function middleware(req: NextRequest) {
   }
 
   if (isAuthRoute && user) {
-    // If they came from a pricing plan, send to checkout; otherwise dashboard
+    // If they came from a pricing plan, send to checkout-now which will
+    // check subscription status and redirect to billing settings if already subscribed.
     const plan = url.searchParams.get('plan');
     const dest = plan ? `/checkout-now?plan=${plan}` : '/';
     return NextResponse.redirect(new URL(dest, req.url));

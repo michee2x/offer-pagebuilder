@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { PlanGate } from "@/components/PlanGate";
 
 type SubUser = {
   id: string;
@@ -95,7 +96,8 @@ export function AgencySettings() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <PlanGate requiredPlan="agency" feature="Agency Dashboard">
+      <div className="space-y-8 animate-in fade-in duration-500">
       <div>
         <h2 className="text-2xl font-bold text-white tracking-tight">Agency Clients</h2>
         <p className="text-white/50 text-sm mt-1">
@@ -192,6 +194,7 @@ export function AgencySettings() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </PlanGate>
   );
 }

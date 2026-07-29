@@ -32,8 +32,8 @@ export function PaddleProvider({ children }: { children: ReactNode }) {
           token,
           eventCallback(event) {
             if (event.name === 'checkout.completed') {
-              // Redirect to workspaces after successful checkout
-              window.location.href = '/workspaces?subscribed=1';
+              // Redirect to success page after successful checkout
+              window.location.href = '/subscribed';
             }
           },
         });
@@ -60,7 +60,7 @@ export function PaddleProvider({ children }: { children: ReactNode }) {
       customer: userEmail ? { email: userEmail } : undefined,
       customData: userId ? { user_id: userId } : undefined,
       settings: {
-        successUrl: `${window.location.origin}/workspaces?subscribed=1`,
+        successUrl: `${window.location.origin}/subscribed`,
         displayMode: 'overlay',
         theme: 'dark',
         locale: 'en',

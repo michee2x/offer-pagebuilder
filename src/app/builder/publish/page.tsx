@@ -22,6 +22,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
+import { PlanGate } from '@/components/PlanGate';
 
 // ─── Deploy stages shown to user while capturing ─────────────────────
 const DEPLOY_STAGES = [
@@ -619,6 +620,7 @@ function PublishContent() {
 
                 {activeTab === 'custom' && (
                   <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <PlanGate requiredPlan="growth" feature="Custom Domains">
                     <p className="text-sm text-muted-foreground mb-4">
                       Connect your own custom domain (e.g., yourdomain.com). Update your
                       DNS records accordingly.
@@ -676,6 +678,7 @@ function PublishContent() {
                         </tbody>
                       </table>
                     </div>
+                    </PlanGate>
                   </div>
                 )}
               </div>
@@ -911,6 +914,7 @@ function PublishContent() {
 
             {rightTab === 'scripts' && (
             <div className="space-y-6 animate-in fade-in duration-200">
+              <PlanGate requiredPlan="growth" feature="Tracking Scripts">
               <div>
                 <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-foreground">
                   <Code className="w-4 h-4 text-muted-foreground" /> Tracking Scripts
@@ -971,6 +975,7 @@ function PublishContent() {
                   Scripts are injected verbatim — only paste code from trusted sources.
                 </p>
               </div>
+              </PlanGate>
             </div>
             )}
           </div>

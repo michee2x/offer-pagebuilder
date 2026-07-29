@@ -189,7 +189,7 @@ function OnboardContent() {
         throw new Error(result.error || "Failed to create workspace");
       }
 
-      router.push(`/workspaces/${result.workspace.id}`);
+      router.push(`/?workspace=${result.workspace.id}`);
     } catch (error: any) {
       alert(error.message);
     } finally {

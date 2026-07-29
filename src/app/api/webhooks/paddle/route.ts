@@ -183,9 +183,9 @@ async function handleSubscriptionUpdated(data: any) {
     });
   }
 
-  // If canceled, downgrade to free
-  if (status === 'canceled') {
-    updatePayload.plan             = 'free';
+  // If canceled or past_due (failed to collect payment), downgrade to free
+  if (status === 'canceled' || status === 'past_due') {
+    updatePayload.plan              = 'free';
     updatePayload.credits_remaining = 0;
     updatePayload.credits_total     = 0;
   }

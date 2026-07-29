@@ -98,8 +98,6 @@ function SignupFormInner() {
           </div>
 
           <div className="oiq-trust-row">
-            <span className="oiq-trust-pill">✓ Free to start</span>
-            <span className="oiq-trust-pill">✓ No credit card required</span>
             <span className="oiq-trust-pill">✓ 30-day guarantee</span>
           </div>
         </div>
@@ -114,8 +112,27 @@ function SignupFormInner() {
           <span>OfferIQ</span>
         </div>
 
-        <div className="oiq-form-wrap">
-          <h2>Create your account</h2>
+        {!plan ? (
+          <div className="oiq-form-wrap flex flex-col items-center justify-center text-center mt-12">
+            <h2 className="mb-4 text-2xl font-bold">Invite Required</h2>
+            <p className="oiq-subtitle mb-8 text-[#A6A6B3]">
+              To create an account, you must select a plan first. Please visit our pricing page to choose the plan that's right for you.
+            </p>
+            <a 
+              href="/#pricing" 
+              className="oiq-signin-btn inline-flex items-center justify-center no-underline hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg,#8B5CF6 0%,#3B82F6 100%)', textDecoration: 'none' }}
+            >
+              View Pricing Plans →
+            </a>
+            <p className="oiq-signup-hint mt-8">
+              Already have an account?{" "}
+              <Link href="/login">Sign in</Link>
+            </p>
+          </div>
+        ) : (
+          <div className="oiq-form-wrap">
+            <h2>Create your account</h2>
           <p className="oiq-subtitle">Start building converting offers today — free</p>
 
           <form onSubmit={handleSignup} autoComplete="on">
@@ -256,7 +273,8 @@ function SignupFormInner() {
             {" "}and{" "}
             <a href="#" style={{ color: "#0066FF", textDecoration: "none" }}>Privacy Policy</a>.
           </p>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

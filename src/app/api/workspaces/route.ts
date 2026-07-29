@@ -203,10 +203,10 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Workspace domain is required and must be valid' }, { status: 400 });
     }
 
-    // Ensure user exists in users table
+    // Ensure user exists in users table and get their plan details
     const { data: existingUser, error: userCheckError } = await supabaseAdmin
       .from('users')
-      .select('id')
+      .select('id, plan, role, is_admin, workspace_limit')
       .eq('id', session.user.id)
       .maybeSingle();
 
@@ -231,6 +231,32 @@ export async function POST(req: Request) {
       }
 
       userId = newUser.id;
+    }
+
+    // Check workspace limit
+    const { count: workspacesCount } = await supabaseAdmin
+      .from('workspaces')
+      .select('id', { count: 'exact', head: true })
+      .or(`user_id.eq.${userId},owner_id.eq.${userId}`);
+
+    const isAdmin = existingUser?.is_admin === true || existingUser?.role === 'admin';
+    
+    if (!isAdmin) {
+      let limit = 1;
+      if (existingUser) {
+        if (typeof existingUser.workspace_limit === 'number' && existingUser.workspace_limit > 0) {
+          limit = existingUser.workspace_limit;
+        } else {
+          const plan = existingUser.plan || 'free';
+          if (plan === 'agency') limit = 30;
+          else if (plan === 'growth') limit = 3;
+          else limit = 1;
+        }
+      }
+
+      if ((workspacesCount || 0) >= limit) {
+        return Response.json({ error: 'Workspace limit reached. Upgrade your plan to create more.' }, { status: 403 });
+      }
     }
 
     const insertWorkspace = async (payload: Record<string, any>) => {

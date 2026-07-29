@@ -17,9 +17,27 @@ function SettingsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const workspaceId = searchParams.get("workspace");
-  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
+  // Read active tab from URL — defaults to "profile" if not present
+  const tabParam = searchParams.get("tab") as SettingsTab | null;
+  const [activeTab, setActiveTab] = useState<SettingsTab>(tabParam || "profile");
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Sync tab state when the URL ?tab= param changes (e.g. back/forward nav)
+  useEffect(() => {
+    if (tabParam && tabParam !== activeTab) {
+      setActiveTab(tabParam);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabParam]);
+
+  // Write tab change back to URL so refresh preserves the tab
+  const handleTabChange = (tab: SettingsTab) => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`/settings?${params.toString()}`);
+  };
 
   useEffect(() => {
     async function fetchWorkspaces() {
@@ -31,7 +49,9 @@ function SettingsContent() {
         
         // If no workspace is selected, but we have some, pick the first one
         if (!workspaceId && data.workspaces?.length > 0) {
-          router.replace(`/settings?workspace=${data.workspaces[0].id}`);
+          const params = new URLSearchParams(searchParams.toString());
+          params.set("workspace", data.workspaces[0].id);
+          router.replace(`/settings?${params.toString()}`);
         }
       } catch (err) {
         console.error(err);
@@ -41,7 +61,8 @@ function SettingsContent() {
       }
     }
     fetchWorkspaces();
-  }, [workspaceId, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceId]);
 
   const activeWorkspace = workspaces.find((w) => w.id === workspaceId);
 
@@ -61,7 +82,7 @@ function SettingsContent() {
         
         <div className="flex flex-1 overflow-hidden">
           {/* Settings Sub-nav */}
-          <SettingsSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          <SettingsSidebar activeTab={activeTab} onTabChange={handleTabChange} />
           
           {/* Content Area */}
           <main className="flex-1 overflow-y-auto p-8 md:p-12">

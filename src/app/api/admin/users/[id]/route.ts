@@ -89,7 +89,7 @@ export async function PUT(
 
     try {
     const body = await req.json();
-    const { name, email, role, plan } = body;
+    const { name, email, role, plan, credits_limit, workspace_limit } = body;
 
     // Build the public users-table update payload
     const tableUpdates: Record<string, unknown> = {};
@@ -101,15 +101,21 @@ export async function PUT(
     }
     if (plan !== undefined) {
       tableUpdates.plan = plan;
-      
       let credits = 0;
       if (plan === 'starter') credits = 5;
       else if (plan === 'growth') credits = 10;
       else if (plan === 'agency') credits = 30;
+      else if (plan === 'free' && credits_limit !== undefined) credits = Number(credits_limit);
       
       tableUpdates.credits_remaining = credits;
       tableUpdates.credits_total = credits;
       tableUpdates.credits_reset_at = new Date().toISOString();
+
+      if (plan === 'free' && workspace_limit !== undefined) {
+        tableUpdates.workspace_limit = Number(workspace_limit);
+      } else if (plan !== 'free') {
+        tableUpdates.workspace_limit = null; // clear override so plan default takes over
+      }
     }
     if (email) tableUpdates.email = email;
 
