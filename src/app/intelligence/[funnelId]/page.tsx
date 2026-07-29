@@ -855,17 +855,30 @@ export default function IntelligencePage({
               <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Report Sections
               </div>
-              <button
-                onClick={() => setIsAdvancedMode(!isAdvancedMode)}
-                className={cn(
-                  "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded transition-colors",
-                  isAdvancedMode 
-                    ? "bg-indigo-500/20 text-indigo-400"
-                    : "bg-white/5 text-muted-foreground hover:bg-white/10"
-                )}
-              >
-                Advanced
-              </button>
+              <div className="flex items-center bg-white/5 rounded-full p-0.5 gap-0.5">
+                <button
+                  onClick={() => setIsAdvancedMode(false)}
+                  className={cn(
+                    "text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full transition-all duration-200",
+                    !isAdvancedMode
+                      ? "bg-white/15 text-white shadow-sm"
+                      : "text-muted-foreground hover:text-white/70"
+                  )}
+                >
+                  Standard
+                </button>
+                <button
+                  onClick={() => setIsAdvancedMode(true)}
+                  className={cn(
+                    "text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full transition-all duration-200",
+                    isAdvancedMode
+                      ? "bg-indigo-500/30 text-indigo-300 shadow-sm"
+                      : "text-muted-foreground hover:text-white/70"
+                  )}
+                >
+                  Advanced
+                </button>
+              </div>
             </div>
 
             <nav className="p-2 overflow-y-auto space-y-1 flex-1 custom-scrollbar pb-6 text-sm">
