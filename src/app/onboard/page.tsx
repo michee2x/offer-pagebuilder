@@ -17,7 +17,6 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { UpgradeModal } from "@/components/UpgradeModal";
-import { UpgradeModal } from "@/components/UpgradeModal";
 type Step = "name" | "domain" | "subaccount" | "review";
 
 interface SubAccountInvite {
@@ -32,6 +31,10 @@ const stepConfig: Record<Step, { title: string }> = {
 };
 
 const stepOrder: Step[] = ["name", "domain", "subaccount", "review"];
+
+const isValidEmail = (email: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
 
 function OnboardContent() {
   const [currentStep, setCurrentStep] = useState<Step>("name");
@@ -201,18 +204,8 @@ function OnboardContent() {
           <div className="absolute bottom-0 left-0 right-0 h-[240px] z-[2] opacity-100" style={{ background: 'linear-gradient(180deg, rgba(3, 7, 18, 0) 0%, rgb(3, 7, 18) 100%)' }} />
           <div className="absolute inset-0 opacity-10 pointer-events-none z-[1]" style={{ backgroundImage: 'url(https://framerusercontent.com/images/6mcf62RlDfRfU61Yg5vb2pefpi4.png)', backgroundRepeat: 'repeat', backgroundSize: '128px auto' }} />
         </div>
-        <div className="relative z-10">
-          <div className="absolute inset-0 blur-3xl bg-blue-500/10 rounded-full animate-pulse"></div>
-          <div className="relative bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-12 flex flex-col items-center gap-6 shadow-2xl">
-            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center text-white border border-white/10 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <Spinner size="md" />
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <h2 className="text-xl font-semibold tracking-tight text-white">Preparing your workspace</h2>
-              <p className="text-slate-400 text-sm">Getting everything ready for you...</p>
-            </div>
-          </div>
+        <div className="relative z-10 flex items-center justify-center">
+          <Spinner size="lg" />
         </div>
       </div>
     );
@@ -303,7 +296,7 @@ function OnboardContent() {
               )}
 
               {currentStep === "domain" && (
-                <div className="rounded-[16px] bg-[#0a0a0a] border border-white/10 p-4 flex items-center gap-3">
+                <div className="rounded-[16px] bg-white/5 backdrop-blur-md border border-white/10 p-4 flex items-center gap-3">
                   <span className="text-slate-400">https://</span>
                   <Input
                     className="w-full bg-transparent border-none text-lg text-white placeholder:text-slate-500 h-10"
@@ -320,7 +313,7 @@ function OnboardContent() {
 
               {currentStep === "subaccount" && (
                 <div className="space-y-4">
-                  <div className="grid gap-3 rounded-[16px] bg-[#0a0a0a] p-4">
+                  <div className="grid gap-3 rounded-[16px] bg-white/5 backdrop-blur-md border border-white/10 p-4">
                     <Input
                       type="email"
                       placeholder="subaccount@client.com"
@@ -334,8 +327,9 @@ function OnboardContent() {
                     </p>
                   </div>
                   
-                  <div className="grid gap-4 rounded-[16px] bg-[#0a0a0a] p-5 border border-white/5">
-                    <div className="text-sm font-semibold text-white mb-2">Sub-Account Permissions</div>
+                  {isValidEmail(workspaceData.subaccountEmail) && (
+                    <div className="grid gap-4 rounded-[16px] bg-white/5 backdrop-blur-md p-5 border border-white/10">
+                      <div className="text-sm font-semibold text-white mb-2">Sub-Account Permissions</div>
                     
                     <label className="flex items-center justify-between cursor-pointer group">
                       <div className="flex flex-col gap-1">
@@ -401,6 +395,7 @@ function OnboardContent() {
                       </div>
                     </label>
                   </div>
+                  )}
 
                   <Button
                     type="button"
@@ -414,7 +409,7 @@ function OnboardContent() {
               )}
 
               {currentStep === "review" && (
-                <div className="space-y-4 rounded-[16px] bg-[#0a0a0a] p-6">
+                <div className="space-y-4 rounded-[16px] bg-white/5 backdrop-blur-md border border-white/10 p-6">
                   <span>Workspace details</span>
                   <div className="grid mt-4 gap-4 text-sm text-slate-300">
                     <div className="flex justify-between rounded-2xl bg-white/5 p-4">
