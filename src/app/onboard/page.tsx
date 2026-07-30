@@ -340,11 +340,12 @@ function OnboardContent() {
                       <div className="text-sm font-semibold text-white mb-2">Sub-Account Permissions</div>
                       
                       <div className="flex items-center justify-between">
-                        <div className="flex flex-col gap-1">
+                        <label htmlFor="perm-view" className="flex flex-col gap-1 cursor-not-allowed">
                           <span className="text-sm text-white">View Projects</span>
                           <span className="text-xs text-slate-500">Can view offers in this workspace</span>
-                        </div>
+                        </label>
                         <Switch 
+                          id="perm-view"
                           checked={workspaceData.subaccountPermissions.view}
                           onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, view: checked}}))}
                           disabled
@@ -352,33 +353,36 @@ function OnboardContent() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex flex-col gap-1">
+                        <label htmlFor="perm-create" className="flex flex-col gap-1 cursor-pointer">
                           <span className="text-sm text-white">Create Projects</span>
                           <span className="text-xs text-slate-500">Can generate new offers</span>
-                        </div>
+                        </label>
                         <Switch 
+                          id="perm-create"
                           checked={workspaceData.subaccountPermissions.create}
                           onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, create: checked}}))}
                         />
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex flex-col gap-1">
+                        <label htmlFor="perm-edit" className="flex flex-col gap-1 cursor-pointer">
                           <span className="text-sm text-white">Edit Projects</span>
                           <span className="text-xs text-slate-500">Can edit existing offers</span>
-                        </div>
+                        </label>
                         <Switch 
+                          id="perm-edit"
                           checked={workspaceData.subaccountPermissions.edit}
                           onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, edit: checked}}))}
                         />
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <div className="flex flex-col gap-1">
+                        <label htmlFor="perm-delete" className="flex flex-col gap-1 cursor-pointer">
                           <span className="text-sm text-white">Delete Projects</span>
                           <span className="text-xs text-slate-500">Can permanently delete offers</span>
-                        </div>
+                        </label>
                         <Switch 
+                          id="perm-delete"
                           checked={workspaceData.subaccountPermissions.delete}
                           onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, delete: checked}}))}
                         />
