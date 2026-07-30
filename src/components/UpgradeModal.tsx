@@ -38,7 +38,7 @@ export function UpgradeModal({ isOpen, onClose, title, description }: UpgradeMod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-lg sm:max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto bg-[#0a0a0a] border border-white/10 text-white p-0 rounded-2xl shadow-2xl">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-lg sm:max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto bg-black/40 backdrop-blur-2xl border border-white/10 text-white p-0 rounded-2xl shadow-2xl">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500" />
         
         <div className="p-8">
@@ -54,7 +54,7 @@ export function UpgradeModal({ isOpen, onClose, title, description }: UpgradeMod
 
           <div className="space-y-4">
             {/* Growth Plan Card */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-all hover:bg-white/[0.04] hover:border-white/20 group">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 transition-all hover:bg-white/10 hover:border-white/20 group">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -78,7 +78,7 @@ export function UpgradeModal({ isOpen, onClose, title, description }: UpgradeMod
             </div>
 
             {/* Starter Plan Card */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.01] p-5 transition-all hover:bg-white/[0.03] hover:border-white/10 group">
+            <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-white/5 backdrop-blur-md p-5 transition-all hover:bg-white/10 hover:border-white/10 group">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg text-gray-300 mb-1">Starter Plan</h3>

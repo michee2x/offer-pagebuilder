@@ -148,7 +148,7 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
               <Input 
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
+                className="pl-11 h-12 bg-white/5 backdrop-blur-md border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="My Awesome Team"
               />
             </div>
@@ -163,7 +163,7 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
               <Input 
                 value={formData.domain}
                 onChange={e => setFormData({...formData, domain: e.target.value})}
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
+                className="pl-11 h-12 bg-white/5 backdrop-blur-md border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="my-team"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-mono text-[#444]">

@@ -83,7 +83,7 @@ export function ProfileSettings() {
               <Input 
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
+                className="pl-11 h-12 bg-white/5 backdrop-blur-md border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="Enter your name"
               />
             </div>
@@ -98,7 +98,7 @@ export function ProfileSettings() {
               <Input 
                 value={formData.email}
                 disabled
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 rounded-xl cursor-not-allowed text-white" 
+                className="pl-11 h-12 bg-white/5 backdrop-blur-md border-white/5 rounded-xl cursor-not-allowed text-white" 
                 placeholder="email@example.com"
               />
             </div>
@@ -114,7 +114,7 @@ export function ProfileSettings() {
               <Input 
                 value={formData.role}
                 onChange={e => setFormData({...formData, role: e.target.value})}
-                className="pl-11 h-12 bg-[#0a0a0a] border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
+                className="pl-11 h-12 bg-white/5 backdrop-blur-md border-white/5 focus:border-brand-blue/40 transition-all rounded-xl text-white" 
                 placeholder="e.g. Founder, Marketing Lead"
               />
             </div>
