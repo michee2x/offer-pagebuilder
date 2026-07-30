@@ -6,6 +6,8 @@ type WorkspaceWithPages = {
   name: any;
   domain: any;
   created_at: any;
+  status?: string;
+  archived_at?: string | null;
   builder_pages: {
     id: any;
     name: any;
