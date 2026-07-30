@@ -346,9 +346,7 @@ export function BillingSettings() {
                         : "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:shadow-[0_0_24px_rgba(59,130,246,0.4)]"
                     }`}
                     onClick={() => {
-                      if (isActive) {
-                        toast.info("To upgrade, contact support or manage your subscription via the customer portal.");
-                      } else if (plan.priceId) {
+                      if (plan.priceId) {
                         router.push(`/checkout-now?plan=${plan.priceId}`);
                       } else {
                         toast.error("Plan not available");

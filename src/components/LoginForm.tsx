@@ -11,6 +11,8 @@ function LoginFormInner() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isMagicLink, setIsMagicLink] = useState(false);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const plan = searchParams.get("plan") ?? "";
@@ -20,13 +22,24 @@ function LoginFormInner() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
-      // If user came from a pricing plan, route to checkout; otherwise dashboard
-      router.push(plan ? `/checkout-now?plan=${plan}` : "/");
+      if (isMagicLink) {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        });
+        if (error) throw error;
+        setMagicLinkSent(true);
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        // If user came from a pricing plan, route to checkout; otherwise dashboard
+        router.push(plan ? `/checkout-now?plan=${plan}` : "/");
+      }
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -87,68 +100,96 @@ function LoginFormInner() {
             </div>
 
             {/* Password */}
-            <label className="oiq-field-label" htmlFor="oiq-password">Password</label>
-            <div className="oiq-field-wrap oiq-pw-wrap">
-              <input
-                id="oiq-password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                className="oiq-pw-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                    <line x1="1" y1="1" x2="23" y2="23"/>
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                )}
-              </button>
-            </div>
+            {!isMagicLink && (
+              <>
+                <label className="oiq-field-label" htmlFor="oiq-password">Password</label>
+                <div className="oiq-field-wrap oiq-pw-wrap">
+                  <input
+                    id="oiq-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required={!isMagicLink}
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    className="oiq-pw-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
 
-            {/* Remember + Forgot */}
-            <div className="oiq-row-between">
-              <label className="oiq-remember">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                Remember me
-              </label>
-              <Link href="/forgot-password" className="oiq-forgot">Forgot password?</Link>
-            </div>
+                {/* Remember + Forgot */}
+                <div className="oiq-row-between">
+                  <label className="oiq-remember">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    Remember me
+                  </label>
+                  <Link href="/forgot-password" className="oiq-forgot">Forgot password?</Link>
+                </div>
+              </>
+            )}
 
             {/* Sign In */}
             <button
               id="oiq-signin-btn"
               type="submit"
               className="oiq-signin-btn"
-              disabled={isLoading}
+              disabled={isLoading || magicLinkSent}
             >
               {isLoading ? (
                 <>
                   <span className="oiq-spinner" />
-                  Signing in…
+                  {isMagicLink ? "Sending..." : "Signing in…"}
                 </>
+              ) : magicLinkSent ? (
+                "Magic Link Sent!"
+              ) : isMagicLink ? (
+                "Send Magic Link"
               ) : (
                 "Sign In"
               )}
             </button>
           </form>
+
+          <div style={{ marginTop: "16px", textAlign: "center" }}>
+            <button
+              type="button"
+              onClick={() => {
+                setIsMagicLink(!isMagicLink);
+                setMagicLinkSent(false);
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#9ca3af",
+                cursor: "pointer",
+                textDecoration: "underline",
+                fontSize: "14px"
+              }}
+            >
+              {isMagicLink ? "Sign in with password instead" : "Use magic link (Sub-accounts)"}
+            </button>
+          </div>
 
           <p className="oiq-signup-hint">
             Don&apos;t have an account?{" "}

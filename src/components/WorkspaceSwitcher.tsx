@@ -64,7 +64,7 @@ export function WorkspaceSwitcher({
           }
           if (val === "manage-workspace") {
             startTransition(() => {
-              router.push("/workspaces");
+              router.push("/settings?tab=workspaces");
             });
             return;
           }

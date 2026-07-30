@@ -74,6 +74,7 @@ export function Sidebar() {
   const funnelId = getFunnelId();
 
   const [isAdmin, setIsAdmin] = React.useState(false);
+  const [isSubaccount, setIsSubaccount] = React.useState(false);
 
   React.useEffect(() => {
     fetch('/api/user')
@@ -81,6 +82,9 @@ export function Sidebar() {
       .then(data => {
         if (data.user?.is_admin) {
           setIsAdmin(true);
+        }
+        if (data.user?.role === 'subaccount') {
+          setIsSubaccount(true);
         }
         if (data.user?.email) setUserEmail(data.user.email);
         if (data.user?.id) setUserId(data.user.id);
@@ -90,7 +94,7 @@ export function Sidebar() {
 
   const links: SidebarLink[] = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
-    { label: "Workspaces", href: "/workspaces", icon: Filter },
+    { label: "Workspaces", href: "/settings?tab=workspaces", icon: Filter },
     { label: "Templates", href: `/templates${activeWorkspaceId ? `?workspace=${activeWorkspaceId}` : ''}`, icon: LayoutTemplate },
   ];
 
@@ -233,28 +237,30 @@ export function Sidebar() {
             </nav>
 
             {/* Footer / Pro Card */}
-            <div className="p-4 mt-auto">
-              <div className="relative rounded-2xl overflow-hidden aspect-[16/10] group">
-                <img
-                  src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80&fit=crop"
-                  alt="Pro background"
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                <div className="relative z-10 p-4 h-full flex flex-col justify-between">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400 drop-shadow-md mb-1">OfferIQ Pro</p>
-                    <h4 className="text-white font-bold text-sm leading-tight drop-shadow-md">Unlock AI Strategy & Custom Domains</h4>
+            {!isSubaccount && (
+              <div className="p-4 mt-auto">
+                <div className="relative rounded-2xl overflow-hidden aspect-[16/10] group">
+                  <img
+                    src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80&fit=crop"
+                    alt="Pro background"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+                  <div className="relative z-10 p-4 h-full flex flex-col justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400 drop-shadow-md mb-1">OfferIQ Pro</p>
+                      <h4 className="text-white font-bold text-sm leading-tight drop-shadow-md">Unlock AI Strategy & Custom Domains</h4>
+                    </div>
+                    <button 
+                      onClick={() => openCheckout(process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!, userEmail, userId)}
+                      className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 hover:opacity-90 text-white shadow-[0_0_15px_rgba(217,70,239,0.4)] text-[10px] font-bold py-1.5 px-3 rounded-full transition-opacity self-start"
+                    >
+                      Upgrade Now →
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => openCheckout(process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!, userEmail, userId)}
-                    className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 hover:opacity-90 text-white shadow-[0_0_15px_rgba(217,70,239,0.4)] text-[10px] font-bold py-1.5 px-3 rounded-full transition-opacity self-start"
-                  >
-                    Upgrade Now →
-                  </button>
                 </div>
               </div>
-            </div>
+            )}
           </motion.aside>
         </>
       )}

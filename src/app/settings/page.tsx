@@ -22,6 +22,22 @@ function SettingsContent() {
   const [activeTab, setActiveTab] = useState<SettingsTab>(tabParam || "profile");
   const [workspaces, setWorkspaces] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubaccount, setIsSubaccount] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/user')
+      .then(res => res.json())
+      .then(data => {
+        if (data.user?.role === 'subaccount') {
+          setIsSubaccount(true);
+          if (tabParam === 'billing' || tabParam === 'agency') {
+             handleTabChange('profile');
+          }
+        }
+      })
+      .catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Sync tab state when the URL ?tab= param changes (e.g. back/forward nav)
   useEffect(() => {
@@ -42,7 +58,7 @@ function SettingsContent() {
   useEffect(() => {
     async function fetchWorkspaces() {
       try {
-        const res = await fetch("/api/workspaces");
+        const res = await fetch("/api/workspaces?include_archived=true");
         if (!res.ok) throw new Error("Failed to load workspaces");
         const data = await res.json();
         setWorkspaces(data.workspaces || []);
@@ -82,7 +98,7 @@ function SettingsContent() {
         
         <div className="flex flex-1 overflow-hidden">
           {/* Settings Sub-nav */}
-          <SettingsSidebar activeTab={activeTab} onTabChange={handleTabChange} />
+          <SettingsSidebar activeTab={activeTab} onTabChange={handleTabChange} isSubaccount={isSubaccount} />
           
           {/* Content Area */}
           <main className="flex-1 overflow-y-auto p-8 md:p-12">

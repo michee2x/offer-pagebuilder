@@ -18,6 +18,7 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [formData, setFormData] = useState({
@@ -59,12 +60,18 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/workspaces?id=${workspace.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Deletion failed");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Deletion failed");
       
-      toast.success("Workspace deleted successfully");
-      router.push("/");
-    } catch (err) {
-      toast.error("Failed to delete workspace");
+      if (data.action === 'archived') {
+        toast.success("Workspace archived. It will be permanently deleted in 7 days.");
+        onUpdate({ ...workspace, status: 'archived', archived_at: new Date().toISOString() });
+      } else {
+        toast.success("Workspace deleted successfully");
+        router.push("/");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete workspace");
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -72,6 +79,56 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
   };
 
   if (!workspace) return null;
+
+  const hasProjects = workspace.builder_pages && workspace.builder_pages.length > 0;
+  const isArchived = workspace.status === 'archived';
+
+  const handleReactivate = async () => {
+    setIsReactivating(true);
+    try {
+      const res = await fetch("/api/workspaces", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: workspace.id, action: 'reactivate' }),
+      });
+      if (!res.ok) throw new Error("Failed to reactivate");
+      const data = await res.json();
+      onUpdate(data.workspace);
+      toast.success("Workspace reactivated successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to reactivate");
+    } finally {
+      setIsReactivating(false);
+    }
+  };
+
+  if (isArchived) {
+    // Calculate days remaining
+    const archivedDate = new Date(workspace.archived_at);
+    const deletionDate = new Date(archivedDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const daysRemaining = Math.max(0, Math.ceil((deletionDate.getTime() - new Date().getTime()) / (1000 * 3600 * 24)));
+
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+          <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
+            <AlertTriangle className="w-8 h-8 text-orange-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Workspace Archived</h2>
+          <p className="text-[#aaa] mb-6 max-w-md">
+            This workspace was archived and is scheduled for permanent deletion in <strong className="text-white">{daysRemaining} days</strong>. Reactivate it to restore access to all projects and funnels.
+          </p>
+          <Button 
+            onClick={handleReactivate}
+            disabled={isReactivating}
+            className="h-12 px-8 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-all"
+          >
+            {isReactivating ? "Reactivating..." : "Reactivate Workspace"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -140,9 +197,13 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
               <Trash2 className="w-5 h-5 text-rose-500" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-white mb-1">Delete Workspace</h3>
+              <h3 className="text-lg font-bold text-white mb-1">
+                {hasProjects ? "Archive Workspace" : "Delete Workspace"}
+              </h3>
               <p className="text-[#666] text-sm leading-relaxed max-w-xl">
-                Permanently remove this workspace, all its funnels, campaigns, and team data. This action is irreversible.
+                {hasProjects 
+                  ? "Archive this workspace. It will be hidden and scheduled for permanent deletion in 7 days."
+                  : "Permanently remove this workspace. This action is irreversible since there are no projects."}
               </p>
               <div className="mt-8">
                 <Button 
@@ -150,7 +211,7 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
                   variant="ghost"
                   className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 h-10 px-6 rounded-xl text-xs font-bold transition-all"
                 >
-                  Delete Workspace
+                  {hasProjects ? "Archive Workspace" : "Delete Workspace"}
                 </Button>
               </div>
             </div>
@@ -176,10 +237,11 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
               </button>
             </div>
 
-            <h2 className="text-xl font-bold text-white mb-2">Delete Workspace?</h2>
+            <h2 className="text-xl font-bold text-white mb-2">{hasProjects ? "Archive Workspace?" : "Delete Workspace?"}</h2>
             <p className="text-[#666] text-sm leading-relaxed mb-8">
-              This will permanently delete <span className="text-white font-bold">{workspace.name}</span>. 
-              To confirm, please type <span className="text-rose-500 font-mono font-bold">{workspace.domain}</span> below.
+              {hasProjects 
+                ? <>This will archive <span className="text-white font-bold">{workspace.name}</span> for 7 days before permanent deletion. To confirm, please type <span className="text-rose-500 font-mono font-bold">{workspace.domain}</span> below.</>
+                : <>This will permanently delete <span className="text-white font-bold">{workspace.name}</span>. To confirm, please type <span className="text-rose-500 font-mono font-bold">{workspace.domain}</span> below.</>}
             </p>
 
             <div className="space-y-4">
@@ -200,7 +262,7 @@ export function WorkspaceSettings({ workspace, onUpdate }: WorkspaceSettingsProp
                     : "bg-white/5 text-[#444] cursor-not-allowed"
                 )}
               >
-                {isDeleting ? "Deleting..." : "Permanently Delete"}
+                {isDeleting ? "Processing..." : (hasProjects ? "Archive Workspace" : "Permanently Delete")}
               </Button>
               
               <button 

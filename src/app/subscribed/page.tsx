@@ -42,7 +42,7 @@ export default function SubscribedSuccessPage() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          router.push('/workspaces');
+          router.push('/');
           return 0;
         }
         return prev - 1;
@@ -72,7 +72,7 @@ export default function SubscribedSuccessPage() {
 
         <div className="space-y-4">
           <Button 
-            onClick={() => router.push('/workspaces')}
+            onClick={() => router.push('/')}
             className="w-full h-12 bg-gradient-to-r from-brand-blue to-brand-indigo hover:opacity-90 text-white font-bold rounded-xl transition-all shadow-[0_8px_24px_rgba(59,130,246,0.25)] flex items-center justify-center gap-2 border-0"
           >
             Go to Dashboard <ArrowRight className="w-4 h-4" />

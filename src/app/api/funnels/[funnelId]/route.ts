@@ -24,7 +24,7 @@ export async function DELETE(
   // First check if the funnel belongs to the user
   const { data: funnel, error: fetchError } = await supabaseAdmin
     .from('builder_pages')
-    .select('id, user_id')
+    .select('id, user_id, workspace_id')
     .eq('id', funnelId)
     .single();
 
@@ -32,8 +32,25 @@ export async function DELETE(
     return Response.json({ error: 'Funnel not found' }, { status: 404 });
   }
 
-  if (funnel.user_id !== session.user.id) {
-    return Response.json({ error: 'Unauthorized' }, { status: 403 });
+  let hasPermission = false;
+
+  if (funnel.user_id === session.user.id) {
+    hasPermission = true;
+  } else if (funnel.workspace_id) {
+    const { data: member } = await supabaseAdmin
+      .from('workspace_members')
+      .select('permissions, role')
+      .eq('workspace_id', funnel.workspace_id)
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+
+    if (member?.role === 'owner' || member?.role === 'admin' || member?.permissions?.delete === true) {
+      hasPermission = true;
+    }
+  }
+
+  if (!hasPermission) {
+    return Response.json({ error: 'Unauthorized to delete this funnel' }, { status: 403 });
   }
 
   // Delete the funnel

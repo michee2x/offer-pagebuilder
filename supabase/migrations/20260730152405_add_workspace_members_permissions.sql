@@ -1,0 +1,1 @@
+ALTER TABLE workspace_members ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT '{"view": true, "edit": false, "delete": false, "create": false}'::jsonb;

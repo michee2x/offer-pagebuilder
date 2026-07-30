@@ -17,14 +17,14 @@ export default function AuthCallback() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        router.push("/workspaces");
+        router.push("/");
       }
     });
 
     // Also check immediately in case the session is already established
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        router.push("/workspaces");
+        router.push("/");
       }
     });
 

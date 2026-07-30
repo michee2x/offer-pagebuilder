@@ -11,7 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export function CampaignCard({ funnel }: { funnel: any }) {
+export function CampaignCard({ funnel, userPermissions }: { funnel: any, userPermissions?: any }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -127,14 +127,16 @@ export function CampaignCard({ funnel }: { funnel: any }) {
                   <span className="font-medium">Copy URL</span>
                 </DropdownMenuItem>
                 <div className="h-[1px] bg-white/5 my-1" />
-                <DropdownMenuItem 
-                  onClick={handleDelete}
-                  disabled={isPending || isDeleting}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-red-500/20 text-red-400 cursor-pointer transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="font-medium">Delete</span>
-                </DropdownMenuItem>
+                {(!userPermissions || userPermissions.delete !== false) && (
+                  <DropdownMenuItem 
+                    onClick={handleDelete}
+                    disabled={isPending || isDeleting}
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-red-500/20 text-red-400 cursor-pointer transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="font-medium">Delete</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

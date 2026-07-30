@@ -64,10 +64,40 @@ export async function POST(req: Request) {
 
   // Check and consume credit if creating a new funnel
   if (!funnelId) {
+    let creditTargetUserId = user.id;
+
+    if (workspaceId) {
+      const { data: workspaceData } = await supabaseAdmin
+        .from('workspaces')
+        .select('user_id, owner_id')
+        .eq('id', workspaceId)
+        .maybeSingle();
+      
+      if (workspaceData) {
+        creditTargetUserId = workspaceData.user_id || workspaceData.owner_id || user.id;
+      }
+      
+      if (creditTargetUserId !== user.id) {
+        // This means the user is a sub-account or team member. Check their permissions.
+        const { data: memberData } = await supabaseAdmin
+          .from('workspace_members')
+          .select('permissions')
+          .eq('workspace_id', workspaceId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        // If memberData is found and permissions object exists, check if create is false
+        if (memberData?.permissions && memberData.permissions.create === false) {
+          console.error('[call1] User lacks create permission in workspace');
+          return Response.json({ error: 'You do not have permission to create projects in this workspace' }, { status: 403 });
+        }
+      }
+    }
+
     const { data: dbUser, error: userErr } = await supabaseAdmin
       .from('users')
       .select('credits_remaining, is_admin')
-      .eq('id', user.id)
+      .eq('id', creditTargetUserId)
       .single();
 
     if (userErr || !dbUser) {
@@ -85,7 +115,7 @@ export async function POST(req: Request) {
       const { error: deductErr } = await supabaseAdmin
         .from('users')
         .update({ credits_remaining: dbUser.credits_remaining - 1 })
-        .eq('id', user.id);
+        .eq('id', creditTargetUserId);
 
       if (deductErr) {
         console.error('[call1] Failed to deduct credit:', deductErr);

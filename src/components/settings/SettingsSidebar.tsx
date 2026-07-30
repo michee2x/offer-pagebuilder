@@ -29,9 +29,10 @@ export type SettingsTab =
 interface SettingsSidebarProps {
   activeTab: SettingsTab;
   onTabChange: (tab: SettingsTab) => void;
+  isSubaccount?: boolean;
 }
 
-export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps) {
+export function SettingsSidebar({ activeTab, onTabChange, isSubaccount }: SettingsSidebarProps) {
   const categories = [
     {
       label: "Account",
@@ -59,6 +60,11 @@ export function SettingsSidebar({ activeTab, onTabChange }: SettingsSidebarProps
       ]
     }
   ];
+
+  if (isSubaccount) {
+    categories[0].items = categories[0].items.filter(i => i.id !== 'billing');
+    categories[1].items = categories[1].items.filter(i => i.id !== 'agency');
+  }
 
   return (
     <aside className="w-64 border-r border-white/5 bg-[#0c0c0c] hidden md:flex flex-col py-6 overflow-y-auto shrink-0">

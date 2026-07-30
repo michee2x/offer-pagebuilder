@@ -104,7 +104,7 @@ export async function GET(req: Request) {
     if (firstFunnel) {
       return NextResponse.redirect(new URL(`/funnels/${firstFunnel.id}/integrations?stripe_connected=true`, req.url));
     } else {
-      return NextResponse.redirect(new URL(`/workspaces`, req.url));
+      return NextResponse.redirect(new URL(`/`, req.url));
     }
 
   } catch (error: any) {

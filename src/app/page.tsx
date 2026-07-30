@@ -31,6 +31,14 @@ export default async function DashboardPage(props: {
     headers: cookieHeader ? { cookie: cookieHeader } : undefined,
   });
 
+  const userRes = await fetch(new URL("/api/user", baseUrl), {
+    method: "GET",
+    cache: "no-store",
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+  });
+  const userData = userRes.ok ? await userRes.json() : null;
+  const isSubaccount = userData?.user?.role === 'subaccount';
+
   if (response.status === 401) {
     return <WelcomePage />;
   }
@@ -137,26 +145,31 @@ export default async function DashboardPage(props: {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {activeWorkspace ? (
-                <a
-                  href={"/analyze?workspace=" + activeWorkspace.id}
-                  className="h-14 px-8 rounded-full bg-white text-black font-bold flex items-center justify-center gap-2 transition-all hover:bg-white/90 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
-                >
-                  Create New Offer <span className="text-xl">→</span>
-                </a>
-              ) : (
+                // If userPermissions exists, check 'create'. If it doesn't exist, assume owner (has permission)
+                (!activeWorkspace.userPermissions || activeWorkspace.userPermissions.create !== false) ? (
+                  <a
+                    href={"/analyze?workspace=" + activeWorkspace.id}
+                    className="h-14 px-8 rounded-full bg-white text-black font-bold flex items-center justify-center gap-2 transition-all hover:bg-white/90 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
+                  >
+                    Create New Offer <span className="text-xl">→</span>
+                  </a>
+                ) : null
+              ) : !isSubaccount ? (
                 <Link
                   href="/onboard"
                   className="h-14 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90 flex items-center justify-center gap-2"
                 >
                   Create New Workspace →
                 </Link>
+              ) : null}
+              {!isSubaccount && (
+                <Link
+                  href="/onboard"
+                  className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2"
+                >
+                  Create New Workspace →
+                </Link>
               )}
-              <Link
-                href="/onboard"
-                className="h-14 px-8 rounded-full bg-white/[0.03] border border-white/10 text-white font-medium hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2"
-              >
-                Create New Workspace →
-              </Link>
             </div>
           </div>
 
@@ -175,14 +188,18 @@ export default async function DashboardPage(props: {
                   No workspaces yet
                 </h3>
                 <p className="text-white/50 mt-1 mb-8">
-                  Create your first workspace to start managing campaigns.
+                  {isSubaccount 
+                    ? "You haven't been invited to any workspaces yet."
+                    : "Create your first workspace to start managing campaigns."}
                 </p>
-                <Link
-                  href="/onboard"
-                  className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90 text-sm transition-all"
-                >
-                  Create New Workspace →
-                </Link>
+                {!isSubaccount && (
+                  <Link
+                    href="/onboard"
+                    className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-black font-bold hover:bg-white/90 text-sm transition-all"
+                  >
+                    Create New Workspace →
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="space-y-12">
@@ -196,7 +213,7 @@ export default async function DashboardPage(props: {
                 activeWorkspace.builder_pages.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
                     {activeWorkspace.builder_pages.map((funnel: any) => (
-                      <CampaignCard key={funnel.id} funnel={funnel} />
+                      <CampaignCard key={funnel.id} funnel={funnel} userPermissions={activeWorkspace.userPermissions} />
                     ))}
                   </div>
                 ) : (
@@ -209,12 +226,14 @@ export default async function DashboardPage(props: {
                     <p className="text-white/40 text-[15px]">
                       No campaigns in this workspace yet.
                     </p>
-                    <a
-                      href={"/analyze?workspace=" + activeWorkspace.id}
-                      className="text-white font-semibold mt-4 hover:underline transition-all"
-                    >
-                      Launch your first campaign
-                    </a>
+                    {(!activeWorkspace.userPermissions || activeWorkspace.userPermissions.create !== false) && (
+                      <a
+                        href={"/analyze?workspace=" + activeWorkspace.id}
+                        className="text-white font-semibold mt-4 hover:underline transition-all"
+                      >
+                        Launch your first campaign
+                      </a>
+                    )}
                   </div>
                 )}
               </div>

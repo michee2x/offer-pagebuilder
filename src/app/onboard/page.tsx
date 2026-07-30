@@ -17,29 +17,30 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { UpgradeModal } from "@/components/UpgradeModal";
+import { Switch } from "@/components/ui/switch";
 
-type Step = "name" | "domain" | "team" | "review";
+type Step = "name" | "domain" | "subaccount" | "review";
 
-interface Invite {
+interface SubAccountInvite {
   email: string;
-  role: string;
 }
 
 const stepConfig: Record<Step, { title: string }> = {
   name: { title: "Let's set up your workspace" },
   domain: { title: "Choose your domain" },
-  team: { title: "Invite your team" },
+  subaccount: { title: "Add Sub-Account (Optional)" },
   review: { title: "Review your workspace" },
 };
 
-const stepOrder: Step[] = ["name", "domain", "team", "review"];
+const stepOrder: Step[] = ["name", "domain", "subaccount", "review"];
 
 function OnboardContent() {
   const [currentStep, setCurrentStep] = useState<Step>("name");
   const [workspaceData, setWorkspaceData] = useState({
     name: "",
     domain: "",
-    invites: [{ email: "", role: "Member" }] as Invite[],
+    subaccountEmail: "",
+    subaccountPermissions: { view: true, edit: false, delete: false, create: false },
   });
   const [typedHeadline, setTypedHeadline] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -117,26 +118,10 @@ function OnboardContent() {
     setWorkspaceData((prev) => ({ ...prev, ...updates }));
   };
 
-  const addInvite = () => {
+  const updateSubaccount = (value: string) => {
     setWorkspaceData((prev) => ({
       ...prev,
-      invites: [...prev.invites, { email: "", role: "Member" }],
-    }));
-  };
-
-  const updateInvite = (index: number, field: keyof Invite, value: string) => {
-    setWorkspaceData((prev) => ({
-      ...prev,
-      invites: prev.invites.map((invite, i) =>
-        i === index ? { ...invite, [field]: value } : invite,
-      ),
-    }));
-  };
-
-  const removeInvite = (index: number) => {
-    setWorkspaceData((prev) => ({
-      ...prev,
-      invites: prev.invites.filter((_, i) => i !== index),
+      subaccountEmail: value,
     }));
   };
 
@@ -156,16 +141,16 @@ function OnboardContent() {
         );
         return;
       }
-      setCurrentStep("team");
-    } else if (currentStep === "team") {
+      setCurrentStep("subaccount");
+    } else if (currentStep === "subaccount") {
       setCurrentStep("review");
     }
   };
 
   const prevStep = () => {
     if (currentStep === "domain") setCurrentStep("name");
-    else if (currentStep === "team") setCurrentStep("domain");
-    else if (currentStep === "review") setCurrentStep("team");
+    else if (currentStep === "subaccount") setCurrentStep("domain");
+    else if (currentStep === "review") setCurrentStep("subaccount");
   };
 
   const createWorkspace = async () => {
@@ -184,6 +169,8 @@ function OnboardContent() {
         body: JSON.stringify({
           name: workspaceData.name.trim(),
           domain: workspaceData.domain.trim().toLowerCase(),
+          subaccountEmail: workspaceData.subaccountEmail.trim(),
+          subaccountPermissions: workspaceData.subaccountPermissions,
         }),
       });
 
@@ -332,57 +319,73 @@ function OnboardContent() {
                 </div>
               )}
 
-              {currentStep === "team" && (
+              {currentStep === "subaccount" && (
                 <div className="space-y-4">
-                  {workspaceData.invites.map((invite, index) => (
-                    <div
-                      key={index}
-                      className="grid gap-3 rounded-[16px] bg-[#0a0a0a] p-4"
-                    >
-                      <Input
-                        type="email"
-                        placeholder="colleague@company.com"
-                        value={invite.email}
-                        onChange={(event) =>
-                          updateInvite(index, "email", event.target.value)
-                        }
-                      />
-                      <div className="flex items-center gap-3">
-                        <Select
-                          value={invite.role}
-                          onValueChange={(value) =>
-                            updateInvite(index, "role", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="min-h-10">
-                            <SelectItem value="Member">Member</SelectItem>
-                            <SelectItem value="Admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {workspaceData.invites.length > 1 && (
-                          <Button
-                            type="button"
-                            onClick={() => removeInvite(index)}
-                            variant="outline"
-                            className="rounded-full border-white/10 text-slate-400 hover:border-red-400 hover:text-red-400"
-                          >
-                            Remove
-                          </Button>
-                        )}
+                  <div className="grid gap-3 rounded-[16px] bg-[#0a0a0a] p-4">
+                    <Input
+                      type="email"
+                      placeholder="subaccount@client.com"
+                      value={workspaceData.subaccountEmail}
+                      onChange={(event) =>
+                        updateSubaccount(event.target.value)
+                      }
+                    />
+                    <p className="text-sm text-slate-400 mt-2">
+                      They will receive a magic link to access this workspace.
+                    </p>
+                  </div>
+                  
+                  {workspaceData.subaccountEmail && (
+                    <div className="grid gap-4 rounded-[16px] bg-[#0a0a0a] p-5 border border-white/5">
+                      <div className="text-sm font-semibold text-white mb-2">Sub-Account Permissions</div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm text-white">View Projects</span>
+                          <span className="text-xs text-slate-500">Can view offers in this workspace</span>
+                        </div>
+                        <Switch 
+                          checked={workspaceData.subaccountPermissions.view}
+                          onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, view: checked}}))}
+                          disabled
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm text-white">Create Projects</span>
+                          <span className="text-xs text-slate-500">Can generate new offers</span>
+                        </div>
+                        <Switch 
+                          checked={workspaceData.subaccountPermissions.create}
+                          onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, create: checked}}))}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm text-white">Edit Projects</span>
+                          <span className="text-xs text-slate-500">Can edit existing offers</span>
+                        </div>
+                        <Switch 
+                          checked={workspaceData.subaccountPermissions.edit}
+                          onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, edit: checked}}))}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm text-white">Delete Projects</span>
+                          <span className="text-xs text-slate-500">Can permanently delete offers</span>
+                        </div>
+                        <Switch 
+                          checked={workspaceData.subaccountPermissions.delete}
+                          onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, delete: checked}}))}
+                        />
                       </div>
                     </div>
-                  ))}
-                  <Button
-                    type="button"
-                    onClick={addInvite}
-                    variant="ghost"
-                    className="rounded-[18px] mt-4 bg-white/5 text-white hover:bg-white/10"
-                  >
-                    + Add another team member
-                  </Button>
+                  )}
+
                   <Button
                     type="button"
                     onClick={nextStep}
@@ -407,14 +410,9 @@ function OnboardContent() {
                       <span>https://{workspaceData.domain}.offeriq.com</span>
                     </div>
                     <div className="flex justify-between rounded-2xl bg-white/5 p-4">
-                      <span>Team members</span>
+                      <span>Sub-Account</span>
                       <span>
-                        {
-                          workspaceData.invites.filter((invite) =>
-                            invite.email.trim(),
-                          ).length
-                        }{" "}
-                        invited
+                        {workspaceData.subaccountEmail.trim() || "None"}
                       </span>
                     </div>
                   </div>

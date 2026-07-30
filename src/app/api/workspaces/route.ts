@@ -27,7 +27,9 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function GET() {
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const includeArchived = url.searchParams.get('include_archived') === 'true';
   const session = await getSession();
   if (!session || !session.user?.id) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -72,6 +74,8 @@ export async function GET() {
       name,
       domain,
       created_at,
+      status,
+      archived_at,
       builder_pages (
         id,
         name,
@@ -101,11 +105,15 @@ export async function GET() {
     .from('workspace_members')
     .select(`
       workspace_id,
+      role,
+      permissions,
       workspaces (
         id,
         name,
         domain,
         created_at,
+        status,
+        archived_at,
         builder_pages (
           id,
           name,
@@ -131,8 +139,16 @@ export async function GET() {
   }
 
   // Combine and deduplicate workspaces
+  // Combine and deduplicate workspaces, injecting permissions for member workspaces
   const memberWorkspaces = memberWorkspacesData
-    ?.map((item: WorkspaceMemberRecord) => item.workspaces?.[0])
+    ?.map((item: any) => {
+      const ws = item.workspaces?.[0];
+      if (ws) {
+        ws.userPermissions = item.permissions;
+        ws.userRole = item.role;
+      }
+      return ws;
+    })
     .filter((workspace): workspace is WorkspaceWithPages => Boolean(workspace)) || [];
 
   console.log('Processed member workspaces:', {
@@ -147,10 +163,11 @@ export async function GET() {
     data: allWorkspaces
   });
 
-  // Remove duplicates based on id
+  // Remove duplicates based on id and filter archived if needed
   const uniqueWorkspaces = allWorkspaces.filter(
     (workspace, index, self) =>
-      index === self.findIndex(w => w.id === workspace.id)
+      index === self.findIndex(w => w.id === workspace.id) &&
+      (includeArchived || workspace.status !== 'archived')
   );
 
   console.log('Final unique workspaces:', {
@@ -171,12 +188,16 @@ export async function POST(req: Request) {
   try {
     let name = '';
     let domain = '';
+    let subaccountEmail = '';
+    let subaccountPermissions: any = { view: true, edit: false, delete: false, create: false };
     const contentType = req.headers.get('content-type') || '';
 
     if (contentType.includes('application/json')) {
       const body = await req.json();
       name = body.name;
       domain = body.domain;
+      subaccountEmail = body.subaccountEmail || '';
+      subaccountPermissions = body.subaccountPermissions || { view: true, edit: false, delete: false, create: false };
     } else if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
       const formData = await req.formData();
       const nameValue = formData.get('name');
@@ -193,6 +214,8 @@ export async function POST(req: Request) {
         name = text;
       }
     }
+
+    subaccountEmail = typeof subaccountEmail === 'string' ? subaccountEmail.trim() : '';
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return Response.json({ error: 'Workspace name is required' }, { status: 400 });
@@ -305,6 +328,37 @@ export async function POST(req: Request) {
       return Response.json({ error: memberError.message }, { status: 500 });
     }
 
+    // Handle Sub-Account Invitation
+    if (subaccountEmail) {
+      let subuserId = null;
+      const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(subaccountEmail);
+      
+      if (inviteError && inviteError.message.toLowerCase().includes('already registered')) {
+        const { data: existUser } = await supabaseAdmin.from('users').select('id').eq('email', subaccountEmail).maybeSingle();
+        if (existUser) {
+          subuserId = existUser.id;
+        }
+      } else if (inviteData?.user) {
+        subuserId = inviteData.user.id;
+        // Ensure user exists in public.users table
+        await supabaseAdmin.from('users').upsert({
+          id: subuserId,
+          email: subaccountEmail,
+          name: '',
+          role: 'subaccount'
+        }, { onConflict: 'id' });
+      }
+
+      if (subuserId) {
+        await supabaseAdmin.from('workspace_members').insert({
+          workspace_id: workspace.id,
+          user_id: subuserId,
+          role: 'member',
+          permissions: subaccountPermissions
+        });
+      }
+    }
+
     return Response.json({ workspace });
   } catch (e: any) {
     return Response.json({ error: 'Invalid request' }, { status: 400 });
@@ -347,16 +401,36 @@ export async function DELETE(req: Request) {
       }
     }
 
-    const { error: deleteError } = await supabaseAdmin
-      .from('workspaces')
-      .delete()
-      .eq('id', id);
+    const { count: pagesCount } = await supabaseAdmin
+      .from('builder_pages')
+      .select('id', { count: 'exact', head: true })
+      .eq('workspace_id', id);
 
-    if (deleteError) {
-      return Response.json({ error: deleteError.message }, { status: 500 });
+    if (pagesCount && pagesCount > 0) {
+      // Archive instead of delete
+      const { error: archiveError } = await supabaseAdmin
+        .from('workspaces')
+        .update({ status: 'archived', archived_at: new Date().toISOString() })
+        .eq('id', id);
+
+      if (archiveError) {
+        return Response.json({ error: archiveError.message }, { status: 500 });
+      }
+
+      return Response.json({ success: true, action: 'archived' });
+    } else {
+      // Hard delete if empty
+      const { error: deleteError } = await supabaseAdmin
+        .from('workspaces')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) {
+        return Response.json({ error: deleteError.message }, { status: 500 });
+      }
+
+      return Response.json({ success: true, action: 'deleted' });
     }
-
-    return Response.json({ success: true });
   } catch (e: any) {
     return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }
@@ -370,7 +444,7 @@ export async function PATCH(req: Request) {
 
   try {
     const body = await req.json();
-    const { id, name, domain } = body;
+    const { id, name, domain, action } = body;
 
     if (!id) {
       return Response.json({ error: 'Workspace ID is required' }, { status: 400 });
@@ -389,6 +463,20 @@ export async function PATCH(req: Request) {
 
     if (workspace.user_id !== session.user.id) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (action === 'reactivate') {
+      const { data: updated, error } = await supabaseAdmin
+        .from('workspaces')
+        .update({ status: 'active', archived_at: null })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        return Response.json({ error: error.message }, { status: 500 });
+      }
+      return Response.json({ workspace: updated });
     }
 
     const { data: updated, error } = await supabaseAdmin

@@ -49,16 +49,9 @@ function CheckoutNowContent() {
         const subStatus = data.user?.subscription_status;
         const currentPlan = data.user?.plan;
 
-        if ((subStatus === 'active' || subStatus === 'trialing') && currentPlan && currentPlan !== 'free') {
-          // User already has an active paid subscription
-          setStatus('blocked');
-          setTimeout(() => {
-            router.push('/settings?tab=billing');
-          }, 3000);
-        } else {
-          // Free to proceed with checkout
-          setStatus('clear');
-        }
+        // We allow the user to checkout even if they have an active subscription
+        // This is needed for upgrading plans. Paddle will handle the rest.
+        setStatus('clear');
       } catch {
         // On any error, allow checkout to proceed
         setStatus('clear');
