@@ -144,7 +144,7 @@ export async function GET(req: Request) {
   // Combine and deduplicate workspaces, injecting permissions for member workspaces
   const memberWorkspaces = memberWorkspacesData
     ?.map((item: any) => {
-      const ws = item.workspaces?.[0];
+      const ws = Array.isArray(item.workspaces) ? item.workspaces[0] : item.workspaces;
       if (ws) {
         ws.userPermissions = item.permissions;
         ws.userRole = item.role;
