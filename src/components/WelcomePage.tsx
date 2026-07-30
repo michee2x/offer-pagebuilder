@@ -265,16 +265,27 @@ export function WelcomePage() {
 
   useEffect(() => {
     const supabase = createClient();
+    
+    const handleLoginRedirect = () => {
+      // Small delay to ensure cookies are written
+      setTimeout(() => {
+        // Strip hash from URL without triggering a reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Force a hard reload to ensure Server Components get the new cookies
+        window.location.reload();
+      }, 200);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        window.location.href = '/';
+        handleLoginRedirect();
       }
     });
 
     // Also check immediately in case the session is already established
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        window.location.href = '/';
+        handleLoginRedirect();
       }
     });
 
