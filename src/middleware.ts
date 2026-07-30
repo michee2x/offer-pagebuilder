@@ -91,6 +91,9 @@ export default async function middleware(req: NextRequest) {
   // Protect routes that require authentication
   const protectedRoutes = ['/builder', '/onboard']
   const authRoutes = ['/login', '/signup', '/verify-email']
+  // /auth/invite must always be reachable — user lands here BEFORE the session cookie
+  // is established (Supabase JS reads the hash client-side), so we never block it.
+  const isInviteRoute = url.pathname.startsWith('/auth/invite')
   const isProtectedRoute = protectedRoutes.some(route => url.pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => url.pathname.startsWith(route))
 
@@ -99,7 +102,9 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
-  if (isAuthRoute && user) {
+  // Never bounce already-authenticated users away from /auth/invite
+  // (they are mid-flow setting their password)
+  if (isAuthRoute && user && !isInviteRoute) {
     // If they came from a pricing plan, send to checkout-now which will
     // check subscription status and redirect to billing settings if already subscribed.
     const plan = url.searchParams.get('plan');
