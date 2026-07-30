@@ -17,8 +17,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { UpgradeModal } from "@/components/UpgradeModal";
-import { Switch } from "@/components/ui/switch";
-
+import { UpgradeModal } from "@/components/UpgradeModal";
 type Step = "name" | "domain" | "subaccount" | "review";
 
 interface SubAccountInvite {
@@ -335,60 +334,73 @@ function OnboardContent() {
                     </p>
                   </div>
                   
-                  {workspaceData.subaccountEmail && (
-                    <div className="grid gap-4 rounded-[16px] bg-[#0a0a0a] p-5 border border-white/5">
-                      <div className="text-sm font-semibold text-white mb-2">Sub-Account Permissions</div>
-                      
-                      <div className="flex items-center justify-between">
-                        <label htmlFor="perm-view" className="flex flex-col gap-1 cursor-not-allowed">
-                          <span className="text-sm text-white">View Projects</span>
-                          <span className="text-xs text-slate-500">Can view offers in this workspace</span>
-                        </label>
-                        <Switch 
-                          id="perm-view"
+                  <div className="grid gap-4 rounded-[16px] bg-[#0a0a0a] p-5 border border-white/5">
+                    <div className="text-sm font-semibold text-white mb-2">Sub-Account Permissions</div>
+                    
+                    <label className="flex items-center justify-between cursor-pointer group">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm text-white">View Projects</span>
+                        <span className="text-xs text-slate-500">Can view offers in this workspace</span>
+                      </div>
+                      <div className="relative flex items-center">
+                        <input 
+                          type="checkbox"
+                          className="sr-only peer"
                           checked={workspaceData.subaccountPermissions.view}
-                          onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, view: checked}}))}
-                          disabled
+                          readOnly
                         />
+                        <div className="w-10 h-6 bg-blue-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all cursor-not-allowed opacity-50"></div>
                       </div>
+                    </label>
 
-                      <div className="flex items-center justify-between">
-                        <label htmlFor="perm-create" className="flex flex-col gap-1 cursor-pointer">
-                          <span className="text-sm text-white">Create Projects</span>
-                          <span className="text-xs text-slate-500">Can generate new offers</span>
-                        </label>
-                        <Switch 
-                          id="perm-create"
+                    <label className="flex items-center justify-between cursor-pointer group">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm text-white">Create Projects</span>
+                        <span className="text-xs text-slate-500">Can generate new offers</span>
+                      </div>
+                      <div className="relative flex items-center">
+                        <input 
+                          type="checkbox"
+                          className="sr-only peer"
                           checked={workspaceData.subaccountPermissions.create}
-                          onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, create: checked}}))}
+                          onChange={(e) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, create: e.target.checked}}))}
                         />
+                        <div className="w-10 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                       </div>
+                    </label>
 
-                      <div className="flex items-center justify-between">
-                        <label htmlFor="perm-edit" className="flex flex-col gap-1 cursor-pointer">
-                          <span className="text-sm text-white">Edit Projects</span>
-                          <span className="text-xs text-slate-500">Can edit existing offers</span>
-                        </label>
-                        <Switch 
-                          id="perm-edit"
+                    <label className="flex items-center justify-between cursor-pointer group">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm text-white">Edit Projects</span>
+                        <span className="text-xs text-slate-500">Can edit existing offers</span>
+                      </div>
+                      <div className="relative flex items-center">
+                        <input 
+                          type="checkbox"
+                          className="sr-only peer"
                           checked={workspaceData.subaccountPermissions.edit}
-                          onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, edit: checked}}))}
+                          onChange={(e) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, edit: e.target.checked}}))}
                         />
+                        <div className="w-10 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                       </div>
+                    </label>
 
-                      <div className="flex items-center justify-between">
-                        <label htmlFor="perm-delete" className="flex flex-col gap-1 cursor-pointer">
-                          <span className="text-sm text-white">Delete Projects</span>
-                          <span className="text-xs text-slate-500">Can permanently delete offers</span>
-                        </label>
-                        <Switch 
-                          id="perm-delete"
-                          checked={workspaceData.subaccountPermissions.delete}
-                          onCheckedChange={(checked) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, delete: checked}}))}
-                        />
+                    <label className="flex items-center justify-between cursor-pointer group">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm text-white">Delete Projects</span>
+                        <span className="text-xs text-slate-500">Can permanently delete offers</span>
                       </div>
-                    </div>
-                  )}
+                      <div className="relative flex items-center">
+                        <input 
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={workspaceData.subaccountPermissions.delete}
+                          onChange={(e) => setWorkspaceData(prev => ({...prev, subaccountPermissions: {...prev.subaccountPermissions, delete: e.target.checked}}))}
+                        />
+                        <div className="w-10 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </div>
+                    </label>
+                  </div>
 
                   <Button
                     type="button"
