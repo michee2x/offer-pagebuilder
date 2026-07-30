@@ -1,28 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
 import { getSession } from '@/auth';
-
-type WorkspaceWithPages = {
-  id: any;
-  name: any;
-  domain: any;
-  created_at: any;
-  status?: string;
-  archived_at?: string | null;
-  builder_pages: {
-    id: any;
-    name: any;
-    updated_at: any;
-    og_image_url: any;
-    subdomain: any;
-    custom_domain: any;
-    blocks: any;
-  }[];
-};
-
-type WorkspaceMemberRecord = {
-  workspace_id: any;
-  workspaces: WorkspaceWithPages[] | null;
-};
+import { getUserWorkspaces } from '@/lib/workspaces';
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,148 +15,18 @@ export async function GET(req: Request) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  console.log('GET /api/workspaces for user:', session.user.id);
+  try {
+    const uniqueWorkspaces = await getUserWorkspaces(
+      session.user.id,
+      session.user.email || '',
+      session.user.user_metadata?.name || '',
+      includeArchived
+    );
 
-  // Ensure user exists in users table
-  const { data: existingUser, error: userCheckError } = await supabaseAdmin
-    .from('users')
-    .select('id')
-    .eq('id', session.user.id)
-    .maybeSingle();
-
-  let userId = session.user.id;
-
-  if (!existingUser && !userCheckError) {
-    // Use session.user directly — no need for an extra Auth API call
-    const { data: newUser, error: createUserError } = await supabaseAdmin
-      .from('users')
-      .insert({
-        id: session.user.id,
-        email: session.user.email || '',
-        name: session.user.user_metadata?.name || '',
-      })
-      .select('id')
-      .single();
-
-    if (createUserError) {
-      console.error('Failed to create user record:', createUserError);
-      console.log('Continuing without user record creation for Supabase Auth user');
-    } else if (newUser) {
-      userId = newUser.id;
-    }
+    return Response.json({ workspaces: uniqueWorkspaces });
+  } catch (err: any) {
+    return Response.json({ error: err.message }, { status: 500 });
   }
-
-  // Then get owned workspaces
-  const { data: ownedWorkspaces, error: ownedError } = await supabaseAdmin
-    .from('workspaces')
-    .select(`
-      id,
-      name,
-      domain,
-      created_at,
-      status,
-      archived_at,
-      builder_pages (
-        id,
-        name,
-        updated_at,
-        og_image_url,
-        subdomain,
-        custom_domain,
-        blocks
-      )
-    `)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-
-  console.log('Owned workspaces query result:', {
-    count: ownedWorkspaces?.length || 0,
-    error: ownedError,
-    data: ownedWorkspaces
-  });
-
-  if (ownedError) {
-    console.error('GET /api/workspaces owned workspaces error:', ownedError);
-    return Response.json({ error: ownedError.message }, { status: 500 });
-  }
-
-  // Then get workspaces where user is a member
-  const { data: memberWorkspacesData, error: memberError } = await supabaseAdmin
-    .from('workspace_members')
-    .select(`
-      workspace_id,
-      role,
-      permissions,
-      workspaces (
-        id,
-        name,
-        domain,
-        created_at,
-        status,
-        archived_at,
-        builder_pages (
-          id,
-          name,
-          updated_at,
-          og_image_url,
-          subdomain,
-          custom_domain,
-          blocks
-        )
-      )
-    `)
-    .eq('user_id', userId);
-
-  console.log('Member workspaces query result:', {
-    count: memberWorkspacesData?.length || 0,
-    error: memberError,
-    data: memberWorkspacesData
-  });
-
-  if (memberError) {
-    console.error('GET /api/workspaces member workspaces error:', memberError);
-    return Response.json({ error: memberError.message }, { status: 500 });
-  }
-
-  // Combine and deduplicate workspaces
-  // Combine and deduplicate workspaces, injecting permissions for member workspaces
-  const memberWorkspaces = memberWorkspacesData
-    ?.map((item: any) => {
-      const ws = Array.isArray(item.workspaces) ? item.workspaces[0] : item.workspaces;
-      if (ws) {
-        ws.userPermissions = item.permissions;
-        ws.userRole = item.role;
-      }
-      return ws;
-    })
-    .filter((workspace): workspace is WorkspaceWithPages => Boolean(workspace)) || [];
-
-  console.log('Processed member workspaces:', {
-    count: memberWorkspaces.length,
-    data: memberWorkspaces
-  });
-
-  const allWorkspaces = [...(ownedWorkspaces || []), ...memberWorkspaces];
-
-  console.log('Combined workspaces before deduplication:', {
-    count: allWorkspaces.length,
-    data: allWorkspaces
-  });
-
-  // Remove duplicates based on id and filter archived if needed
-  const uniqueWorkspaces = allWorkspaces.filter(
-    (workspace, index, self) =>
-      index === self.findIndex(w => w.id === workspace.id) &&
-      (includeArchived || workspace.status !== 'archived')
-  );
-
-  console.log('Final unique workspaces:', {
-    count: uniqueWorkspaces.length,
-    data: uniqueWorkspaces
-  });
-
-  console.log('GET /api/workspaces result count:', uniqueWorkspaces.length);
-  return Response.json({ workspaces: uniqueWorkspaces });
 }
 
 export async function POST(req: Request) {

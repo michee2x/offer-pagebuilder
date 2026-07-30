@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { headers, cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { Folder } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
@@ -8,49 +7,43 @@ import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
 import { CampaignCard } from "@/components/CampaignCard";
 import { WelcomePage } from "@/components/WelcomePage";
+import { getSession } from "@/auth";
+import { getUserWorkspaces } from "@/lib/workspaces";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function DashboardPage(props: {
   searchParams: Promise<{ workspace?: string }>;
 }) {
   const { workspace } = await props.searchParams;
 
-  const requestHeaders = await headers();
-  const cookieHeader = requestHeaders.get("cookie") || undefined;
-  const host = requestHeaders.get("host");
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-    ? process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
-    : host?.includes("localhost")
-      ? `http://${host}`
-      : host
-        ? `https://${host}`
-        : "http://localhost:3000";
-
-  const response = await fetch(new URL("/api/workspaces", baseUrl), {
-    method: "GET",
-    cache: "no-store",
-    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-  });
-
-  const userRes = await fetch(new URL("/api/user", baseUrl), {
-    method: "GET",
-    cache: "no-store",
-    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
-  });
-  const userData = userRes.ok ? await userRes.json() : null;
-  const isSubaccount = userData?.user?.role === 'subaccount';
-
-  if (response.status === 401) {
+  const session = await getSession();
+  
+  if (!session || !session.user) {
     return <WelcomePage />;
   }
 
-  const result = await response.json();
-  const allWorkspaces = response.ok ? result.workspaces || [] : [];
-  const error = response.ok
-    ? null
-    : result.error || new Error("Failed to load workspaces");
+  const supabase = await createClient();
+  const { data: dbUser } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', session.user.id)
+    .single();
 
-  if (error) {
-    console.error("Dashboard workspace query error:", error);
+  const isSubaccount = dbUser?.role === 'subaccount';
+
+  let allWorkspaces: any[] = [];
+  let error: any = null;
+
+  try {
+    allWorkspaces = await getUserWorkspaces(
+      session.user.id,
+      session.user.email || '',
+      session.user.user_metadata?.name || '',
+      false
+    );
+  } catch (err: any) {
+    console.error("Dashboard workspace query error:", err);
+    error = err;
   }
 
   const cookieStore = await cookies();
