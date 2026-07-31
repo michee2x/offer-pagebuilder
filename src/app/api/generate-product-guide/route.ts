@@ -198,7 +198,16 @@ export async function POST(req: Request) {
     const fileUrl = publicUrlData.publicUrl;
 
     // 5. Save file metadata to Funnel Blocks
-    const currentFiles = Array.isArray(funnel.blocks?.blueprintFiles) ? funnel.blocks.blueprintFiles : [];
+    // IMPORTANT: Fetch fresh blocks right before saving to avoid overwriting
+    // the 'generating' placeholder entries that were added by the kickoff endpoint
+    // while this product guide was being generated.
+    const { data: freshFunnel } = await supabase
+      .from("builder_pages")
+      .select("blocks")
+      .eq("id", funnelId)
+      .single();
+
+    const currentFiles = Array.isArray(freshFunnel?.blocks?.blueprintFiles) ? freshFunnel.blocks.blueprintFiles : [];
     const fileId = crypto.randomUUID();
     const newFile = {
       id: fileId,
@@ -212,7 +221,7 @@ export async function POST(req: Request) {
 
     await supabase
       .from("builder_pages")
-      .update({ blocks: { ...funnel.blocks, blueprintFiles: [...currentFiles, newFile] } })
+      .update({ blocks: { ...freshFunnel?.blocks, blueprintFiles: [...currentFiles, newFile] } })
       .eq("id", funnelId);
 
     const totalTime = Date.now() - startTime;
