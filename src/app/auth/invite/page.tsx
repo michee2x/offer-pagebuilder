@@ -18,29 +18,50 @@ export default function InvitePage() {
   useEffect(() => {
     const supabase = createClient();
 
-    // By the time the user lands here, the server-side /auth/callback route
-    // has already exchanged the PKCE code for a session and set the cookies.
-    // We just need to detect that session.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    console.log('[invite] page loaded');
+    console.log('[invite] URL hash:', window.location.hash);
+    console.log('[invite] URL search:', window.location.search);
+
+    // PKCE flow: Supabase sends ?code= in the URL query string
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      console.log('[invite] detected PKCE code, exchanging...');
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        console.log('[invite] exchangeCodeForSession result:', { session: !!data?.session, error: error?.message });
+        if (!error && data?.session) {
+          window.history.replaceState({}, '', window.location.pathname);
+          setStage('set-password');
+        } else {
+          setStage('error');
+        }
+      });
+      return;
+    }
+
+    // Implicit flow: Supabase sends #access_token= in the URL hash.
+    // @supabase/ssr's createBrowserClient reads the hash automatically
+    // and fires onAuthStateChange with the session.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[invite] onAuthStateChange:', event, 'session:', !!session);
       if (session) {
-        setStage("set-password");
+        setStage('set-password');
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Also check immediately — session may already be parsed from the hash
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('[invite] getSession result:', { session: !!session, error: error?.message });
       if (session) {
-        setStage("set-password");
+        setStage('set-password');
       } else {
-        // Check for an error passed from the callback route
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("error")) {
-          setStage("error");
-          return;
-        }
-        // No session yet — wait briefly then show error
+        // Give Supabase JS time to process the hash before showing error
         setTimeout(() => {
-          setStage(prev => prev === "loading" ? "error" : prev);
-        }, 3000);
+          setStage(prev => {
+            console.log('[invite] timeout fired, current stage:', prev);
+            return prev === 'loading' ? 'error' : prev;
+          });
+        }, 5000);
       }
     });
 

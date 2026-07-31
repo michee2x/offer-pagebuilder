@@ -181,7 +181,7 @@ export async function POST(req: Request) {
     // Handle Sub-Account Invitation
     if (subaccountEmail) {
       let subuserId = null;
-      const inviteRedirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ofiq.app'}/auth/callback?type=invite`;
+      const inviteRedirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ofiq.app'}/auth/invite`;
       const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(subaccountEmail, {
         redirectTo: inviteRedirectUrl,
       });
