@@ -18,42 +18,29 @@ export default function InvitePage() {
   useEffect(() => {
     const supabase = createClient();
 
-    // 1. Check for PKCE code in the URL (Newer Supabase Projects)
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-        if (!error && data.session) {
-          setStage("set-password");
-          // Remove the code from the URL so it doesn't get exchanged again on refresh
-          window.history.replaceState({}, document.title, window.location.pathname);
-        } else {
-          setStage("error");
-        }
-      });
-      return;
-    }
-
-    // 2. Implicit Flow (Older Supabase Projects)
-    // Supabase JS automatically reads the #access_token from the URL hash
-    // and fires SIGNED_IN when it processes an invite link.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // By the time the user lands here, the server-side /auth/callback route
+    // has already exchanged the PKCE code for a session and set the cookies.
+    // We just need to detect that session.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        // Always show set-password when landing on this page via an invite link
         setStage("set-password");
       }
     });
 
-    // Also check if session is already set (hash already consumed on re-render)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setStage("set-password");
       } else {
-        // Wait 2.5s — if still no session after hash should be consumed, show error
+        // Check for an error passed from the callback route
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("error")) {
+          setStage("error");
+          return;
+        }
+        // No session yet — wait briefly then show error
         setTimeout(() => {
           setStage(prev => prev === "loading" ? "error" : prev);
-        }, 2500);
+        }, 3000);
       }
     });
 
