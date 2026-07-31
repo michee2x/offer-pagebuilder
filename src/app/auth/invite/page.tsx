@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,24 @@ export default function InvitePage() {
   useEffect(() => {
     const supabase = createClient();
 
+    // 1. Check for PKCE code in the URL (Newer Supabase Projects)
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        if (!error && data.session) {
+          setStage("set-password");
+          // Remove the code from the URL so it doesn't get exchanged again on refresh
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+          setStage("error");
+        }
+      });
+      return;
+    }
+
+    // 2. Implicit Flow (Older Supabase Projects)
     // Supabase JS automatically reads the #access_token from the URL hash
     // and fires SIGNED_IN when it processes an invite link.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -39,7 +57,7 @@ export default function InvitePage() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => subscription?.unsubscribe();
   }, []);
 
   const handleSetPassword = async (e: React.FormEvent) => {
