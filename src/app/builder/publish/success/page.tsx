@@ -89,8 +89,49 @@ function DeploymentSuccessContent() {
   };
 
   const handleGenerateProductGuide = async () => {
-    toast.loading('Generating your product guide in the background... Feel free to navigate away!', { id: 'product-guide' });
+    toast.loading('Generating Product Guide, Lead Magnet, and Bonus in the background... Feel free to navigate away!', { id: 'product-guide' });
     try {
+      // 1. Kickoff Lead Magnet and Bonus background generation
+      fetch('/api/generate-blueprints-auto/kickoff', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ funnelId: pageId })
+      })
+      .then(r => r.json())
+      .then(kickoffData => {
+        if (kickoffData.success) {
+          // Fire and forget execute calls
+          if (kickoffData.leadMagnet) {
+            fetch('/api/generate-blueprints-auto/execute', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                funnelId: pageId,
+                type: 'lead',
+                topic: kickoffData.leadMagnet.topic,
+                format: kickoffData.leadMagnet.fileType,
+                fileId: kickoffData.leadMagnet.id
+              })
+            }).catch(console.error);
+          }
+          if (kickoffData.bonus) {
+            fetch('/api/generate-blueprints-auto/execute', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                funnelId: pageId,
+                type: 'bonus',
+                topic: kickoffData.bonus.topic,
+                format: kickoffData.bonus.fileType,
+                fileId: kickoffData.bonus.id
+              })
+            }).catch(console.error);
+          }
+        }
+      })
+      .catch(console.error);
+
+      // 2. Generate Product Guide
       const res = await fetch('/api/generate-product-guide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,7 +139,8 @@ function DeploymentSuccessContent() {
       });
       if (!res.ok) throw new Error('Generation failed');
       const data = await res.json();
-      toast.success('Your product guide is ready!', {
+      
+      toast.success('Your Product Guide is ready! Other assets are generating.', {
         id: 'product-guide',
         duration: 20000,
         action: {

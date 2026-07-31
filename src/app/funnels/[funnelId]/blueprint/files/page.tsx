@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 import { Button } from "@/components/ui/button";
-import { Download, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Download, ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { revalidatePath } from "next/cache";
 
 export default async function BlueprintFilesPage({
@@ -192,7 +192,12 @@ export default async function BlueprintFilesPage({
                                 : "—"}
                             </td>
                             <td className="px-5 py-4 align-middle text-sm">
-                              {isActive ? (
+                              {file.status === "generating" ? (
+                                <div className="inline-flex items-center rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/50">
+                                  <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                                  Generating...
+                                </div>
+                              ) : isActive ? (
                                 <div className="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-1 text-xs font-semibold text-green-400">
                                   <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                                   Active Lead Magnet
@@ -207,17 +212,21 @@ export default async function BlueprintFilesPage({
                               )}
                             </td>
                             <td className="px-5 py-4 align-middle text-sm">
-                              <Link
-                                href={`/api/blueprints/download?funnelId=${encodeURIComponent(
-                                  funnelId,
-                                )}&fileId=${encodeURIComponent(downloadId)}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
-                              >
-                                <Download className="w-4 h-4 mr-2" />
-                                Download
-                              </Link>
+                              {file.status === "generating" ? (
+                                <span className="text-xs text-white/30 italic">Processing...</span>
+                              ) : (
+                                <Link
+                                  href={`/api/blueprints/download?funnelId=${encodeURIComponent(
+                                    funnelId,
+                                  )}&fileId=${encodeURIComponent(downloadId)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                                >
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Download
+                                </Link>
+                              )}
                             </td>
                           </tr>
                           );

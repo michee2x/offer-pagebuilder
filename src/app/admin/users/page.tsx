@@ -57,9 +57,11 @@ function fmtDate(d: string) {
 function roleBadge(u: Pick<UserRow, "role" | "is_admin">) {
   if (u.is_admin || u.role === "admin")
     return { label: "Admin", cls: "bg-purple-100 text-purple-700 border-purple-200" };
+  if (u.role === "subadmin")
+    return { label: "Subadmin", cls: "bg-orange-100 text-orange-700 border-orange-200" };
   if (u.role === "agency")
     return { label: "Agency", cls: "bg-blue-100 text-blue-700 border-blue-200" };
-  return { label: "Free", cls: "bg-gray-100 text-gray-600 border-gray-200" };
+  return { label: "User", cls: "bg-gray-100 text-gray-600 border-gray-200" };
 }
 
 /* ─── Component ───────────────────────────────────────────────── */
@@ -311,11 +313,9 @@ export default function AdminUsersDashboard() {
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.cls}`}>
                           {badge.label}
                         </span>
-                        {user.plan && user.plan !== 'free' && (
-                          <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-                            {user.plan} plan
-                          </span>
-                        )}
+                        <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+                          {user.plan ? `${user.plan} plan` : 'Free plan'}
+                        </span>
                       </div>
                     </td>
 
@@ -548,8 +548,6 @@ export default function AdminUsersDashboard() {
                 <option value="agency">Agency</option>
               </select>
             </div>
-            
-            {editForm.plan === 'free' && (
               <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-2">
                 <div className="space-y-2">
                   <Label htmlFor="edit-credits-limit" className="text-gray-700">Monthly Credits</Label>
@@ -561,7 +559,7 @@ export default function AdminUsersDashboard() {
                     onChange={(e) => setEditForm({ ...editForm, credits_limit: parseInt(e.target.value) || 0 })}
                     className="border-gray-300 text-gray-900 bg-white"
                   />
-                  <p className="text-[11px] text-gray-400">Admin override for free plan</p>
+                  <p className="text-[11px] text-gray-400">Admin override for user</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="edit-workspace-limit" className="text-gray-700">Workspace Limit</Label>
@@ -576,7 +574,6 @@ export default function AdminUsersDashboard() {
                   <p className="text-[11px] text-gray-400">Default is 1</p>
                 </div>
               </div>
-            )}
             <DialogFooter className="pt-4">
               <Button
                 type="button"
