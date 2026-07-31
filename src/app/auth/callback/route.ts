@@ -5,16 +5,11 @@ import { createServerClient } from '@supabase/ssr'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const type = searchParams.get('type') // 'invite', 'recovery', etc.
 
   if (code) {
-    const response = NextResponse.redirect(
-      // If it's an invite, send them to the set-password page
-      // Otherwise fall back to the home page
-      type === 'invite'
-        ? new URL('/auth/invite', origin)
-        : new URL('/', origin)
-    )
+    // Always redirect to /auth/invite after exchange —
+    // this callback is only triggered by invite emails.
+    const response = NextResponse.redirect(new URL('/auth/invite', origin))
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,10 +35,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth/invite?error=invalid_code', origin))
     }
 
-    // Session is now set in cookies — redirect user to invite page
+    // Session cookies are set — send user to the set-password page
     return response
   }
 
-  // No code — redirect to home
+  // No code present — go home
   return NextResponse.redirect(new URL('/', origin))
 }
