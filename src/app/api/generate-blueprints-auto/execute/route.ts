@@ -130,7 +130,7 @@ export async function POST(req: Request) {
     }
 
     // 3. Render file
-    let fileBuffer: Buffer;
+    let fileBuffer: Buffer = Buffer.alloc(0);
     let contentType = "application/pdf";
     let fileExtension = "pdf";
 
