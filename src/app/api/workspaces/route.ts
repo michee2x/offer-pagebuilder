@@ -193,22 +193,31 @@ export async function POST(req: Request) {
         }
       } else if (inviteData?.user) {
         subuserId = inviteData.user.id;
+        // Prevent unique constraint errors during testing if the user was deleted from auth.users but not public.users
+        await supabaseAdmin.from('users').delete().eq('email', subaccountEmail).neq('id', subuserId);
+        
         // Ensure user exists in public.users table
-        await supabaseAdmin.from('users').upsert({
+        const { error: upsertErr } = await supabaseAdmin.from('users').upsert({
           id: subuserId,
           email: subaccountEmail,
           name: '',
           role: 'subaccount'
         }, { onConflict: 'id' });
+        
+        if (upsertErr) console.error("Upsert user error:", upsertErr);
       }
 
       if (subuserId) {
-        await supabaseAdmin.from('workspace_members').insert({
+        const { error: memberInsertError } = await supabaseAdmin.from('workspace_members').insert({
           workspace_id: workspace.id,
           user_id: subuserId,
           role: 'member',
           permissions: subaccountPermissions
         });
+        
+        if (memberInsertError) {
+          console.error("Failed to insert subaccount into workspace_members:", memberInsertError);
+        }
       }
     }
 
