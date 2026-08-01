@@ -231,7 +231,7 @@ const CheckIcon = () => {
 const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
   const isWebP = src.endsWith('.webp');
   return (
-    <div className="w-full mx-auto bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
+    <div className="w-full bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
       {isWebP ? (
         <img
           src={src}
@@ -888,7 +888,7 @@ export function WelcomePage() {
         <div className="max-w-[1180px] mx-auto px-7">
           <Reveal>
             <div
-              className="w-full flex flex-col gap-[60px] p-[32px] md:p-[60px]"
+              className="w-full flex flex-col gap-[60px]"
             >
               {/* Header — same style as Illustrative Scenarios / Replace The Stack */}
               <div className="flex flex-col items-center text-center gap-3 w-full max-w-[680px] mx-auto">
@@ -908,18 +908,15 @@ export function WelcomePage() {
 
               {/* Timeline rows */}
               <div className="relative">
-                {/* Thin vertical center line — hidden on mobile */}
-                <div
-                  className="hidden md:block absolute left-1/2 top-4 bottom-4 w-px -translate-x-1/2 bg-white/10 pointer-events-none"
-                />
+
 
                 <div className="flex flex-col gap-0">
 
                   {/* ── Row 1: text LEFT · spine · video RIGHT ── */}
                   <Reveal>
-                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
+                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
                       {/* Left — copy */}
-                      <div className="flex flex-col pr-0 md:pr-4">
+                      <div className="flex flex-col">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
                           <img src="/3d-icons/3dicons-map-pin-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 01 · Two Ways to Start
                         </span>
@@ -933,15 +930,10 @@ export function WelcomePage() {
                         </ul>
                       </div>
 
-                      {/* Spine circle */}
-                      <div className="hidden md:flex flex-col items-center justify-center self-stretch relative">
-                        <div className="w-7 h-7 rounded-full bg-[#1F1F24] border border-white/15 text-white/70 font-mono text-[12px] font-medium flex items-center justify-center z-10 shadow-md">
-                          1
-                        </div>
-                      </div>
+
 
                       {/* Right — video */}
-                      <div className="pl-0 md:pl-4">
+                      <div className="">
                         <ProductVideo
                           src="/videos/SCREEN_1_loop_1080p.mp4"
                           alt="OfferIQ choice gate to intelligence report"
@@ -952,24 +944,19 @@ export function WelcomePage() {
 
                   {/* ── Row 2: video LEFT · spine · text RIGHT ── */}
                   <Reveal>
-                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
+                    <div className="relative grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
                       {/* Left — video */}
-                      <div className="pr-0 md:pr-4 order-2 md:order-1">
+                      <div className="order-2 md:order-1">
                         <ProductVideo
                           src="/videos/SCREEN_2_loop_1080p.mp4"
                           alt="Copy Engine writing live from your Intelligence Report"
                         />
                       </div>
 
-                      {/* Spine circle */}
-                      <div className="hidden md:flex flex-col items-center justify-center self-stretch relative order-2">
-                        <div className="w-7 h-7 rounded-full bg-[#1F1F24] border border-white/15 text-white/70 font-mono text-[12px] font-medium flex items-center justify-center z-10 shadow-md">
-                          2
-                        </div>
-                      </div>
+
 
                       {/* Right — copy */}
-                      <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
+                      <div className="flex flex-col order-1 md:order-2">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
                           <img src="/3d-icons/3dicons-pencil-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 02 · Copy &amp; Funnel Builder
                         </span>
@@ -988,9 +975,9 @@ export function WelcomePage() {
 
                   {/* ── Row 3: text LEFT · spine · video RIGHT ── */}
                   <Reveal>
-                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
+                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-x-8 gap-y-8 items-center pb-[60px] md:pb-[80px]">
                       {/* Left — copy */}
-                      <div className="flex flex-col pr-0 md:pr-4">
+                      <div className="flex flex-col">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
                           <img src="/3d-icons/3dicons-rocket-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 03 · Publish &amp; Analytics
                         </span>
@@ -1004,15 +991,10 @@ export function WelcomePage() {
                         </ul>
                       </div>
 
-                      {/* Spine circle */}
-                      <div className="hidden md:flex flex-col items-center justify-center self-stretch relative">
-                        <div className="w-7 h-7 rounded-full bg-[#1F1F24] border border-white/15 text-white/70 font-mono text-[12px] font-medium flex items-center justify-center z-10 shadow-md">
-                          3
-                        </div>
-                      </div>
+
 
                       {/* Right — video */}
-                      <div className="pl-0 md:pl-4">
+                      <div className="">
                         <ProductVideo
                           src="/videos/SCREEN_3_loop_1080p.mp4"
                           alt="Published pages with design direction applied"
@@ -1023,24 +1005,19 @@ export function WelcomePage() {
 
                   {/* ── Row 4: video LEFT · spine · text RIGHT ── */}
                   <Reveal>
-                    <div className="relative grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-x-8 gap-y-8 items-center">
+                    <div className="relative grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-x-8 gap-y-8 items-center">
                       {/* Left — video */}
-                      <div className="pr-0 md:pr-4 order-2 md:order-1">
+                      <div className="order-2 md:order-1">
                         <ProductVideo
                           src="/videos/SCREEN_4_loop_1080p.mp4"
                           alt="Traffic Intelligence platform priority matrix"
                         />
                       </div>
 
-                      {/* Spine circle */}
-                      <div className="hidden md:flex flex-col items-center justify-center self-stretch relative order-2">
-                        <div className="w-7 h-7 rounded-full bg-[#1F1F24] border border-white/15 text-white/70 font-mono text-[12px] font-medium flex items-center justify-center z-10 shadow-md">
-                          4
-                        </div>
-                      </div>
+
 
                       {/* Right — copy */}
-                      <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
+                      <div className="flex flex-col order-1 md:order-2">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
                           <img src="/3d-icons/3dicons-megaphone-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 04 · Lead Generation &amp; Engagement
                         </span>
