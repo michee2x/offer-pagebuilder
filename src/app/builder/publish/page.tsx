@@ -18,6 +18,10 @@ import {
   Info,
   Upload,
   Code,
+  AlertCircle,
+  X,
+  RefreshCw,
+  Link2,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -52,6 +56,14 @@ function PublishContent() {
 
   const [subdomain, setSubdomain]         = useState('');
   const [customDomain, setCustomDomain]   = useState('');
+
+  // Custom domain verification state
+  const [domainVerified, setDomainVerified]       = useState(false);
+  const [domainConfigured, setDomainConfigured]   = useState(false);
+  const [domainCheckError, setDomainCheckError]   = useState<string | null>(null);
+  const [domainChecking, setDomainChecking]       = useState(false);
+  const [domainVerification, setDomainVerification] = useState<any[]>([]);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // SEO state
   const [seoTitle, setSeoTitle]           = useState('');
@@ -132,8 +144,53 @@ function PublishContent() {
       savedSubdomainRef.current = pageData.subdomain || '';
       savedSeoTitleRef.current  = pageData.seo_title || pageData.name || '';
       savedSeoDescRef.current   = pageData.seo_description || '';
+      // If page already has a saved custom domain, start polling its status
+      if (pageData.custom_domain) {
+        startDomainPolling(pageData.custom_domain);
+      }
     }
   }, [loading, pageData]);
+
+  // ─── Domain verification polling ────────────────────────────────────
+  const checkDomainStatus = async (domain: string) => {
+    if (!domain) return;
+    try {
+      setDomainChecking(true);
+      const res = await fetch(`/api/domains/status?domain=${encodeURIComponent(domain)}`);
+      const data = await res.json();
+      if (data.noVercel) {
+        // Vercel not configured server-side — stop polling gracefully
+        stopDomainPolling();
+        return;
+      }
+      setDomainVerified(data.verified || false);
+      setDomainConfigured(data.configured || false);
+      setDomainCheckError(data.error || null);
+      setDomainVerification(data.verification || []);
+      // Once verified, stop polling
+      if (data.verified) stopDomainPolling();
+    } catch {
+      // Ignore transient network errors
+    } finally {
+      setDomainChecking(false);
+    }
+  };
+
+  const startDomainPolling = (domain: string) => {
+    stopDomainPolling();
+    checkDomainStatus(domain);
+    pollIntervalRef.current = setInterval(() => checkDomainStatus(domain), 6000);
+  };
+
+  const stopDomainPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  };
+
+  // Cleanup on unmount
+  useEffect(() => () => stopDomainPolling(), []);
 
   // Block browser close / tab close when there are unsaved changes
   useEffect(() => {
@@ -197,14 +254,57 @@ function PublishContent() {
       const data = await res.json();
       toast.dismiss();
       if (!res.ok) throw new Error(data.error || 'Failed to update domain');
+
       // Sync ref so the guard knows this value is now saved
       if (type === 'subdomain') savedSubdomainRef.current = subdomain;
-      toast.success(
-        `${type === 'subdomain' ? 'Subdomain' : 'Custom domain'} updated!`
-      );
+
+      if (type === 'custom') {
+        if (customDomain.trim()) {
+          // Reset verification state and start polling
+          setDomainVerified(false);
+          setDomainConfigured(false);
+          setDomainCheckError(null);
+          setDomainVerification([]);
+          startDomainPolling(customDomain.trim());
+          if (data.vercel?.error) {
+            toast.warning(`Domain saved, but Vercel registration had an issue: ${data.vercel.error}`);
+          } else {
+            toast.success('Custom domain connected! Now add the DNS records below to your registrar.');
+          }
+        } else {
+          // Domain cleared
+          stopDomainPolling();
+          setDomainVerified(false);
+          setDomainConfigured(false);
+          toast.success('Custom domain removed.');
+        }
+      } else {
+        toast.success('Subdomain updated!');
+      }
     } catch (err: any) {
       toast.dismiss();
       toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemoveCustomDomain = async () => {
+    setCustomDomain('');
+    stopDomainPolling();
+    setDomainVerified(false);
+    setDomainConfigured(false);
+    setDomainCheckError(null);
+    try {
+      setSaving(true);
+      await fetch('/api/domains', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageId: id, custom_domain: '' }),
+      });
+      toast.success('Custom domain removed.');
+    } catch {
+      toast.error('Failed to remove custom domain.');
     } finally {
       setSaving(false);
     }
@@ -621,63 +721,153 @@ function PublishContent() {
                 {activeTab === 'custom' && (
                   <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <PlanGate requiredPlan="growth" feature="Custom Domains">
+
+                    {/* ── Intro ── */}
                     <p className="text-sm text-muted-foreground mb-4">
-                      Connect your own custom domain (e.g., yourdomain.com). Update your
-                      DNS records accordingly.
+                      Connect any domain you own (Namecheap, GoDaddy, Google Domains, etc.).
+                      We'll guide you through the DNS setup step by step.
                     </p>
-                    <div className="flex items-center bg-background border border-border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all mb-6 max-w-xl">
+
+                    {/* ── Domain input row ── */}
+                    <div className="flex items-center bg-background border border-border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all mb-3 max-w-xl">
                       <div className="px-4 bg-muted/50 border-r border-border text-sm font-medium text-muted-foreground h-11 flex items-center shrink-0 gap-2">
                         <Lock className="w-3.5 h-3.5 text-emerald-500" />
-                        {protocol}
+                        https://
                       </div>
                       <input
                         value={customDomain}
-                        onChange={(e) => setCustomDomain(e.target.value.toLowerCase())}
+                        onChange={(e) => {
+                          setCustomDomain(e.target.value.toLowerCase().trim());
+                          // Reset verification when user types a new domain
+                          setDomainVerified(false);
+                          setDomainConfigured(false);
+                          setDomainCheckError(null);
+                        }}
                         className="flex-1 bg-transparent px-3 h-11 text-sm font-medium text-foreground focus:outline-none"
                         placeholder="www.yourdomain.com"
                       />
+                      {/* Remove button — only shown if a domain is saved */}
+                      {customDomain && (
+                        <button
+                          onClick={handleRemoveCustomDomain}
+                          disabled={saving}
+                          title="Remove custom domain"
+                          className="h-11 px-3 border-l border-border text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
                       <Button
                         onClick={() => handleSaveDomain('custom')}
-                        disabled={saving}
+                        disabled={saving || !customDomain.trim()}
                         variant="secondary"
                         className="h-11 px-5 rounded-none border-l border-border font-semibold shrink-0"
                       >
-                        {saving ? (
-                          <Spinner size="sm" />
-                        ) : (
-                          'Verify Domain'
-                        )}
+                        {saving ? <Spinner size="sm" /> : <><Link2 className="w-3.5 h-3.5 mr-1.5" />Connect</>}
                       </Button>
                     </div>
 
-                    <div className="bg-muted/30 border border-border rounded-lg overflow-hidden max-w-2xl">
-                      <div className="px-4 py-3 border-b border-border bg-muted/50">
+                    {/* ── Verification status badge ── */}
+                    {domainConfigured && (
+                      <div className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border mb-5 max-w-xl text-sm ${
+                        domainVerified
+                          ? 'bg-emerald-500/8 border-emerald-500/20 text-emerald-400'
+                          : domainCheckError
+                          ? 'bg-red-500/8 border-red-500/20 text-red-400'
+                          : 'bg-amber-500/8 border-amber-500/20 text-amber-400'
+                      }`}>
+                        {domainVerified ? (
+                          <><CheckCircle2 className="w-4 h-4 shrink-0" /><span className="font-semibold">Domain verified & live</span><span className="ml-auto text-xs opacity-60">SSL active</span></>
+                        ) : domainCheckError && !domainChecking ? (
+                          <><AlertCircle className="w-4 h-4 shrink-0" /><span className="font-medium">{domainCheckError}</span></>
+                        ) : (
+                          <>
+                            <RefreshCw className={`w-4 h-4 shrink-0 ${domainChecking ? 'animate-spin' : ''}`} />
+                            <span className="font-medium">Waiting for DNS propagation…</span>
+                            <span className="ml-auto text-xs opacity-60">Checking every 6s</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* ── DNS Records instructions ── */}
+                    <div className="bg-muted/30 border border-border rounded-lg overflow-hidden max-w-2xl mb-4">
+                      <div className="px-4 py-3 border-b border-border bg-muted/50 flex items-center justify-between">
                         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                          <Settings className="w-3.5 h-3.5" /> DNS Records
+                          <Settings className="w-3.5 h-3.5" /> DNS Records — Add these in your registrar
                         </h4>
+                        {domainChecking && <RefreshCw className="w-3 h-3 text-muted-foreground animate-spin" />}
                       </div>
                       <table className="w-full text-sm text-left">
                         <thead className="bg-muted/20 text-muted-foreground text-[11px] font-medium uppercase tracking-wider">
                           <tr>
                             <th className="px-5 py-3 border-b border-border">Type</th>
-                            <th className="px-5 py-3 border-b border-border">Name</th>
-                            <th className="px-5 py-3 border-b border-border">Value</th>
+                            <th className="px-5 py-3 border-b border-border">Name / Host</th>
+                            <th className="px-5 py-3 border-b border-border">Value / Points to</th>
                           </tr>
                         </thead>
                         <tbody>
+                          {/* Root domain A record — for example.com */}
                           <tr className="border-b border-border/50 hover:bg-muted/50 transition-colors">
-                            <td className="px-5 py-4 font-semibold text-blue-400">A</td>
-                            <td className="px-5 py-4 text-muted-foreground font-mono text-xs">@</td>
-                            <td className="px-5 py-4 font-mono text-xs text-foreground">76.76.21.21</td>
+                            <td className="px-5 py-4">
+                              <span className="font-bold text-blue-400 font-mono text-xs bg-blue-500/10 px-1.5 py-0.5 rounded">A</span>
+                            </td>
+                            <td className="px-5 py-4 text-muted-foreground font-mono text-xs">
+                              @ <span className="text-muted-foreground/50 ml-1">(or leave blank)</span>
+                            </td>
+                            <td className="px-5 py-4">
+                              <div className="flex items-center gap-2">
+                                <code className="font-mono text-xs text-foreground">76.76.21.21</code>
+                                <button
+                                  onClick={() => { navigator.clipboard.writeText('76.76.21.21'); toast.success('Copied!'); }}
+                                  className="text-muted-foreground/50 hover:text-foreground transition-colors"
+                                  title="Copy"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </td>
                           </tr>
+                          {/* www CNAME record */}
                           <tr className="hover:bg-muted/50 transition-colors">
-                            <td className="px-5 py-4 font-semibold text-purple-400">CNAME</td>
+                            <td className="px-5 py-4">
+                              <span className="font-bold text-purple-400 font-mono text-xs bg-purple-500/10 px-1.5 py-0.5 rounded">CNAME</span>
+                            </td>
                             <td className="px-5 py-4 text-muted-foreground font-mono text-xs">www</td>
-                            <td className="px-5 py-4 font-mono text-xs text-foreground">cname.ofiq.app</td>
+                            <td className="px-5 py-4">
+                              <div className="flex items-center gap-2">
+                                <code className="font-mono text-xs text-foreground">cname.vercel-dns.com</code>
+                                <button
+                                  onClick={() => { navigator.clipboard.writeText('cname.vercel-dns.com'); toast.success('Copied!'); }}
+                                  className="text-muted-foreground/50 hover:text-foreground transition-colors"
+                                  title="Copy"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
+
+                    {/* ── Step-by-step guide ── */}
+                    <div className="bg-muted/20 border border-border/50 rounded-lg p-4 max-w-2xl space-y-3">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">How to set up on Namecheap / GoDaddy / Google Domains</p>
+                      {[
+                        { step: '1', text: 'Log in to your domain registrar (Namecheap, GoDaddy, etc.)' },
+                        { step: '2', text: 'Go to DNS Management or Advanced DNS for your domain' },
+                        { step: '3', text: 'Add the A record above (Name: @, Value: 76.76.21.21)' },
+                        { step: '4', text: 'Add the CNAME record above (Name: www, Value: cname.vercel-dns.com)' },
+                        { step: '5', text: 'Click "Connect" above — OfferIQ will auto-detect when DNS propagates (usually 5–30 min)' },
+                      ].map(({ step, text }) => (
+                        <div key={step} className="flex items-start gap-3">
+                          <span className="w-5 h-5 rounded-full bg-primary/15 border border-primary/20 text-primary text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{step}</span>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{text}</p>
+                        </div>
+                      ))}
+                    </div>
+
                     </PlanGate>
                   </div>
                 )}
