@@ -231,15 +231,15 @@ const CheckIcon = () => {
 const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
   const isWebP = src.endsWith('.webp');
   return (
-    <div className="w-full max-w-[440px] mx-auto aspect-[16/10] bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
+    <div className="w-full mx-auto bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
       {isWebP ? (
         <img
           src={src}
           alt={alt}
-          className="w-full h-full object-cover pointer-events-none"
+          className="w-full h-auto object-contain pointer-events-none block"
         />
       ) : (
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover pointer-events-none">
+        <video autoPlay loop muted playsInline className="w-full h-auto object-contain pointer-events-none block">
           <source src={src} type="video/mp4" />
         </video>
       )}
