@@ -943,7 +943,7 @@ export function WelcomePage() {
                       {/* Right — video */}
                       <div className="pl-0 md:pl-4">
                         <ProductVideo
-                          src="/videos/choice-gate.webp"
+                          src="/videos/SCREEN_1_loop_1080p.mp4"
                           alt="OfferIQ choice gate to intelligence report"
                         />
                       </div>
@@ -956,7 +956,7 @@ export function WelcomePage() {
                       {/* Left — video */}
                       <div className="pr-0 md:pr-4 order-2 md:order-1">
                         <ProductVideo
-                          src="/videos/copy-engine.mp4"
+                          src="/videos/SCREEN_2_loop_1080p.mp4"
                           alt="Copy Engine writing live from your Intelligence Report"
                         />
                       </div>
@@ -1014,7 +1014,7 @@ export function WelcomePage() {
                       {/* Right — video */}
                       <div className="pl-0 md:pl-4">
                         <ProductVideo
-                          src="/videos/live-pages.mp4"
+                          src="/videos/SCREEN_3_loop_1080p.mp4"
                           alt="Published pages with design direction applied"
                         />
                       </div>
@@ -1027,7 +1027,7 @@ export function WelcomePage() {
                       {/* Left — video */}
                       <div className="pr-0 md:pr-4 order-2 md:order-1">
                         <ProductVideo
-                          src="/videos/traffic-intelligence.mp4"
+                          src="/videos/SCREEN_4_loop_1080p.mp4"
                           alt="Traffic Intelligence platform priority matrix"
                         />
                       </div>
