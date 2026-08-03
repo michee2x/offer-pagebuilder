@@ -109,12 +109,13 @@ export async function POST(req: Request) {
     // 2. Generate content via AI
     const prompt = buildPrompt(docFormat, funnel.name, topic, context);
     const model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
-    
+
     let rawContent = "";
     try {
       const { text } = await generateText({
         model: anthropic(model),
         prompt,
+        maxOutputTokens: 4096,
       });
       rawContent = text;
     } catch (e: any) {
@@ -193,7 +194,7 @@ export async function POST(req: Request) {
 
     const blueprintType = type === "bonus" ? "bonus" : "lead";
     const generatedFileName = `${funnelId}_${blueprintType}_${crypto.randomBytes(6).toString("hex")}.${fileExtension}`;
-    
+
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
       .upload(generatedFileName, fileBuffer, {
@@ -217,7 +218,7 @@ export async function POST(req: Request) {
       .single();
 
     const currentFiles = Array.isArray(freshFunnel?.blocks?.blueprintFiles) ? freshFunnel.blocks.blueprintFiles : [];
-    
+
     const updatedFiles = currentFiles.map((file: any) => {
       if (file.id === fileId) {
         return {
@@ -230,16 +231,25 @@ export async function POST(req: Request) {
       return file;
     });
 
+    // Auto-activate the lead magnet the moment it finishes generating.
+    // Only set it if there is no active lead magnet already (so we don't
+    // overwrite a user's manual choice on re-generation).
+    const updatedBlocks: any = { ...freshFunnel?.blocks, blueprintFiles: updatedFiles };
+    if (blueprintType === "lead" && !freshFunnel?.blocks?.activeLeadMagnetFileId) {
+      updatedBlocks.activeLeadMagnetFileId = fileId;
+      console.log(`[generate-blueprints-auto/execute] Auto-activating lead magnet: ${fileId}`);
+    }
+
     await supabase
       .from("builder_pages")
-      .update({ blocks: { ...freshFunnel?.blocks, blueprintFiles: updatedFiles } })
+      .update({ blocks: updatedBlocks })
       .eq("id", funnelId);
 
     console.log(`[generate-blueprints-auto/execute] Successfully completed ${fileId}`);
     return NextResponse.json({ success: true, fileUrl });
   } catch (error: any) {
     console.error("[generate-blueprints-auto/execute] Error:", error);
-    
+
     // Attempt to mark as failed
     try {
       const { funnelId, fileId } = await req.json().catch(() => ({}));
@@ -256,7 +266,7 @@ export async function POST(req: Request) {
     } catch (e) {
       // Ignore
     }
-    
+
     return NextResponse.json({ error: error.message || "Failed execution" }, { status: 500 });
   }
 }

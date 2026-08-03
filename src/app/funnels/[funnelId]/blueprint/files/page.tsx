@@ -75,6 +75,22 @@ export default async function BlueprintFilesPage({
     }
   }
 
+  async function deactivateLeadMagnet() {
+    "use server";
+    const adminSupabase = createAdminClient();
+    const { data: currentFunnel } = await adminSupabase
+      .from("builder_pages")
+      .select("blocks")
+      .eq("id", funnelId)
+      .single();
+
+    if (currentFunnel?.blocks) {
+      const newBlocks = { ...currentFunnel.blocks, activeLeadMagnetFileId: null };
+      await adminSupabase.from("builder_pages").update({ blocks: newBlocks }).eq("id", funnelId);
+      revalidatePath(`/funnels/${funnelId}/blueprint/files`);
+    }
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
       <Sidebar />
@@ -198,9 +214,19 @@ export default async function BlueprintFilesPage({
                                   Generating...
                                 </div>
                               ) : isActive ? (
-                                <div className="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-1 text-xs font-semibold text-green-400">
-                                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                                  Active Lead Magnet
+                                <div className="flex items-center gap-3">
+                                  <div className="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-1 text-xs font-semibold text-green-400">
+                                    <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                                    Active
+                                  </div>
+                                  <form action={deactivateLeadMagnet}>
+                                    <button
+                                      type="submit"
+                                      className="text-xs font-semibold text-red-400/70 hover:text-red-400 transition underline decoration-red-400/20 underline-offset-4"
+                                    >
+                                      Deactivate
+                                    </button>
+                                  </form>
                                 </div>
                               ) : (
                                 <form action={setActiveLeadMagnet}>
