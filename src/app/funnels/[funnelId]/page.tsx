@@ -320,6 +320,15 @@ export default async function FunnelDashboardPage({ params }: Props) {
 
   const leadsCount = (leadsTotal as any)?.count ?? leads?.length ?? 0;
 
+  const { data: purchases } = await supabase
+    .from("purchases")
+    .select("amount")
+    .eq("funnel_id", funnelId)
+    .eq("payment_status", "success");
+
+  const salesCount = purchases?.length ?? 0;
+  const totalRevenue = purchases?.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) ?? 0;
+
   const analytics = await fetchPostHogStats(funnelId);
 
   const dashboardData = {
@@ -331,6 +340,8 @@ export default async function FunnelDashboardPage({ params }: Props) {
     prevPageViews: analytics?.viewsPrev7d ?? 0,
     prevUniqueVisitors: analytics?.visitorsPrev7d ?? 0,
     leadsCount,
+    salesCount,
+    totalRevenue,
     pageViewsChange: pct(analytics?.views7d ?? 0, analytics?.viewsPrev7d ?? 0),
     uniqueVisitorsChange: pct(
       analytics?.visitors7d ?? 0,

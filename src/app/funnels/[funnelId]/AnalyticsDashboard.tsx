@@ -2,7 +2,7 @@
 
 import { PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
-import { Users, MousePointerClick, TrendingUp, TrendingDown, ArrowUpRight, Eye, UserCheck, Percent } from "lucide-react";
+import { Users, TrendingUp, TrendingDown, ArrowUpRight, Eye, UserCheck, Percent } from "lucide-react";
 import Link from "next/link";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -16,6 +16,8 @@ interface DashboardData {
   prevPageViews:         number;
   prevUniqueVisitors:    number;
   leadsCount:            number;
+  salesCount:            number;
+  totalRevenue:          number;
   pageViewsChange:       number;
   uniqueVisitorsChange:  number;
   desktopViews:          number;
@@ -111,9 +113,16 @@ function MilestoneTracker({ current }: { current: number }) {
 export function AnalyticsDashboard({ data, funnelId }: Props) {
   const hasViews = data.pageViewsTotal > 0;
 
+  // Buyer conversion rate: how many unique visitors actually bought
   const conversionRate = data.uniqueVisitorsTotal > 0
-    ? ((data.leadsCount / data.uniqueVisitorsTotal) * 100).toFixed(1)
+    ? ((data.salesCount / data.uniqueVisitorsTotal) * 100).toFixed(1)
     : "0.0";
+
+  const formattedRevenue = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(data.totalRevenue);
 
   const maxCountry = Math.max(...data.countries.map(c => c.count), 1);
 
@@ -146,18 +155,18 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
           change={data.uniqueVisitorsChange}
         />
         <MetricCard
-          label="Today&apos;s Views"
-          value={data.todayViews.toLocaleString()}
-          icon={MousePointerClick}
-          iconColor="text-brand-cyan"
-          sub="refreshes every 60s"
+          label="Total Revenue"
+          value={formattedRevenue}
+          icon={TrendingUp}
+          iconColor="text-emerald-400"
+          sub={`${data.salesCount} buyer${data.salesCount !== 1 ? "s" : ""}`}
         />
         <MetricCard
-          label="Conversion Rate"
+          label="Buyer Conversion"
           value={`${conversionRate}%`}
           icon={Percent}
-          iconColor="text-emerald-400"
-          sub={`${data.leadsCount} leads / ${data.uniqueVisitorsTotal} visitors`}
+          iconColor="text-amber-400"
+          sub={`${data.salesCount} buyers / ${data.uniqueVisitorsTotal} visitors`}
         />
       </div>
 
@@ -402,25 +411,28 @@ export function AnalyticsDashboard({ data, funnelId }: Props) {
                   </div>
                 );
               })}
-              {/* Leads as final conversion step */}
-              {data.leadsCount > 0 && (
-                <div className="flex flex-col gap-1 pt-1 border-t border-white/8">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                      <UserCheck className="w-3 h-3" /> Leads Captured
-                    </span>
-                    <span className="text-emerald-400 tabular-nums font-semibold">
-                      {data.leadsCount} <span className="text-white/25">({conversionRate}%)</span>
-                    </span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
-                      style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
-                    />
-                  </div>
+              {/* Buyers as final conversion step */}
+              <div className="flex flex-col gap-1 pt-1 border-t border-white/10">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+                    <UserCheck className="w-3 h-3" /> Buyers
+                  </span>
+                  <span className="text-emerald-400 tabular-nums font-semibold">
+                    {data.salesCount} <span className="text-white/25">({conversionRate}%)</span>
+                  </span>
                 </div>
-              )}
+                <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                    style={{ width: `${Math.min(parseFloat(conversionRate), 100)}%` }}
+                  />
+                </div>
+                {data.totalRevenue > 0 && (
+                  <p className="text-[10px] text-emerald-400/60 font-semibold mt-0.5">
+                    {formattedRevenue} total revenue
+                  </p>
+                )}
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
