@@ -2,23 +2,44 @@
 
 import React, { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
 
   const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
-      });
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
       if (error) throw error;
       setIsSent(true);
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otpCode,
+        type: 'recovery',
+      });
+      if (error) throw error;
+      
+      // OTP verified, session is established. Redirect to update password page.
+      router.push("/update-password");
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -60,50 +81,97 @@ export function ForgotPasswordForm() {
         </div>
 
         <div className="oiq-form-wrap">
-          <h2>Reset password</h2>
-          <p className="oiq-subtitle">Enter your email address and we'll send you a link to reset your password.</p>
+          {!isSent ? (
+            <>
+              <h2>Reset password</h2>
+              <p className="oiq-subtitle">Enter your email address and we'll send you a 6-digit code to reset your password.</p>
 
-          <form onSubmit={handleReset} autoComplete="on">
-            {/* Email */}
-            <label className="oiq-field-label" htmlFor="oiq-email">Email</label>
-            <div className="oiq-field-wrap">
-              <input
-                id="oiq-email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                disabled={isSent}
-              />
-            </div>
+              <form onSubmit={handleReset} autoComplete="on">
+                {/* Email */}
+                <label className="oiq-field-label" htmlFor="oiq-email">Email</label>
+                <div className="oiq-field-wrap">
+                  <input
+                    id="oiq-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    disabled={isLoading}
+                  />
+                </div>
 
-            {/* Reset Button */}
-            <button
-              id="oiq-reset-btn"
-              type="submit"
-              className="oiq-signin-btn"
-              disabled={isLoading || isSent}
-              style={{ marginTop: "24px" }}
-            >
-              {isLoading ? (
-                <>
-                  <span className="oiq-spinner" />
-                  Sending...
-                </>
-              ) : isSent ? (
-                "Reset Link Sent!"
-              ) : (
-                "Send Reset Link"
-              )}
-            </button>
-          </form>
+                {/* Reset Button */}
+                <button
+                  id="oiq-reset-btn"
+                  type="submit"
+                  className="oiq-signin-btn"
+                  disabled={isLoading}
+                  style={{ marginTop: "24px" }}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="oiq-spinner" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Reset Code"
+                  )}
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <h2>Enter Code</h2>
+              <p className="oiq-subtitle">We sent a 6-digit code to <strong>{email}</strong>. Please enter it below.</p>
 
-          {isSent && (
-            <p className="oiq-signup-hint" style={{ marginTop: "16px", color: "#10b981" }}>
-              Check your email for a link to reset your password. If it doesn't appear within a few minutes, check your spam folder.
-            </p>
+              <form onSubmit={handleVerifyOtp} autoComplete="off">
+                {/* OTP Code */}
+                <label className="oiq-field-label" htmlFor="oiq-otp">6-Digit Code</label>
+                <div className="oiq-field-wrap">
+                  <input
+                    id="oiq-otp"
+                    type="text"
+                    placeholder="123456"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    required
+                    maxLength={6}
+                    disabled={isLoading}
+                    style={{ letterSpacing: "4px", textAlign: "center", fontSize: "18px", fontWeight: "bold" }}
+                  />
+                </div>
+
+                {/* Verify Button */}
+                <button
+                  id="oiq-verify-btn"
+                  type="submit"
+                  className="oiq-signin-btn"
+                  disabled={isLoading || otpCode.length < 6}
+                  style={{ marginTop: "24px" }}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="oiq-spinner" />
+                      Verifying...
+                    </>
+                  ) : (
+                    "Verify Code"
+                  )}
+                </button>
+              </form>
+              
+              <div style={{ marginTop: "16px", textAlign: "center" }}>
+                <button
+                  type="button"
+                  onClick={() => setIsSent(false)}
+                  style={{ background: "none", border: "none", color: "#9ca3af", cursor: "pointer", fontSize: "14px", textDecoration: "underline" }}
+                >
+                  Use a different email
+                </button>
+              </div>
+            </>
           )}
 
           <p className="oiq-signup-hint" style={{ marginTop: "32px" }}>
