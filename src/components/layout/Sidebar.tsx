@@ -17,6 +17,7 @@ import {
   Brain,
   X,
   LayoutTemplate,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/uiStore";
@@ -97,6 +98,10 @@ export function Sidebar() {
     { label: "Workspaces", href: "/settings?tab=workspaces", icon: Filter },
     { label: "Templates", href: `/templates${activeWorkspaceId ? `?workspace=${activeWorkspaceId}` : ''}`, icon: LayoutTemplate },
   ];
+
+  if (!isSubaccount) {
+    links.push({ label: "Agency Account", href: "/agency", icon: Users });
+  }
 
   if (isAdmin) {
     links.push({ label: "Admin Dashboard", href: "/admin", icon: Zap });

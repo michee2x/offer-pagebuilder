@@ -7,7 +7,6 @@ import { SettingsSidebar, SettingsTab } from "@/components/settings/SettingsSide
 import { ProfileSettings } from "@/components/settings/ProfileSettings";
 import { WorkspaceSettings } from "@/components/settings/WorkspaceSettings";
 import { TeamSettings } from "@/components/settings/TeamSettings";
-import { AgencySettings } from "@/components/settings/AgencySettings";
 import { BillingSettings } from "@/components/settings/BillingSettings";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
@@ -30,7 +29,7 @@ function SettingsContent() {
       .then(data => {
         if (data.user?.role === 'subaccount') {
           setIsSubaccount(true);
-          if (tabParam === 'billing' || tabParam === 'agency') {
+          if (tabParam === 'billing') {
              handleTabChange('profile');
           }
         }
@@ -113,7 +112,6 @@ function SettingsContent() {
                 />
               )}
               {activeTab === "team" && <TeamSettings workspace={activeWorkspace} />}
-              {activeTab === "agency" && <AgencySettings />}
               {activeTab === "billing" && <BillingSettings />}
               {["integrations", "notifications", "security"].includes(activeTab) && (
                 <div className="flex flex-col items-center justify-center h-[60vh] text-center">

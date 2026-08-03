@@ -23,8 +23,7 @@ export type SettingsTab =
   | "security"
   | "notifications"
   | "email"
-  | "ai"
-  | "agency";
+  | "ai";
 
 interface SettingsSidebarProps {
   activeTab: SettingsTab;
@@ -46,7 +45,6 @@ export function SettingsSidebar({ activeTab, onTabChange, isSubaccount }: Settin
       items: [
         { id: "workspace", label: "General", icon: Layout },
         { id: "team", label: "Team & Access", icon: Users },
-        { id: "agency", label: "Agency Clients", icon: Users },
         { id: "integrations", label: "Integrations", icon: Puzzle },
         { id: "security", label: "Security", icon: Shield },
       ]
@@ -63,7 +61,6 @@ export function SettingsSidebar({ activeTab, onTabChange, isSubaccount }: Settin
 
   if (isSubaccount) {
     categories[0].items = categories[0].items.filter(i => i.id !== 'billing');
-    categories[1].items = categories[1].items.filter(i => i.id !== 'agency');
   }
 
   return (
