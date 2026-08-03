@@ -92,6 +92,7 @@ function AnalyzeContent() {
   const [skills, setSkills] = useState<string[]>([]);
   const [customSkill, setCustomSkill] = useState("");
   const [audienceTypes, setAudienceTypes] = useState<string[]>([]);
+  const [customAudience, setCustomAudience] = useState("");
   const [bCountry, setBCountry] = useState("");
   const [bCurrency, setBCurrency] = useState<CurrencyCode>("USD");
   const [budget, setBudget] = useState("");
@@ -208,11 +209,14 @@ function AnalyzeContent() {
       };
     } else {
       const selectedIdea = generatedIdeas[pickedIdea];
+      const combinedAudiences = customAudience.trim() 
+        ? [...audienceTypes, customAudience.trim()]
+        : audienceTypes;
       submitData = {
         field_1_name: selectedIdea.title,
         field_1_format: "course",
         field_2_outcome: selectedIdea.description,
-        field_3_persona: audienceTypes.join(", "),
+        field_3_persona: combinedAudiences.join(", "),
         field_4_price: budget.includes("$")
           ? budget.split(" - ")[0].replace("$", "")
           : "50",
@@ -325,13 +329,17 @@ function AnalyzeContent() {
     setErrors({});
 
     try {
+      const combinedAudiences = customAudience.trim() 
+        ? [...audienceTypes, customAudience.trim()]
+        : audienceTypes;
+
       const response = await fetch("/api/offer-intelligence/ideas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           skills,
           customSkill,
-          audienceTypes,
+          audienceTypes: combinedAudiences,
           bCountry,
           bCurrency,
           budget,
@@ -373,11 +381,11 @@ function AnalyzeContent() {
       setCurrentStep("B2");
       setErrors({});
     } else if (currentStep === "B2") {
-      if (audienceTypes.length === 0 || !bCountry || !bCurrency || !budget) {
+      if ((audienceTypes.length === 0 && !customAudience.trim()) || !bCountry || !bCurrency || !budget) {
         setErrors({
           audienceTypes:
-            audienceTypes.length === 0
-              ? "Please select at least one audience type"
+            audienceTypes.length === 0 && !customAudience.trim()
+              ? "Please select at least one audience type or describe your own"
               : "",
         });
         return;
@@ -539,6 +547,8 @@ function AnalyzeContent() {
               setCustomSkill={setCustomSkill}
               audienceTypes={audienceTypes}
               toggleAudience={toggleAudience}
+              customAudience={customAudience}
+              setCustomAudience={setCustomAudience}
               bCountry={bCountry}
               setBCountry={setBCountry}
               bCurrency={bCurrency}

@@ -61,6 +61,8 @@ interface IdeaGenerationWizardProps {
   setCustomSkill: (skill: string) => void;
   audienceTypes: string[];
   toggleAudience: (aud: string) => void;
+  customAudience: string;
+  setCustomAudience: (aud: string) => void;
   bCountry: string;
   setBCountry: (country: string) => void;
   bCurrency: CurrencyCode;
@@ -88,6 +90,8 @@ export function IdeaGenerationWizard({
   setCustomSkill,
   audienceTypes,
   toggleAudience,
+  customAudience,
+  setCustomAudience,
   bCountry,
   setBCountry,
   bCurrency,
@@ -207,6 +211,17 @@ export function IdeaGenerationWizard({
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className={labelCls}>
+                    Or describe them in detail
+                  </label>
+                  <Input
+                    value={customAudience}
+                    onChange={(e) => setCustomAudience(e.target.value)}
+                    placeholder="e.g., Nigerian fashion business owners struggling with consistent sales"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
