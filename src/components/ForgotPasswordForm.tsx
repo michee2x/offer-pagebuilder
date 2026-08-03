@@ -84,7 +84,7 @@ export function ForgotPasswordForm() {
           {!isSent ? (
             <>
               <h2>Reset password</h2>
-              <p className="oiq-subtitle">Enter your email address and we'll send you a 6-digit code to reset your password.</p>
+              <p className="oiq-subtitle">Enter your email address and we'll send you an 8-digit code to reset your password.</p>
 
               <form onSubmit={handleReset} autoComplete="on">
                 {/* Email */}
@@ -124,20 +124,20 @@ export function ForgotPasswordForm() {
           ) : (
             <>
               <h2>Enter Code</h2>
-              <p className="oiq-subtitle">We sent a 6-digit code to <strong>{email}</strong>. Please enter it below.</p>
+              <p className="oiq-subtitle">We sent an 8-digit code to <strong>{email}</strong>. Please enter it below.</p>
 
               <form onSubmit={handleVerifyOtp} autoComplete="off">
                 {/* OTP Code */}
-                <label className="oiq-field-label" htmlFor="oiq-otp">6-Digit Code</label>
+                <label className="oiq-field-label" htmlFor="oiq-otp">8-Digit Code</label>
                 <div className="oiq-field-wrap">
                   <input
                     id="oiq-otp"
                     type="text"
-                    placeholder="123456"
+                    placeholder="12345678"
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
                     required
-                    maxLength={6}
+                    maxLength={8}
                     disabled={isLoading}
                     style={{ letterSpacing: "4px", textAlign: "center", fontSize: "18px", fontWeight: "bold" }}
                   />
@@ -148,7 +148,7 @@ export function ForgotPasswordForm() {
                   id="oiq-verify-btn"
                   type="submit"
                   className="oiq-signin-btn"
-                  disabled={isLoading || otpCode.length < 6}
+                  disabled={isLoading || otpCode.length < 8}
                   style={{ marginTop: "24px" }}
                 >
                   {isLoading ? (
