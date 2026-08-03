@@ -39,6 +39,7 @@ export function Sidebar() {
   const { openCheckout } = usePaddle();
   const [userEmail, setUserEmail] = React.useState<string | undefined>();
   const [userId, setUserId] = React.useState<string | undefined>();
+  const [userPlan, setUserPlan] = React.useState<string>('free');
 
   const pathWorkspaceId = React.useMemo(() => {
     const parts = pathname?.split("/") || [];
@@ -89,6 +90,7 @@ export function Sidebar() {
         }
         if (data.user?.email) setUserEmail(data.user.email);
         if (data.user?.id) setUserId(data.user.id);
+        if (data.user?.plan) setUserPlan(data.user.plan.toLowerCase());
       })
       .catch(err => console.error("Error fetching user status", err));
   }, []);
@@ -130,6 +132,36 @@ export function Sidebar() {
     if (href === "/") return pathname === "/";
     return pathname?.startsWith(href);
   };
+
+  const getBannerConfig = (plan: string) => {
+    if (plan === 'growth') {
+      return {
+        bgGradient: "bg-gradient-to-br from-blue-600 to-indigo-800",
+        title: "OfferIQ Agency",
+        subtitle: "Manage 30 Clients & Sub-Accounts",
+        buttonStyle: "bg-white text-blue-700 hover:bg-white/90 shadow-[0_4px_15px_rgba(0,0,0,0.2)]",
+        priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY!
+      };
+    }
+    if (plan === 'starter') {
+      return {
+        bgGradient: "bg-gradient-to-br from-fuchsia-600 to-violet-800",
+        title: "OfferIQ Growth",
+        subtitle: "Unlock AI Strategy & Custom Domains",
+        buttonStyle: "bg-white text-fuchsia-700 hover:bg-white/90 shadow-[0_4px_15px_rgba(0,0,0,0.2)]",
+        priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!
+      };
+    }
+    return {
+      bgGradient: "bg-gradient-to-br from-emerald-500 to-teal-700", 
+      title: "OfferIQ Starter",
+      subtitle: "Full 4-Phase Engine & Template Library",
+      buttonStyle: "bg-white text-emerald-700 hover:bg-white/90 shadow-[0_4px_15px_rgba(0,0,0,0.2)]",
+      priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER!
+    };
+  };
+
+  const bannerConfig = getBannerConfig(userPlan);
 
   return (
     <AnimatePresence>
@@ -242,23 +274,28 @@ export function Sidebar() {
             </nav>
 
             {/* Footer / Pro Card */}
-            {!isSubaccount && (
+            {!isSubaccount && userPlan !== 'agency' && bannerConfig && (
               <div className="p-4 mt-auto">
-                <div className="relative rounded-2xl overflow-hidden aspect-[16/10] group">
-                  <img
-                    src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80&fit=crop"
-                    alt="Pro background"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+                <div className="relative rounded-2xl overflow-hidden aspect-[16/10] group border border-white/10 shadow-xl">
+                  {/* CSS Gradient Background */}
+                  <div className={`absolute inset-0 ${bannerConfig.bgGradient} group-hover:scale-105 transition-transform duration-500`} />
+                  
+                  {/* Decorative Elements for a clean mesh feel */}
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/20 rounded-full blur-2xl" />
+                  <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-black/30 rounded-full blur-2xl" />
+                  
                   <div className="relative z-10 p-4 h-full flex flex-col justify-between">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400 drop-shadow-md mb-1">OfferIQ Pro</p>
-                      <h4 className="text-white font-bold text-sm leading-tight drop-shadow-md">Unlock AI Strategy & Custom Domains</h4>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-white/90 drop-shadow-md mb-1">
+                        {bannerConfig.title}
+                      </p>
+                      <h4 className="text-white font-bold text-sm leading-tight drop-shadow-md">
+                        {bannerConfig.subtitle}
+                      </h4>
                     </div>
                     <button 
-                      onClick={() => openCheckout(process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!, userEmail, userId)}
-                      className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 hover:opacity-90 text-white shadow-[0_0_15px_rgba(217,70,239,0.4)] text-[10px] font-bold py-1.5 px-3 rounded-full transition-opacity self-start"
+                      onClick={() => openCheckout(bannerConfig.priceId, userEmail, userId)}
+                      className={`${bannerConfig.buttonStyle} text-[10px] font-bold py-1.5 px-4 rounded-full transition-all self-start`}
                     >
                       Upgrade Now →
                     </button>
