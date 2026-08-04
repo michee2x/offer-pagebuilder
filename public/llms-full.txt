@@ -1,0 +1,172 @@
+# OfferIQ — Full Product Documentation
+
+> OfferIQ is an AI-powered offer strategy and sales funnel builder. It turns any idea, URL, or PDF into a complete revenue system — strategy, copy, live funnel pages, and a traffic plan — in one session.
+
+**Website**: https://www.ofiq.app/
+**Primary Action**: https://www.ofiq.app/signup (7-day $1 trial, cancel anytime)
+
+---
+
+## Who OfferIQ Is For
+
+OfferIQ is built for digital creators and business owners who want to launch and sell offers without needing to hire a full team:
+
+- **Course Creators** — Turn an idea or existing curriculum into a validated, fully-built funnel in one sitting.
+- **Business Coaches** — Diagnose why an existing offer isn't converting and rewrite it around what the buyer actually feels.
+- **Agency Owners** — Productize offer strategy and funnel delivery. Run each client's offer through OfferIQ and deliver Intelligence Report + copy + funnel as a packaged deliverable.
+- **First-Time Entrepreneurs** — Choose "Build an Offer For Me," enter your niche, audience, and price range, and receive validated offer ideas benchmarked against real converting funnels.
+
+---
+
+## The 4-Phase Engine
+
+### Phase 1: Intelligence Report (Strategy)
+OfferIQ accepts three inputs:
+- A URL (paste an existing sales page or competitor page)
+- A PDF (upload a pitch deck, course outline, or product description)
+- A plain-language idea ("I want to sell a 6-week coaching program for freelance designers")
+
+The engine analyzes the input against 35,000+ real converting offers and produces:
+- A validated buyer persona (demographics, psychographics, vocabulary)
+- A benchmarked price point with competitive context
+- 5–8 conversion angles (the emotional and logical levers that move this specific buyer)
+- Offer positioning and differentiation strategy
+- A full funnel blueprint
+
+### Phase 2: Copy Engine
+All copy is generated from the Intelligence Report — not a generic template. Output includes:
+- Lead Capture Page copy
+- Long-Form Sales Page (up to 12,000 words) with headline, story, bullets, objection handling, price reveal, guarantee, and CTA
+- Upsell Page copy
+- Downsell Page copy
+- Thank You Page copy
+
+Users can refine any copy element by chatting with the AI copilot ("make this headline punchier") or by editing inline via drag-and-drop.
+
+### Phase 3: Funnel Builder
+Pages assemble automatically using colors, fonts, and layout derived from the Design Intelligence component of the report. Features include:
+- Drag-and-drop section reordering
+- Inline text editing
+- Image swapping
+- AI copilot for live copy updates
+- All 5 funnel pages generated in one pass
+
+### Phase 4: Traffic Intelligence™
+OfferIQ generates a complete pre-spend acquisition strategy:
+- **Platform Priority Matrix** — Ranked list of traffic sources (Meta, Google, YouTube, TikTok, organic) benchmarked against comparable converting funnels
+- **Meta Ad Copy** — Multiple ad variations (Primary text, Headline, CTA) written from persona data
+- **Google Ad Copy** — Search and Display campaign copy
+- **VSL Script** — A full video sales letter script
+- **UGC Script** — A user-generated content video script
+- **3-Phase Media Buying Plan** — What to test first, second, and third to avoid burning budget on random variations
+- **Email Sequences** (5 complete sequences):
+  - Lead Nurture
+  - Launch
+  - Re-engagement
+  - Client Onboarding
+  - Upsell
+
+---
+
+## Publishing & Monetization
+
+- One-click publish to an OfferIQ subdomain (e.g., `yourname.ofiq.app`)
+- Custom domain connection (Growth and Agency plans)
+- Stripe payment integration — buy buttons work the moment you publish
+- PayPal integration
+- Autoresponder / email platform integration
+- Pixel tracking embed (Growth and Agency plans)
+
+---
+
+## Analytics & CRM
+
+- Built-in CRM — captures every lead across every funnel
+- Per-funnel analytics dashboard: traffic, conversion rate, traffic quality score, device breakdown
+- Advanced analytics dashboard (Growth and Agency plans)
+
+---
+
+## Pricing Plans
+
+### Starter — $39/month
+- **Trial**: 7-day $1 trial, then $39/month. Cancel anytime.
+- **5 offer credits per month** (refreshed monthly). 1 credit = 1 complete offer build.
+- 1 Workspace
+- Full 4-Phase Engine: Strategy, Copy, Funnel (all 5 pages), Traffic Plan
+- Asset Bank + Template Library
+- Email engagement sequences
+- OfferIQ subdomain publishing
+- Payment & autoresponder integration
+- Standard support
+
+### Growth — $69/month
+- **Trial**: 7-day $1 trial, then $69/month. Cancel anytime.
+- **10 offer credits per month** (refreshed monthly)
+- 3 Workspaces
+- Everything in Starter, plus:
+- Remove "Built with OfferIQ" branding
+- Advanced Analytics dashboard
+- Custom domain connection
+- Pixel tracking embed
+- Priority support
+
+### Agency — $179/month
+- **Trial**: 7-day $1 trial, then $179/month. Cancel anytime.
+- **30 offer credits per month** (refreshed monthly)
+- 30 Workspaces
+- Everything in Growth, plus:
+- Agency Dashboard for managing users
+- 30 client sub-accounts for agency delivery
+- Agency Marketing Assets (agency website, proposals, ad graphics, legal contract template)
+- Done-For-You onboarding session
+- Dedicated priority support channel
+
+**All plans**: 30-day money-back guarantee. Monthly subscription, cancel anytime from account settings.
+
+Extra credits available: $10 per credit (1 credit = 1 complete offer build).
+
+---
+
+## Frequently Asked Questions
+
+**What if I run an agency and need more than 30 client sub-accounts?**
+Contact support after purchase. Additional sub-account packs are available for agencies scaling beyond the Agency tier allocation.
+
+**What happens when I use all my credits?**
+Your existing offers, pages, and data remain fully accessible forever. Credits refresh every month with your plan. If you need more before your next refresh, you can buy extra credits for $10 each.
+
+**Why is OfferIQ different from a funnel builder?**
+Funnel builders help you build pages. OfferIQ helps you decide what to sell, who to sell it to, how to position it, what to charge, how to explain it, and then builds the pages around that strategy. Funnel builders start with pages — OfferIQ starts with the offer.
+
+**Can I use my own domain?**
+Yes. You can publish using an OfferIQ subdomain or connect your own custom domain on Growth and Agency plans.
+
+**Do I get future updates?**
+Yes. All new features released for your tier are included automatically for as long as your subscription is active.
+
+**Is there a refund policy?**
+Yes — a 30-day money-back guarantee applies. Request a full refund within 30 days of purchase.
+
+**Can I upgrade my tier later?**
+Yes. You can upgrade at any time by paying the price difference.
+
+**Is this a subscription?**
+Yes. OfferIQ is billed monthly. Cancel anytime from your account in one click.
+
+**Can agencies use OfferIQ for client work?**
+Absolutely. Agency plans include dedicated workspaces and sub-accounts. Your team follows the same guided workflow for every client, improving speed, consistency, and quality.
+
+**Can I edit what OfferIQ creates?**
+Yes. All output is fully editable via drag-and-drop editor and AI copilot. Think of OfferIQ as your first draft — not your final decision.
+
+---
+
+## Key Links
+
+- Homepage: https://www.ofiq.app/
+- Login: https://www.ofiq.app/login
+- Sign Up (7-day $1 trial): https://www.ofiq.app/signup
+- Privacy Policy: https://www.ofiq.app/policy
+- Terms of Service: https://www.ofiq.app/terms
+- Refund Policy: https://www.ofiq.app/refund

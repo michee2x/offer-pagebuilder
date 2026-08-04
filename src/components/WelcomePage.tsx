@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useScroll, useTransform, motion } from 'motion/react';
 import {
   Link as LinkIcon, FileText, PenTool, Target, Users, DollarSign, Zap,
@@ -56,13 +56,156 @@ function Chip({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* ─── JSON-LD Structured Data ──────────────────────────────────── */
+function StructuredData({ faqs, pricingTiers }: { faqs: { q: string; a: string }[]; pricingTiers: { name: string; price: string; features: string[] }[] }) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': 'https://www.ofiq.app/#organization',
+        name: 'OfferIQ',
+        url: 'https://www.ofiq.app',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://i.imgur.com/ifv8m6Y.png',
+          width: 200,
+          height: 56,
+        },
+        sameAs: [],
+        description: 'OfferIQ is an AI-powered offer strategy and sales funnel builder that turns any idea into a complete revenue system.',
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.ofiq.app/#website',
+        url: 'https://www.ofiq.app',
+        name: 'OfferIQ',
+        publisher: { '@id': 'https://www.ofiq.app/#organization' },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://www.ofiq.app/?s={search_term_string}',
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'SiteNavigationElement',
+        name: 'Main Navigation',
+        hasPart: [
+          { '@type': 'SiteNavigationElement', name: 'Product', url: 'https://www.ofiq.app/#showcase' },
+          { '@type': 'SiteNavigationElement', name: 'How It Works', url: 'https://www.ofiq.app/#how-it-works' },
+          { '@type': 'SiteNavigationElement', name: 'Pricing', url: 'https://www.ofiq.app/#pricing' },
+          { '@type': 'SiteNavigationElement', name: 'FAQ', url: 'https://www.ofiq.app/#faq' },
+          { '@type': 'SiteNavigationElement', name: 'Log In', url: 'https://www.ofiq.app/login' },
+          { '@type': 'SiteNavigationElement', name: 'Sign Up', url: 'https://www.ofiq.app/signup' },
+        ],
+      },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': 'https://www.ofiq.app/#software',
+        name: 'OfferIQ',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        url: 'https://www.ofiq.app',
+        description: 'AI-powered offer strategy and sales funnel builder. Turn any idea, URL, or PDF into offer strategy, sales copy, live funnel pages, and a traffic plan in one session.',
+        featureList: [
+          'AI Offer Strategy & Intelligence Report',
+          'Sales Funnel Copy Engine (up to 12,000 words)',
+          'Drag-and-drop Funnel Builder',
+          'Traffic Intelligence™ with Media Buying Plan',
+          'Built-in CRM & Analytics',
+          'Stripe & PayPal Integration',
+          'Custom Domain Publishing',
+          'Asset Bank with downloadable PDFs',
+        ],
+        offers: pricingTiers.map((tier) => ({
+          '@type': 'Offer',
+          name: `OfferIQ ${tier.name} Plan`,
+          price: tier.price.replace('$', ''),
+          priceCurrency: 'USD',
+          priceSpecification: {
+            '@type': 'UnitPriceSpecification',
+            price: tier.price.replace('$', ''),
+            priceCurrency: 'USD',
+            unitText: 'MONTH',
+          },
+          url: 'https://www.ofiq.app/signup',
+        })),
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.a,
+          },
+        })),
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
+/* ─── YouTube Video Facade ──────────────────────────────────────── */
+function YouTubeFacade({ videoId, title }: { videoId: string; title: string }) {
+  const [active, setActive] = useState(false);
+  const activate = useCallback(() => setActive(true), []);
+
+  if (active) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=30`}
+        className="rounded-[8px] md:rounded-[10px] block w-full h-full"
+        allow="autoplay; encrypted-media"
+        title={title}
+        style={{ border: 0 }}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="relative w-full h-full cursor-pointer rounded-[8px] md:rounded-[10px] overflow-hidden bg-[#08080D] flex items-center justify-center group"
+      onClick={activate}
+      onKeyDown={(e) => e.key === 'Enter' && activate()}
+      role="button"
+      tabIndex={0}
+      aria-label={`Play video: ${title}`}
+    >
+      <img
+        src={`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`}
+        alt={title}
+        className="absolute inset-0 w-full h-full object-cover opacity-60"
+        loading="lazy"
+        decoding="async"
+      />
+      {/* Play button */}
+      <div className="relative z-10 w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
+        <svg className="w-6 h-6 text-black ml-1" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Nav logo mark ─────────────────────────────────────────────── */
 function LogoMark() {
   return (
     <img
       src="https://i.imgur.com/ifv8m6Y.png"
       alt="OfferIQ logo"
+      width={200}
+      height={56}
       className="h-14 w-auto object-contain flex-shrink-0"
+      decoding="async"
     />
   );
 }
@@ -313,30 +456,38 @@ export function WelcomePage() {
           <div className="grid grid-cols-2 gap-4">
             <img
               src="https://assets.aceternity.com/templates/startup-1.webp"
-              alt="startup template"
+              alt=""
               width={500}
               height={500}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
             />
             <img
               src="https://assets.aceternity.com/templates/startup-2.webp"
-              alt="startup template"
+              alt=""
               width={500}
               height={500}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
             />
             <img
               src="https://assets.aceternity.com/templates/startup-3.webp"
-              alt="startup template"
+              alt=""
               width={500}
               height={500}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
             />
             <img
               src="https://assets.aceternity.com/templates/startup-4.webp"
-              alt="startup template"
+              alt=""
               width={500}
               height={500}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
             />
           </div>
@@ -357,30 +508,38 @@ export function WelcomePage() {
           <div className="grid grid-cols-2 gap-4">
             <img
               src="https://assets.aceternity.com/pro/hero-sections.png"
-              alt="hero template"
+              alt=""
               width={500}
               height={500}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
             />
             <img
               src="https://assets.aceternity.com/features-section.png"
-              alt="feature template"
+              alt=""
               width={500}
               height={500}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
             />
             <img
               src="https://assets.aceternity.com/pro/bento-grids.png"
-              alt="bento template"
+              alt=""
               width={500}
               height={500}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
             />
             <img
               src="https://assets.aceternity.com/cards.png"
-              alt="cards template"
+              alt=""
               width={500}
               height={500}
+              loading="lazy"
+              decoding="async"
               className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
             />
           </div>
@@ -512,10 +671,13 @@ export function WelcomePage() {
 
   return (
     <div className="dark antialiased overflow-x-hidden" style={{ background: 'rgb(11,11,11)', color: '#F5F5F7', fontFamily: "'FramerHeroBody', 'General Sans', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6, WebkitFontSmoothing: 'antialiased' }}>
+      {/* JSON-LD Structured Data */}
+      <StructuredData faqs={faqs} pricingTiers={pricingTiers} />
 
       {/* ── NAV ── */}
       <nav
         id="nav"
+        aria-label="Main Navigation"
         className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-[350ms] border-b ${navScrolled ? 'py-[11px] border-white/[0.07]' : 'py-[18px] border-transparent'}`}
         style={{ background: navScrolled ? 'rgba(8,8,13,0.80)' : 'transparent', backdropFilter: navScrolled ? 'blur(20px) saturate(160%)' : 'none', boxShadow: navScrolled ? '0 1px 0 rgba(255,255,255,0.04),0 4px 24px -4px rgba(0,0,0,0.4)' : 'none' }}
       >
@@ -613,14 +775,11 @@ export function WelcomePage() {
               boxShadow: '0 0 0 1px rgba(59,130,246,0.08), 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 40px 80px -20px rgba(139,92,246,0.15)',
             }}
           >
-            <div className="h-full w-full rounded-[12px] md:rounded-[18px] overflow-hidden bg-[#18181b] p-1 md:p-3.5 relative pointer-events-none" style={{ height: '100%' }}>
-              <iframe
-                src="https://www.youtube.com/embed/PYnfJl2OSic?autoplay=1&mute=1&loop=1&playlist=PYnfJl2OSic&controls=0&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=30"
-                className="rounded-[8px] md:rounded-[10px] block"
-                allow="autoplay; encrypted-media"
-                title="Apple Event — September 2024"
-                style={{ border: 0, width: '100%', height: '100%' }}
-              ></iframe>
+            <div className="h-full w-full rounded-[12px] md:rounded-[18px] overflow-hidden bg-[#18181b] p-1 md:p-3.5 relative" style={{ height: '100%' }}>
+              <YouTubeFacade
+                videoId="PYnfJl2OSic"
+                title="OfferIQ – AI Offer Builder Demo"
+              />
             </div>
           </motion.div>
         </div>
@@ -1222,7 +1381,7 @@ export function WelcomePage() {
                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[14px] font-medium transition-all cursor-pointer border ${activeScenario === i ? 'text-white border-white/20 bg-white/10' : 'text-[#A6A6B3] hover:text-white border-white/[0.07] bg-white/[0.03]'}`}
                     onClick={() => setActiveScenario(i)}
                   >
-                    <img src={sc.avatar} alt={sc.tab} className="w-5 h-5 rounded-full object-cover shrink-0" /> {sc.tab}
+                    <img src={sc.avatar} alt="" width={20} height={20} loading="lazy" decoding="async" className="w-5 h-5 rounded-full object-cover shrink-0" /> {sc.tab}
                   </button>
                 ))}
               </div>
@@ -1237,6 +1396,10 @@ export function WelcomePage() {
                     <img
                       src={s.avatar}
                       alt={s.who}
+                      width={48}
+                      height={48}
+                      loading="lazy"
+                      decoding="async"
                       className="w-12 h-12 rounded-full object-cover border-2 border-white/10 shrink-0"
                     />
                     <div className="flex flex-col gap-0.5">
@@ -1259,8 +1422,8 @@ export function WelcomePage() {
                 <div className="flex-1 flex flex-col gap-5 p-7 rounded-[14px] bg-white/[0.03] border border-white/[0.08]">
                   <div className="flex flex-col gap-0">
                     <span className="text-[11px] font-mono uppercase tracking-[0.12em] text-white/40 mb-3">The Transformation</span>
-                    <h4 className="text-[32px] text-white font-semibold m-0 tracking-tight leading-none">The</h4>
-                    <h4 className="text-[32px] font-semibold m-0 tracking-tight leading-none text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, rgb(124,92,255) 0%, #818CF8 100%)' }}>Transformation</h4>
+                    <p className="text-[32px] text-white font-semibold m-0 tracking-tight leading-none">The</p>
+                    <p className="text-[32px] font-semibold m-0 tracking-tight leading-none text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, rgb(124,92,255) 0%, #818CF8 100%)' }}>Transformation</p>
                   </div>
 
                   <div className="w-full h-px bg-white/10" />

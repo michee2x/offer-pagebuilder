@@ -1,0 +1,31 @@
+# OfferIQ
+
+> OfferIQ is an AI-powered offer strategy and sales funnel builder that turns any idea, URL, or PDF into a complete revenue system — strategy, copy, live funnel pages, and traffic plan — built in one session.
+
+OfferIQ is designed for course creators, business coaches, agency owners, and first-time entrepreneurs who want to launch and sell digital offers without needing a strategist, copywriter, or funnel designer.
+
+## Core Product
+
+OfferIQ runs a 4-phase AI engine on every offer:
+
+1. **Strategy & Intelligence Report** — Analyzes your offer idea, URL, or PDF against 35,000+ real converting offers. Outputs a validated buyer persona, benchmarked price point, conversion angles, and competitive positioning.
+2. **Copy Engine** — Writes a full funnel copystack from your Intelligence Report: Lead Capture, Long-Form Sales Page (up to 12,000 words), Upsell, Downsell, and Thank You pages.
+3. **Funnel Builder** — Assembles all 5 funnel pages automatically with colors, fonts, and layout pulled from your Design Intelligence. Drag-and-drop editor and AI copilot for real-time refinements.
+4. **Traffic Intelligence™** — Generates a complete acquisition strategy: platform priority matrix, Meta/Google ad copy, VSL script, UGC script, 3-phase media buying plan, and 5 full email sequences.
+
+## Pricing
+
+- **Starter** — $39/month (7-day $1 trial): 5 offer credits/month, 1 workspace, full 4-phase engine, OfferIQ subdomain, payment & autoresponder integration.
+- **Growth** — $69/month (7-day $1 trial): 10 offer credits/month, 3 workspaces, custom domain, pixel tracking, remove branding, advanced analytics.
+- **Agency** — $179/month (7-day $1 trial): 30 offer credits/month, 30 workspaces, 30 client sub-accounts, agency dashboard, done-for-you onboarding, dedicated priority support.
+
+All plans include a 30-day money-back guarantee.
+
+## Key Links
+
+- Homepage: https://www.ofiq.app/
+- Login: https://www.ofiq.app/login
+- Sign Up / Trial: https://www.ofiq.app/signup
+- Privacy Policy: https://www.ofiq.app/policy
+- Terms of Service: https://www.ofiq.app/terms
+- LLM Full Documentation: https://www.ofiq.app/llms-full.txt
