@@ -10,7 +10,7 @@ import { PaddleProvider } from "@/components/PaddleProvider";
 const dmSans = DM_Sans({
   subsets: ["latin"],
   axes: ["opsz"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: "variable",
   display: "swap",
   variable: "--font-dm-sans",
 });
