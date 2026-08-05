@@ -548,7 +548,7 @@ export function DynamicRunner({
     }
   }, [compiledCode, checkoutUrls, activePagePath, editMode]);
 
-  const isBuilderMode = !!code && (!compiledCode || (compiledCode && !compiledComp)); // builder = we have raw source, and no valid compiled code is available
+  const isBuilderMode = Boolean(!!code && (!compiledCode || (compiledCode && !compiledComp))); // builder = we have raw source, and no valid compiled code is available
 
   const ActiveComp = compiledComp || compState;
 
@@ -919,7 +919,7 @@ export function DynamicRunner({
   }
 
   const PageComponent = ActiveComp;
-  const isEditActive = editMode && isBuilderMode;
+  const isEditActive = Boolean(editMode) && isBuilderMode;
 
   return (
     // EditModeCtx.Provider wraps PageComponent so EditableText.useContext()

@@ -8,6 +8,7 @@ import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
 import { Button } from "@/components/ui/button";
 import { Download, ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { revalidatePath } from "next/cache";
+import { AutoRefresh } from "@/components/AutoRefresh";
 
 export default async function BlueprintFilesPage({
   params,
@@ -55,6 +56,7 @@ export default async function BlueprintFilesPage({
     : [];
     
   const activeLeadMagnetFileId = funnel.blocks?.activeLeadMagnetFileId || null;
+  const isAnyGenerating = blueprintFiles.some((f: any) => f.status === "generating");
 
   async function setActiveLeadMagnet(formData: FormData) {
     "use server";
@@ -110,6 +112,9 @@ export default async function BlueprintFilesPage({
             </Link>
           }
         />
+        
+        {isAnyGenerating && <AutoRefresh interval={3000} />}
+
         <div className="flex flex-1 overflow-hidden">
           <FunnelSidebar
             funnelId={funnelId}
