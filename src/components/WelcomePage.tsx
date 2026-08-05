@@ -311,10 +311,10 @@ function TrafficContent() {
 /* ─── Showcase Carousel ──────────────────────────────────────────── */
 function ShowcaseCarousel() {
   const showcaseData = [
-    { category: "Choice Gate", title: "Start from what you have — or start from nothing at all", src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2187&auto=format&fit=crop", content: <ChoiceGateContent /> },
-    { category: "Copy & Page Builder", title: "Copy and pages built from your data, not a template", src: "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=2073&auto=format&fit=crop", content: <CopyEngineContent /> },
-    { category: "Publish & Analytics", title: "Launch-ready assets, live pages, and real analytics", src: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop", content: <LaunchContent /> },
-    { category: "Traffic Intelligence™", title: "Stop guessing where your buyers are", src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop", content: <TrafficContent /> },
+    { category: "Choice Gate", title: "Start from what you have — or start from nothing at all", src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop&fm=webp", content: <ChoiceGateContent /> },
+    { category: "Copy & Page Builder", title: "Copy and pages built from your data, not a template", src: "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=800&auto=format&fit=crop&fm=webp", content: <CopyEngineContent /> },
+    { category: "Publish & Analytics", title: "Launch-ready assets, live pages, and real analytics", src: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop&fm=webp", content: <LaunchContent /> },
+    { category: "Traffic Intelligence™", title: "Stop guessing where your buyers are", src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop&fm=webp", content: <TrafficContent /> },
   ];
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-12">
@@ -374,18 +374,36 @@ const CheckIcon = () => {
 
 const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
   const isWebP = src.endsWith('.webp');
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setInView(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '400px' });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="w-full max-w-[440px] mx-auto aspect-[16/10] bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
-      {isWebP ? (
-        <img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-cover pointer-events-none"
-        />
-      ) : (
-        <video autoPlay loop muted playsInline className="w-full h-full object-cover pointer-events-none">
-          <source src={src} type="video/mp4" />
-        </video>
+    <div ref={ref} className="w-full max-w-[440px] mx-auto aspect-[16/10] bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
+      {inView && (
+        isWebP ? (
+          <img
+            src={src}
+            alt={alt}
+            className="w-full h-full object-cover pointer-events-none"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <video autoPlay loop muted playsInline preload="none" className="w-full h-full object-cover pointer-events-none">
+            <source src={src} type="video/mp4" />
+          </video>
+        )
       )}
     </div>
   );
