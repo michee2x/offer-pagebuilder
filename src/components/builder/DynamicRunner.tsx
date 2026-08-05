@@ -7,6 +7,7 @@ import React, {
   useContext,
   createContext,
   useRef,
+  useMemo,
 } from "react";
 import * as LucideIcons from "lucide-react";
 import * as FramerMotion from "framer-motion";
@@ -233,6 +234,22 @@ const evaluateCode = (
   const moduleObj = { exports: exportsObj };
   const requireMock = createRequireMock(checkoutUrls, activePagePath, editMode);
   
+  // Proxy React to intercept <img> tags and inject performance attributes (lazy loading)
+  let imgCount = 0;
+  const originalCreateElement = React.createElement;
+  const customCreateElement = function(type: any, props: any, ...children: any[]) {
+    if (type === 'img') {
+      imgCount++;
+      props = { 
+        loading: imgCount <= 1 ? 'eager' : 'lazy',
+        decoding: 'async', 
+        ...props 
+      };
+    }
+    return originalCreateElement(type, props, ...children);
+  };
+  const customReact = { ...React, createElement: customCreateElement };
+
   // 5th arg "EditableText" makes the compiled React.createElement(EditableText, …) resolve
   const fn = new Function(
     "React",
@@ -242,7 +259,7 @@ const evaluateCode = (
     "EditableText",
     jsCode
   );
-  fn(React, requireMock, exportsObj, moduleObj, EditableText);
+  fn(customReact, requireMock, exportsObj, moduleObj, EditableText);
 
   let R = exportsObj.default ?? moduleObj.exports?.default;
   if (!R && typeof moduleObj.exports === "function") R = moduleObj.exports;
@@ -515,10 +532,25 @@ export function DynamicRunner({
   activePagePath,
 }: DynamicRunnerProps) {
   const [babelLoaded, setBabelLoaded] = useState(false);
-  const [comp, setComp] = useState<React.ComponentType | null>(null);
+  const [compState, setCompState] = useState<React.ComponentType | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  const isBuilderMode = !!code; // builder = we have raw source to compile
+
+  // ── 0: Synchronous evaluation for Server-Side Rendering (SSR) ───────────────
+  const compiledComp = useMemo(() => {
+    if (!compiledCode) return null;
+    try {
+      _ofiqCounter = 0; // reset deterministic id counter
+      return evaluateCode(compiledCode, checkoutUrls, activePagePath, editMode);
+    } catch (e: any) {
+      console.error("[DynamicRunner] SSR evaluation failed:", e);
+      return null;
+    }
+  }, [compiledCode, checkoutUrls, activePagePath, editMode]);
+
+  const isBuilderMode = !!code && (!compiledCode || (compiledCode && !compiledComp)); // builder = we have raw source, and no valid compiled code is available
+
+  const ActiveComp = compiledComp || compState;
 
   const [mediaModal, setMediaModal] = useState<{
     isOpen: boolean;
@@ -539,18 +571,14 @@ export function DynamicRunner({
   
   const hideMediaTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── A: pre-compiled viewer path (live/preview, no edit) ───────────────────
+  // ── A: Error handling for pre-compiled path ───────────────────
   useEffect(() => {
-    if (!compiledCode) return;
-    try {
-      _ofiqCounter = 0; // reset deterministic id counter
-      const Comp = evaluateCode(compiledCode, checkoutUrls, activePagePath, editMode);
-      setComp(() => Comp);
+    if (compiledCode && !compiledComp) {
+      setErr("Failed to evaluate compiled component.");
+    } else {
       setErr(null);
-    } catch (e: any) {
-      setErr(e.message || "Failed to evaluate compiled component.");
     }
-  }, [compiledCode, checkoutUrls, activePagePath]);
+  }, [compiledCode, compiledComp]);
 
   // ── B: load Babel for builder ─────────────────────────────────────────────
   useEffect(() => {
@@ -598,7 +626,7 @@ export function DynamicRunner({
         );
       }
 
-      setComp(() => evaluateCode(transpiled, checkoutUrls, activePagePath, editMode));
+      setCompState(() => evaluateCode(transpiled, checkoutUrls, activePagePath, editMode));
     } catch (e: any) {
       console.error("[DynamicRunner] compile error:", e);
       setErr(e?.message || "Failed to compile page code.");
@@ -882,7 +910,7 @@ export function DynamicRunner({
     );
   }
 
-  if ((isBuilderMode && !babelLoaded) || !comp) {
+  if ((isBuilderMode && !babelLoaded) || !ActiveComp) {
     return (
       <div className="w-full h-screen flex items-center justify-center opacity-0 animate-[fadeIn_1s_ease-in-out_1s_forwards]">
         <Spinner size="sm" color="muted" />
@@ -890,7 +918,7 @@ export function DynamicRunner({
     );
   }
 
-  const PageComponent = comp;
+  const PageComponent = ActiveComp;
   const isEditActive = editMode && isBuilderMode;
 
   return (
