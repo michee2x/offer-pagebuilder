@@ -6,7 +6,7 @@ import {
   Link as LinkIcon, FileText, PenTool, Target, Users, DollarSign, Zap,
   Check, CreditCard, Megaphone, Music, ArrowRight, TrendingUp, Shield,
   Layers, Package, Palette, Rocket, GraduationCap, Mic, Building2, Sprout, Crown,
-  Compass, Volume2, VolumeX
+  Compass
 } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
@@ -372,17 +372,10 @@ const CheckIcon = () => {
   );
 };
 
-const muteListeners = new Set<(activeSrc: string) => void>();
-const notifyMuteChange = (activeSrc: string) => {
-  muteListeners.forEach(listener => listener(activeSrc));
-};
-
 const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
   const isWebP = src.endsWith('.webp');
   const ref = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [inView, setInView] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -395,34 +388,8 @@ const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const handleMuteChange = (activeSrc: string) => {
-      if (activeSrc !== src) {
-        setIsMuted(true);
-        if (videoRef.current) videoRef.current.muted = true;
-      }
-    };
-    muteListeners.add(handleMuteChange);
-    return () => {
-      muteListeners.delete(handleMuteChange);
-    };
-  }, [src]);
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const newMuted = !isMuted;
-    setIsMuted(newMuted);
-    if (videoRef.current) {
-      videoRef.current.muted = newMuted;
-    }
-    if (!newMuted) {
-      notifyMuteChange(src);
-    }
-  };
-
   return (
-    <div ref={ref} className="w-full max-w-[440px] mx-auto aspect-[16/10] bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1 group">
+    <div ref={ref} className="w-full max-w-[440px] mx-auto aspect-[16/10] bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
       {inView && (
         isWebP ? (
           <img
@@ -433,18 +400,9 @@ const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
             decoding="async"
           />
         ) : (
-          <>
-            <video ref={videoRef} autoPlay loop muted={isMuted} playsInline preload="none" className="w-full h-full object-cover pointer-events-none">
-              <source src={src} type="video/mp4" />
-            </video>
-            <button
-              onClick={toggleMute}
-              className="absolute bottom-3 right-3 z-20 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm border border-white/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center cursor-pointer shadow-lg"
-              aria-label={isMuted ? "Unmute video" : "Mute video"}
-            >
-              {isMuted ? <VolumeX className="w-4 h-4 text-white" /> : <Volume2 className="w-4 h-4 text-white" />}
-            </button>
-          </>
+          <video autoPlay loop muted playsInline preload="none" className="w-full h-full object-cover pointer-events-none">
+            <source src={src} type="video/mp4" />
+          </video>
         )
       )}
     </div>
