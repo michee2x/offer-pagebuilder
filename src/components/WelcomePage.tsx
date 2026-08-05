@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { useScroll, useTransform, motion } from 'motion/react';
 import {
   Link as LinkIcon, FileText, PenTool, Target, Users, DollarSign, Zap,
@@ -179,13 +180,12 @@ function YouTubeFacade({ videoId, title }: { videoId: string; title: string }) {
       tabIndex={0}
       aria-label={`Play video: ${title}`}
     >
-      <img
+      <Image
         src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
         alt={title}
-        className="absolute inset-0 w-full h-full object-cover opacity-60"
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
+        fill
+        className="object-cover opacity-60"
+        priority
       />
       {/* Play button */}
       <div className="relative z-10 w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
@@ -200,13 +200,13 @@ function YouTubeFacade({ videoId, title }: { videoId: string; title: string }) {
 /* ─── Nav logo mark ─────────────────────────────────────────────── */
 function LogoMark() {
   return (
-    <img
+    <Image
       src="/logo.webp"
       alt="OfferIQ logo"
       width={400}
       height={112}
       className="h-14 w-auto object-contain flex-shrink-0"
-      decoding="async"
+      priority
     />
   );
 }

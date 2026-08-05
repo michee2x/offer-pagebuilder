@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cookies } from "next/headers";
 import { Folder } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -211,9 +212,11 @@ export default async function DashboardPage(props: {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-20 bg-white/[0.02] rounded-3xl border border-white/5 border-dashed">
-                    <img
+                    <Image
                       src="https://images.unsplash.com/photo-1614332287897-cdc485fa562d?q=80&w=2070&auto=format&fit=crop"
-                      className="w-48 h-48 object-cover rounded-2xl opacity-20 mb-6 grayscale"
+                      width={192}
+                      height={192}
+                      className="object-cover rounded-2xl opacity-20 mb-6 grayscale"
                       alt="No campaigns"
                     />
                     <p className="text-white/40 text-[15px]">

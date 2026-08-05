@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import Image from "next/image";
 import { MoreVertical, ExternalLink, Trash2, Link2, Eye, Loader2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -81,16 +82,20 @@ export function CampaignCard({ funnel, userPermissions }: { funnel: any, userPer
         {/* Image Container - Exact Gallereee Style */}
         <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/5 bg-[#030712] mb-4 transition-all duration-500 group-hover:border-white/20 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           {funnel.og_image_url ? (
-            <img
+            <Image
               src={funnel.og_image_url}
               alt={funnel.name}
-              className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-[1.05]"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
             />
           ) : (
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2070&auto=format&fit=crop"
               alt="Empty state"
-              className="object-cover w-full h-full opacity-40 transition-transform duration-700 group-hover:scale-[1.05]"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover opacity-40 transition-transform duration-700 group-hover:scale-[1.05]"
             />
           )}
           
