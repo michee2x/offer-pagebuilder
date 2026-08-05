@@ -161,7 +161,7 @@ function YouTubeFacade({ videoId, title }: { videoId: string; title: string }) {
   if (active) {
     return (
       <iframe
-        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=30&cc_load_policy=0`}
+        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=1&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=30&cc_load_policy=0`}
         className="rounded-[8px] md:rounded-[10px] block w-full h-full"
         allow="autoplay; encrypted-media"
         title={title}
