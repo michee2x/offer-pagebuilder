@@ -91,6 +91,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://assets.aceternity.com" />
         <link rel="preconnect" href="https://i.imgur.com" />
+        <link rel="preconnect" href="https://i.ytimg.com" />
         {/* Google Analytics 4 */}
         {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
       </head>
