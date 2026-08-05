@@ -183,7 +183,8 @@ function YouTubeFacade({ videoId, title }: { videoId: string; title: string }) {
         src={`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`}
         alt={title}
         className="absolute inset-0 w-full h-full object-cover opacity-60"
-        loading="lazy"
+        loading="eager"
+        fetchPriority="high"
         decoding="async"
       />
       {/* Play button */}
@@ -703,10 +704,7 @@ export function WelcomePage() {
       <section className="hero-section relative overflow-hidden min-h-[160vh]" id="hero" ref={heroRef}
         style={{
           backgroundColor: '#08080D',
-          backgroundImage: `url('https://framerusercontent.com/images/tNr9II3jZ7nSELI0b7PCG4TjJs.png?scale-down-to=4096&width=5760&height=3232')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-          backgroundRepeat: 'no-repeat',
+          backgroundImage: 'radial-gradient(ellipse at top, rgba(30, 20, 60, 0.5) 0%, #08080D 70%)',
         }}>
         {/* Dark overlay to ensure text remains readable */}
         <div className="absolute inset-0 bg-[#08080D]/40 pointer-events-none z-0"></div>
@@ -777,7 +775,7 @@ export function WelcomePage() {
           >
             <div className="h-full w-full rounded-[12px] md:rounded-[18px] overflow-hidden bg-[#18181b] p-1 md:p-3.5 relative" style={{ height: '100%' }}>
               <YouTubeFacade
-                videoId="PYnfJl2OSic"
+                videoId="B170z7LnX8Y"
                 title="OfferIQ – AI Offer Builder Demo"
               />
             </div>
