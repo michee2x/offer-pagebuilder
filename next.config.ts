@@ -10,31 +10,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "gallereee.framer.website",
+        hostname: "**",
       },
       {
-        protocol: "https",
-        hostname: "framerusercontent.com",
-      },
-      {
-        protocol: "https",
-        hostname: "i.imgur.com",
-      },
-      {
-        protocol: "https",
-        hostname: "i.ytimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "assets.aceternity.com",
-      },
+        protocol: "http",
+        hostname: "**",
+      }
     ],
-    // Prefer modern image formats automatically
-    formats: ["image/avif", "image/webp"],
+    // Bypass Next.js built-in image optimization API to prevent 500 errors and missing domains
+    unoptimized: true,
   },
 
   // Remove console.log in production builds, keep errors
