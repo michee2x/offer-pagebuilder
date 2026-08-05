@@ -23,9 +23,9 @@ All plans include a 30-day money-back guarantee.
 
 ## Key Links
 
-- Homepage: https://www.ofiq.app/
-- Login: https://www.ofiq.app/login
-- Sign Up / Trial: https://www.ofiq.app/signup
-- Privacy Policy: https://www.ofiq.app/policy
-- Terms of Service: https://www.ofiq.app/terms
-- LLM Full Documentation: https://www.ofiq.app/llms-full.txt
+- [Homepage](https://www.ofiq.app/): Main landing page for OfferIQ
+- [Login](https://www.ofiq.app/login): Account login page
+- [Sign Up / Trial](https://www.ofiq.app/signup): Registration and trial sign up
+- [Privacy Policy](https://www.ofiq.app/policy): Privacy policy terms
+- [Terms of Service](https://www.ofiq.app/terms): Terms of service
+- [LLM Full Documentation](https://www.ofiq.app/llms-full.txt): Complete detailed documentation for LLMs
