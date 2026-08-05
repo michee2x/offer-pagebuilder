@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 function VerifyEmailContent() {
   const [email, setEmail] = useState("");
