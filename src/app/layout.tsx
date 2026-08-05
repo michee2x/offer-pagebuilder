@@ -87,11 +87,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`dark ${dmSans.variable}`}>
       <head>
-        {/* Preconnect to external image CDNs for faster asset loading */}
-        <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://assets.aceternity.com" />
-        <link rel="preconnect" href="https://i.imgur.com" />
+        {/* Preconnect for YouTube facade thumbnail (above-the-fold) */}
         <link rel="preconnect" href="https://i.ytimg.com" />
+        {/* dns-prefetch for non-critical origins (decorative lazy images) */}
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://assets.aceternity.com" />
         {/* Google Analytics 4 */}
         {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
       </head>

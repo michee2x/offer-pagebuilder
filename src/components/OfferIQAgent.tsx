@@ -442,7 +442,7 @@ export function OfferIQAgent({
         <div className="relative w-16 h-16 rounded-full bg-[#0a0d18] border border-white/10 flex items-center justify-center shadow-[0_4px_24px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.15)] overflow-hidden z-10">
           <div className="absolute inset-0 rounded-full border border-cyan-500/25" />
           <Image
-            src="/bot-floating-ball-image.png"
+            src="/bot-floating-ball-image.webp"
             alt="OfferIQ Bot"
             width={56}
             height={56}

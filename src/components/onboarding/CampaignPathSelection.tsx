@@ -35,7 +35,7 @@ const parentPaths = [
     title: "Analyse & Build My Offer →",
     description:
       "I have an offer or idea — build me the complete intelligence report, copy, and funnel.",
-    image: "/card-imgs/I%20have%20an%20Offer%20-%20Colored.png",
+    image: "/card-imgs/I%20have%20an%20Offer%20-%20Colored.webp",
     gradient: "from-blue-500 via-indigo-500 to-violet-500",
     shadow: "shadow-[0_0_50px_rgba(59,130,246,0.15)]",
   },
@@ -46,7 +46,7 @@ const parentPaths = [
     description:
       "I don't have an offer yet — show me validated ideas I can deploy and start selling immediately.",
     image:
-      "/card-imgs/I%20don't%20Have%20an%20Offer%20-%20Color.png",
+      "/card-imgs/I%20don't%20Have%20an%20Offer%20-%20Color.webp",
     gradient: "from-violet-500 via-purple-500 to-pink-500",
     shadow: "shadow-[0_0_50px_rgba(168,85,247,0.15)]",
   },
@@ -59,7 +59,7 @@ const subPaths = [
     title: "Describe Your Offer",
     description:
       "Answer a few questions. OfferIQ uses your answers to build the complete intelligence report — no technical knowledge needed.",
-    image: "/card-imgs/Describe%20Your%20Offer.png",
+    image: "/card-imgs/Describe%20Your%20Offer.webp",
     gradient: "from-blue-500 to-indigo-500",
     shadow: "shadow-[0_0_30px_rgba(59,130,246,0.1)]",
   },
@@ -69,7 +69,7 @@ const subPaths = [
     title: "From a Website",
     description:
       "Paste any live URL - your own sales page or a competitor's offer. OfferIQ reads it and builds your intelligence report from what it finds.",
-    image: "/card-imgs/Enter%20Website%20URL.png",
+    image: "/card-imgs/Enter%20Website%20URL.webp",
     gradient: "from-indigo-500 to-cyan-500",
     shadow: "shadow-[0_0_30px_rgba(99,102,241,0.1)]",
   },
@@ -79,7 +79,7 @@ const subPaths = [
     title: "Upload a DOC/PDF",
     description:
       "Upload a pitch doc, offer summary or any file that describes your offer. OfferIQ extracts what it needs and builds from there.",
-    image: "/card-imgs/Input%20PDF.png",
+    image: "/card-imgs/Input%20PDF.webp",
     gradient: "from-violet-500 to-pink-500",
     shadow: "shadow-[0_0_30px_rgba(168,85,247,0.1)]",
   },

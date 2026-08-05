@@ -100,7 +100,7 @@ function CreditBar({ used, total }: { used: number; total: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <img src="/3d-icons/3dicons-3d-coin-dynamic-color.png" alt="Credits" className="w-9 h-9 drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]" />
+      <img src="/3d-icons/3dicons-3d-coin-dynamic-color.webp" alt="Credits" className="w-9 h-9 drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]" />
       <div className="flex flex-col min-w-[120px]">
         <div className="flex justify-between items-end mb-1.5">
           <span className="text-[12px] text-[#A6A6B3] font-medium uppercase tracking-wider">Credits</span>

@@ -6,7 +6,7 @@ import {
   Link as LinkIcon, FileText, PenTool, Target, Users, DollarSign, Zap,
   Check, CreditCard, Megaphone, Music, ArrowRight, TrendingUp, Shield,
   Layers, Package, Palette, Rocket, GraduationCap, Mic, Building2, Sprout, Crown,
-  Compass
+  Compass, Volume2, VolumeX
 } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
@@ -161,7 +161,7 @@ function YouTubeFacade({ videoId, title }: { videoId: string; title: string }) {
   if (active) {
     return (
       <iframe
-        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=30`}
+        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&disablekb=1&iv_load_policy=3&modestbranding=1&start=30&cc_load_policy=0`}
         className="rounded-[8px] md:rounded-[10px] block w-full h-full"
         allow="autoplay; encrypted-media"
         title={title}
@@ -180,7 +180,7 @@ function YouTubeFacade({ videoId, title }: { videoId: string; title: string }) {
       aria-label={`Play video: ${title}`}
     >
       <img
-        src={`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`}
+        src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
         alt={title}
         className="absolute inset-0 w-full h-full object-cover opacity-60"
         loading="eager"
@@ -201,10 +201,10 @@ function YouTubeFacade({ videoId, title }: { videoId: string; title: string }) {
 function LogoMark() {
   return (
     <img
-      src="https://i.imgur.com/ifv8m6Y.png"
+      src="/logo.webp"
       alt="OfferIQ logo"
-      width={200}
-      height={56}
+      width={400}
+      height={112}
       className="h-14 w-auto object-contain flex-shrink-0"
       decoding="async"
     />
@@ -372,10 +372,17 @@ const CheckIcon = () => {
   );
 };
 
+const muteListeners = new Set<(activeSrc: string) => void>();
+const notifyMuteChange = (activeSrc: string) => {
+  muteListeners.forEach(listener => listener(activeSrc));
+};
+
 const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
   const isWebP = src.endsWith('.webp');
   const ref = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [inView, setInView] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -388,8 +395,34 @@ const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const handleMuteChange = (activeSrc: string) => {
+      if (activeSrc !== src) {
+        setIsMuted(true);
+        if (videoRef.current) videoRef.current.muted = true;
+      }
+    };
+    muteListeners.add(handleMuteChange);
+    return () => {
+      muteListeners.delete(handleMuteChange);
+    };
+  }, [src]);
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    if (videoRef.current) {
+      videoRef.current.muted = newMuted;
+    }
+    if (!newMuted) {
+      notifyMuteChange(src);
+    }
+  };
+
   return (
-    <div ref={ref} className="w-full max-w-[440px] mx-auto aspect-[16/10] bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1">
+    <div ref={ref} className="w-full max-w-[440px] mx-auto aspect-[16/10] bg-[#14141F] border border-white/10 rounded-[20px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative transition-transform duration-500 hover:-translate-y-1 group">
       {inView && (
         isWebP ? (
           <img
@@ -400,9 +433,18 @@ const ProductVideo = ({ src, alt }: { src: string; alt: string }) => {
             decoding="async"
           />
         ) : (
-          <video autoPlay loop muted playsInline preload="none" className="w-full h-full object-cover pointer-events-none">
-            <source src={src} type="video/mp4" />
-          </video>
+          <>
+            <video ref={videoRef} autoPlay loop muted={isMuted} playsInline preload="none" className="w-full h-full object-cover pointer-events-none">
+              <source src={src} type="video/mp4" />
+            </video>
+            <button
+              onClick={toggleMute}
+              className="absolute bottom-3 right-3 z-20 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm border border-white/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center cursor-pointer shadow-lg"
+              aria-label={isMuted ? "Unmute video" : "Mute video"}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4 text-white" /> : <Volume2 className="w-4 h-4 text-white" />}
+            </button>
+          </>
         )
       )}
     </div>
@@ -801,7 +843,7 @@ export function WelcomePage() {
           >
             <div className="h-full w-full rounded-[12px] md:rounded-[18px] overflow-hidden bg-[#18181b] p-1 md:p-3.5 relative" style={{ height: '100%' }}>
               <YouTubeFacade
-                videoId="B170z7LnX8Y"
+                videoId="0mOrcCfKujY"
                 title="OfferIQ – AI Offer Builder Demo"
               />
             </div>
@@ -832,21 +874,21 @@ export function WelcomePage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                   {
-                    icon: '/3d-icons/3dicons-target-dynamic-color.png',
+                    icon: '/3d-icons/3dicons-target-dynamic-color.webp',
                     tag: 'The "Blank Canvas" Trap',
                     stat: '42%',
                     body: 'of startups fail simply because they build products with absolutely no market need. They build something nobody needed, and the cash runs out chasing demand that was never there.',
                     src: '— CB Insights',
                   },
                   {
-                    icon: '/3d-icons/3dicons-3d-coin-dynamic-color.png',
+                    icon: '/3d-icons/3dicons-3d-coin-dynamic-color.webp',
                     tag: 'The Pricing Trap',
                     stat: '18%',
                     body: 'of startups collapse due to flawed pricing models. They either charge too much for the market or too little to sustain operations.',
                     src: '— CB Insights',
                   },
                   {
-                    icon: '/3d-icons/3dicons-chart-dynamic-color.png',
+                    icon: '/3d-icons/3dicons-chart-dynamic-color.webp',
                     tag: 'The “Acquisition Cost” Trap',
                     stat: '222%+',
                     body: 'Customer Acquisition Costs have skyrocketed by over 222%, making paid traffic more expensive than ever. Sending hyper-expensive clicks to a slow, pieced-together funnel will bleed your profit margins dry before you make a single sale.',
@@ -931,10 +973,12 @@ export function WelcomePage() {
                 <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
                   <div className="relative w-full max-w-[420px] h-[280px]">
                     <img
-                      src="/card-imgs/I%20have%20an%20Offer%20-%20Colored.png"
+                      src="/card-imgs/I%20have%20an%20Offer%20-%20Colored.webp"
                       width={500}
                       height={500}
                       alt="platform demo"
+                      loading="lazy"
+                      decoding="async"
                       className="absolute -right-8 lg:-right-16 -bottom-12 md:-bottom-16 w-[130%] max-w-[520px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right filter z-10"
                     />
                   </div>
@@ -966,10 +1010,12 @@ export function WelcomePage() {
                 <div className="relative flex items-center justify-end flex-1 min-h-[240px] pointer-events-none mt-4 lg:mt-0">
                   <div className="relative w-full max-w-[480px] h-[280px]">
                     <img
-                      src="/card-imgs/I%20don't%20Have%20an%20Offer%20-%20Color.png"
+                      src="/card-imgs/I%20don't%20Have%20an%20Offer%20-%20Color.webp"
                       width={500}
                       height={500}
                       alt="platform demo"
+                      loading="lazy"
+                      decoding="async"
                       className="absolute -right-8 lg:-right-20 -bottom-12 md:-bottom-16 w-[130%] max-w-[560px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform rotate-[7deg] origin-bottom-right z-10"
                     />
                   </div>
@@ -1104,7 +1150,7 @@ export function WelcomePage() {
                       {/* Left — copy */}
                       <div className="flex flex-col pr-0 md:pr-4">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <img src="/3d-icons/3dicons-map-pin-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 01 · Two Ways to Start
+                          <img src="/3d-icons/3dicons-map-pin-dynamic-color.webp" className="w-6 h-6 object-contain" alt="" /> 01 · Two Ways to Start
                         </span>
                         <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Start from what you have, or start from nothing at all.</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
@@ -1154,7 +1200,7 @@ export function WelcomePage() {
                       {/* Right — copy */}
                       <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <img src="/3d-icons/3dicons-pencil-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 02 · Copy &amp; Funnel Builder
+                          <img src="/3d-icons/3dicons-pencil-dynamic-color.webp" className="w-6 h-6 object-contain" alt="" /> 02 · Copy &amp; Funnel Builder
                         </span>
                         <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Copy and Funnel Built from Your Data, Not a Template</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
@@ -1175,7 +1221,7 @@ export function WelcomePage() {
                       {/* Left — copy */}
                       <div className="flex flex-col pr-0 md:pr-4">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <img src="/3d-icons/3dicons-rocket-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 03 · Publish &amp; Analytics
+                          <img src="/3d-icons/3dicons-rocket-dynamic-color.webp" className="w-6 h-6 object-contain" alt="" /> 03 · Publish &amp; Analytics
                         </span>
                         <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Launch With Confidence: Live Pages and Real Analytics</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
@@ -1225,7 +1271,7 @@ export function WelcomePage() {
                       {/* Right — copy */}
                       <div className="flex flex-col pl-0 md:pl-4 order-1 md:order-3">
                         <span className="inline-flex items-center gap-2 font-mono text-[12px] text-[#A6A6B3] tracking-[0.08em] uppercase mb-3">
-                          <img src="/3d-icons/3dicons-megaphone-dynamic-color.png" className="w-6 h-6 object-contain" alt="" /> 04 · Lead Generation &amp; Engagement
+                          <img src="/3d-icons/3dicons-megaphone-dynamic-color.webp" className="w-6 h-6 object-contain" alt="" /> 04 · Lead Generation &amp; Engagement
                         </span>
                         <h3 className="text-[clamp(18px,2.2vw,24px)] font-semibold mb-3 text-[#F5F5F7] leading-snug">Stop Guessing Where Your Buyers Are.</h3>
                         <p className="text-[14.5px] text-[#A6A6B3] leading-relaxed mb-4">
@@ -1271,7 +1317,7 @@ export function WelcomePage() {
                   <div className="flex flex-col relative z-20 max-w-[480px]">
                     <div className="flex items-center gap-3.5 mb-5">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/20 shrink-0">
-                        <img src="/3d-icons/3dicons-folder-dynamic-color.png" className="w-8 h-8 object-contain drop-shadow-md" alt="Asset Bank" />
+                        <img src="/3d-icons/3dicons-folder-dynamic-color.webp" className="w-8 h-8 object-contain drop-shadow-md" alt="Asset Bank" />
                       </div>
                       <div>
                         <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Asset Bank</h3>
@@ -1305,7 +1351,7 @@ export function WelcomePage() {
                     <div className="relative w-full max-w-[420px] h-[240px]">
                       <div className="absolute inset-0 bg-violet-500/10 rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
                       <img
-                        src="/card-imgs/Asset%20bank.png"
+                        src="/card-imgs/Asset%20bank.webp"
                         alt="Asset Bank preview"
                         className="absolute -right-12 lg:-right-24 -bottom-16 md:-bottom-24 w-[115%] max-w-[480px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform -rotate-[7deg] origin-bottom-right group-hover:scale-[1.02] transition-transform duration-500 z-10"
                       />
@@ -1324,7 +1370,7 @@ export function WelcomePage() {
                     <div className="relative w-full max-w-[420px] h-[240px]">
                       <div className="absolute inset-0 bg-blue-500/10 rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
                       <img
-                        src="/card-imgs/tempate.png"
+                        src="/card-imgs/tempate.webp"
                         alt="Template Club preview"
                         className="absolute -left-12 lg:-left-24 -bottom-16 md:-bottom-24 w-[115%] max-w-[480px] h-auto object-contain rounded-2xl border border-white/15 shadow-[0_30px_70px_rgba(0,0,0,0.85)] transform rotate-[7deg] origin-bottom-left group-hover:scale-[1.02] transition-transform duration-500 z-10"
                       />
@@ -1335,7 +1381,7 @@ export function WelcomePage() {
                   <div className="flex flex-col relative z-20 max-w-[480px] order-1 lg:order-2">
                     <div className="flex items-center gap-3.5 mb-5">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-500/10 border border-blue-500/20 shrink-0">
-                        <img src="/3d-icons/3dicons-color-palette-dynamic-color.png" className="w-8 h-8 object-contain drop-shadow-md" alt="Template Library" />
+                        <img src="/3d-icons/3dicons-color-palette-dynamic-color.webp" className="w-8 h-8 object-contain drop-shadow-md" alt="Template Library" />
                       </div>
                       <div>
                         <h3 className="text-[24px] md:text-[28px] font-semibold tracking-tight text-[#F5F5F7]">Template Library</h3>
@@ -1597,7 +1643,7 @@ export function WelcomePage() {
                           i === 1 ? 'bg-purple-500/10 border border-purple-500/20 text-purple-300' :
                             'bg-[#E1A427]/10 border border-[#E1A427]/20 text-[#E1A427]'
                           }`}>
-                          {i === 0 ? <img src="/3d-icons/3dicons-rocket-dynamic-color.png" className="w-12 h-12 object-contain drop-shadow-md" alt="Starter" /> : i === 1 ? <img src="/3d-icons/3dicons-chart-dynamic-color.png" className="w-11 h-11 object-contain drop-shadow-md" alt="Growth" /> : <img src="/3d-icons/3dicons-crown-dynamic-color.png" className="w-12 h-12 object-contain drop-shadow-md" alt="Agency" />}
+                          {i === 0 ? <img src="/3d-icons/3dicons-rocket-dynamic-color.webp" className="w-12 h-12 object-contain drop-shadow-md" alt="Starter" /> : i === 1 ? <img src="/3d-icons/3dicons-chart-dynamic-color.webp" className="w-11 h-11 object-contain drop-shadow-md" alt="Growth" /> : <img src="/3d-icons/3dicons-crown-dynamic-color.webp" className="w-12 h-12 object-contain drop-shadow-md" alt="Agency" />}
                         </div>
                         {t.popular && (
                           <div className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest text-white bg-gradient-to-r from-violet-600 to-indigo-600 shadow-[0_2px_10px_rgba(124,92,255,0.4)]">
