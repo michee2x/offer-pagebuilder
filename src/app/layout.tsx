@@ -52,7 +52,7 @@ export const metadata: Metadata = {
       "OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan — built in one session.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "OfferIQ - Creating Profitable Offers From Anything",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     title: "OfferIQ - Creating Profitable Offers From Anything",
     description:
       "OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan — built in one session.",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
     creator: "@offeriq",
   },
   robots: {
