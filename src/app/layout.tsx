@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s | OfferIQ",
   },
   description:
-    "OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan — built in one session.",
+    "OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan built in one session.",
   keywords: [
     "AI offer builder",
     "sales funnel builder",
@@ -49,10 +49,10 @@ export const metadata: Metadata = {
     siteName: "OfferIQ",
     title: "OfferIQ - Creating Profitable Offers From Anything",
     description:
-      "OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan — built in one session.",
+      "OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan built in one session.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "OfferIQ - Creating Profitable Offers From Anything",
@@ -63,8 +63,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "OfferIQ - Creating Profitable Offers From Anything",
     description:
-      "OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan — built in one session.",
-    images: ["/og-image.jpg"],
+      "OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan built in one session.",
+    images: ["/og-image.png"],
     creator: "@offeriq",
   },
   robots: {
