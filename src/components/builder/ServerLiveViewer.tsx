@@ -80,6 +80,7 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
   const theme = blocks?.theme;
   const pages = blocks?.pages || {};
   const activePagePath = blocks?.activePagePath || '/';
+  const funnelId = blocks?.funnelId || null;
   
   const activePage = pages[activePagePath];
   const activeCode = activePage?.code;
@@ -92,6 +93,12 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
 
   return (
     <div className="w-screen min-h-screen bg-background text-foreground flex flex-col">
+      {/* Inline script sets funnelId for DynamicRunner checkout interceptor — runs before any JS hydration */}
+      {funnelId && (
+        <script
+          dangerouslySetInnerHTML={{ __html: `window.__OFIQ_FUNNEL_ID__=${JSON.stringify(funnelId)};` }}
+        />
+      )}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(24px); }

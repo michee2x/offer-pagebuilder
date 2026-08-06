@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { createAdminClient } from "@/utils/supabase/admin"
 import { notFound } from "next/navigation"
-import { ViewerHydrator } from "@/components/builder/ViewerHydrator"
+import { ServerLiveViewer } from "@/components/builder/ServerLiveViewer"
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker"
 import { ScriptInjector } from "@/components/tracking/ScriptInjector"
 
@@ -117,7 +117,7 @@ export default async function LiveViewerPage({ params }: Props) {
         <>
             <ScriptInjector headCode={headCode} bodyCode={bodyCode} />
             <AnalyticsTracker pageId={page.id} pagePath={requestedPath} />
-            <ViewerHydrator blocks={hydratedBlocks} />
+            <ServerLiveViewer blocks={hydratedBlocks} />
         </>
     )
 }
