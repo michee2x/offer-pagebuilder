@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { PostHogProvider } from "./providers";
@@ -77,6 +78,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: "RHiR-AZc-5kaJO1m6UrcpacTtm_Byjm9vfJh1mniFOM",
+  },
 };
 
 export default function RootLayout({
@@ -94,6 +98,25 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://assets.aceternity.com" />
         {/* Google Analytics 4 */}
         {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
+        {/* Hotjar — loaded after interaction to avoid blocking LCP */}
+        {process.env.NEXT_PUBLIC_HOTJAR_ID && (
+          <Script
+            id="hotjar"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function(h,o,t,j,a,r){
+                  h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+                  h._hjSettings={hjid:${process.env.NEXT_PUBLIC_HOTJAR_ID},hjsv:6};
+                  a=o.getElementsByTagName('head')[0];
+                  r=o.createElement('script');r.async=1;
+                  r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+                  a.appendChild(r);
+                })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+              `,
+            }}
+          />
+        )}
       </head>
       <body
         className={`min-h-screen bg-[#050505] text-foreground overflow-x-hidden text-sm relative ${dmSans.className}`}
