@@ -315,7 +315,7 @@ export async function PATCH(req: Request) {
     // Verify ownership
     const { data: workspace, error: fetchError } = await supabaseAdmin
       .from('workspaces')
-      .select('id, user_id')
+      .select('id, user_id, owner_id')
       .eq('id', id)
       .single();
 
@@ -323,7 +323,11 @@ export async function PATCH(req: Request) {
       return Response.json({ error: 'Workspace not found' }, { status: 404 });
     }
 
-    if (workspace.user_id !== session.user.id) {
+    const isOwner =
+      workspace.user_id === session.user.id ||
+      workspace.owner_id === session.user.id;
+
+    if (!isOwner) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 

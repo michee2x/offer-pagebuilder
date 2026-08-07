@@ -629,11 +629,11 @@ export default function IntelligencePage({
   );
 
   useEffect(() => {
-    if (!activeSectionId || !ALLOWED_SECTIONS.includes(activeSectionId)) {
-      setActiveSectionId("SCORE_SUMMARY");
+    if (!activeSectionId || !availableSections.includes(activeSectionId)) {
+      setActiveSectionId(availableSections[0] || "SCORE_SUMMARY");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSectionId]);
+  }, [activeSectionId, availableSections]);
 
   const activeIndex = availableSections.indexOf(activeSectionId);
   const prevSectionId =

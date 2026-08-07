@@ -97,7 +97,7 @@ export function Sidebar() {
 
   const links: SidebarLink[] = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
-    { label: "Workspaces", href: "/settings?tab=workspaces", icon: Filter },
+    { label: "Workspaces", href: "/workspaces", icon: Filter },
     { label: "Templates", href: `/templates${activeWorkspaceId ? `?workspace=${activeWorkspaceId}` : ''}`, icon: LayoutTemplate },
   ];
 
