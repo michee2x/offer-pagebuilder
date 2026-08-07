@@ -1,17 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export function UpdatePasswordForm() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) {
+        setEmail(data.user.email);
+      }
+    });
+  }, [supabase]);
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,6 +84,16 @@ export function UpdatePasswordForm() {
           <p className="oiq-subtitle">Please enter your new password below.</p>
 
           <form onSubmit={handleUpdate} autoComplete="on">
+            {/* Hidden email field for password managers */}
+            <input 
+              type="email" 
+              name="email"
+              autoComplete="username" 
+              value={email} 
+              readOnly 
+              style={{ display: 'none' }} 
+              aria-hidden="true"
+            />
             {/* New Password */}
             <label className="oiq-field-label" htmlFor="oiq-password">New Password</label>
             <div className="oiq-field-wrap oiq-pw-wrap">

@@ -24,7 +24,7 @@ function LoginFormInner() {
     try {
       if (isMagicLink) {
         const { error } = await supabase.auth.signInWithOtp({
-          email,
+          email: email.trim(),
           options: {
             emailRedirectTo: `${window.location.origin}/`,
           },
@@ -33,7 +33,7 @@ function LoginFormInner() {
         setMagicLinkSent(true);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: email.trim(),
           password,
         });
         if (error) throw error;
