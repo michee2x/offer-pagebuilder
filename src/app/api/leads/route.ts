@@ -19,40 +19,37 @@ function buildBlueprintEmail(ctx: EmailContext): string {
   const { firstName, offerName, blueprintUrl, blueprintTopic, upsellHook, upsellUrl, niche } = ctx;
 
   const ctaBlock = blueprintUrl
-    ? `<a href="${blueprintUrl}" target="_blank" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
-        Download Your Blueprint →
+    ? `<a href="${blueprintUrl}" target="_blank" style="display:inline-block;padding:12px 24px;font-size:16px;font-weight:600;color:#ffffff;background-color:#000000;border-radius:6px;text-decoration:none;">
+        Download Your Blueprint
       </a>`
-    : `<a href="#" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px;">
-        Access Your Dashboard →
+    : `<a href="#" style="display:inline-block;padding:12px 24px;font-size:16px;font-weight:600;color:#ffffff;background-color:#000000;border-radius:6px;text-decoration:none;">
+        Access Your Dashboard
       </a>`;
 
   const upsellBlock = upsellUrl
     ? `
-      <!-- Upsell Pivot -->
-      <tr>
-        <td style="background:#141420;padding:0 40px 40px;border-left:1px solid rgba(255,255,255,0.06);border-right:1px solid rgba(255,255,255,0.06);">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,rgba(109,40,217,0.15),rgba(79,70,229,0.1));border:1px solid rgba(109,40,217,0.2);border-radius:12px;padding:24px;">
-            <tr><td style="padding:24px;">
-              <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(167,139,250,0.8);">Before You Go</p>
-              <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#ffffff;line-height:1.5;">
-                Thousands of people in the ${niche} space are already seeing results. If you're serious about taking this further, you'll want to see this:
-              </p>
-              <p style="margin:0 0 20px;font-size:20px;font-weight:900;color:#a78bfa;line-height:1.3;">
-                ${upsellHook}
-              </p>
-              <table cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:8px;">
-                    <a href="${upsellUrl}" target="_blank" style="display:inline-block;padding:12px 28px;font-size:13px;font-weight:700;color:#ffffff;text-decoration:none;">
-                      Check It Out →
-                    </a>
-                  </td>
-                </tr>
-              </table>
-            </td></tr>
-          </table>
-        </td>
-      </tr>`
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:40px;border-top:1px solid #eaeaea;">
+        <tr>
+          <td style="padding-top:30px;">
+            <p style="margin:0 0 10px;font-size:12px;font-weight:600;color:#666666;text-transform:uppercase;letter-spacing:1px;">Before You Go</p>
+            <p style="margin:0 0 16px;font-size:16px;color:#333333;line-height:1.6;">
+              If you're serious about taking this further, you'll want to see this:
+            </p>
+            <p style="margin:0 0 20px;font-size:18px;font-weight:700;color:#111111;line-height:1.4;">
+              ${upsellHook}
+            </p>
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td>
+                  <a href="${upsellUrl}" target="_blank" style="display:inline-block;padding:10px 20px;font-size:14px;font-weight:600;color:#000000;background-color:#f5f5f5;border:1px solid #e0e0e0;border-radius:6px;text-decoration:none;">
+                    Check It Out &rarr;
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>`
     : '';
 
   return `<!DOCTYPE html>
@@ -62,82 +59,66 @@ function buildBlueprintEmail(ctx: EmailContext): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your Blueprint</title>
 </head>
-<body style="margin:0;padding:0;background:#0a0a0f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0f;padding:40px 16px;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+<body style="margin:0;padding:0;background-color:#f9f9f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9f9f9;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;border-radius:8px;border:1px solid #eaeaea;overflow:hidden;">
+          <tr>
+            <td style="padding:40px;">
+              <h1 style="margin:0 0 24px;font-size:24px;font-weight:700;color:#111111;">Hi ${firstName},</h1>
+              <p style="margin:0 0 24px;font-size:16px;color:#444444;line-height:1.6;">
+                You requested access to <strong>${offerName}</strong>${blueprintTopic !== offerName ? ` — specifically the <em>${blueprintTopic}</em> blueprint` : ''}, and here it is. Everything you need to get started is below.
+              </p>
 
-        <!-- Header -->
-        <tr>
-          <td style="background:linear-gradient(135deg,#6d28d9,#4f46e5);border-radius:16px 16px 0 0;padding:40px 40px 32px;text-align:center;">
-            <p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);">Your Blueprint Is Ready</p>
-            <h1 style="margin:0;font-size:32px;font-weight:900;color:#ffffff;line-height:1.2;">Welcome, ${firstName}.</h1>
-          </td>
-        </tr>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:30px;">
+                ${[
+                  ['1', 'Review Your Blueprint', 'Read through the full framework and identify the highest-leverage moves for your situation.'],
+                  ['2', 'Implement One Thing', 'Pick the single most impactful action and execute it within 48 hours.'],
+                  ['3', 'Track Your Results', 'Measure the outcome and let the results guide your next move.'],
+                ].map(([num, title, desc]) => `
+                <tr>
+                  <td style="padding-bottom:16px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="32" valign="top">
+                          <div style="width:24px;height:24px;border-radius:12px;background-color:#f0f0f0;display:inline-block;text-align:center;line-height:24px;font-size:12px;font-weight:600;color:#333333;">${num}</div>
+                        </td>
+                        <td>
+                          <p style="margin:0 0 4px;font-size:15px;font-weight:600;color:#111111;">${title}</p>
+                          <p style="margin:0;font-size:14px;color:#666666;line-height:1.5;">${desc}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>`).join('')}
+              </table>
 
-        <!-- Body -->
-        <tr>
-          <td style="background:#141420;padding:40px;border-left:1px solid rgba(255,255,255,0.06);border-right:1px solid rgba(255,255,255,0.06);">
-            <p style="margin:0 0 24px;font-size:16px;color:rgba(255,255,255,0.75);line-height:1.7;">
-              You requested access to <strong style="color:#ffffff;">${offerName}</strong>${blueprintTopic !== offerName ? ` — specifically the <em>${blueprintTopic}</em> blueprint` : ''} — and here it is. Everything you need to get started is below.
-            </p>
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:10px;">
+                <tr>
+                  <td>
+                    ${ctaBlock}
+                  </td>
+                </tr>
+              </table>
 
-            <!-- Step list -->
-            <table width="100%" cellpadding="0" cellspacing="0">
-              ${[
-                ['1', 'Review Your Blueprint', 'Read through the full framework and identify the 2-3 highest-leverage moves for your situation.'],
-                ['2', 'Implement One Thing', 'Pick the single most impactful action and execute it within 48 hours. Speed beats perfection.'],
-                ['3', 'Track Your Results', 'Measure the outcome. Real data beats theory — let the results guide your next move.'],
-              ].map(([num, title, desc]) => `
-              <tr>
-                <td style="padding:0 0 20px;">
-                  <table width="100%" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td width="40" valign="top" style="padding-right:16px;">
-                        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#ffffff;text-align:center;line-height:32px;">${num}</div>
-                      </td>
-                      <td>
-                        <p style="margin:0 0 4px;font-size:14px;font-weight:700;color:#ffffff;">${title}</p>
-                        <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;">${desc}</p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>`).join('')}
-            </table>
+              ${upsellBlock}
 
-            <!-- Divider -->
-            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:32px 0;" />
-
-            <p style="margin:0 0 28px;font-size:14px;color:rgba(255,255,255,0.55);line-height:1.7;">
-              If you have any questions or need help applying this to your specific situation, hit reply — we read every message.
-            </p>
-
-            <!-- CTA -->
-            <table cellpadding="0" cellspacing="0">
-              <tr>
-                <td style="background:linear-gradient(135deg,#6d28d9,#4f46e5);border-radius:10px;">
-                  ${ctaBlock}
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        ${upsellBlock}
-
-        <!-- Footer -->
-        <tr>
-          <td style="background:#0d0d18;border-radius:0 0 16px 16px;border:1px solid rgba(255,255,255,0.06);border-top:none;padding:24px 40px;text-align:center;">
-            <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;">OfferIQ</p>
-            <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.2);">
-              You received this because you requested the blueprint. No spam, ever.
-            </p>
-          </td>
-        </tr>
-
-      </table>
-    </td></tr>
+            </td>
+          </tr>
+        </table>
+        
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+          <tr>
+            <td style="padding:24px 0;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#999999;">
+                You received this because you requested the blueprint. No spam, ever.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
   </table>
 </body>
 </html>`;
@@ -149,17 +130,20 @@ function resolveLeadMagnetUrl(blocks: any): { url: string | null; topic: string 
   const activeFileId = blocks?.activeLeadMagnetFileId;
   const files = Array.isArray(blocks?.blueprintFiles) ? blocks.blueprintFiles : [];
 
-  // 1. If an active file is explicitly selected, use it
-  if (activeFileId && files.length > 0) {
-    const match = files.find((f: any) => (f.id || f.fileName) === activeFileId);
+  // Filter out any bonuses (only send lead magnet)
+  const leadFiles = files.filter((f: any) => f.type !== 'bonus');
+
+  // 1. If an active file is explicitly selected and it's a lead file, use it
+  if (activeFileId && leadFiles.length > 0) {
+    const match = leadFiles.find((f: any) => (f.id || f.fileName) === activeFileId);
     if (match?.url) {
       return { url: match.url, topic: match.topic || 'your blueprint' };
     }
   }
 
-  // 2. Fallback: use the first file in the list
-  if (files.length > 0 && files[0]?.url) {
-    return { url: files[0].url, topic: files[0].topic || 'your blueprint' };
+  // 2. Fallback: use the first lead file in the list
+  if (leadFiles.length > 0 && leadFiles[0]?.url) {
+    return { url: leadFiles[0].url, topic: leadFiles[0].topic || 'your blueprint' };
   }
 
   // 3. Legacy fallback: blocks.blueprintUrl (old format)
