@@ -341,7 +341,7 @@ Structure:
       "title": "Internal page name",
       "score": 85,
       "word_count": 0,
-      "html": "<h2>BRAND NEW : Short category label — max 12 words</h2><h1>Specific outcome headline with a real number</h1><p>Vivid scene subheadline — a moment the reader pictures themselves in.</p><p><em>[📷 Image: Hero product image]</em></p><p>Here is exactly what you are getting and why it matters to you right now.</p><ul><li>Outcome bullet 1 — specific benefit, not a feature</li><li>Outcome bullet 2</li><li>Outcome bullet 3</li></ul><blockquote>Join 4,300+ people already getting results | 4.9 stars | 580+ reviews</blockquote><hr><p><em>[📧 Form: Enter your best email address]</em></p><p><em>[🔘 Button: Yes! Give Me Instant Access]</em></p><p><em>100% free. No credit card. Instant delivery.</em></p>"
+      "html": "<h1>Specific outcome headline with a real number</h1><p><strong>BRAND NEW : Short category label — max 12 words</strong></p><h2>Vivid scene subheadline — a moment the reader pictures themselves in.</h2><p><em>[📷 Image: Hero product image]</em></p><p>Here is exactly what you are getting and why it matters to you right now.</p><ul><li>Outcome bullet 1 — specific benefit, not a feature</li><li>Outcome bullet 2</li><li>Outcome bullet 3</li></ul><blockquote>Join 4,300+ people already getting results | 4.9 stars | 580+ reviews</blockquote><hr><p><em>[📧 Form: Enter your best email address]</em></p><p><em>[🔘 Button: Yes! Give Me Instant Access]</em></p><p><em>100% free. No credit card. Instant delivery.</em></p>"
     },
     "sales_page": {
       "key": "sales_page",
@@ -385,7 +385,7 @@ Example:
       "title": "Lead Capture",
       "score": 88,
       "word_count": 54,
-      "html": "<h2>BRAND NEW : Fast Funnel Builder</h2><h1>Launch a High-Converting Offer Page in 10 Minutes With AI Sales Copy</h1><p>Imagine the leads pouring in while you keep working on delivery, not the page.</p><ul><li>Get the full landing page written for your exact offer</li><li>Use proven funnel language that turns traffic into emails</li><li>Stop wasting hours rewriting headlines and benefits</li></ul><blockquote>Join 3,800+ entrepreneurs already building better pages | 4.9 stars</blockquote><hr><p><em>[📧 Form: Enter your best email address]</em></p><p><em>[🔘 Button: Yes! Give Me Instant Access]</em></p><p><em>100% free. No credit card. Instant delivery.</em></p>"
+      "html": "<h1>Launch a High-Converting Offer Page in 10 Minutes With AI Sales Copy</h1><p><strong>BRAND NEW : Fast Funnel Builder</strong></p><h2>Imagine the leads pouring in while you keep working on delivery, not the page.</h2><ul><li>Get the full landing page written for your exact offer</li><li>Use proven funnel language that turns traffic into emails</li><li>Stop wasting hours rewriting headlines and benefits</li></ul><blockquote>Join 3,800+ entrepreneurs already building better pages | 4.9 stars</blockquote><hr><p><em>[📧 Form: Enter your best email address]</em></p><p><em>[🔘 Button: Yes! Give Me Instant Access]</em></p><p><em>100% free. No credit card. Instant delivery.</em></p>"
     },
     "sales_page": {
       "key": "sales_page",

@@ -502,16 +502,42 @@ function babelTransform(
 
 // ─── Strip AI page wrapper tags from raw code ─────────────────────────────────
 function cleanSource(code: string): string {
-  let s = code
+  let s = (code || "")
     .replace(/^<page\b[^>]*>\n?/i, "")
     .replace(/\n?<\/page>$/i, "")
     .trim();
   if (s.startsWith("{`")) s = s.replace(/^{`\n?/, "").replace(/\n?`}$/, "").trim();
-  // Auto-add default export if missing
+  s = s.replace(/^```[a-z]*\n/i, "").replace(/\n```$/i, "").trim();
+
   if (!s.includes("export default") && !s.includes("module.exports")) {
     const m = [...s.matchAll(/function\s+(\w+)\s*\(/g)];
     if (m.length) s += `\nexport default ${m[m.length - 1][1]};`;
   }
+
+  const openDivs = (s.match(/<div\b/g) || []).length;
+  const closeDivs = (s.match(/<\/div>/g) || []).length;
+  for (let i = 0; i < openDivs - closeDivs; i++) {
+    s += "\n</div>";
+  }
+
+  const openSections = (s.match(/<section\b/g) || []).length;
+  const closeSections = (s.match(/<\/section>/g) || []).length;
+  for (let i = 0; i < openSections - closeSections; i++) {
+    s += "\n</section>";
+  }
+
+  const openMains = (s.match(/<main\b/g) || []).length;
+  const closeMains = (s.match(/<\/main>/g) || []).length;
+  for (let i = 0; i < openMains - closeMains; i++) {
+    s += "\n</main>";
+  }
+
+  const openBraces = (s.match(/\{/g) || []).length;
+  const closeBraces = (s.match(/\}/g) || []).length;
+  for (let i = 0; i < openBraces - closeBraces; i++) {
+    s += "\n}";
+  }
+
   return s;
 }
 

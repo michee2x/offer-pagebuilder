@@ -37,11 +37,19 @@ function countHtmlWords(html: string): number {
 
 function legacySpecToHtml(spec: PageSpec): string {
   const parts: string[] = [];
+  let isFirstHeadline = true;
   for (const section of spec.sections) {
+    const secLabel = section.label || 'section';
+    parts.push(`<section aria-label="${secLabel}">`);
     for (const el of section.elements) {
       switch (el.type) {
         case 'headline':
-          parts.push(`<h1>${el.copy ?? ''}</h1>`);
+          if (isFirstHeadline) {
+            parts.push(`<h1>${el.copy ?? ''}</h1>`);
+            isFirstHeadline = false;
+          } else {
+            parts.push(`<h2>${el.copy ?? ''}</h2>`);
+          }
           break;
         case 'subheadline':
           parts.push(el.size === 'sm'
@@ -106,13 +114,12 @@ function legacySpecToHtml(spec: PageSpec): string {
           parts.push(`<h3>${el.copy ?? ''}</h3>`);
           break;
         case 'nav_links':
-        case 'countdown_timer':
-          // skip nav/timer — editor doesn't need raw nav
           break;
         default:
           if (el.copy) parts.push(`<p>${el.copy}</p>`);
       }
     }
+    parts.push(`</section>`);
   }
   return parts.join('');
 }

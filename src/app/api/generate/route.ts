@@ -25,6 +25,138 @@ const MAX_OUTPUT_TOKENS = 16_000;
 // ─────────────────────────────────────────────────────────────────────────────
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// JSX Repair & Fallback Generators
+// Ensures pages (especially Page 5 Thank You Page) never save incomplete/truncated
+// code that triggers Babel transpilation errors.
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getFallbackPageCode(pathVal: string, nameVal: string): string {
+  if (pathVal === '/thankyou' || pathVal.includes('thank')) {
+    return `import React from "react";
+import { CheckCircle, ArrowRight, ShieldCheck } from "lucide-react";
+
+export default function ThankYouPage() {
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 md:p-12 font-sans">
+      <style>{"@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap'); h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; } body { font-family: 'Plus Jakarta Sans', sans-serif; }"}</style>
+      <div className="w-full max-w-2xl bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-12 text-center shadow-2xl backdrop-blur-xl my-auto">
+        <div className="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/20">
+          <CheckCircle className="w-8 h-8" />
+        </div>
+        <span className="text-xs uppercase tracking-widest text-emerald-400 font-semibold bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20">
+          Order Confirmed
+        </span>
+        <h1 className="text-3xl md:text-5xl font-extrabold mt-4 mb-4 tracking-tight text-white">
+          Thank You For Your Order!
+        </h1>
+        <p className="text-slate-400 text-sm md:text-base mb-8 leading-relaxed max-w-lg mx-auto">
+          Your order has been processed successfully. Your access details and receipt have been dispatched to your email address.
+        </p>
+        <div className="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-6 mb-8 text-left space-y-3">
+          <div className="flex items-center gap-2 text-slate-200 font-semibold text-sm">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" /> What Happens Next:
+          </div>
+          <ul className="space-y-2 text-slate-400 text-xs md:text-sm pl-6 list-disc">
+            <li>Check your email inbox for your immediate login/access link.</li>
+            <li>Bookmark your portal link for future access.</li>
+            <li>If you have any questions, our support team is ready to assist.</li>
+          </ul>
+        </div>
+        <a 
+          href="/"
+          className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/25 text-sm"
+        >
+          Return to Funnel Home <ArrowRight className="w-4 h-4" />
+        </a>
+      </div>
+    </main>
+  );
+}`;
+  }
+
+  const compName = (nameVal || "Page").replace(/[^a-zA-Z0-9]/g, "") + "Page";
+  return `import React from "react";
+
+export default function ${compName}() {
+  return (
+    <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
+      <h1 className="text-3xl font-bold mb-4">${nameVal || "Page"}</h1>
+      <p className="text-slate-400 max-w-md">This page content is ready to be customized.</p>
+    </main>
+  );
+}`;
+}
+
+function repairJsxCode(code: string, pathVal: string, nameVal: string): string {
+  let cleaned = (code || "").trim();
+  cleaned = cleaned.replace(/^```[a-z]*\n/i, "").replace(/\n```$/i, "").trim();
+  if (cleaned.startsWith("{`")) {
+    cleaned = cleaned.replace(/^\{`\n?/, "").replace(/\n?`\}$/, "").trim();
+  }
+
+  if (cleaned.length < 120 || !cleaned.includes("function")) {
+    return getFallbackPageCode(pathVal, nameVal);
+  }
+
+  const lines = cleaned.split("\n");
+  while (lines.length > 0) {
+    const last = lines[lines.length - 1].trim();
+    if (
+      last.endsWith("=") ||
+      last.endsWith("<") ||
+      (last.startsWith("<") && !last.endsWith(">")) ||
+      (last.includes('className="') && !last.endsWith('"') && !last.endsWith('">') && !last.endsWith("/>"))
+    ) {
+      lines.pop();
+    } else {
+      break;
+    }
+  }
+  cleaned = lines.join("\n").trim();
+
+  if (!cleaned.includes("import React")) {
+    cleaned = `import React from "react";\n` + cleaned;
+  }
+
+  const exportMatch = cleaned.match(/export\s+default\s+function\s+([A-Za-z0-9_]+)/);
+  if (!exportMatch) {
+    const funcMatches = [...cleaned.matchAll(/function\s+([A-Za-z0-9_]+)/g)];
+    if (funcMatches.length > 0) {
+      const funcName = funcMatches[funcMatches.length - 1][1];
+      cleaned += `\nexport default ${funcName};`;
+    } else {
+      return getFallbackPageCode(pathVal, nameVal);
+    }
+  }
+
+  const openDivs = (cleaned.match(/<div\b/g) || []).length;
+  const closeDivs = (cleaned.match(/<\/div>/g) || []).length;
+  for (let i = 0; i < openDivs - closeDivs; i++) {
+    cleaned += "\n</div>";
+  }
+
+  const openSections = (cleaned.match(/<section\b/g) || []).length;
+  const closeSections = (cleaned.match(/<\/section>/g) || []).length;
+  for (let i = 0; i < openSections - closeSections; i++) {
+    cleaned += "\n</section>";
+  }
+
+  const openMains = (cleaned.match(/<main\b/g) || []).length;
+  const closeMains = (cleaned.match(/<\/main>/g) || []).length;
+  for (let i = 0; i < openMains - closeMains; i++) {
+    cleaned += "\n</main>";
+  }
+
+  const openBraces = (cleaned.match(/\{/g) || []).length;
+  const closeBraces = (cleaned.match(/\}/g) || []).length;
+  for (let i = 0; i < openBraces - closeBraces; i++) {
+    cleaned += "\n}";
+  }
+
+  return cleaned;
+}
+
 export function buildSystemPrompt(
   category: string,
   screenshotFileName: string | null,
@@ -78,13 +210,13 @@ Place <style> as FIRST child of the return. Never declare font strings as module
 
   return `# LANDING PAGE AGENT
 
-You build premium, high-converting 4-page React sales funnels (Lead Capture, Upsell, Downsell, Thank You). Output is production-grade, visually exceptional, and Babel Standalone-compatible.
+You build premium, high-converting 5-page React sales funnels (Lead Capture, Sales Page, Upsell, Downsell, Thank You). Output is production-grade, visually exceptional, mobile-responsive, and Babel Standalone-compatible.
 
 Your primary instruction is to act as an advanced assembly agent\${screenshotFileName ? \` using the provided screenshot ("\${screenshotFileName}") as your core visual blueprint\` : " building an original design from the copy alone"}.
 
 ---
 
-## ━━━ SECTION 0: BABEL COMPILE CONTRACT — NEVER SKIP ━━━
+## ━━━ SECTION 0: BABEL COMPILE CONTRACT & TOKEN BUDGETING ━━━
 
 ⛔ HARD BLOCKERS — violating any single rule crashes the runtime compiler.
 
@@ -123,6 +255,9 @@ No interface, no type, no type annotations. Pure ES6 JSX only.
 ### 🚨 RULE 0.10 — BE CONCISE TO PREVENT TRUNCATION
 Max 4 feature cards, max 4 FAQs. Avoid verbose nested markup.
 
+### 🚨 RULE 0.11 — TOKEN BUDGETING & PAGE 5 (THANK YOU PAGE) COMPLETION
+You MUST generate ALL 5 pages (Lead Capture, Sales Page, Upsell, Downsell, Thank You). Keep component code clean, modular, and concise. Do NOT generate thousands of lines of verbose inline SVG paths or bloated redundant blocks. Budget your output tokens carefully so that Page 5 (Thank You Page) is FULLY generated and closed with </page>.
+
 ### ✅ PRE-FLIGHT CHECKLIST — VERIFY BEFORE CLOSING EACH </page> TAG
 - [ ] Zero backtick template literals inside any JSX attribute
 - [ ] All conditional classNames use string concatenation with +
@@ -137,13 +272,16 @@ Max 4 feature cards, max 4 FAQs. Avoid verbose nested markup.
 
 ---
 
-## ━━━ SECTION 1: VISUAL DESIGN & ARCHITECTURE ━━━
+## ━━━ SECTION 1: VISUAL DESIGN, SEO & RESPONSIVENESS ━━━
 
 \${screenshotFileName ? \`Use the attached screenshot "\${screenshotFileName}" as structural inspiration, but DO NOT hardcode its exact layout if it doesn't fit the copy. Adapt it intelligently.\` : \`No screenshot provided. You have full creative freedom to design a layout that best serves the copy and offer.\`}
 
-**MANDATORY DESIGN EXCELLENCE RULES:**
-- **Dynamic Layouts:** NEVER use the exact same layout structure for different pages or offers. Be highly flexible. Mix and match grids, splits, asymmetric layouts, and varied section pacing.
-- **Mobile Responsiveness (CRITICAL):** ALL generated components MUST be flawlessly mobile-responsive. Write mobile-first Tailwind classes by default (e.g. \`flex-col\`, \`p-6\`, \`text-center\`, \`w-full\`) and use \`md:\` or \`lg:\` prefixes for desktop layouts (e.g. \`md:flex-row\`, \`md:text-left\`, \`lg:w-1/2\`). Grid columns must stack on mobile (\`grid-cols-1 md:grid-cols-2\`). Never hardcode fixed heights or widths that break small screens.
+**MANDATORY DESIGN & MOBILE RESPONSIVENESS RULES (CRITICAL):**
+- **Mobile Responsiveness:** ALL generated components MUST be flawlessly mobile-responsive. Use mobile-first Tailwind classes by default (e.g. \`flex-col\`, \`p-4 md:p-8\`, \`text-center md:text-left\`, \`w-full max-w-4xl mx-auto\`) and use \`md:\` or \`lg:\` prefixes for desktop layouts (e.g. \`md:flex-row\`, \`lg:w-1/2\`). Grid columns MUST stack on mobile (\`grid-cols-1 md:grid-cols-2 lg:grid-cols-3\`). NEVER use fixed pixel widths like \`w-[800px]\`, \`w-[1000px]\`, or \`min-w-[800px]\` that break phone viewports.
+- **SEO Best Practices:**
+  1. **Single H1 Heading:** Every page MUST have exactly ONE \`<h1>\` heading tag positioned at the top of the primary hero section. All sub-headings MUST use \`<h2>\` or \`<h3>\` in logical hierarchical order. NEVER place an \`<h2>\` above an \`<h1>\`.
+  2. **Semantic HTML5:** Structure your layout using semantic HTML5 elements (\`<header>\`, \`<main>\`, \`<section>\`, \`<footer>\`, \`<nav>\`) instead of relying solely on unsemantic \`<div>\` containers.
+  3. **Mandatory Image Alt Attributes:** Every \`<img>\` element MUST include a clear, descriptive \`alt\` attribute (e.g. \`alt="Product demonstration screenshot"\`).
 - **Colors:** ${colorsRule}
 - **Glow effects:** Max 2 per section. absolute + pointer-events-none inside relative overflow-hidden parent. blur-[80px] to blur-[140px].
 - **Typography Hierarchy:** ${typographyRule}
@@ -668,7 +806,7 @@ export async function POST(req: Request) {
                 path: pathVal,
                 components: {},
                 rootList: [],
-                code,
+                code: repairJsxCode(code, pathVal, nameVal),
               };
               pageCount++;
             }
@@ -688,14 +826,32 @@ export async function POST(req: Request) {
                   path: '/',
                   components: {},
                   rootList: [],
-                  code,
+                  code: repairJsxCode(code, '/', 'Lead Capture'),
                 };
                 pageCount = 1;
               }
             }
 
-            if (pageCount === 0) {
-              throw new Error('Failed to find any valid generated pages in the stream.');
+            // Guarantee that all 5 standard funnel pages exist and are valid React components
+            const REQUIRED_FUNNEL_PAGES = [
+              { path: '/', name: 'Lead Capture' },
+              { path: '/sales', name: 'Sales Page' },
+              { path: '/upsell', name: 'Upsell' },
+              { path: '/downsell', name: 'Downsell' },
+              { path: '/thankyou', name: 'Thank You' },
+            ];
+
+            for (const reqPage of REQUIRED_FUNNEL_PAGES) {
+              if (!newPages[reqPage.path] || !newPages[reqPage.path].code || newPages[reqPage.path].code.trim().length < 100) {
+                console.log(`[generate] Missing or incomplete page "${reqPage.path}". Injecting clean fallback component.`);
+                newPages[reqPage.path] = {
+                  name: reqPage.name,
+                  path: reqPage.path,
+                  components: {},
+                  rootList: [],
+                  code: getFallbackPageCode(reqPage.path, reqPage.name),
+                };
+              }
             }
 
             const initialPage = newPages['/'] || Object.values(newPages)[0];

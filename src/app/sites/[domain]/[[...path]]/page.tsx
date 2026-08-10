@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { createAdminClient } from "@/utils/supabase/admin"
 import { notFound } from "next/navigation"
 import { ServerLiveViewer } from "@/components/builder/ServerLiveViewer"
@@ -6,6 +6,12 @@ import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker"
 import { ScriptInjector } from "@/components/tracking/ScriptInjector"
 
 type Props = { params: Promise<{ domain: string; path?: string[] }> }
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+}
 
 async function getPageByDomain(domain: string) {
     const supabase = createAdminClient()
@@ -27,11 +33,12 @@ async function getPageByDomain(domain: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const { domain } = await params
+    const { domain, path } = await params
     const { page } = await getPageByDomain(domain)
 
     if (!page) return { title: 'Page Not Found' }
 
+    const requestedPath = path ? '/' + path.join('/') : '/'
     const title = page.seo_title || page.name || 'OfferIQ Page'
     const description = page.seo_description || 'An offer page powered by OfferIQ.'
     const faviconUrl = page.favicon_url || undefined
@@ -48,6 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     const baseUrl = `${protocol}://${decodedDomain}`
+    const canonicalUrl = `${baseUrl}${requestedPath === '/' ? '' : requestedPath}`
     const ogImage = rawOgImage 
         ? (rawOgImage.startsWith('http') ? rawOgImage : `${baseUrl}${rawOgImage}`)
         : undefined
@@ -59,9 +67,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
         title,
         description,
+        alternates: {
+            canonical: canonicalUrl,
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
+        },
         openGraph: {
             title,
             description,
+            url: canonicalUrl,
             type: 'website',
             images: ogImages,
         },
@@ -113,8 +135,32 @@ export default async function LiveViewerPage({ params }: Props) {
 
     hydratedBlocks.funnelId = page.id;
 
+    // Generate JSON-LD Schema.org structured data for SEO
+    const pageTitle = page.seo_title || page.name || 'OfferIQ Page'
+    const pageDesc = page.seo_description || 'An offer page powered by OfferIQ.'
+    const decodedDomain = decodeURIComponent(domain)
+    const protocol = decodedDomain.includes('localhost') || decodedDomain.includes('127.0.0.1') ? 'http' : 'https'
+    const pageUrl = `${protocol}://${decodedDomain}${requestedPath === '/' ? '' : requestedPath}`
+
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: pageTitle,
+        description: pageDesc,
+        url: pageUrl,
+        publisher: {
+            '@type': 'Organization',
+            name: 'OfferIQ',
+            url: 'https://www.ofiq.app',
+        },
+    }
+
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <ScriptInjector headCode={headCode} bodyCode={bodyCode} />
             <AnalyticsTracker pageId={page.id} pagePath={requestedPath} />
             <ServerLiveViewer blocks={hydratedBlocks} />

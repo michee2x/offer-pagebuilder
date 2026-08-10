@@ -30,6 +30,13 @@ export function ResponsiveIframe({ children, className, style, themeHtml }: Resp
     // eslint-disable-next-line react-hooks/immutability
     doc.documentElement.className = document.documentElement.className;
     
+    // Ensure mobile viewport meta tag is present in iframe head
+    if (!doc.head.querySelector('meta[name="viewport"]')) {
+      const meta = doc.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, initial-scale=1.0';
+      doc.head.appendChild(meta);
+    }
   }, [iframeRef, themeHtml]); // re-run if themeHtml changes to keep it in sync
 
   // It's critical to inject the local iframe animations/fonts if provided
