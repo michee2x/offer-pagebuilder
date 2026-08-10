@@ -514,30 +514,6 @@ function cleanSource(code: string): string {
     if (m.length) s += `\nexport default ${m[m.length - 1][1]};`;
   }
 
-  const openDivs = (s.match(/<div\b/g) || []).length;
-  const closeDivs = (s.match(/<\/div>/g) || []).length;
-  for (let i = 0; i < openDivs - closeDivs; i++) {
-    s += "\n</div>";
-  }
-
-  const openSections = (s.match(/<section\b/g) || []).length;
-  const closeSections = (s.match(/<\/section>/g) || []).length;
-  for (let i = 0; i < openSections - closeSections; i++) {
-    s += "\n</section>";
-  }
-
-  const openMains = (s.match(/<main\b/g) || []).length;
-  const closeMains = (s.match(/<\/main>/g) || []).length;
-  for (let i = 0; i < openMains - closeMains; i++) {
-    s += "\n</main>";
-  }
-
-  const openBraces = (s.match(/\{/g) || []).length;
-  const closeBraces = (s.match(/\}/g) || []).length;
-  for (let i = 0; i < openBraces - closeBraces; i++) {
-    s += "\n}";
-  }
-
   return s;
 }
 
