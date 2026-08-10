@@ -526,8 +526,15 @@ export default function BuilderPage() {
             if (event.type === "text-delta") {
               // Accumulate text deltas incrementally as they arrive
               accumulatedText += String(event.data || "");
+              if (!thinkingText) {
+                // Stream the generated code directly if no reasoning is provided
+                const displayCode = accumulatedText.length > 3000
+                  ? "..." + accumulatedText.slice(-3000)
+                  : accumulatedText;
+                setStreamText(displayCode);
+              }
             } else if (event.type === "thinking") {
-              thinkingText = String(event.data || "").trim();
+              thinkingText += String(event.data || "");
               setStreamText(thinkingText);
             } else if (event.type === "complete") {
               // Complete event contains full text — only use if we haven't
@@ -583,8 +590,14 @@ export default function BuilderPage() {
             const event = JSON.parse(match[1]);
             if (event.type === "text-delta") {
               accumulatedText += String(event.data || "");
+              if (!thinkingText) {
+                const displayCode = accumulatedText.length > 3000
+                  ? "..." + accumulatedText.slice(-3000)
+                  : accumulatedText;
+                setStreamText(displayCode);
+              }
             } else if (event.type === "thinking") {
-              thinkingText = String(event.data || "").trim();
+              thinkingText += String(event.data || "");
               setStreamText(thinkingText);
             } else if (event.type === "complete") {
               if (!accumulatedText.trim()) {
