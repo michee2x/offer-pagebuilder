@@ -62,7 +62,7 @@ export function PaddleProvider({ children }: { children: ReactNode }) {
       settings: {
         successUrl: `${window.location.origin}/subscribed`,
         displayMode: 'overlay',
-        theme: 'dark',
+        theme: 'light',
         locale: 'en',
       },
     });
