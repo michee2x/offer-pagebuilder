@@ -1,6 +1,7 @@
 import React from 'react';
 import { COMPONENT_REGISTRY } from '@/config/components';
 import { DynamicRunner } from '@/components/builder/DynamicRunner';
+import { FooterBadge, FloatingBadge } from '@/components/builder/OfferIQBadge';
 
 function buildThemeInlineVars(theme: any): React.CSSProperties {
   if (!theme || !theme.vars) return {};
@@ -74,7 +75,7 @@ function ServerComponentNode({ id, components }: { id: string, components: Recor
   });
 }
 
-export function ServerLiveViewer({ blocks }: { blocks: any }) {
+export function ServerLiveViewer({ blocks, showBranding = false }: { blocks: any; showBranding?: boolean }) {
   const components = blocks?.components || {};
   const rootList = blocks?.rootList || [];
   const theme = blocks?.theme;
@@ -125,6 +126,9 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
           />
         </>
       )}
+
+      {/* Floating badge — fixed overlay, lead can dismiss for session */}
+      {showBranding && <FloatingBadge />}
       
       <div
         id="canvas-root"
@@ -149,6 +153,9 @@ export function ServerLiveViewer({ blocks }: { blocks: any }) {
             </div>
           )}
         </div>
+
+        {/* Footer badge — permanent, cannot be dismissed */}
+        {showBranding && <FooterBadge />}
       </div>
     </div>
   );

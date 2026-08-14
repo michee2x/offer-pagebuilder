@@ -5,7 +5,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import {
   CreditCard, Zap, Crown, Sprout, Check, X, ArrowUpRight,
-  RefreshCw, LayoutTemplate, Globe, BarChart3, Code2, Headphones, Users
+  RefreshCw, LayoutTemplate, Globe, BarChart3, Code2, Headphones, Users, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePaddle } from "@/components/PaddleProvider";
@@ -121,6 +121,8 @@ function CreditBar({ used, total }: { used: number; total: number }) {
 export function BillingSettings() {
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
+  const [cancelState, setCancelState] = useState<'idle' | 'confirming' | 'cancelling' | 'done'>('idle');
+  const [cancelMessage, setCancelMessage] = useState('');
   const { openCheckout } = usePaddle();
   const router = useRouter();
 
@@ -140,6 +142,37 @@ export function BillingSettings() {
     }
     fetchBilling();
   }, []);
+
+  async function handleCancelSubscription() {
+    if (cancelState === 'idle') {
+      // First click — show inline confirmation
+      setCancelState('confirming');
+      return;
+    }
+    if (cancelState === 'confirming') {
+      // Second click — confirmed, call the API
+      setCancelState('cancelling');
+      try {
+        const res = await fetch('/api/subscription/cancel', { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) {
+          toast.error(data.error || 'Failed to cancel subscription');
+          setCancelState('confirming');
+          return;
+        }
+        setCancelMessage(data.message || 'Subscription cancelled.');
+        setCancelState('done');
+        // Refresh billing data
+        const userRes = await fetch('/api/user');
+        const userData = await userRes.json();
+        if (userData.user) setUserData(userData.user);
+        toast.success('Subscription cancelled successfully.');
+      } catch {
+        toast.error('Something went wrong. Please try again.');
+        setCancelState('confirming');
+      }
+    }
+  }
 
   if (isLoading) {
     return (
@@ -364,6 +397,93 @@ export function BillingSettings() {
           <p className="text-center text-[13px] text-[#6B6B7B] mt-8 font-mono tracking-wide">
             $1 for your first 7 days, then billed monthly. Cancel anytime. 30-day money-back guarantee.
           </p>
+        </section>
+      )}
+
+      {/* ── Cancel subscription ── */}
+      {isActive && cancelState !== 'done' && (
+        <section className="relative z-10 w-full">
+          <div className="w-full rounded-[20px] relative p-[1px]" style={{
+            background: 'linear-gradient(180deg, rgba(239,68,68,0.15) 0%, rgba(255,255,255,0.02) 100%)',
+          }}>
+            <div className="relative bg-[#0d0d12] rounded-[19px] p-7 md:p-9 overflow-hidden border border-white/[0.04]">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertTriangle className="w-5 h-5 text-red-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-white mb-1">Cancel Subscription</h3>
+                    <p className="text-[#A6A6B3] text-sm leading-relaxed max-w-md">
+                      You&apos;ll keep full access until the end of your current billing period.
+                      After that, your account moves to the Free plan and your pages will show OfferIQ branding.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                {cancelState === 'idle' && (
+                  <button
+                    onClick={handleCancelSubscription}
+                    className="shrink-0 px-5 py-2.5 rounded-xl text-[13.5px] font-semibold text-red-400 border border-red-500/25 bg-red-500/5 hover:bg-red-500/10 hover:border-red-500/40 transition-all duration-200 whitespace-nowrap"
+                  >
+                    Cancel Subscription
+                  </button>
+                )}
+
+                {cancelState === 'confirming' && (
+                  <div className="flex items-center gap-3 shrink-0">
+                    <button
+                      onClick={() => setCancelState('idle')}
+                      className="px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#A6A6B3] border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200"
+                    >
+                      Keep Plan
+                    </button>
+                    <button
+                      onClick={handleCancelSubscription}
+                      className="px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white bg-red-500/80 hover:bg-red-500 border border-red-500/50 transition-all duration-200"
+                    >
+                      Yes, Cancel Now
+                    </button>
+                  </div>
+                )}
+
+                {cancelState === 'cancelling' && (
+                  <div className="shrink-0 flex items-center gap-2 text-[#A6A6B3] text-sm">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Cancelling...
+                  </div>
+                )}
+              </div>
+
+              {/* Inline warning when awaiting confirmation */}
+              {cancelState === 'confirming' && (
+                <div className="mt-5 pt-5 border-t border-white/[0.06] flex items-center gap-2.5 text-sm text-yellow-400/80">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-yellow-400" />
+                  <span>Are you sure? This will schedule your subscription for cancellation. You keep access until your billing period ends.</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Cancellation confirmed message ── */}
+      {cancelState === 'done' && cancelMessage && (
+        <section className="relative z-10 w-full">
+          <div className="w-full rounded-[20px] p-[1px]" style={{
+            background: 'linear-gradient(180deg, rgba(16,185,129,0.15) 0%, rgba(255,255,255,0.02) 100%)',
+          }}>
+            <div className="bg-[#0d0d12] rounded-[19px] p-6 border border-white/[0.04] flex items-start gap-4">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <Check className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-[15px] font-semibold text-white mb-0.5">Cancellation Scheduled</p>
+                <p className="text-sm text-[#A6A6B3]">{cancelMessage}</p>
+              </div>
+            </div>
+          </div>
         </section>
       )}
 

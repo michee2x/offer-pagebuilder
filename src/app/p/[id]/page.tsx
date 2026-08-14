@@ -65,6 +65,48 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 }
 
+/**
+ * Determine whether the OfferIQ branding badge should be shown on this page.
+ * Plans that get branding: free, starter.
+ * Plans that are branding-free: growth, agency.
+ * Falls back to showing branding if the plan cannot be determined (safe default).
+ */
+async function resolveShowBranding(pageId: string): Promise<boolean> {
+    const supabase = createAdminClient()
+
+    try {
+        // builder_pages → funnels → workspaces → users (plan)
+        // builder_pages.id = funnel id for pages created by the builder
+        const { data: funnel } = await supabase
+            .from('funnels')
+            .select('workspace_id')
+            .eq('id', pageId)
+            .single()
+
+        if (!funnel?.workspace_id) return true // can't resolve → show branding
+
+        const { data: workspace } = await supabase
+            .from('workspaces')
+            .select('user_id')
+            .eq('id', funnel.workspace_id)
+            .single()
+
+        if (!workspace?.user_id) return true
+
+        const { data: user } = await supabase
+            .from('users')
+            .select('plan')
+            .eq('id', workspace.user_id)
+            .single()
+
+        const plan = (user?.plan || 'free').toLowerCase()
+        // Agency and Growth = no branding badge; everything else = show badge
+        return plan !== 'agency' && plan !== 'growth'
+    } catch {
+        return true // safe fallback: show branding
+    }
+}
+
 export default async function LiveViewerPage({ params }: Props) {
     const { id } = await params
     const supabase = createAdminClient()
@@ -82,11 +124,15 @@ export default async function LiveViewerPage({ params }: Props) {
     const headCode: string = (page as any).custom_head_code || ''
     const bodyCode: string = (page as any).custom_body_code || ''
 
+    // Resolve branding visibility based on page owner's plan
+    const showBranding = await resolveShowBranding(id)
+
     return (
         <>
             <ScriptInjector headCode={headCode} bodyCode={bodyCode} />
             <AnalyticsTracker pageId={id} pagePath="/" />
-            <ServerLiveViewer blocks={page.blocks} />
+            <ServerLiveViewer blocks={page.blocks} showBranding={showBranding} />
         </>
     )
 }
+
