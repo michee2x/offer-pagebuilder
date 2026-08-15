@@ -54,9 +54,26 @@ export async function POST() {
     const apiKey = process.env.PADDLE_API_KEY;
     // Derive environment from the API key prefix — live keys start with 'pdl_live_'.
     // This avoids relying on NEXT_PUBLIC_PADDLE_ENVIRONMENT which may not be set on Vercel.
-    const baseUrl = apiKey?.startsWith('pdl_live_')
+    const isLiveKey = apiKey?.startsWith('pdl_live_');
+    const baseUrl = isLiveKey
       ? 'https://api.paddle.com'
       : 'https://sandbox-api.paddle.com';
+
+    // ── Diagnostics (visible in Vercel function logs) ──────────
+    console.log('[cancel-sub] ── DIAGNOSTICS ──────────────────────────');
+    console.log('[cancel-sub] API key set:', apiKey ? `yes (prefix: ${apiKey.slice(0, 12)}...)` : 'NO — PADDLE_API_KEY ENV VAR MISSING');
+    console.log('[cancel-sub] Paddle environment:', isLiveKey ? 'LIVE (api.paddle.com)' : 'SANDBOX (sandbox-api.paddle.com)');
+    console.log('[cancel-sub] Target URL:', `${baseUrl}/subscriptions/${paddle_subscription_id}/cancel`);
+    console.log('[cancel-sub] Subscription ID from DB:', paddle_subscription_id);
+    console.log('[cancel-sub] User plan:', plan, '| Status:', subscription_status);
+    console.log('[cancel-sub] ───────────────────────────────────────────');
+
+    if (!apiKey) {
+      return Response.json(
+        { error: 'Paddle API key is not configured on this server. Contact support.' },
+        { status: 500 }
+      );
+    }
 
     const paddleRes = await fetch(
       `${baseUrl}/subscriptions/${paddle_subscription_id}/cancel`,
@@ -72,7 +89,8 @@ export async function POST() {
 
     if (!paddleRes.ok) {
       const errBody = await paddleRes.json().catch(() => ({}));
-      console.error('[cancel-sub] Paddle API error:', errBody);
+      console.error('[cancel-sub] Paddle API error (full body):', JSON.stringify(errBody, null, 2));
+      console.error('[cancel-sub] HTTP status from Paddle:', paddleRes.status);
       return Response.json(
         { error: errBody?.error?.detail ?? 'Failed to cancel with Paddle' },
         { status: paddleRes.status }
