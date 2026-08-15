@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { createAdminClient } from "@/utils/supabase/admin"
+import { resolveShowBranding } from "@/utils/branding"
 import { notFound } from "next/navigation"
 import { ServerLiveViewer } from "@/components/builder/ServerLiveViewer"
 import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker"
@@ -134,6 +135,9 @@ export default async function LiveViewerPage({ params }: Props) {
     const bodyCode: string = (page as any).custom_body_code || ''
 
     hydratedBlocks.funnelId = page.id;
+    
+    // Resolve branding visibility based on page owner's plan
+    const showBranding = await resolveShowBranding(page.id)
 
     // Generate JSON-LD Schema.org structured data for SEO
     const pageTitle = page.seo_title || page.name || 'OfferIQ Page'
@@ -163,7 +167,7 @@ export default async function LiveViewerPage({ params }: Props) {
             />
             <ScriptInjector headCode={headCode} bodyCode={bodyCode} />
             <AnalyticsTracker pageId={page.id} pagePath={requestedPath} />
-            <ServerLiveViewer blocks={hydratedBlocks} />
+            <ServerLiveViewer blocks={hydratedBlocks} showBranding={showBranding} />
         </>
     )
 }
