@@ -31,8 +31,9 @@ const PRICE_TO_PLAN: Record<string, string> = {
  */
 async function fetchPaddleSubscription(customerId: string) {
   const apiKey = process.env.PADDLE_API_KEY;
-  const env = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT ?? 'sandbox';
-  const baseUrl = env === 'production'
+  // Derive environment from the API key prefix — live keys start with 'pdl_live_'.
+  // This avoids relying on NEXT_PUBLIC_PADDLE_ENVIRONMENT which may not be set on Vercel.
+  const baseUrl = apiKey?.startsWith('pdl_live_')
     ? 'https://api.paddle.com'
     : 'https://sandbox-api.paddle.com';
 
