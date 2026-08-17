@@ -58,7 +58,7 @@ function Chip({ children }: { children: React.ReactNode }) {
 }
 
 /* ─── JSON-LD Structured Data ──────────────────────────────────── */
-function StructuredData({ faqs, pricingTiers }: { faqs: { q: string; a: string }[]; pricingTiers: { name: string; price: string; features: string[] }[] }) {
+function StructuredData({ faqs, pricingTiers }: { faqs: { q: string; a: React.ReactNode | string }[]; pricingTiers: { name: string; price: string; features: string[] }[] }) {
   const schema = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -139,7 +139,7 @@ function StructuredData({ faqs, pricingTiers }: { faqs: { q: string; a: string }
           name: faq.q,
           acceptedAnswer: {
             '@type': 'Answer',
-            text: faq.a,
+            text: typeof faq.a === 'string' ? faq.a : 'In one session, OfferIQ takes your idea and hands you back a validated strategy, sales copy, a live funnel, and core launch assets.',
           },
         })),
       },
@@ -212,7 +212,7 @@ function LogoMark() {
 }
 
 /* ─── FAQ Item ──────────────────────────────────────────────────── */
-function FaqItem({ q, a, isOpen, onClick }: { q: string; a: string; isOpen: boolean; onClick: () => void }) {
+function FaqItem({ q, a, isOpen, onClick }: { q: string; a: React.ReactNode | string; isOpen: boolean; onClick: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   return (
     <div
@@ -418,6 +418,7 @@ export function WelcomePage() {
   const [navScrolled, setNavScrolled] = useState(false);
   const [activeScenario, setActiveScenario] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [isOneTime, setIsOneTime] = useState(false);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -661,6 +662,18 @@ export function WelcomePage() {
   ];
 
   const faqs = [
+    { q: 'What exactly does OfferIQ create for you?', a: (
+      <div className="space-y-2">
+        <p>In one session, OfferIQ takes your idea (or builds you one, if you don't have it yet) and hands you back:</p>
+        <ul className="list-disc pl-5 space-y-1 ml-4">
+          <li><strong>A validated strategy:</strong> who to sell to, what to charge, and why they'll say yes, checked against thousands of offers that already worked.</li>
+          <li><strong>Sales copy that actually converts:</strong> your lead page, sales page, and upsells, written in your buyer's own words, not a generic template.</li>
+          <li><strong>A live, published funnel:</strong> fully designed, connected to your domain, ready to take payment.</li>
+          <li><strong>Core launch assets:</strong> OfferIQ builds the main offer or Product Guide, the lead magnets, bonuses, ad copy, a traffic plan, and follow-up emails that run without you.</li>
+        </ul>
+        <p className="mt-4">You're not left to piece any of it together yourself.<br/>Every part is built from the same strategy, so nothing is guessing what the last part decided. You get an offer that's already priced right, already positioned right, and already knows how to sell itself.</p>
+      </div>
+    ) },
     { q: 'What if I run an agency and need more than 30 client sub-accounts?', a: 'Contact support after purchase; additional sub-account packs are available for agencies scaling beyond the Agency tier allocation.' },
     { q: 'What happens when I use all my credits?', a: 'Your existing offers, pages, and data remain fully accessible forever - your credits refresh every month with your plan. If you need more before your next refresh, you can buy extra credits for $10 each — one credit builds one complete offer (Intelligence Report + Copy + Pages + Traffic Strategy + Asset Bank).' },
     { q: 'Why is OfferIQ different from a funnel builder?', a: 'Most funnel builders help you build pages. OfferIQ helps you decide what to sell, who to sell it to, how to position it, what to charge, how to explain it, and then builds the pages around that strategy. In other words: funnel builders start with pages - OfferIQ starts with the offer.' },
@@ -675,22 +688,22 @@ export function WelcomePage() {
 
   const pricingTiers = [
     {
-      name: 'Starter', price: '$39', period: '/mo', sub: '[$1 for your first 7 days, then $39/mo. Cancel anytime.]',
+      name: 'Starter', price: isOneTime ? '$69' : '$39', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $39/mo. Cancel anytime.]',
       features: ['<b>5 offer credits</b> — Refreshed Monthly', '1 Workspace', 'Full 4-Phase Engine: Strategy, Copy, Funnel (All 5 Funnel Pages), Traffic Plan', 'Asset Bank + Template Library access', 'Email Engagement Sequences', 'OfferIQ subdomain publishing', 'Payment & Autoresponder integration', 'Standard support'],
-      best: 'Best for testing the platform and launching your first 1–3 offers.', popular: false, cta: 'Start Your $1 Trial',
-      priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER!,
+      best: 'Best for testing the platform and launching your first 1–3 offers.', popular: false, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
+      priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER_ONETIME || 'pri_01_starter_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER!,
     },
     {
-      name: 'Growth', price: '$69', period: '/mo', sub: '[$1 for your first 7 days, then $69/mo. Cancel anytime.]',
+      name: 'Growth', price: isOneTime ? '$157' : '$69', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $69/mo. Cancel anytime.]',
       features: ['Everything in Starter, plus:', '<b>10 offer credits</b> — Refreshed monthly.', '3 Workspaces', 'Remove "Built with OfferIQ" branding', 'Advanced Analytics dashboard', 'Custom domain connection', 'Pixel tracking embed', 'Priority support'],
-      best: 'Best for active creators running multiple offers or brands.', popular: true, cta: 'Start Your $1 Trial',
-      priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!,
+      best: 'Best for active creators running multiple offers or brands.', popular: true, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
+      priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH_ONETIME || 'pri_02_growth_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!,
     },
     {
-      name: 'Agency', price: '$179', period: '/mo', sub: '[$1 for your first 7 days, then $179/mo. Cancel anytime.]',
+      name: 'Agency', price: isOneTime ? '$397' : '$179', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $179/mo. Cancel anytime.]',
       features: ['Everything in Growth, plus:', '<b>30 offer credits</b> — Refreshed monthly.', '30 Workspaces', 'Agency Dashboard to manage your users', '30 client sub-accounts for agency delivery', 'Agency Marketing Assets - Agency Website, proposal, Commercial/Ads Graphics, Legal Contract Agreement', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
-      best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: 'Start Your $1 Trial',
-      priceId: process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY!,
+      best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
+      priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY_ONETIME || 'pri_03_agency_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY!,
     },
   ];
 
@@ -1572,7 +1585,24 @@ export function WelcomePage() {
               <h2 className="font-semibold tracking-[-0.02em] leading-[1.08] mb-[18px] text-[#F5F5F7] uppercase" style={{ fontSize: 'clamp(28px,4vw,44px)' }}>
                 Simple Pricing. <span className="text-[rgb(124,92,255)]">No Surprises.</span>
               </h2>
-              <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto">$1 for your first 7 days - Cancel anytime from your account, in one click.</p>
+              {!isOneTime && (
+                <p className="text-[17px] text-[#A6A6B3] max-w-[560px] mx-auto mb-8">$1 for your first 7 days - Cancel anytime from your account, in one click.</p>
+              )}
+              
+              <div className={`flex items-center justify-center p-1.5 rounded-full bg-white/[0.05] border border-white/10 w-fit mx-auto ${isOneTime ? 'mb-12' : ''}`}>
+                <button
+                  onClick={() => setIsOneTime(false)}
+                  className={`px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all ${!isOneTime ? 'bg-[rgb(124,92,255)] text-white shadow-lg' : 'text-[#A6A6B3] hover:text-white'}`}
+                >
+                  Monthly Payment
+                </button>
+                <button
+                  onClick={() => setIsOneTime(true)}
+                  className={`px-6 py-2.5 rounded-full text-[14px] font-semibold transition-all ${isOneTime ? 'bg-[rgb(124,92,255)] text-white shadow-lg' : 'text-[#A6A6B3] hover:text-white'}`}
+                >
+                  One-Time Payment
+                </button>
+              </div>
             </div>
           </Reveal>
 
