@@ -689,19 +689,19 @@ export function WelcomePage() {
   const pricingTiers = [
     {
       name: 'Starter', price: isOneTime ? '$69' : '$39', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $39/mo. Cancel anytime.]',
-      features: ['<b>5 offer credits</b> — Refreshed Monthly', '1 Workspace', 'Full 4-Phase Engine: Strategy, Copy, Funnel (All 5 Funnel Pages), Traffic Plan', 'Asset Bank + Template Library access', 'Email Engagement Sequences', 'OfferIQ subdomain publishing', 'Payment & Autoresponder integration', 'Standard support'],
+      features: [isOneTime ? '<b>5 offer credits</b>' : '<b>5 offer credits</b> — Refreshed Monthly', '1 Workspace', 'Full 4-Phase Engine: Strategy, Copy, Funnel (All 5 Funnel Pages), Traffic Plan', 'Asset Bank + Template Library access', 'Email Engagement Sequences', 'OfferIQ subdomain publishing', 'Payment & Autoresponder integration', 'Standard support'],
       best: 'Best for testing the platform and launching your first 1–3 offers.', popular: false, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
       priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER_ONETIME || 'pri_01_starter_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER!,
     },
     {
       name: 'Growth', price: isOneTime ? '$157' : '$69', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $69/mo. Cancel anytime.]',
-      features: ['Everything in Starter, plus:', '<b>10 offer credits</b> — Refreshed monthly.', '3 Workspaces', 'Remove "Built with OfferIQ" branding', 'Advanced Analytics dashboard', 'Custom domain connection', 'Pixel tracking embed', 'Priority support'],
+      features: ['Everything in Starter, plus:', isOneTime ? '<b>10 offer credits</b>' : '<b>10 offer credits</b> — Refreshed monthly.', '3 Workspaces', 'Remove "Built with OfferIQ" branding', 'Advanced Analytics dashboard', 'Custom domain connection', 'Pixel tracking embed', 'Priority support'],
       best: 'Best for active creators running multiple offers or brands.', popular: true, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
       priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH_ONETIME || 'pri_02_growth_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!,
     },
     {
       name: 'Agency', price: isOneTime ? '$397' : '$179', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $179/mo. Cancel anytime.]',
-      features: ['Everything in Growth, plus:', '<b>30 offer credits</b> — Refreshed monthly.', '30 Workspaces', 'Agency Dashboard to manage your users', '30 client sub-accounts for agency delivery', 'Agency Marketing Assets - Agency Website, proposal, Commercial/Ads Graphics, Legal Contract Agreement', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
+      features: ['Everything in Growth, plus:', isOneTime ? '<b>30 offer credits</b>' : '<b>30 offer credits</b> — Refreshed monthly.', '30 Workspaces', 'Agency Dashboard to manage your users', '30 client sub-accounts for agency delivery', 'Agency Marketing Assets - Agency Website, proposal, Commercial/Ads Graphics, Legal Contract Agreement', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
       best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
       priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY_ONETIME || 'pri_03_agency_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY!,
     },
