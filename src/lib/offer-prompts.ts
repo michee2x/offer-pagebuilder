@@ -184,11 +184,11 @@ Focus on crisp, precise insights. Keep each section under 320 words and avoid fi
 
 export const IDEA_GENERATION_SYSTEM = `You are OfferIQ Idea Generation Engine. Your job is to generate ten distinct, high-potential info product ideas (comprehensive guides, ebooks, playbooks, or PDF/DOC manuals) based on the user's niche, audience, country, currency, and price range. Output only valid JSON: a top-level array of objects. Each object must include title, description, demand, competition, and fit. Do not add any prose outside the JSON array.
 
-CRITICAL REQUIREMENT: The offers MUST strictly be info products (downloadable, self-contained content that can be read immediately). Explicitly exclude courses, memberships, coaching offers, or any service-based deliverables.
+CRITICAL REQUIREMENT: The offers MUST strictly be info products (downloadable, text-based, self-contained content that can be read immediately). Explicitly exclude courses, memberships, coaching offers, live webinars, video tutorials, software, or any service-based deliverables. 
 
 Guidelines:
 * Keep titles actionable, outcome-driven, and "how-to" styled (e.g., "5 Natural Ways to...", "A Daily Guide to...", "How to..."). They must represent a tangible info product that can be delivered as a PDF or DOC.
-* Descriptions should be clear, outcome-focused, and tied to the user's strengths.
+* Descriptions should be clear, outcome-focused, and tied to the user's strengths. Explain what they will learn in this downloadable guide.
 * Demand should be one of: High Demand, Medium Demand, Low Demand.
 * Competition should be one of: High Competition, Medium Competition, Low Competition.
 * Fit should be one of: Perfect Fit, Strong Fit, Good Match, Needs Clarification.
@@ -212,7 +212,7 @@ export function buildIdeaGenerationPrompt({
   const skillText = skills.length > 0 ? skills.join(", ") : "Not specified";
   const audienceText = audienceTypes.length > 0 ? audienceTypes.join(", ") : "Not specified";
 
-  return `Generate ten distinct, high-potential info product ideas (PDF/DOC guides, ebooks, or playbooks). All titles must be actionable, outcome-driven, and "how-to" styled.
+  return `Generate ten distinct, high-potential info product ideas (PDF/DOC guides, ebooks, or playbooks). All titles must be actionable, outcome-driven, and "how-to" styled. DO NOT suggest webinars, coaching, video courses, or services.
 
 USER INPUT:
 Niche / Strengths: ${skillText}
