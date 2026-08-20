@@ -128,7 +128,7 @@ export default async function BlueprintFilesPage({
 
   const statusBadge = (file: any) => {
     if (file.status === "generating") return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-400">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-400">
         <Loader2 className="w-3 h-3 animate-spin" /> Generating
       </span>
     );
@@ -154,12 +154,32 @@ export default async function BlueprintFilesPage({
         href={`/api/blueprints/download?funnelId=${encodeURIComponent(funnelId)}&fileId=${encodeURIComponent(fileId)}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
+        className="inline-flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 hover:border-white/20"
       >
         <Download className="w-3.5 h-3.5 mr-1.5" /> Download
       </Link>
     );
   };
+
+  const deleteButton = (file: any) => (
+    <form action={async (formData) => {
+      "use server";
+      const id = formData.get("fileId") as string;
+      if (!id) return;
+      const admin = createAdminClient();
+      const { data: cur } = await admin.from("builder_pages").select("blocks").eq("id", funnelId).single();
+      if (cur?.blocks) {
+        const files = (cur.blocks.blueprintFiles || []).filter((f: any) => f.id !== id);
+        await admin.from("builder_pages").update({ blocks: { ...cur.blocks, blueprintFiles: files } }).eq("id", funnelId);
+        revalidatePath(`/funnels/${funnelId}/blueprint/files`);
+      }
+    }}>
+      <input type="hidden" name="fileId" value={file.id} />
+      <button type="submit" className="text-xs font-medium text-red-400/50 hover:text-red-400 hover:underline transition ml-2">
+        Delete
+      </button>
+    </form>
+  );
 
   const ProductCard = ({
     file,
@@ -206,6 +226,7 @@ export default async function BlueprintFilesPage({
               <CheckCircle2 className="w-3.5 h-3.5" /> Active
             </span>
           )}
+          {deleteButton(file)}
         </div>
       </div>
     );
@@ -320,6 +341,7 @@ export default async function BlueprintFilesPage({
                                     <CheckCircle2 className="w-3.5 h-3.5" /> Active Lead Magnet
                                   </span>
                                 )}
+                                {deleteButton(file)}
                               </div>
                             </div>
                           );
@@ -406,8 +428,8 @@ export default async function BlueprintFilesPage({
                                     <p className="font-semibold text-white text-sm truncate">{bonus.topic}</p>
                                   </div>
                                   {assignedProduct ? (
-                                    <p className="text-xs text-amber-400/70">
-                                      Assigned to: <span className="font-semibold">{assignedProduct.topic}</span>
+                                    <p className="text-xs text-white/50">
+                                      Assigned to: <span className="font-semibold text-white">{assignedProduct.topic}</span>
                                     </p>
                                   ) : (
                                     <p className="text-xs text-white/30 italic">Not assigned to any product yet</p>
@@ -423,11 +445,11 @@ export default async function BlueprintFilesPage({
                                   <select
                                     name="productId"
                                     defaultValue={bonus.assignedProductId || ""}
-                                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 focus:outline-none focus:border-brand-indigo/50 cursor-pointer"
+                                    className="rounded-xl border border-white/10 bg-[#0a0a0a] px-3 py-1.5 text-xs font-medium text-white focus:outline-none focus:border-brand-indigo/50 cursor-pointer"
                                   >
-                                    <option value="">Unassigned</option>
+                                    <option value="" className="text-white">Unassigned</option>
                                     {allProducts.map((p) => (
-                                      <option key={p.id} value={p.id}>
+                                      <option key={p.id} value={p.id} className="text-white">
                                         {p.page ? `[${p.page.charAt(0).toUpperCase() + p.page.slice(1)}] ` : ""}{p.topic.length > 40 ? p.topic.slice(0, 40) + "…" : p.topic}
                                       </option>
                                     ))}
@@ -439,6 +461,7 @@ export default async function BlueprintFilesPage({
                                     Save
                                   </button>
                                 </form>
+                                {deleteButton(bonus)}
                               </div>
                             </div>
                           );
