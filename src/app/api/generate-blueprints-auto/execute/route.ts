@@ -91,8 +91,13 @@ ${antiHallucinationRules}`;
 }
 
 export async function POST(req: Request) {
+  let funnelIdToUpdate: string | undefined;
+  let fileIdToUpdate: string | undefined;
+
   try {
     const { funnelId, topic, type, format, fileId, page, chapters } = await req.json();
+    funnelIdToUpdate = funnelId;
+    fileIdToUpdate = fileId;
 
     if (!funnelId || !topic || !fileId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -268,16 +273,15 @@ export async function POST(req: Request) {
 
     // Attempt to mark as failed
     try {
-      const { funnelId, fileId } = await req.json().catch(() => ({}));
-      if (funnelId && fileId) {
+      if (funnelIdToUpdate && fileIdToUpdate) {
         const supabase = createAdminClient();
-        const { data: freshFunnel } = await supabase.from("builder_pages").select("blocks").eq("id", funnelId).single();
+        const { data: freshFunnel } = await supabase.from("builder_pages").select("blocks").eq("id", funnelIdToUpdate).single();
         const currentFiles = Array.isArray(freshFunnel?.blocks?.blueprintFiles) ? freshFunnel.blocks.blueprintFiles : [];
         const updatedFiles = currentFiles.map((file: any) => {
-          if (file.id === fileId) return { ...file, status: "failed" };
+          if (file.id === fileIdToUpdate) return { ...file, status: "failed" };
           return file;
         });
-        await supabase.from("builder_pages").update({ blocks: { ...freshFunnel?.blocks, blueprintFiles: updatedFiles } }).eq("id", funnelId);
+        await supabase.from("builder_pages").update({ blocks: { ...freshFunnel?.blocks, blueprintFiles: updatedFiles } }).eq("id", funnelIdToUpdate);
       }
     } catch (e) {
       // Ignore
