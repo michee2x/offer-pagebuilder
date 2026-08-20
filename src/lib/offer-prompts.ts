@@ -24,6 +24,7 @@ STRATEGIC_BONUS_RECOMMENDATIONS
 DESIGN_INTELLIGENCE_RECOMMENDATION
 FUNNEL_HEALTH_SCORE
 PLATFORM_PRIORITY_MATRIX
+INFO_PRODUCT_PLAN
 
 RULES:
 1. WRITE CONCISE, HIGH-IMPACT SECTIONS: Every section should be focused, precise, and avoid filler. Aim for 180-280 words per section. Use short paragraphs, clear headings, and compact bullet lists when useful. Do not repeat the same point more than once.
@@ -35,8 +36,8 @@ RULES:
 Make sure the body text is dense with real strategic advice, referencing these exact metrics and explaining how to improve them.
 5. REVENUE_MODEL_ARCHITECTURE: Explain the compounding mechanics (e.g. low-ticket frontend with continuity backend). Use an illustrative example.
 6. PAIN_POINT_MAPPING: Write a deep-dive narrative identifying 3 primary pain points in order of severity.
-7. FUNNEL_STRUCTURE_BLUEPRINT: List the exact page sequence. We ALWAYS and will ALWAYS have exactly 5 pages: Lead Capture, Sales Page, Upsell, Downsell, and Thank You pages, in that exact order. For each page, provide a brief (1-2 sentences) explanation of its psychological purpose, pricing strategy (e.g. Free for Lead Capture, core price for Sales Page, etc.), and upsell/downsell routing logic. Keep the entire section extremely concise (under 250 words total) and highly structured. Do NOT include any pricing charts in this section.
-8. STRATEGIC_BONUS_RECOMMENDATIONS: Recommend 3 bonuses. Explain how each acts as an objection-killer.
+7. FUNNEL_STRUCTURE_BLUEPRINT: List the exact page sequence. We ALWAYS and will ALWAYS have exactly 5 pages: Lead Capture, Sales Page, Upsell, Downsell, and Thank You pages, in that exact order. For each page, provide a brief (1-2 sentences) explanation of its psychological purpose, pricing strategy (e.g. Free for Lead Capture, core price for Sales Page, etc.), and upsell/downsell routing logic. CRITICAL: The Sales Page, Upsell, and Downsell pages each sell a unique INFO PRODUCT (a downloadable PDF or DOC guide/ebook/playbook). The Lead Capture page offers a free Lead Magnet (also an info product). There are NO physical products, courses, or coaching services in this funnel. Keep the entire section extremely concise (under 250 words total) and highly structured. Do NOT include any pricing charts in this section.
+8. STRATEGIC_BONUS_RECOMMENDATIONS: Recommend exactly 3 bonuses (one per purchasable info product: Sales, Upsell, Downsell). Each bonus is itself an info product (PDF or DOC) that is sent ONLY when a lead purchases the associated info product — NOT during lead capture. Explain how each bonus acts as an objection-killer for its paired product.
 9. DESIGN_INTELLIGENCE_RECOMMENDATION: You MUST output a valid string containing a JSON settings object (properly stringified and escaped inside the main JSON). The JSON must have the following structure:
 {
   "colors": {
@@ -57,6 +58,9 @@ Make sure the body text is dense with real strategic advice, referencing these e
 Do NOT include any HTML tags or conversational text in this section - only this raw JSON settings string (properly escaped). Customize the colors and fonts to exactly match the target audience, tone, and niche of the offer.
 10. FUNNEL_HEALTH_SCORE: Evaluate funnel health. Use <chart type="bar" data='[{"name": "Score", "value": 85}]' title="Health Diagnostic"></chart> (Note: gauge chart is no longer supported, use bar).
 11. PLATFORM_PRIORITY_MATRIX: Use the <chart> tag to render a pie chart embedded in your analysis. E.g., <chart type="pie" data='[{"name": "Facebook", "value": 60}, {"name": "Google Ads", "value": 40}]' title="Platform Budget Allocation"></chart>
+12. INFO_PRODUCT_PLAN: THIS IS A CRITICAL SECTION. Plan the exact 3 info products that will be auto-generated for this funnel's sales pages. Each product must be a downloadable info product (PDF or DOCX guide, ebook, or playbook). Output this section as a compact HTML block with a JSON data comment at the very end using this exact format:
+<!-- INFO_PRODUCTS: {"sales":{"title":"...","subtitle":"...","description":"...","chapters":["Chapter 1","Chapter 2","Chapter 3","Chapter 4","Chapter 5"],"format":"pdf","bonus":{"title":"...","description":"...","format":"pdf"}},"upsell":{"title":"...","subtitle":"...","description":"...","chapters":["Chapter 1","Chapter 2","Chapter 3","Chapter 4","Chapter 5"],"format":"pdf","bonus":{"title":"...","description":"...","format":"pdf"}},"downsell":{"title":"...","subtitle":"...","description":"...","chapters":["Chapter 1","Chapter 2","Chapter 3","Chapter 4","Chapter 5"],"format":"pdf","bonus":{"title":"...","description":"...","format":"pdf"}}} -->
+The HTML body of this section should briefly describe all 3 planned info products in a clean formatted layout so users can see what will be generated. Keep the titles actionable and outcome-driven. The format field for each product and bonus must be either "pdf" or "docx" — never "csv". Each product must be clearly different in scope/depth: Sales = core foundational guide, Upsell = advanced deep-dive, Downsell = compact starter guide.
 
 Dynamic Elements you can use ANYWHERE in your HTML values to make the report visually stunning:
 - Charts: <chart type="bar" data='[{"name": "Tier 1", "value": 99}]' title="Example"></chart> (Types: bar, pie, radar. Data MUST be an array of objects with name and value!)
@@ -116,13 +120,13 @@ RULES:
 1. FOCUSED, DRY INTELLIGENCE: Every section should be clear and compact. Aim for 220-320 words per section. Use short paragraphs, crisp headings, and only include exactly what the user needs. Do not repeat ideas or fill space with generic phrases.
 2. WRITE WITH PURPOSE, NOT VOLUME: Avoid long-winded descriptions and unnecessary detail. Keep the analysis practical, actionable, and easy to scan.
 3. SEAMLESS MEDIA INTEGRATION: Use charts or images only when they support a direct point. Keep the surrounding text brief and insight-driven.
-3. OFFER_POSITIONING_ANALYSIS: Deeply define the unique placement of this offer against competitors in a detailed narrative.
+3. OFFER_POSITIONING_ANALYSIS: Deeply define the unique placement of this info product offer against competitors. IMPORTANT: This offer sells downloadable info products (PDF/DOC guides, ebooks, playbooks) — NOT courses, memberships, or coaching. Frame all positioning around the immediate value of the info products.
 4. TARGET_PERSONA_INTELLIGENCE: 3 detailed target buyer profiles (Demographics, Desires, Fears, Obstacles) formatted beautifully.
-5. CONVERSION_HOOK_LIBRARY: 5 high-converting headlines and subheadlines tailored to the target audience.
-6. MESSAGING_ANGLE_MATRIX: 4 distinct angles (Benefit, Fear, Curiosity, Logic) to position this offer. Use rich text to explain each.
-7. PRODUCT_CORE_VALUE_PERCEPTION: Explain how to frame the product's value to justify the price with a deep psychological breakdown.
-8. REAL_WORLD_USE_CASE_SCENARIOS: 3 operational scenarios showing how the customer benefits.
-9. MONETIZATION_STRATEGY_NARRATIVE: Write 8 distinct, comprehensive paragraphs outlining the master strategy.
+5. CONVERSION_HOOK_LIBRARY: 5 high-converting headlines and subheadlines tailored to the target audience for an info product offer.
+6. MESSAGING_ANGLE_MATRIX: 4 distinct angles (Benefit, Fear, Curiosity, Logic) to position this info product offer. Use rich text to explain each.
+7. PRODUCT_CORE_VALUE_PERCEPTION: Explain how to frame the info product's value to justify the price with a deep psychological breakdown. Remember: the customer is buying a downloadable PDF or DOCX guide they can use immediately.
+8. REAL_WORLD_USE_CASE_SCENARIOS: 3 operational scenarios showing how the customer benefits from reading and applying the info product.
+9. MONETIZATION_STRATEGY_NARRATIVE: Write 8 distinct, comprehensive paragraphs outlining the master strategy for this info product funnel (Lead Magnet → Sales Product → Upsell → Downsell).
 
 Dynamic Elements you can use ANYWHERE in your HTML values to make the report visually stunning:
 - Charts: <chart type="pie" data='[{"name": "Angle A", "value": 40}]' title="Angle Distribution" />
@@ -159,6 +163,7 @@ RECOMMENDED FUNNEL TYPE: ${call1.funnel_structure_blueprint ? call1.funnel_struc
 REVENUE MODEL: ${call1.revenue_model_architecture || "Standard"}
 PAIN POINTS: ${call1.pain_point_mapping || "Standard"}
 PLATFORM PRIMARY: ${call1.platform_priority_matrix || "Standard"}
+INFO PRODUCT PLAN (3 planned products): ${call1.info_product_plan || call1.INFO_PRODUCT_PLAN || "See funnel structure for product context"}
 === END CALL 1 CONTEXT ===
 
 Now produce the following sections in this exact order, remembering to keep your tone highly motivational, simple, and encouraging:
@@ -177,10 +182,12 @@ Focus on crisp, precise insights. Keep each section under 320 words and avoid fi
 // IDEA GENERATION — Sonnet
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const IDEA_GENERATION_SYSTEM = `You are OfferIQ Idea Generation Engine. Your job is to generate ten distinct, high-potential digital offer ideas based on the user's skills, audience, country, currency, and price range. Output only valid JSON: a top-level array of objects. Each object must include title, description, demand, competition, and fit. Do not add any prose outside the JSON array.
+export const IDEA_GENERATION_SYSTEM = `You are OfferIQ Idea Generation Engine. Your job is to generate ten distinct, high-potential info product ideas (comprehensive guides, ebooks, playbooks, or PDF/DOC manuals) based on the user's niche, audience, country, currency, and price range. Output only valid JSON: a top-level array of objects. Each object must include title, description, demand, competition, and fit. Do not add any prose outside the JSON array.
+
+CRITICAL REQUIREMENT: The offers MUST strictly be info products (downloadable, self-contained content that can be read immediately). Explicitly exclude courses, memberships, coaching offers, or any service-based deliverables.
 
 Guidelines:
-* Keep titles short and idea-specific.
+* Keep titles actionable, outcome-driven, and "how-to" styled (e.g., "5 Natural Ways to...", "A Daily Guide to...", "How to..."). They must represent a tangible info product that can be delivered as a PDF or DOC.
 * Descriptions should be clear, outcome-focused, and tied to the user's strengths.
 * Demand should be one of: High Demand, Medium Demand, Low Demand.
 * Competition should be one of: High Competition, Medium Competition, Low Competition.
@@ -205,11 +212,11 @@ export function buildIdeaGenerationPrompt({
   const skillText = skills.length > 0 ? skills.join(", ") : "Not specified";
   const audienceText = audienceTypes.length > 0 ? audienceTypes.join(", ") : "Not specified";
 
-  return `Generate ten distinct business or digital offer ideas.
+  return `Generate ten distinct, high-potential info product ideas (PDF/DOC guides, ebooks, or playbooks). All titles must be actionable, outcome-driven, and "how-to" styled.
 
 USER INPUT:
-Skills / Strengths: ${skillText}
-Custom skill description: ${customSkill || "Not provided"}
+Niche / Strengths: ${skillText}
+Custom niche description: ${customSkill || "Not provided"}
 Audience types: ${audienceText}
 Target country: ${country || "Not specified"}
 Currency: ${currency || "Not specified"}

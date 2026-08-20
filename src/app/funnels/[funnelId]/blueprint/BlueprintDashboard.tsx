@@ -15,6 +15,7 @@ import {
   Target,
   TableProperties,
   FileEdit,
+  Package,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useChat } from "@ai-sdk/react";
@@ -64,8 +65,9 @@ export function BlueprintDashboard({
   const [generationStatus, setGenerationStatus] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
-  const [topicMode, setTopicMode] = useState<"lead" | "bonus" | null>(null);
-  const [docFormat, setDocFormat] = useState<"pdf" | "csv" | "docx">("pdf");
+  const [topicMode, setTopicMode] = useState<"lead" | "bonus" | "product" | null>(null);
+  const [docFormat, setDocFormat] = useState<"pdf" | "docx">("pdf");
+  const [bonusPage, setBonusPage] = useState<"sales" | "upsell" | "downsell">("sales");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -132,7 +134,7 @@ export function BlueprintDashboard({
     }
 
     if (!topicMode) {
-      toast.error("Please select lead or bonus generation first.");
+      toast.error("Please select lead, bonus, or product generation first.");
       return;
     }
 
@@ -152,7 +154,7 @@ export function BlueprintDashboard({
       const htmlRes = await fetch(`/api/generate-blueprint/html`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ funnelId, topic, type: topicMode, docFormat }),
+      body: JSON.stringify({ funnelId, topic, type: topicMode, docFormat, page: topicMode === "bonus" ? bonusPage : undefined }),
       });
 
       if (!htmlRes.ok) throw new Error("Failed to write blueprint content");
@@ -167,7 +169,8 @@ export function BlueprintDashboard({
           content: htmlData.content, 
           topic, 
           type: topicMode, 
-          format: docFormat 
+          format: docFormat,
+          page: topicMode === "bonus" ? bonusPage : undefined,
         }),
       });
 
@@ -263,6 +266,20 @@ export function BlueprintDashboard({
     });
   };
 
+  const handleExtractProductTopic = () => {
+    setTopicMode("product");
+    setSelectedTopic("");
+    sendMessage({
+      role: "user",
+      parts: [
+        {
+          type: "text",
+          text: "Hi, I want to generate my main Product. Please extract the best main offer info product topic from my report.",
+        },
+      ],
+    });
+  };
+
   return (
     <main className="flex-1 overflow-hidden relative z-10 flex flex-col items-center justify-center bg-[#0a0d14]">
       {/* Background gradients for premium feel */}
@@ -312,8 +329,33 @@ export function BlueprintDashboard({
                     topic below, or keep refining the architect’s guidance.
                   </p>
                   <p className="text-sm text-white/50">
-                    Use <span className="font-semibold text-white">Generate Lead</span> or <span className="font-semibold text-white">Generate Bonus</span> first to align output with the right blueprint type. Or, if you provided your own topic in the chat and the AI approved it, it should be selected below.
+                    Use <span className="font-semibold text-white">Generate Lead</span>, <span className="font-semibold text-white">Generate Bonus</span>, or <span className="font-semibold text-white">Generate Product</span> first to align output with the right blueprint type. Or, if you provided your own topic in the chat and the AI approved it, it should be selected below.
                   </p>
+
+                  {/* Bonus page assignment selector */}
+                  {topicMode === "bonus" && (
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3">Assign this bonus to which sales page?</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {(["sales", "upsell", "downsell"] as const).map((pg) => (
+                          <button
+                            key={pg}
+                            type="button"
+                            onClick={() => setBonusPage(pg)}
+                            className={`rounded-xl border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                              bonusPage === pg
+                                ? "border-brand-indigo bg-brand-indigo/15 text-brand-indigo"
+                                : "border-white/10 bg-white/5 text-white/50 hover:border-white/20"
+                            }`}
+                          >
+                            {pg.charAt(0).toUpperCase() + pg.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-white/30 mt-2">Buyers of the <span className="font-semibold text-white/50">{bonusPage.charAt(0).toUpperCase() + bonusPage.slice(1)} Page</span> info product will receive this bonus in their purchase email.</p>
+                    </div>
+                  )}
+
                   <div className="grid gap-3">
                     {suggestedTopics.map((topic) => (
                       <button
@@ -342,7 +384,7 @@ export function BlueprintDashboard({
                     <p className="text-sm font-semibold text-white/80 mb-3">
                       Choose Document Format
                     </p>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                       <button
                         onClick={() => setDocFormat("pdf")}
                         className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all ${
@@ -354,18 +396,6 @@ export function BlueprintDashboard({
                         <FileText className={`w-6 h-6 mb-2 ${docFormat === "pdf" ? "text-red-400" : ""}`} />
                         <span className="text-xs font-bold uppercase tracking-wider">PDF</span>
                         <span className="text-[10px] mt-1 opacity-70 text-center">Visual Magnet</span>
-                      </button>
-                      <button
-                        onClick={() => setDocFormat("csv")}
-                        className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all ${
-                          docFormat === "csv"
-                            ? "border-emerald-500 bg-emerald-500/10 text-emerald-100"
-                            : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:border-white/20"
-                        }`}
-                      >
-                        <TableProperties className={`w-6 h-6 mb-2 ${docFormat === "csv" ? "text-emerald-400" : ""}`} />
-                        <span className="text-xs font-bold uppercase tracking-wider">CSV</span>
-                        <span className="text-[10px] mt-1 opacity-70 text-center">Data Sheet</span>
                       </button>
                       <button
                         onClick={() => setDocFormat("docx")}
@@ -394,7 +424,7 @@ export function BlueprintDashboard({
                         ) : (
                           <Sparkles className="w-5 h-5 mr-2" />
                         )}
-                        Generate {docFormat.toUpperCase()} {topicMode === "bonus" ? "Bonus" : "Blueprint"}
+                        Generate {docFormat.toUpperCase()} {topicMode === "product" ? "Product" : topicMode === "bonus" ? "Bonus" : "Lead Magnet"}
                       </Button>
                     </div>
                     {generationStatus ? (
@@ -426,7 +456,7 @@ export function BlueprintDashboard({
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-sm">
-              Design a Lead Magnet
+              Design an Info Product
             </h1>
             <p className="text-lg text-white/50 mb-12 max-w-xl font-medium">
               I can analyze your funnel&apos;s sales intelligence to suggest
@@ -465,7 +495,7 @@ export function BlueprintDashboard({
 
           {/* Quick Starts - Only show initially */}
           {!hasChatStarted && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
               <button
                 type="button"
                 onClick={handleExtractLeadTopic}
@@ -495,6 +525,21 @@ export function BlueprintDashboard({
                 </div>
                 <span className="text-sm text-white/40 font-medium">
                   Extract bonus topic ideas from your Bonus Stack section.
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={handleExtractProductTopic}
+                className="flex flex-col text-left p-6 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/10 transition-all group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <Package className="w-5 h-5 text-white/50 group-hover:text-brand-indigo transition-colors" />
+                  <span className="font-bold text-white/90 text-lg">
+                    Generate Product
+                  </span>
+                </div>
+                <span className="text-sm text-white/40 font-medium">
+                  Extract the main offer topic to generate your core info product.
                 </span>
               </button>
             </div>

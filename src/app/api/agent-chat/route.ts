@@ -195,6 +195,8 @@ INSTRUCTIONS FOR SKILL CALLS:
       const { funnelName, intelligenceData, topicMode } = abilityContext || {};
       const funnelBlueprint = intelligenceData?.call1?.funnel_structure_blueprint || intelligenceData?.call1?.FUNNEL_STRUCTURE_BLUEPRINT || intelligenceData?.call2?.funnel_structure_blueprint || intelligenceData?.call2?.FUNNEL_STRUCTURE_BLUEPRINT || '';
       const bonusStack = intelligenceData?.call1?.strategic_bonus_recommendations || intelligenceData?.call1?.STRATEGIC_BONUS_RECOMMENDATIONS || intelligenceData?.call2?.strategic_bonus_recommendations || intelligenceData?.call2?.STRATEGIC_BONUS_RECOMMENDATIONS || '';
+      const productContext = intelligenceData?.call1?.offer_positioning_analysis || intelligenceData?.call1?.OFFER_POSITIONING_ANALYSIS || intelligenceData?.call2?.offer_positioning_analysis || intelligenceData?.call2?.OFFER_POSITIONING_ANALYSIS || 
+                             intelligenceData?.call1?.revenue_model_architecture || intelligenceData?.call1?.REVENUE_MODEL_ARCHITECTURE || intelligenceData?.call2?.revenue_model_architecture || intelligenceData?.call2?.REVENUE_MODEL_ARCHITECTURE || '';
 
       systemPrompt = `You are the OfferIQ Blueprint Architect. Your goal is to help the user extract and refine the best blueprint topics from their sales intelligence report for the funnel: "${funnelName || 'Your Funnel'}".
 
@@ -203,11 +205,13 @@ CRITICAL RULES:
    - Start your response exactly like this (adapted for the topic): "Hey, I'll be generating your lead magnet. First let's find the best lead topic... Based on your report, '[TOPIC]' is the best option. If you feel like editing the topic then type in a topic that works for you. If you don't then click the button below."
 2. When topicMode is "bonus": Extract bonus topic ideas using ONLY the "Bonus Stack" section.
    - Start your response exactly like this: "Hey, I'll be generating your bonus stack. First let's pick the best bonus topics... Based on your report, here are the best options. If you feel like editing the topic then type in a custom topic that works for you. If you don't then select one and click the button below."
-3. Do not invent unrelated topics. The suggestions MUST be grounded in the report content.
-4. CUSTOM TOPIC VALIDATION: If the user replies with their own custom topic, you must validate it against the report context (Lead or Bonus depending on mode).
+3. When topicMode is "product": Extract the main offer info product topic using ONLY the "Offer Positioning & Product Context" section.
+   - Start your response exactly like this: "Hey, I'll be generating your main info product. First let's pick the best topic... Based on your report's offer positioning, '[TOPIC]' is the best option. If you feel like editing the topic then type in a custom topic that works for you. If you don't then click the button below."
+4. Do not invent unrelated topics. The suggestions MUST be grounded in the report content.
+5. CUSTOM TOPIC VALIDATION: If the user replies with their own custom topic, you must validate it against the report context (Lead, Bonus, or Product depending on mode).
    - If it is outside scope: Decline strictly with: "The current suggested topic is outside the scope of this campaign. Please provide a relevant topic or choose one of the suggested topics from the report." (Then list the valid suggestions again in <topics> tags).
    - If it is within scope: Accept it enthusiastically (e.g., "Great choice! Your custom topic works perfectly.") and output it in the <topics> tag so the user can generate it.
-5. Always output your final validated or suggested topics at the very end of your response, wrapped in <topics> tags like this:
+6. Always output your final validated or suggested topics at the very end of your response, wrapped in <topics> tags like this:
 
 <topics>
 1. [First topic title]
@@ -219,7 +223,10 @@ Funnel Blueprint (For Leads):
 ${funnelBlueprint || 'No funnel blueprint content available.'}
 
 Bonus Stack (For Bonuses):
-${bonusStack || 'No bonus stack content available.'}`;
+${bonusStack || 'No bonus stack content available.'}
+
+Offer Positioning & Product Context (For Main Product):
+${productContext || 'No product context available.'}`;
     } else if (ability === 'builder') {
       const { builderPages, activeBuilderPagePath, funnelName, funnelId } = abilityContext || {};
       const activePageObject = activeBuilderPagePath && builderPages ? builderPages[activeBuilderPagePath] : null;

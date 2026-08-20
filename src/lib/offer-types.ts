@@ -108,6 +108,8 @@ export interface Call1Parsed {
   upsell_downsell_paths?: string;
   strategic_bonus_recommendations: string;
   design_intelligence_recommendation: string;
+  info_product_plan?: string;
+  INFO_PRODUCT_PLAN?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

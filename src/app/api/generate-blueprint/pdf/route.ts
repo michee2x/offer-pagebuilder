@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     
     // Accept html for backwards compatibility, but map it to content
     const body = await req.json();
-    const { funnelId, html, content: rawContent, type, topic, format = "pdf" } = body;
+    const { funnelId, html, content: rawContent, type, topic, format = "pdf", page } = body;
     
     const content = rawContent || html; // Fallback to html if content is not provided
 
@@ -22,8 +22,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing funnelId, content, or topic" }, { status: 400 });
     }
 
-    const blueprintType = type === "bonus" ? "bonus" : "lead";
-    const docFormat = (["pdf", "csv", "docx"].includes(format) ? format : "pdf") as "pdf" | "csv" | "docx";
+    const blueprintType = type === "product" ? "product" : type === "bonus" ? "bonus" : "lead";
+    const docFormat = (["pdf", "docx"].includes(format) ? format : "pdf") as "pdf" | "docx";
 
     console.log(`[generate-blueprint/render] Generating ${docFormat.toUpperCase()} for funnelId=${funnelId}, type=${blueprintType}`);
     
@@ -96,12 +96,6 @@ export async function POST(req: Request) {
       
       contentType = "application/pdf";
       fileExtension = "pdf";
-    } else if (docFormat === "csv") {
-      // 2. Generate CSV
-      console.log("[generate-blueprint/render] Formatting CSV...");
-      fileBuffer = Buffer.from(content, "utf-8");
-      contentType = "text/csv";
-      fileExtension = "csv";
     } else if (docFormat === "docx") {
       // 3. Generate DOCX
       console.log("[generate-blueprint/render] Building DOCX from structured JSON...");
@@ -129,7 +123,8 @@ export async function POST(req: Request) {
 
     // Upload File
     console.log(`[generate-blueprint/render] Uploading ${docFormat.toUpperCase()} to Supabase...`);
-    const generatedFileName = `${funnelId}_${blueprintType}_${crypto.randomBytes(6).toString("hex")}.${fileExtension}`;
+    const pageSuffix = page ? `_${page}` : "";
+    const generatedFileName = `${funnelId}_${blueprintType}${pageSuffix}_${crypto.randomBytes(6).toString("hex")}.${fileExtension}`;
     
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
@@ -166,10 +161,12 @@ export async function POST(req: Request) {
     const newFile = {
       id: fileId,
       topic,
-      type: blueprintType, // lead or bonus
-      fileType: docFormat, // pdf, csv, or docx
+      type: blueprintType, // lead, bonus, or product
+      page: page || null, // sales, upsell, downsell, or null
+      fileType: docFormat, // pdf or docx
       url: fileUrl,
       fileName: generatedFileName,
+      assignedProductId: null,
       createdAt: new Date().toISOString(),
     };
 

@@ -669,7 +669,7 @@ export function WelcomePage() {
           <li><strong>A validated strategy:</strong> who to sell to, what to charge, and why they'll say yes, checked against thousands of offers that already worked.</li>
           <li><strong>Sales copy that actually converts:</strong> your lead page, sales page, and upsells, written in your buyer's own words, not a generic template.</li>
           <li><strong>A live, published funnel:</strong> fully designed, connected to your domain, ready to take payment.</li>
-          <li><strong>Core launch assets:</strong> OfferIQ builds the main offer or Product Guide, the lead magnets, bonuses, ad copy, a traffic plan, and follow-up emails that run without you.</li>
+          <li><strong>Core launch assets:</strong> OfferIQ auto-generates your lead magnet, info products for every sales page (Sales, Upsell, Downsell), bonuses, ad copy, a traffic plan, and follow-up emails that run without you.</li>
         </ul>
         <p className="mt-4">You're not left to piece any of it together yourself.<br/>Every part is built from the same strategy, so nothing is guessing what the last part decided. You get an offer that's already priced right, already positioned right, and already knows how to sell itself.</p>
       </div>

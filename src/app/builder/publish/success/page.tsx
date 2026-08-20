@@ -88,68 +88,58 @@ function DeploymentSuccessContent() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleGenerateProductGuide = async () => {
-    toast.loading('Generating Product Guide, Lead Magnet, and Bonus in the background... Feel free to navigate away!', { id: 'product-guide' });
+  const handleGenerateInfoProducts = async () => {
+    toast.loading('Generating Info Products in the background... Feel free to navigate away!', { id: 'info-products' });
     try {
-      // 1. Kickoff Lead Magnet and Bonus background generation
-      fetch('/api/generate-blueprints-auto/kickoff', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ funnelId: pageId })
-      })
-      .then(r => r.json())
-      .then(kickoffData => {
-        if (kickoffData.success) {
-          // Fire and forget execute calls
-          if (kickoffData.leadMagnet) {
-            fetch('/api/generate-blueprints-auto/execute', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                funnelId: pageId,
-                type: 'lead',
-                topic: kickoffData.leadMagnet.topic,
-                format: kickoffData.leadMagnet.fileType,
-                fileId: kickoffData.leadMagnet.id
-              })
-            }).catch(console.error);
-          }
-          if (kickoffData.bonus) {
-            fetch('/api/generate-blueprints-auto/execute', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                funnelId: pageId,
-                type: 'bonus',
-                topic: kickoffData.bonus.topic,
-                format: kickoffData.bonus.fileType,
-                fileId: kickoffData.bonus.id
-              })
-            }).catch(console.error);
-          }
-        }
-      })
-      .catch(console.error);
-
-      // 2. Generate Product Guide
-      const res = await fetch('/api/generate-product-guide', {
+      // 1. Kickoff — registers all 7 placeholders and extracts topics
+      const kickoffRes = await fetch('/api/generate-blueprints-auto/kickoff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ funnelId: pageId })
       });
-      if (!res.ok) throw new Error('Generation failed');
-      const data = await res.json();
-      
-      toast.success('Your Product Guide is ready! Other assets are generating.', {
-        id: 'product-guide',
-        duration: 20000,
+      if (!kickoffRes.ok) throw new Error('Kickoff failed');
+      const kickoffData = await kickoffRes.json();
+
+      if (!kickoffData.success) throw new Error('Kickoff returned failure');
+
+      // 2. Fire all 7 execute calls in parallel (fire-and-forget)
+      const assets = [
+        kickoffData.lead    && { ...kickoffData.lead,    funnelId: pageId },
+        kickoffData.sales   && { ...kickoffData.sales,   funnelId: pageId },
+        kickoffData.upsell  && { ...kickoffData.upsell,  funnelId: pageId },
+        kickoffData.downsell&& { ...kickoffData.downsell,funnelId: pageId },
+        kickoffData.salesBonus   && { ...kickoffData.salesBonus,   funnelId: pageId },
+        kickoffData.upsellBonus  && { ...kickoffData.upsellBonus,  funnelId: pageId },
+        kickoffData.downsellBonus&& { ...kickoffData.downsellBonus,funnelId: pageId },
+      ].filter(Boolean);
+
+      for (const asset of assets) {
+        fetch('/api/generate-blueprints-auto/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            funnelId: asset.funnelId,
+            type: asset.type,
+            topic: asset.topic,
+            format: asset.fileType,
+            fileId: asset.id,
+            page: asset.page || null,
+            chapters: asset.chapters || [],
+          })
+        }).catch(console.error);
+      }
+
+      toast.success('Info Products are generating! Visit Asset Bank to track progress.', {
+        id: 'info-products',
+        duration: 15000,
         action: {
-          label: 'Access Guide',
-          onClick: () => window.open(`/funnels/${pageId}/blueprint/download?funnelId=${pageId}&fileId=${data.fileId}`, '_blank')
+          label: 'View Asset Bank',
+          onClick: () => router.push(`/funnels/${pageId}/blueprint/files`)
         }
       });
     } catch (err) {
-      toast.error('Failed to generate product guide.', { id: 'product-guide' });
+      console.error('[success] Info product generation failed:', err);
+      toast.error('Failed to start info product generation. Please try again.', { id: 'info-products' });
     }
   };
 
@@ -225,19 +215,19 @@ function DeploymentSuccessContent() {
         <div className="px-7 pb-5">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-white/30 mb-3">Next Steps</p>
           <div className="space-y-2">
-            {/* Create Your Product Guide */}
+            {/* Generate Info Products */}
             <button
-              onClick={handleGenerateProductGuide}
+              onClick={handleGenerateInfoProducts}
               className="w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all text-left group bg-gradient-to-r from-amber-500/5 to-transparent"
             >
               <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
                 <Package className="w-4 h-4 text-amber-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-white/90">Create Your Product</p>
-                <p className="text-xs text-white/40">Step-by-step product creation & delivery guide</p>
+                <p className="text-sm font-semibold text-white/90">Generate Info Products</p>
+                <p className="text-xs text-white/40">Auto-generates your lead magnet, 3 info products &amp; bonuses</p>
               </div>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/20">New</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/20">7 Assets</span>
             </button>
 
             {/* Email Sequence */}

@@ -6,20 +6,49 @@ import { anthropic } from "@ai-sdk/anthropic";
 export const maxDuration = 300; // Allow 300s (5 minutes) for Claude text gen
 export const runtime = "nodejs";
 
-type DocFormat = "pdf" | "csv" | "docx";
+type DocFormat = "pdf" | "docx";
+
+function parseInfoProductPlanEntry(
+  planHtml: string,
+  pageSlot: "sales" | "upsell" | "downsell"
+): { chapters: string[]; description: string } {
+  if (!planHtml) return { chapters: [], description: "" };
+  const match = planHtml.match(/<!--\s*INFO_PRODUCTS:\s*(\{[\s\S]*?\})\s*-->/);
+  if (!match) return { chapters: [], description: "" };
+  try {
+    const parsed = JSON.parse(match[1]);
+    const entry = parsed[pageSlot] || {};
+    return {
+      chapters: Array.isArray(entry.chapters) ? entry.chapters : [],
+      description: entry.description || "",
+    };
+  } catch {
+    return { chapters: [], description: "" };
+  }
+}
 
 function buildPrompt(
   format: DocFormat,
   funnelName: string,
   topic: string,
-  context: any
+  context: any,
+  blueprintType: string,
+  planEntry?: { chapters: string[]; description: string }
 ): string {
   const currentYear = new Date().getFullYear();
   const contextBlock = `
 CONTEXT ABOUT THE OFFER:
-Product Type: ${context.productType || "Unknown"}
+Product Type: ${context.productType || "Info Product"}
 Target Audience: ${context.targetAudience || "General"}
 Main Benefit: ${context.coreBenefit || "Unknown"}`;
+
+  const chaptersBlock =
+    planEntry && planEntry.chapters.length > 0
+      ? `\nPLANNED CHAPTERS:\n${planEntry.chapters.map((c, i) => `${i + 1}. ${c}`).join("\n")}`
+      : "";
+
+  const isProduct = blueprintType === "product";
+  const isBonus = blueprintType === "bonus";
 
   const antiHallucinationRules = `
 CRITICAL ACCURACY RULES:
@@ -27,36 +56,13 @@ CRITICAL ACCURACY RULES:
 - Do NOT hallucinate or invent false information (e.g., fake contact details, fake company names, fake names).
 - If specific data is missing from the context, use placeholders (e.g., [Company Name]) or omit it entirely. Never guess or fabricate facts.`;
 
-  if (format === "csv") {
-    return `You are a world-class direct response marketing strategist and data analyst.
-Generate a comprehensive, structured Lead Magnet Blueprint as a CSV spreadsheet for a funnel named "${funnelName}".
-
-TOPIC: ${topic}
-${contextBlock}
-
-INSTRUCTIONS:
-1. Output ONLY valid CSV text. No markdown, no explanation, no code fences. Just raw CSV.
-2. The CSV must be designed as a PURPOSE-BUILT strategic spreadsheet — NOT prose converted to columns.
-3. Use the following column structure (you may add extra columns if they fit the topic):
-   Action Item, Category, Priority (High/Medium/Low), Timeline, KPI / Success Metric, Owner / Role, Status, Notes
-4. Generate at least 20-30 actionable rows that form a complete implementation blueprint.
-5. Group related actions together logically (e.g., by funnel stage, marketing channel, or priority).
-6. Include a header row as the first line.
-7. Make every row specific, tactical, and immediately actionable — NOT vague or generic.
-8. Use proper CSV escaping: wrap fields containing commas in double quotes.
-
-Example row format:
-"Launch email welcome sequence","Email Marketing",High,"Week 1","Open rate > 40%","Email Marketer",Not Started,"Focus on value-first approach"
-
-${antiHallucinationRules}`;
-  }
 
   if (format === "docx") {
-    return `You are a world-class copywriter, strategist, and direct response marketer.
-Generate a comprehensive, editable Lead Magnet Strategy Playbook for a funnel named "${funnelName}".
+    return `You are a world-class copywriter, strategist, and direct response marketer specialising in info products.
+Generate a comprehensive, editable Info Product Playbook for a funnel named "${funnelName}".
 
 TOPIC: ${topic}
-${contextBlock}
+${contextBlock}${chaptersBlock}
 
 INSTRUCTIONS:
 1. Output your response as a VALID JSON object (no markdown fences, no explanation outside the JSON).
@@ -79,28 +85,27 @@ INSTRUCTIONS:
   ]
 }
 3. Each section can have any combination of: paragraphs, bullets, numberedList, table. Include whichever fits best.
-4. Write the document as an EDITABLE STRATEGY PLAYBOOK — something a marketing team can customize, annotate, and distribute.
-5. Include at least 8-12 substantive sections covering: Executive Summary, Target Audience Deep Dive, Value Proposition, Core Strategy, Implementation Steps, Content Outline, Distribution Channels, KPIs & Metrics, Timeline, and Next Steps.
-6. Write in a clear, professional but engaging tone. This is a working document, not a polished brochure.
-7. Include practical tables where appropriate (e.g., timeline tables, comparison tables, budget breakdowns).
-8. Make it comprehensive — at least 2000 words of actual content.
-9. headingLevel should be 1 for major sections, 2 for subsections, 3 for sub-subsections.
+4. Write this as a PREMIUM, standalone info product that delivers REAL, actionable value a customer would pay for.
+5. ${isProduct ? "Include at least 8-12 substantive chapters aligned with the planned chapters above. Write each chapter with depth." : isBonus ? "Include at least 4-6 focused sections. This is a bonus companion guide." : "Include at least 6-8 substantive sections."}
+6. Write in a clear, professional but engaging tone. This is a downloadable info product, not a course or coaching service.
+7. headingLevel should be 1 for major sections, 2 for subsections, 3 for sub-subsections.
 
 ${antiHallucinationRules}`;
   }
 
-  // Default: PDF (existing behavior)
-  return `You are a world-class copywriter and direct response marketer.
-Generate a complete, high-value Lead Magnet PDF for a funnel named "${funnelName}".
+  // Default: PDF
+  return `You are a world-class copywriter and direct response marketer specialising in info products.
+Generate a complete, high-value Info Product PDF for a funnel named "${funnelName}".
 
 TOPIC: ${topic}
-${contextBlock}
+${contextBlock}${chaptersBlock}
 
 INSTRUCTIONS:
-1. Write the full, comprehensive content for the Lead Magnet. Make it valuable, actionable, and visually appealing.
+1. Write the full, comprehensive content. This must be genuinely valuable — a real info product a customer would happily pay for.
 2. Return ONLY raw, valid HTML. Do NOT wrap it in markdown block quotes (like \`\`\`html).
-3. The HTML should include inline CSS styling to make it look like a beautiful, professional PDF document. Use a clean, modern design with a highly readable font (e.g., system-ui, sans-serif). Include a bold title, headers, nicely padded sections, and bullet points.
-4. Ensure the HTML is self-contained. No external stylesheets that might block rendering, though Google Fonts is okay.
+3. The HTML should include inline CSS styling to look like a beautiful, professional PDF document. Use a clean, modern design with a highly readable font (e.g., system-ui, sans-serif). Include a bold title, headers, nicely padded sections, and bullet points.
+4. Ensure the HTML is self-contained. Google Fonts is okay.
+5. ${isProduct ? "Structure the content around the planned chapters. Each chapter should be comprehensive and insightful." : isBonus ? "This is a bonus companion guide — make it feel exclusive and immediately useful." : "Make it actionable with clear, implementable takeaways."}
 
 ${antiHallucinationRules}`;
 }
@@ -110,14 +115,14 @@ export async function POST(req: Request) {
     const startTime = Date.now();
     console.log("[generate-blueprint/html] Request started");
     
-    const { funnelId, topic, type, docFormat: rawFormat } = await req.json();
+    const { funnelId, topic, type, docFormat: rawFormat, page } = await req.json();
 
     if (!funnelId || !topic) {
       return NextResponse.json({ error: "Missing funnelId or topic" }, { status: 400 });
     }
 
-    const blueprintType = type === "bonus" ? "bonus" : "lead";
-    const docFormat: DocFormat = (["pdf", "csv", "docx"].includes(rawFormat) ? rawFormat : "pdf") as DocFormat;
+    const blueprintType = type === "product" ? "product" : type === "bonus" ? "bonus" : "lead";
+    const docFormat: DocFormat = (["pdf", "docx"].includes(rawFormat) ? rawFormat : "pdf") as DocFormat;
 
     console.log(`[generate-blueprint/html] Generating blueprint for funnelId=${funnelId}, topic=${topic}, type=${blueprintType}, format=${docFormat}`);
     
@@ -137,9 +142,18 @@ export async function POST(req: Request) {
 
     const context = funnel.blocks?.offerContext || {};
 
+    // Extract INFO_PRODUCT_PLAN chapters if this is a product type with a page slot
+    const call1 = funnel.blocks?.intelligence?.call1 || {};
+    const infoProductPlanHtml =
+      call1.INFO_PRODUCT_PLAN || call1.info_product_plan || "";
+    const planEntry =
+      blueprintType === "product" && page
+        ? parseInfoProductPlanEntry(infoProductPlanHtml, page as "sales" | "upsell" | "downsell")
+        : undefined;
+
     // 2. Generate content via Claude with format-specific prompt
     console.log(`[generate-blueprint/html] Generating ${docFormat.toUpperCase()} content via Claude...`);
-    const prompt = buildPrompt(docFormat, funnel.name, topic, context);
+    const prompt = buildPrompt(docFormat, funnel.name, topic, context, blueprintType, planEntry);
 
     const model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
     
@@ -156,9 +170,6 @@ export async function POST(req: Request) {
     if (docFormat === "pdf") {
       // Clean markdown fencing for HTML
       content = rawContent.replace(/^```html\n?/, "").replace(/\n?```$/, "");
-    } else if (docFormat === "csv") {
-      // Clean markdown fencing for CSV
-      content = rawContent.replace(/^```(?:csv)?\n?/, "").replace(/\n?```$/, "");
     } else if (docFormat === "docx") {
       // Clean markdown fencing for JSON
       content = rawContent.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");

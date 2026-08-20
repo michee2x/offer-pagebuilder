@@ -13,14 +13,20 @@ function buildPrompt(
   format: "pdf" | "docx",
   funnelName: string,
   topic: string,
-  context: any
+  context: any,
+  type: string,
+  chapters?: string[]
 ): string {
   const currentYear = new Date().getFullYear();
   const contextBlock = `
 CONTEXT ABOUT THE OFFER:
-Product Type: ${context.productType || "Unknown"}
+Product Type: ${context.productType || "Info Product"}
 Target Audience: ${context.targetAudience || "General"}
 Main Benefit: ${context.coreBenefit || "Unknown"}`;
+
+  const chaptersBlock = chapters && chapters.length > 0
+    ? `\nPLANNED CHAPTERS / SECTIONS:\n${chapters.map((c, i) => `${i + 1}. ${c}`).join("\n")}`
+    : "";
 
   const antiHallucinationRules = `
 CRITICAL ACCURACY RULES:
@@ -28,12 +34,15 @@ CRITICAL ACCURACY RULES:
 - Do NOT hallucinate or invent false information (e.g., fake contact details, fake company names, fake names).
 - If specific data is missing from the context, use placeholders (e.g., [Company Name]) or omit it entirely. Never guess or fabricate facts.`;
 
+  const isBonus = type === "bonus";
+  const isBigProduct = type === "product";
+
   if (format === "docx") {
-    return `You are a world-class copywriter, strategist, and direct response marketer.
-Generate a comprehensive, editable Strategy Playbook for a funnel named "${funnelName}".
+    return `You are a world-class copywriter, strategist, and direct response marketer specialising in info products.
+Generate a comprehensive, editable Info Product Playbook for a funnel named "${funnelName}".
 
 TOPIC: ${topic}
-${contextBlock}
+${contextBlock}${chaptersBlock}
 
 INSTRUCTIONS:
 1. Output your response as a VALID JSON object (no markdown fences, no explanation outside the JSON).
@@ -55,41 +64,43 @@ INSTRUCTIONS:
     }
   ]
 }
-3. Each section can have any combination of: paragraphs, bullets, numberedList, table. Include whichever fits best.
-4. Write the document as an EDITABLE STRATEGY PLAYBOOK.
-5. Include at least 6-10 substantive sections.
-6. Write in a clear, professional but engaging tone.
+3. Each section can have any combination of: paragraphs, bullets, numberedList, table.
+4. Write this as a premium, standalone info product that delivers REAL, actionable value. It must be self-contained and immediately useful.
+5. ${isBigProduct ? "Include at least 8-12 substantive chapters/sections aligned with the planned chapters above." : isBonus ? "Include at least 4-6 focused sections. This is a bonus guide that complements the main product." : "Include at least 6-8 substantive sections."}
+6. Write in a clear, professional but engaging tone. This is a downloadable info product, not a course.
 7. headingLevel should be 1 for major sections, 2 for subsections.
 
 ${antiHallucinationRules}`;
   }
 
   // Default: PDF
-  return `You are a world-class copywriter and direct response marketer.
-Generate a complete, high-value Guide/Checklist PDF for a funnel named "${funnelName}".
+  return `You are a world-class copywriter and direct response marketer specialising in info products.
+Generate a complete, high-value Info Product PDF for a funnel named "${funnelName}".
 
 TOPIC: ${topic}
-${contextBlock}
+${contextBlock}${chaptersBlock}
 
 INSTRUCTIONS:
-1. Write the full, comprehensive content. Make it valuable, actionable, and visually appealing.
-2. Return ONLY raw, valid HTML. Do NOT wrap it in markdown block quotes (like \`\`\`html).
-3. The HTML should include inline CSS styling to make it look like a beautiful, professional PDF document. Use a clean, modern design with a highly readable font (e.g., system-ui, sans-serif). Include a bold title, headers, nicely padded sections, and bullet points.
-4. Ensure the HTML is self-contained. No external stylesheets that might block rendering.
+1. Write comprehensive, genuinely valuable content. This must be a REAL info product a customer would happily pay for.
+2. Return ONLY raw, valid HTML. Do NOT wrap it in markdown block quotes.
+3. The HTML should include inline CSS styling to look like a beautiful, professional PDF document. Use a clean, modern design with a highly readable font (e.g., system-ui, sans-serif). Include a bold title, headers, nicely padded sections, and bullet points.
+4. Ensure the HTML is self-contained.
+5. ${isBigProduct ? "Structure the content around the planned chapters above. Write each chapter with depth and real insight." : isBonus ? "This is a bonus companion guide. Make it feel exclusive and high-value, complementing the main product." : "Make it immediately actionable with clear takeaways."}
 
 ${antiHallucinationRules}`;
 }
 
 export async function POST(req: Request) {
   try {
-    const { funnelId, topic, type, format, fileId } = await req.json();
+    const { funnelId, topic, type, format, fileId, page, chapters } = await req.json();
 
     if (!funnelId || !topic || !fileId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const docFormat = format === "docx" ? "docx" : "pdf";
-    console.log(`[generate-blueprints-auto/execute] Generating ${docFormat} for ${fileId}...`);
+    const blueprintType = type === "product" ? "product" : type === "bonus" ? "bonus" : "lead";
+    console.log(`[generate-blueprints-auto/execute] Generating ${docFormat} type=${blueprintType} page=${page || "none"} for ${fileId}...`);
 
     const supabase = createAdminClient();
 
@@ -107,7 +118,7 @@ export async function POST(req: Request) {
     const context = funnel.blocks?.offerContext || {};
 
     // 2. Generate content via AI
-    const prompt = buildPrompt(docFormat, funnel.name, topic, context);
+    const prompt = buildPrompt(docFormat, funnel.name, topic, context, blueprintType, chapters || []);
     const model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 
     let rawContent = "";
@@ -192,8 +203,8 @@ export async function POST(req: Request) {
       await supabase.storage.createBucket(bucketName, { public: true });
     }
 
-    const blueprintType = type === "bonus" ? "bonus" : "lead";
-    const generatedFileName = `${funnelId}_${blueprintType}_${crypto.randomBytes(6).toString("hex")}.${fileExtension}`;
+    const blueprintTypeSafe = type === "product" ? "product" : type === "bonus" ? "bonus" : "lead";
+    const generatedFileName = `${funnelId}_${blueprintTypeSafe}${page ? `_${page}` : ""}_${crypto.randomBytes(6).toString("hex")}.${fileExtension}`;
 
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
@@ -231,13 +242,18 @@ export async function POST(req: Request) {
       return file;
     });
 
-    // Auto-activate the lead magnet the moment it finishes generating.
-    // Only set it if there is no active lead magnet already (so we don't
-    // overwrite a user's manual choice on re-generation).
+    // Auto-activate the lead magnet or product the moment it finishes generating.
     const updatedBlocks: any = { ...freshFunnel?.blocks, blueprintFiles: updatedFiles };
-    if (blueprintType === "lead" && !freshFunnel?.blocks?.activeLeadMagnetFileId) {
+    if (blueprintTypeSafe === "lead" && !freshFunnel?.blocks?.activeLeadMagnetFileId) {
       updatedBlocks.activeLeadMagnetFileId = fileId;
       console.log(`[generate-blueprints-auto/execute] Auto-activating lead magnet: ${fileId}`);
+    } else if (blueprintTypeSafe === "product" && page) {
+      // Auto-activate product per page slot if none active yet
+      const activeKey = `activeProductFileId_${page}`;
+      if (!freshFunnel?.blocks?.[activeKey]) {
+        updatedBlocks[activeKey] = fileId;
+        console.log(`[generate-blueprints-auto/execute] Auto-activating ${page} product: ${fileId}`);
+      }
     }
 
     await supabase
