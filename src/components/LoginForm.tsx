@@ -4,6 +4,7 @@ import React, { useState, Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 function LoginFormInner() {
   const [email, setEmail] = useState("");
@@ -37,11 +38,12 @@ function LoginFormInner() {
           password,
         });
         if (error) throw error;
+        toast.success("Login successful! Redirecting...");
         // If user came from a pricing plan, route to checkout; otherwise dashboard
         router.push(plan ? `/checkout-now?plan=${plan}` : "/");
       }
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }

@@ -107,9 +107,6 @@ importers:
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
-      '@types/react-google-recaptcha':
-        specifier: ^2.1.9
-        version: 2.1.9
       ai:
         specifier: ^6.0.116
         version: 6.0.116(zod@4.3.6)
@@ -200,9 +197,6 @@ importers:
       react-dom:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
-      react-google-recaptcha:
-        specifier: ^3.1.0
-        version: 3.1.0(react@19.2.3)
       react-resizable-panels:
         specifier: ^4.7.3
         version: 4.7.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -273,6 +267,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.14)
+      '@types/react-google-recaptcha':
+        specifier: ^2.1.9
+        version: 2.1.9
       '@types/react-simple-maps':
         specifier: ^3.0.6
         version: 3.0.6
@@ -288,6 +285,9 @@ importers:
       puppeteer:
         specifier: ^24.40.0
         version: 24.40.0(typescript@5.9.3)
+      react-google-recaptcha:
+        specifier: ^3.1.0
+        version: 3.1.0(react@19.2.3)
       tailwindcss:
         specifier: ^4
         version: 4.2.1

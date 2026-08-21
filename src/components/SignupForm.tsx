@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
+import { toast } from "sonner";
 
 function SignupFormInner() {
   const [fullName, setFullName] = useState("");
@@ -31,11 +32,11 @@ function SignupFormInner() {
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match.");
+      toast.error("Passwords do not match.");
       return;
     }
     if (!!recaptchaSiteKey && !captchaToken) {
-      alert("Please complete the captcha");
+      toast.error("Please complete the captcha");
       return;
     }
     setIsLoading(true);
@@ -64,7 +65,7 @@ function SignupFormInner() {
       const verifyUrl = new URL(`${window.location.origin}/verify-email`);
       if (plan) verifyUrl.searchParams.set("plan", plan);
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -73,9 +74,15 @@ function SignupFormInner() {
         },
       });
       if (error) throw error;
+
+      if (data?.user?.identities && data.user.identities.length === 0) {
+        throw new Error("This email is already registered. Please sign in instead.");
+      }
+
+      toast.success("Account created! Redirecting...");
       router.push(verifyUrl.pathname + verifyUrl.search);
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }

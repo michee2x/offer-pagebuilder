@@ -1524,6 +1524,33 @@ input:focus {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+/* Password Toggle */
+.oiq-pw-wrap {
+  position: relative;
+}
+.oiq-pw-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #a0a0ab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+.oiq-pw-toggle:hover {
+  color: #666;
+}
+.oiq-pw-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* Sign-up hint */
 .oiq-signup-hint {
   text-align: center;
