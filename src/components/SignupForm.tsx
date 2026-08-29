@@ -187,7 +187,7 @@ function SignupFormInner() {
               />
               <button
                 type="button"
-                className="oiq-pw-toggle"
+                className="oiq-pw-toggle absolute right-3 top-1/2 -translate-y-1/2 text-[#a0a0ab] hover:text-[#666] z-10 flex items-center justify-center p-1"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
@@ -221,7 +221,7 @@ function SignupFormInner() {
               />
               <button
                 type="button"
-                className="oiq-pw-toggle"
+                className="oiq-pw-toggle absolute right-3 top-1/2 -translate-y-1/2 text-[#a0a0ab] hover:text-[#666] z-10 flex items-center justify-center p-1"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               >
