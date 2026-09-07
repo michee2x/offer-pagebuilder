@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import {
-  ChevronRight, Shield, Globe, Users, Target, Zap, Gift, FileText, 
-  XCircle, CheckCircle2, Infinity, Layers, Infinity as InfinityIcon, Activity, Database
+  ChevronRight, Shield, Globe, Users, Target, Zap, Gift, FileText,
+  XCircle, CheckCircle2, Infinity, Layers, Infinity as InfinityIcon, Activity, Database,
+  AlertTriangle
 } from "lucide-react";
 
 const FONT_HREF =
@@ -238,12 +239,12 @@ function useReveal() {
 }
 function Rev({ children, d = 0, cls = "" }: { children: React.ReactNode; d?: number; cls?: string }) {
   const { ref, v } = useReveal();
-  return <div ref={ref} style={{ transitionDelay: \`\${d}ms\` }} className={\`rev\${v ? " rev-in" : ""}\${cls ? " " + cls : ""}\`}>{children}</div>;
+  return <div ref={ref} style={{ transitionDelay: `${d}ms` }} className={`rev${v ? " rev-in" : ""}${cls ? " " + cls : ""}`}>{children}</div>;
 }
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className={\`faq-item\${open ? " open" : ""}\`}>
+    <div className={`faq-item${open ? " open" : ""}`}>
       <button className="faq-q" onClick={() => setOpen(!open)}><span>{q}</span><span className="faq-plus">{open ? "−" : "+"}</span></button>
       <div className="faq-a" style={{ maxHeight: open ? 400 : 0 }}><p>{a}</p></div>
     </div>
@@ -253,7 +254,7 @@ function MiniCta() {
   const [show, setShow] = useState(false);
   useEffect(() => { const h = () => setShow(window.scrollY > 600); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   return (
-    <div className={\`mini-cta\${show ? " mini-cta--show" : ""}\`}>
+    <div className={`mini-cta${show ? " mini-cta--show" : ""}`}>
       <span className="mini-cta__label">Unlimited — $297 One-Time Upgrade</span>
       <a href="#pricing" className="btn btn-primary" style={{ animation: "none", padding: "10px 22px", fontSize: 14 }}>Upgrade Now <ChevronRight size={15} /></a>
     </div>
@@ -302,8 +303,8 @@ export default function OTO2Page() {
       <style>{CSS}</style>
 
       <div className="sp">
-        <ExitIntent 
-          message="This Is The Only Tier On offeriq.app Where 'Unlimited' Actually Means Unlimited — For Life." 
+        <ExitIntent
+          message="This Is The Only Tier On offeriq.app Where 'Unlimited' Actually Means Unlimited — For Life."
           cta="Remove The Ceiling — $297"
         />
         <MiniCta />
@@ -459,7 +460,7 @@ export default function OTO2Page() {
                 <span className="eyebrow-amber">Lifetime Inclusion</span>
                 <h3 style={{ fontFamily: "Manrope", fontSize: 28, marginTop: 16 }}>Not Just Unlimited. Yours, For As Long As OfferIQ Exists.</h3>
                 <p style={{ marginTop: 18 }}>
-                  This isn&apos;t a bigger monthly allowance. It&apos;s a permanent, one-time license: every offer you ever build under it stays yours, and <strong>every feature OfferIQ ships in the future</strong> — anything added to the platform from this point forward — is included automatically, at no extra cost, for as long as you hold this license. 
+                  This isn&apos;t a bigger monthly allowance. It&apos;s a permanent, one-time license: every offer you ever build under it stays yours, and <strong>every feature OfferIQ ships in the future</strong> — anything added to the platform from this point forward — is included automatically, at no extra cost, for as long as you hold this license.
                 </p>
                 <p>
                   You&apos;re not buying more room. You&apos;re buying out of the ceiling entirely, once.

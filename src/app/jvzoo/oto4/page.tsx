@@ -233,12 +233,12 @@ function useReveal() {
 }
 function Rev({ children, d = 0, cls = "" }: { children: React.ReactNode; d?: number; cls?: string }) {
   const { ref, v } = useReveal();
-  return <div ref={ref} style={{ transitionDelay: \`\${d}ms\` }} className={\`rev\${v ? " rev-in" : ""}\${cls ? " " + cls : ""}\`}>{children}</div>;
+  return <div ref={ref} style={{ transitionDelay: `${d}ms` }} className={`rev${v ? " rev-in" : ""}${cls ? " " + cls : ""}`}>{children}</div>;
 }
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className={\`faq-item\${open ? " open" : ""}\`}>
+    <div className={`faq-item${open ? " open" : ""}`}>
       <button className="faq-q" onClick={() => setOpen(!open)}>
         <span>{q}</span>
         <span className="faq-plus">{open ? "−" : "+"}</span>
@@ -253,7 +253,7 @@ function MiniCta() {
   const [show, setShow] = useState(false);
   useEffect(() => { const h = () => setShow(window.scrollY > 600); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   return (
-    <div className={\`mini-cta\${show ? " mini-cta--show" : ""}\`}>
+    <div className={`mini-cta${show ? " mini-cta--show" : ""}`}>
       <span className="mini-cta__label">Agency — $197 One-Time Upgrade</span>
       <a href="#pricing" className="btn btn-primary" style={{ animation: "none", padding: "10px 22px", fontSize: 14 }}>Upgrade Now <ChevronRight size={15} /></a>
     </div>
