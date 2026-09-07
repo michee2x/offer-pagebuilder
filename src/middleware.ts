@@ -24,23 +24,49 @@ export default async function middleware(req: NextRequest) {
   // Remove port if present for matching (e.g. localhost:3000 -> localhost)
   const hostnameWithoutPort = hostname.split(':')[0]
 
-  // ── Dedicated marketing/welcome domain ──
-  // useofferiq.com should ONLY ever show the welcome page, nothing else.
-  // We rewrite to '/' (not '/welcome') because DashboardPage already renders
-  // <WelcomePage /> automatically for unauthenticated visitors.
-  const welcomeOnlyDomains = ['useofferiq.com', 'www.useofferiq.com']
-  if (welcomeOnlyDomains.includes(hostnameWithoutPort)) {
-    const allowedWelcomePaths = ['/', '/terms', '/policy', '/refund'];
-    if (!allowedWelcomePaths.includes(url.pathname)) {
-      return NextResponse.rewrite(new URL('/', req.url))
+  // ── JVZoo sales domain (useofferiq.com) ──
+  // This domain hosts the JVZoo funnel pages.
+  // Route map:
+  //   useofferiq.com/           → /jvzoo/fe        (Front-End offer)
+  //   useofferiq.com/pro        → /jvzoo/pro        (OTO 1 – Pro)
+  //   useofferiq.com/unlimited  → /jvzoo/unlimited  (OTO 2 – Unlimited)
+  //   useofferiq.com/agency     → /jvzoo/agency     (OTO 3 – Agency)
+  //   useofferiq.com/templates  → /jvzoo/templates  (OTO 4 – Templates)
+  //   Legal pages pass through as-is.
+  const jvzooDomains = ['useofferiq.com', 'www.useofferiq.com']
+  if (jvzooDomains.includes(hostnameWithoutPort)) {
+    const pathname = url.pathname
+
+    // Legal / policy pages – serve from the main app unchanged
+    const passthroughPaths = ['/terms', '/policy', '/refund']
+    if (passthroughPaths.includes(pathname)) {
+      return NextResponse.next()
     }
-    return NextResponse.next()
+
+    // Map the incoming path to the /jvzoo/* route tree
+    const jvzooRouteMap: Record<string, string> = {
+      '/':           '/jvzoo/fe',
+      '/pro':        '/jvzoo/pro',
+      '/unlimited':  '/jvzoo/unlimited',
+      '/agency':     '/jvzoo/agency',
+      '/templates':  '/jvzoo/templates',
+    }
+
+    const destination = jvzooRouteMap[pathname]
+    if (destination) {
+      return NextResponse.rewrite(new URL(destination, req.url))
+    }
+
+    // Any other path on this domain → redirect to root (the FE page)
+    return NextResponse.redirect(new URL('/', req.url))
   }
 
   // Define allowed domain base
   const allowedBaseDomains = [
     'localhost',
     '127.0.0.1',
+    'useofferiq.com',
+    'www.useofferiq.com',
     'app.offeriq.com',
     'builder.offeriq.com',
     'offeriq.com',
