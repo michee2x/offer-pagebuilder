@@ -194,7 +194,7 @@ const INSTEAD_CARDS = [
   { Icon: Eye, title: "Eyeball the conversion rate and guess.", body: "The number moves, you tell yourself a story about why. No data behind the story. Same guess, dressed up as intuition." },
   { Icon: Zap, title: "Bolt on a free analytics tool yourself.", body: "Free, sure — but disconnected from your actual funnel steps, your Strategy Report, or anything OfferIQ already knows about your offer. Hours of configuration for something that still can't tell you if positioning or price is the problem." },
   { Icon: Users, title: "Ask in a Facebook group.", body: "Free advice from people who've never seen your funnel, guessing at your problem with less information than you already have." },
-  { Icon: XCircle, title: "Ignore it.", body: \`Keep running the offer on hope. Most people don't diagnose a leaking funnel — they just quietly stop running ads to it a few months later and call the idea "a dud," instead of finding the actual fix.\` },
+  { Icon: XCircle, title: "Ignore it.", body: `Keep running the offer on hope. Most people don't diagnose a leaking funnel — they just quietly stop running ads to it a few months later and call the idea "a dud," instead of finding the actual fix` },
 ];
 
 const REPLACES_CARDS = [
@@ -206,7 +206,7 @@ const REPLACES_CARDS = [
 ];
 
 const REMAINING_WHY = [
-  { Icon: FileText, color: "#A78BFA", title: \`You get the "why," not just the number.\`, body: \`The Advanced Strategy Report goes deeper than the standard one — Pain Points, Funnel Health, Platform Priority, Offer Positioning, Target Persona, Conversion Hooks, Messaging Matrix, Value Perception, Use Cases, and Monetization Strategy, all specific to your offer.\` },
+  { Icon: FileText, color: "#A78BFA", title: `You get the "why," not just the number.`, body: `The Advanced Strategy Report goes deeper than the standard one — Pain Points, Funnel Health, Platform Priority, Offer Positioning, Target Persona, Conversion Hooks, Messaging Matrix, Value Perception, Use Cases, and Monetization Strategy, all specific to your offer.` },
   { Icon: Users, color: "#34D399", title: "Room to actually grow a list, not just start one.", body: "500 leads is enough to prove a concept. 10,000 means you're not capped out the moment your offer actually starts working — the exact moment a cap costs you the most." },
   { Icon: Eye, color: "#A78BFA", title: "You're not the only one who can move fast.", body: "3 workspace seats means you can bring in a VA, a partner, or a client without sharing your own login." },
   { Icon: Headphones, color: "#60A5FA", title: "Momentum doesn't die in a support queue.", body: "Priority support means a stuck moment stays a stuck moment — minutes, not days." },
@@ -222,7 +222,7 @@ const VS_ROWS = [
 
 const BONUSES = [
   { Icon: Gift, title: "DFY Ad Creative Template Pack", desc: "25 Canva-ready static ad templates, matched to the 5 Conversion Hook types already in your Traffic Intelligence™ suite." },
-  { Icon: FileText, title: \`"5 High-Converting Niches Right Now"\`, desc: "A quarterly-refreshed market report, so this stays current instead of going stale." },
+  { Icon: FileText, title: `"5 High-Converting Niches Right Now"`, desc: "A quarterly-refreshed market report, so this stays current instead of going stale." },
   { Icon: Calculator, title: "Traffic Budget Calculator", desc: "Plug in your Funnel Health Score and price point, get a suggested Phase 1/2/3 ad-spend split back instantly." },
 ];
 
@@ -267,12 +267,12 @@ function useReveal() {
 }
 function Rev({ children, d = 0, cls = "" }: { children: React.ReactNode; d?: number; cls?: string }) {
   const { ref, v } = useReveal();
-  return <div ref={ref} style={{ transitionDelay: \`\${d}ms\` }} className={\`rev\${v ? " rev-in" : ""}\${cls ? " " + cls : ""}\`}>{children}</div>;
+  return <div ref={ref} style={{ transitionDelay: `${d}ms` }} className={`rev${v ? " rev-in" : ""}${cls ? " " + cls : ""}`}>{children}</div>;
 }
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className={\`faq-item\${open ? " open" : ""}\`}>
+    <div className={`faq-item ${open ? " open" : ""}`}>
       <button className="faq-q" onClick={() => setOpen(!open)}><span>{q}</span><span className="faq-plus">{open ? "−" : "+"}</span></button>
       <div className="faq-a" style={{ maxHeight: open ? 400 : 0 }}><p>{a}</p></div>
     </div>
@@ -282,7 +282,7 @@ function MiniCta() {
   const [show, setShow] = useState(false);
   useEffect(() => { const h = () => setShow(window.scrollY > 600); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   return (
-    <div className={\`mini-cta\${show ? " mini-cta--show" : ""}\`}>
+    <div className={`mini-cta ${show ? " mini-cta--show" : ""}`}>
       <span className="mini-cta__label">Pro — $97 One-Time Upgrade</span>
       <a href="#pricing" className="btn btn-primary" style={{ animation: "none", padding: "10px 22px", fontSize: 14 }}>Upgrade Now <ChevronRight size={15} /></a>
     </div>
@@ -331,8 +331,8 @@ export default function OTO1Page() {
       <style>{CSS}</style>
 
       <div className="sp">
-        <ExitIntent 
-          message="Your Front-End Purchase Isn't The Whole Picture. One Step Changes What You Can Actually See." 
+        <ExitIntent
+          message="Your Front-End Purchase Isn't The Whole Picture. One Step Changes What You Can Actually See."
           cta="Lock In Pro Now — $97"
         />
         <MiniCta />
