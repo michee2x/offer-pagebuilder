@@ -401,10 +401,12 @@ export default function BundlePage() {
         {/* TWO THINGS YOU ONLY GET RIGHT HERE */}
         <section id="exclusives" className="sect light tight">
           <div className="wrap">
-            <Rev cls="sect-head" style={{ marginBottom: 40 }}>
-              <span className="eyebrow-amber">Bundle Exclusives</span>
-              <h2>Two Things You Only Get Right Here</h2>
-            </Rev>
+            <div style={{ marginBottom: 40 }}>
+              <Rev cls="sect-head">
+                <span className="eyebrow-amber">Bundle Exclusives</span>
+                <h2>Two Things You Only Get Right Here</h2>
+              </Rev>
+            </div>
             <div className="grid-2" style={{ maxWidth: 960, margin: "0 auto" }}>
               {EXCLUSIVES.map((exc, i) => (
                 <Rev key={exc.title} d={i * 40}>
