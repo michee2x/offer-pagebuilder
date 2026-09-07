@@ -46,6 +46,13 @@ export default async function middleware(req: NextRequest) {
     // Map the incoming path to the /jvzoo/* route tree
     const jvzooRouteMap: Record<string, string> = {
       '/':           '/jvzoo/fe',
+      '/oto1':       '/jvzoo/oto1',
+      '/oto2':       '/jvzoo/oto2',
+      '/oto3':       '/jvzoo/oto3',
+      '/oto4':       '/jvzoo/oto4',
+      '/bundle':     '/jvzoo/bundle',
+      '/ds1':        '/jvzoo/ds1',
+      '/ds2':        '/jvzoo/ds2',
       '/pro':        '/jvzoo/pro',
       '/unlimited':  '/jvzoo/unlimited',
       '/agency':     '/jvzoo/agency',
