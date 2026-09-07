@@ -1,0 +1,272 @@
+﻿"use client";
+import { useEffect, useState, useRef } from "react";
+import {
+  ChevronRight, Shield, BarChart2, Globe, Tag,
+  Users, CreditCard, Zap, Target, Headphones,
+  TrendingUp, Eye, Gift, FileText, Calculator,
+} from "lucide-react";
+
+const FONT_HREF =
+  "https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap";
+
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [v, sv] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { sv(true); io.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return { ref, v };
+}
+function Rev({ children, d = 0, cls = "" }: { children: React.ReactNode; d?: number; cls?: string }) {
+  const { ref, v } = useReveal();
+  return (
+    <div ref={ref} style={{ transitionDelay: ${d}ms }} className={ev}>
+      {children}
+    </div>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={aq-item}>
+      <button className="faq-q" onClick={() => setOpen(!open)}>
+        <span>{q}</span>
+        <span className="faq-plus">{open ? "−" : "+"}</span>
+      </button>
+      <div className="faq-a" style={{ maxHeight: open ? 400 : 0 }}>
+        <p>{a}</p>
+      </div>
+    </div>
+  );
+}
+
+function MiniCta() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const h = () => setShow(window.scrollY > 600);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+  return (
+    <div className={mini-cta}>
+      <span className="mini-cta__label">Pro — $97 One-Time Upgrade</span>
+      <a href="#pricing" className="btn btn-primary" style={{ animation: "none", padding: "10px 22px", fontSize: "14px" }}>
+        Upgrade Now <ChevronRight size={15} />
+      </a>
+    </div>
+  );
+}
+
+function Ico({ icon: Icon, size = 22, color = "currentColor" }: { icon: React.ElementType; size?: number; color?: string }) {
+  return <Icon size={size} color={color} strokeWidth={1.8} />;
+}
+
+export default function OTO1Page() {
+  return (
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link href={FONT_HREF} rel="stylesheet" />
+      <style>{CSS}</style>
+      <div className="sp">
+        <MiniCta />
+        <div className="banner">
+          <span className="banner-warn">⚠️</span>
+          Every Day Live Without This Is Data You Can't Go Back And Recover.{" "}
+          <strong>Founder Price Rises Soon.</strong>
+        </div>
+        <nav className="topnav">
+          <div className="wrap">
+            <div className="logo">
+              <div className="logo-mark" />
+              OFFER<span style={{ color: "#A78BFA" }}>IQ</span>
+            </div>
+            <div className="navlinks">
+              <a href="#why-matters">Why It Matters</a>
+              <a href="#pricing">Pricing</a>
+              <a href="#faq">FAQ</a>
+            </div>
+            <a href="#pricing" className="btn-nav">Upgrade — $97</a>
+          </div>
+        </nav>
+        <section className="hero">
+          <div className="blob blob1" /><div className="blob blob2" />
+          <div className="wrap">
+            <Rev>
+              <span className="eyebrow">For OfferIQ Users Whose First Offer Is Already Live</span>
+              <h1>You Stopped Guessing What To Build. <span className="grad-text">Pro Is Where You Stop Guessing Whether It's Working.</span></h1>
+              <p className="sub">A deeper Strategy Report, real analytics on where people actually drop off, a domain and branding that read as a real business, both major payment processors, and enough lead capacity to let a list actually compound — the difference between an offer that's live and one you can actually read.</p>
+              <div className="ctas" style={{ marginTop: "36px" }}>
+                <a href="#pricing" className="btn btn-primary btn-lg">Yes — Show Me What's Actually Happening, $97 One-Time <ChevronRight size={17} /></a>
+                <p className="microcopy">30-day money-back guarantee · One-time, never recurring</p>
+              </div>
+            </Rev>
+          </div>
+        </section>
+        <section className="sect light">
+          <div className="wrap">
+            <Rev>
+              <span className="eyebrow-amber">The Problem Nobody Warns You About Next</span>
+              <h2 style={{ marginTop: "18px", fontSize: "clamp(24px,3.5vw,36px)", maxWidth: "720px" }}>The Guess Didn't Disappear. It Moved Downstream.</h2>
+            </Rev>
+            <Rev d={80}>
+              <div className="prose-block" style={{ marginTop: "32px" }}>
+                <p>You already ended the biggest guess — what to sell, what to charge, what to say. Front-end proved OfferIQ works. <strong>Your offer is live.</strong></p>
+                <p>Here's the guess nobody warns you about next: <strong>whether it's actually converting well, and why.</strong></p>
+                <p>Picture your dashboard three weeks in. Visits are happening. A few sales have landed. But is that funnel converting at 1% or 4%? Is the problem your ad, a device rendering the page badly, or a single broken step two pages in? On Front-end, the honest answer is: <strong>you can't fully tell.</strong> You get a conversion rate. You don't get the reason behind it.</p>
+                <div className="pullquote">That gap is where real money quietly leaks — not because the offer is wrong, but because nothing is watching closely enough to tell you where it's bleeding.</div>
+              </div>
+            </Rev>
+            <div style={{ textAlign: "center", marginTop: "44px" }}>
+              <Rev><a href="#pricing" className="btn btn-primary">Yes — Show Me What's Actually Happening, $97 One-Time <ChevronRight size={16} /></a></Rev>
+            </div>
+          </div>
+        </section>
+        <section id="why-matters" className="sect">
+          <div className="wrap">
+            <Rev cls="sect-head">
+              <span className="eyebrow">Why Each Upgrade Actually Matters</span>
+              <h2>Not a feature list — what each one changes about your results.</h2>
+            </Rev>
+            <div className="why-grid">
+              {WHY_ITEMS.map((w, i) => (
+                <Rev key={w.title} d={i * 40}>
+                  <div className="why-row">
+                    <div className="why-icon"><Ico icon={w.Icon} size={20} color={w.color} /></div>
+                    <div className="why-body"><h4>{w.title}</h4><p>{w.body}</p></div>
+                  </div>
+                </Rev>
+              ))}
+            </div>
+            <div style={{ textAlign: "center", marginTop: "48px" }}>
+              <Rev><a href="#pricing" className="btn btn-primary btn-lg">Yes — Show Me What's Actually Happening, $97 One-Time <ChevronRight size={17} /></a></Rev>
+            </div>
+          </div>
+        </section>
+        <section className="sect light tight">
+          <div className="wrap">
+            <Rev>
+              <div className="easy-yes">
+                <span className="eyebrow-amber" style={{ display: "inline-flex" }}>Why This Is An Easy Yes</span>
+                <h3 style={{ marginTop: "18px" }}>The math is simple.</h3>
+                <p>The domain, the branding removal, the analytics, the tracking pixels, the priority support — that combination is almost exactly what the monthly OfferIQ Growth plan charges <strong>$69/month</strong> for.</p>
+                <div className="price-compare">
+                  <div className="price-box old"><div className="label">Monthly Growth Plan</div><div className="amount">$69<span style={{ fontSize: "16px", fontWeight: "500" }}>/mo</span></div></div>
+                  <div className="price-divider">vs</div>
+                  <div className="price-box new"><div className="label">Pro — One-Time</div><div className="amount">$97</div></div>
+                </div>
+                <p style={{ marginTop: "24px" }}>You break even against the monthly plan in <strong>under six weeks</strong>. Every month after that is money the monthly-plan version of you would still be paying — and you won't be.</p>
+                <div style={{ marginTop: "32px" }}><a href="#pricing" className="btn btn-primary btn-lg">Upgrade for $97 — One-Time <ChevronRight size={17} /></a></div>
+              </div>
+            </Rev>
+          </div>
+        </section>
+        <section className="sect tight">
+          <div className="wrap">
+            <Rev cls="sect-head">
+              <span className="eyebrow">Your Fast-Action Bonuses</span>
+              <h2>Three extras — included today only.</h2>
+            </Rev>
+            <div className="bonus-grid">
+              {BONUSES.map((b, i) => (
+                <Rev key={b.title} d={i * 80}>
+                  <div className="bonus-card">
+                    <div className="bonus-icon"><Ico icon={b.Icon} size={22} color="#A78BFA" /></div>
+                    <h4>{b.title}</h4>
+                    <p>{b.desc}</p>
+                  </div>
+                </Rev>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section id="pricing" className="sect">
+          <div className="wrap">
+            <Rev cls="sect-head">
+              <span className="eyebrow">Everything You're Getting With This Upgrade</span>
+              <h2>OfferIQ Pro — $97, One-Time</h2>
+              <p style={{ fontSize: "12px", color: "var(--text3)", marginTop: "6px" }}>Values are proposed — confirm with your team before launch</p>
+            </Rev>
+            <Rev d={80}>
+              <div className="value-table">
+                {VALUE_ROWS.map(([item, val]) => (
+                  <div className="value-row" key={item}><span className="vitem">{item}</span><span className="vval">{val}</span></div>
+                ))}
+                <div className="value-row vtotal"><span className="vitem">Total Real Value</span><span className="vval">$1,801</span></div>
+                <div className="value-row vprice"><span className="vitem">Your Price Today — One-Time</span><span className="vval">$97</span></div>
+              </div>
+            </Rev>
+            <div style={{ textAlign: "center", marginTop: "36px" }}>
+              <Rev d={100}>
+                <a href="#" className="btn btn-primary btn-lg">Yes — Show Me What's Actually Happening, $97 One-Time <ChevronRight size={17} /></a>
+                <p className="microcopy" style={{ marginTop: "14px" }}>30-day guarantee · No monthly fee · Founder's pricing ends soon</p>
+              </Rev>
+            </div>
+          </div>
+        </section>
+        <section className="sect tight">
+          <div className="wrap">
+            <Rev>
+              <div className="urgency-block">
+                <span className="eyebrow-amber" style={{ display: "inline-flex", marginBottom: "16px" }}>One More Thing</span>
+                <h3 style={{ marginTop: "14px" }}>Analytics only ever work going forward.</h3>
+                <p>Every day your offer runs on Front-end alone is traffic and leads you can never go back and analyze — that diagnostic history is just gone, whether or not you upgrade later.</p>
+                <p style={{ marginTop: "12px" }}>This page won't load again at this price. <strong>Founder pricing rises as this launch progresses</strong> — what you lock in today is the lowest this ever gets.</p>
+                <div style={{ textAlign: "center", marginTop: "28px" }}>
+                  <a href="#pricing" className="btn btn-primary">Lock In Pro Now — $97 <ChevronRight size={16} /></a>
+                </div>
+              </div>
+            </Rev>
+          </div>
+        </section>
+        <section className="sect tight">
+          <div className="wrap">
+            <Rev>
+              <div className="guarantee">
+                <div className="guarantee-seal"><Ico icon={Shield} size={30} color="#A78BFA" /></div>
+                <div>
+                  <h3>30-Day Money-Back Guarantee</h3>
+                  <p>Same guarantee as everything else in OfferIQ. If Pro doesn't earn its place, email support within 30 days for a full refund — no interrogation, no hoops.</p>
+                </div>
+              </div>
+            </Rev>
+          </div>
+        </section>
+        <section id="faq" className="sect">
+          <div className="wrap">
+            <Rev cls="sect-head"><h2>Quick Questions</h2></Rev>
+            <div className="faq">
+              {FAQ_ITEMS.map(f => <FaqItem key={f.q} q={f.q} a={f.a} />)}
+            </div>
+          </div>
+        </section>
+        <section className="final-cta">
+          <div className="wrap">
+            <Rev>
+              <p style={{ color: "var(--text3)", fontSize: "13px", marginBottom: "14px" }}>A deeper report. Real analytics. Your own domain. Both payment processors. Room to compound.</p>
+              <h2>Front-end told you OfferIQ works. <span className="grad-text">Pro is how you find out why.</span></h2>
+              <p className="lead">Before the data you needed is already gone.</p>
+              <div style={{ marginTop: "36px" }}>
+                <a href="#pricing" className="btn btn-primary btn-lg">Yes — Show Me What's Actually Happening, $97 One-Time <ChevronRight size={17} /></a>
+                <p className="microcopy">30-day guarantee · This page, this price, once.</p>
+                <a href="#" className="no-thanks">No thanks, I'll keep guessing at why it's converting the way it is.</a>
+              </div>
+            </Rev>
+          </div>
+        </section>
+        <footer className="sp-footer">
+          <div className="wrap">
+            <p>© {new Date().getFullYear()} OfferIQ &nbsp;·&nbsp; <a href="/terms">Terms</a> &nbsp;·&nbsp; <a href="/policy">Privacy</a> &nbsp;·&nbsp; <a href="/refund">Refund Policy</a></p>
+          </div>
+        </footer>
+      </div>
+    </>
+  );
+}
