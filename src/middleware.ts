@@ -26,12 +26,14 @@ export default async function middleware(req: NextRequest) {
 
   // ── JVZoo sales domain (useofferiq.com) ──
   // This domain hosts the JVZoo funnel pages.
-  // Route map:
-  //   useofferiq.com/           → /jvzoo/fe        (Front-End offer)
-  //   useofferiq.com/pro        → /jvzoo/pro        (OTO 1 – Pro)
-  //   useofferiq.com/unlimited  → /jvzoo/unlimited  (OTO 2 – Unlimited)
-  //   useofferiq.com/agency     → /jvzoo/agency     (OTO 3 – Agency)
-  //   useofferiq.com/templates  → /jvzoo/templates  (OTO 4 – Templates)
+  // Official route map:
+  //   useofferiq.com/              → /jvzoo/fe           (Front-End Sales)
+  //   useofferiq.com/pro           → /jvzoo/pro          (Pro)
+  //   useofferiq.com/unlimited     → /jvzoo/unlimited    (Unlimited)
+  //   useofferiq.com/ds-unlimited  → /jvzoo/ds-unlimited (Unlimited Downsell)
+  //   useofferiq.com/agency        → /jvzoo/agency       (Agency)
+  //   useofferiq.com/dfy           → /jvzoo/dfy          (Templates / DFY)
+  //   useofferiq.com/bundle        → /jvzoo/bundle       (Bundle)
   //   Legal pages pass through as-is.
   const jvzooDomains = ['useofferiq.com', 'www.useofferiq.com']
   if (jvzooDomains.includes(hostnameWithoutPort)) {
@@ -45,18 +47,13 @@ export default async function middleware(req: NextRequest) {
 
     // Map the incoming path to the /jvzoo/* route tree
     const jvzooRouteMap: Record<string, string> = {
-      '/':           '/jvzoo/fe',
-      '/oto1':       '/jvzoo/oto1',
-      '/oto2':       '/jvzoo/oto2',
-      '/oto3':       '/jvzoo/oto3',
-      '/oto4':       '/jvzoo/oto4',
-      '/bundle':     '/jvzoo/bundle',
-      '/ds1':        '/jvzoo/ds1',
-      '/ds2':        '/jvzoo/ds2',
-      '/pro':        '/jvzoo/pro',
-      '/unlimited':  '/jvzoo/unlimited',
-      '/agency':     '/jvzoo/agency',
-      '/templates':  '/jvzoo/templates',
+      '/':             '/jvzoo/fe',       // Front-End Sales (1062 lines)
+      '/pro':          '/jvzoo/oto1',     // Pro (real content)
+      '/unlimited':    '/jvzoo/oto2',     // Unlimited (real content)
+      '/ds-unlimited': '/jvzoo/ds2',      // Unlimited Downsell (real content)
+      '/agency':       '/jvzoo/oto3',     // Agency (real content)
+      '/dfy':          '/jvzoo/oto4',     // Templates / DFY (real content)
+      '/bundle':       '/jvzoo/bundle',   // Bundle (real content)
     }
 
     const destination = jvzooRouteMap[pathname]
