@@ -79,7 +79,7 @@ function CheckoutNowContent() {
           items: [{ priceId: plan, quantity: 1 }],
           customer: user?.email ? { email: user.email } : undefined,
           customData: user ? { user_id: user.id } : undefined,
-          discountId: discount ? discount : undefined,
+          discountCode: discount ? discount : undefined,
           settings: {
             successUrl: `${window.location.origin}/subscribed`,
             displayMode: 'overlay',

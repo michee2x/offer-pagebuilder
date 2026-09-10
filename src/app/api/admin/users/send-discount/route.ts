@@ -5,7 +5,6 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const resendFrom = process.env.RESEND_FROM || "OfferIQ <hello@ofiq.app>";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export async function POST(req: Request) {
   try {
@@ -97,6 +96,8 @@ export async function POST(req: Request) {
     }
 
     // Construct the magic link
+    const url = new URL(req.url);
+    const siteUrl = url.origin;
     const checkoutUrl = `${siteUrl}/checkout-now?plan=${priceId}&discount=${encodeURIComponent(discountCode)}`;
 
     // Send the email via Resend
