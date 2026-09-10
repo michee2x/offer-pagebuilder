@@ -28,10 +28,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden: Admins only" }, { status: 403 });
     }
 
-    const { email, plan, discountCode } = await req.json();
+    const { email, plan, discountCode, discountPercentage } = await req.json();
 
-    if (!email || !plan || !discountCode) {
-      return NextResponse.json({ error: "Missing required fields (email, plan, discountCode)" }, { status: 400 });
+    if (!email || !plan || !discountCode || !discountPercentage) {
+      return NextResponse.json({ error: "Missing required fields (email, plan, discountCode, discountPercentage)" }, { status: 400 });
     }
 
     // Resolve plan to priceId
@@ -52,6 +52,48 @@ export async function POST(req: Request) {
 
     if (!priceId) {
       return NextResponse.json({ error: "Price ID not configured for this plan in the environment." }, { status: 500 });
+    }
+
+    // Call Paddle API to create the discount
+    const paddleApiUrl = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === "production" 
+      ? "https://api.paddle.com/discounts" 
+      : "https://sandbox-api.paddle.com/discounts";
+    
+    const paddleApiKey = process.env.PADDLE_API_KEY;
+
+    if (!paddleApiKey) {
+      return NextResponse.json({ error: "Paddle API Key not configured." }, { status: 500 });
+    }
+
+    try {
+      const paddleRes = await fetch(paddleApiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${paddleApiKey}`
+        },
+        body: JSON.stringify({
+          amount: discountPercentage.toString(),
+          description: `Admin generated discount for ${email}`,
+          type: "percentage",
+          code: discountCode,
+          enabled_for_checkout: true,
+          restrict_to: [priceId]
+        })
+      });
+
+      if (!paddleRes.ok) {
+        const errorData = await paddleRes.json();
+        console.error("Paddle API Error:", errorData);
+        // Handle common errors like code already exists
+        if (errorData.error?.code === "discount_code_already_exists") {
+           return NextResponse.json({ error: "This discount code already exists in Paddle. Please use a unique code." }, { status: 400 });
+        }
+        return NextResponse.json({ error: `Paddle Error: ${errorData.error?.detail || "Failed to create discount"}` }, { status: 400 });
+      }
+    } catch (paddleErr) {
+      console.error("Failed to reach Paddle API", paddleErr);
+      return NextResponse.json({ error: "Failed to communicate with Paddle API." }, { status: 500 });
     }
 
     // Construct the magic link

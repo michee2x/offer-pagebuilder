@@ -88,7 +88,7 @@ export default function AdminUsersDashboard() {
   /* --- Discount ------------------------------------------------ */
   const [isDiscountOpen, setIsDiscountOpen] = useState(false);
   const [discountTarget, setDiscountTarget] = useState<UserRow | null>(null);
-  const [discountForm, setDiscountForm] = useState({ plan: "starter", discountCode: "" });
+  const [discountForm, setDiscountForm] = useState({ plan: "starter", discountCode: "", discountPercentage: "" });
   const [sendingDiscount, setSendingDiscount] = useState(false);
 
   /* ── fetch list ─────────────────────────────────────────────── */
@@ -175,7 +175,7 @@ export default function AdminUsersDashboard() {
   /* ── Discount ────────────────────────────────────────────────── */
   const openDiscount = (user: UserRow) => {
     setDiscountTarget(user);
-    setDiscountForm({ plan: "starter", discountCode: "" });
+    setDiscountForm({ plan: "starter", discountCode: "", discountPercentage: "15" });
     setIsDiscountOpen(true);
   };
 
@@ -191,6 +191,7 @@ export default function AdminUsersDashboard() {
           email: discountTarget.email,
           plan: discountForm.plan,
           discountCode: discountForm.discountCode,
+          discountPercentage: discountForm.discountPercentage,
         }),
       });
       const data = await res.json();
@@ -753,20 +754,36 @@ export default function AdminUsersDashboard() {
                 <option value="agency">Agency</option>
               </select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="discount-code" className="text-gray-700">Discount Code <span className="text-red-500">*</span></Label>
-              <Input
-                id="discount-code"
-                required
-                placeholder="e.g. LAUNCH15"
-                value={discountForm.discountCode}
-                onChange={(e) => setDiscountForm({ ...discountForm, discountCode: e.target.value })}
-                className="border-gray-300 text-gray-900 bg-white"
-              />
-              <p className="text-[11px] text-gray-500">
-                Ensure this code is already created in your Paddle Dashboard.
-              </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="discount-code" className="text-gray-700">Discount Code <span className="text-red-500">*</span></Label>
+                <Input
+                  id="discount-code"
+                  required
+                  placeholder="e.g. LAUNCH15"
+                  value={discountForm.discountCode}
+                  onChange={(e) => setDiscountForm({ ...discountForm, discountCode: e.target.value })}
+                  className="border-gray-300 text-gray-900 bg-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="discount-percentage" className="text-gray-700">Discount % <span className="text-red-500">*</span></Label>
+                <Input
+                  id="discount-percentage"
+                  type="number"
+                  min="1"
+                  max="100"
+                  required
+                  placeholder="15"
+                  value={discountForm.discountPercentage}
+                  onChange={(e) => setDiscountForm({ ...discountForm, discountPercentage: e.target.value })}
+                  className="border-gray-300 text-gray-900 bg-white"
+                />
+              </div>
             </div>
+            <p className="text-[11px] text-gray-500">
+              We will automatically create this code in your Paddle Dashboard if it doesn't exist.
+            </p>
             <DialogFooter className="pt-4">
               <Button
                 type="button"
