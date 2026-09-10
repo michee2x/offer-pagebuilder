@@ -9,6 +9,7 @@ function CheckoutNowContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const plan = searchParams.get('plan') ?? '';
+  const discount = searchParams.get('discount') ?? '';
   const { paddle } = usePaddle();
 
   // 'checking' → verifying subscription status server-side
@@ -78,6 +79,7 @@ function CheckoutNowContent() {
           items: [{ priceId: plan, quantity: 1 }],
           customer: user?.email ? { email: user.email } : undefined,
           customData: user ? { user_id: user.id } : undefined,
+          discountId: discount ? discount : undefined,
           settings: {
             successUrl: `${window.location.origin}/subscribed`,
             displayMode: 'overlay',

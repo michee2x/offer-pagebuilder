@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   User, MoreVertical, Eye, Edit2, Trash2, LogIn,
-  Activity, LayoutTemplate, Settings, Flag,
+  Activity, LayoutTemplate, Settings, Flag, Gift,
   Loader2, Plus, X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -85,6 +85,12 @@ export default function AdminUsersDashboard() {
   const [editForm, setEditForm] = useState({ name: "", email: "", role: "user", plan: "free", credits_limit: 0, workspace_limit: 1 });
   const [editing, setEditing] = useState(false);
 
+  /* --- Discount ------------------------------------------------ */
+  const [isDiscountOpen, setIsDiscountOpen] = useState(false);
+  const [discountTarget, setDiscountTarget] = useState<UserRow | null>(null);
+  const [discountForm, setDiscountForm] = useState({ plan: "starter", discountCode: "" });
+  const [sendingDiscount, setSendingDiscount] = useState(false);
+
   /* ── fetch list ─────────────────────────────────────────────── */
   useEffect(() => { fetchUsers(); }, []);
 
@@ -163,6 +169,38 @@ export default function AdminUsersDashboard() {
       toast.error(err instanceof Error ? err.message : "Update failed");
     } finally {
       setEditing(false);
+    }
+  };
+
+  /* ── Discount ────────────────────────────────────────────────── */
+  const openDiscount = (user: UserRow) => {
+    setDiscountTarget(user);
+    setDiscountForm({ plan: "starter", discountCode: "" });
+    setIsDiscountOpen(true);
+  };
+
+  const handleSendDiscount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!discountTarget) return;
+    setSendingDiscount(true);
+    try {
+      const res = await fetch("/api/admin/users/send-discount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: discountTarget.email,
+          plan: discountForm.plan,
+          discountCode: discountForm.discountCode,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send discount");
+      toast.success("Discount link sent successfully");
+      setIsDiscountOpen(false);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Send failed");
+    } finally {
+      setSendingDiscount(false);
     }
   };
 
@@ -350,6 +388,13 @@ export default function AdminUsersDashboard() {
                         >
                           <Flag className="w-4 h-4" />
                         </button>
+                        <button
+                          title="Send discount coupon"
+                          onClick={() => openDiscount(user)}
+                          className="p-1.5 rounded-md text-gray-400 hover:bg-green-50 hover:text-green-600 transition-colors"
+                        >
+                          <Gift className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
 
@@ -386,6 +431,13 @@ export default function AdminUsersDashboard() {
                           >
                             <LogIn className="mr-2 h-4 w-4" />
                             Login As
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => openDiscount(user)}
+                            className="text-gray-700 hover:bg-gray-100 cursor-pointer px-3 py-2 rounded-md"
+                          >
+                            <Gift className="mr-2 h-4 w-4" />
+                            Send Discount
                           </DropdownMenuItem>
                           <DropdownMenuSeparator className="bg-gray-100" />
                           <DropdownMenuItem
@@ -676,6 +728,69 @@ export default function AdminUsersDashboard() {
         </DialogContent>
       </Dialog>
 
+      {/* ══ DISCOUNT MODAL ════════════════════════════════════════ */}
+      <Dialog open={isDiscountOpen} onOpenChange={setIsDiscountOpen}>
+        <DialogContent className="sm:max-w-md bg-white border border-gray-200">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Send Discount Link
+              {discountTarget && (
+                <span className="block mt-1 text-sm font-normal text-gray-500">{discountTarget.email}</span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSendDiscount} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="discount-plan" className="text-gray-700">Target Plan</Label>
+              <select
+                id="discount-plan"
+                value={discountForm.plan}
+                onChange={(e) => setDiscountForm({ ...discountForm, plan: e.target.value })}
+                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+              >
+                <option value="starter">Starter</option>
+                <option value="growth">Growth</option>
+                <option value="agency">Agency</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="discount-code" className="text-gray-700">Discount Code <span className="text-red-500">*</span></Label>
+              <Input
+                id="discount-code"
+                required
+                placeholder="e.g. LAUNCH15"
+                value={discountForm.discountCode}
+                onChange={(e) => setDiscountForm({ ...discountForm, discountCode: e.target.value })}
+                className="border-gray-300 text-gray-900 bg-white"
+              />
+              <p className="text-[11px] text-gray-500">
+                Ensure this code is already created in your Paddle Dashboard.
+              </p>
+            </div>
+            <DialogFooter className="pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsDiscountOpen(false)}
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={sendingDiscount}
+                className="bg-green-600 hover:bg-green-700 text-white min-w-[120px]"
+              >
+                {sendingDiscount ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending…</>
+                ) : "Send Link"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
+
