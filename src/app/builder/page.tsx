@@ -879,7 +879,7 @@ export default function BuilderPage() {
                     type="text"
                     value={funnelName}
                     onChange={(e) => setFunnelName(e.target.value)}
-                    className="bg-muted/40 hover:bg-muted focus:bg-muted/60 border border-border/50 hover:border-border focus:border-border focus:outline-none rounded-md transition-all px-3 py-1 pr-7 w-[220px] text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 shadow-sm"
+                    className="bg-muted/40 hover:bg-muted focus:bg-muted/60 border border-border/50 hover:border-border focus:border-border focus:outline-none rounded-md transition-all px-3 py-1 pr-7 w-[130px] sm:w-[180px] lg:w-[220px] text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 shadow-sm"
                     placeholder="Enter funnel name..."
                   />
                 </div>
@@ -898,9 +898,9 @@ export default function BuilderPage() {
               : undefined
           }
         >
-          <div className="flex items-center gap-1 ml-auto">
-            {/* Device mode toggles */}
-            <div className="flex items-center bg-muted/30 rounded-md border border-border mr-2 p-0.5">
+          <div className="flex items-center gap-0.5 ml-auto">
+            {/* Device mode toggles — hidden on xs screens */}
+            <div className="hidden xs:flex items-center bg-muted/30 rounded-md border border-border mr-1 p-0.5">
               <button
                 type="button"
                 title="Desktop"
@@ -928,7 +928,7 @@ export default function BuilderPage() {
             </div>
 
             {/* Separator */}
-            <div className="w-px h-5 bg-border mx-1" />
+            <div className="w-px h-5 bg-border mx-0.5" />
 
             {/* Undo / Redo */}
             <button
@@ -951,7 +951,7 @@ export default function BuilderPage() {
             </button>
 
             {/* Separator */}
-            <div className="w-px h-5 bg-border mx-1" />
+            <div className="w-px h-5 bg-border mx-0.5" />
 
             {/* Preview */}
             <button
@@ -979,11 +979,11 @@ export default function BuilderPage() {
             </button>
 
             {/* Separator */}
-            <div className="w-px h-5 bg-border mx-1" />
+            <div className="w-px h-5 bg-border mx-0.5" />
 
-            {/* Autosave status */}
+            {/* Autosave status — hidden on very small screens to save space */}
             {autoSaveStatus !== "idle" && (
-              <span className={`text-xs font-semibold transition-all ${
+              <span className={`hidden xs:inline text-xs font-semibold transition-all ${
                 autoSaveStatus === "saving" ? "text-muted-foreground" : "text-emerald-500"
               }`}>
                 {autoSaveStatus === "saving" ? "Saving…" : "✓ Saved"}
@@ -1013,7 +1013,7 @@ export default function BuilderPage() {
               )}
             </button>
 
-            {/* Publish CTA — kept as a labeled button since it's the primary action */}
+            {/* Publish CTA — icon-only on xs, labeled on sm+ */}
             <button
               type="button"
               onClick={() => {
@@ -1025,9 +1025,10 @@ export default function BuilderPage() {
                 }
                 window.location.href = `/builder/publish?id=${pageId}`;
               }}
-              className="ml-1 h-8 px-3 flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+              className="ml-0.5 h-8 px-2 xs:px-3 flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
             >
-              <Globe className="w-3.5 h-3.5" /> Publish
+              <Globe className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden xs:inline">Publish</span>
             </button>
           </div>
         </Topbar>

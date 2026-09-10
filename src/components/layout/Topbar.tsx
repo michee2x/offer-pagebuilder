@@ -28,11 +28,11 @@ export function Topbar({ breadcrumbs, steps, actions, children }: TopbarProps) {
   const toggleSidebar = useUIStore((state) => state.toggleSidebar);
 
   return (
-    <header className="h-14 bg-[#0a0a0a]/50 backdrop-blur-2xl border-b border-white/10 flex items-center px-4 gap-4 shrink-0 z-50 w-full relative">
-      {/* Menu Toggle */}
+    <header className="h-14 bg-[#0a0a0a]/50 backdrop-blur-2xl border-b border-white/10 flex items-center px-3 gap-2 shrink-0 z-50 w-full relative overflow-hidden">
+      {/* Menu Toggle — always visible, never shrinks */}
       <button 
         onClick={toggleSidebar}
-        className="flex flex-col gap-1 px-2 py-3 cursor-pointer group" 
+        className="flex flex-col gap-1 px-2 py-3 cursor-pointer group shrink-0" 
         aria-label="Toggle Menu"
       >
         <span className="w-5 h-0.5 bg-muted-foreground group-hover:bg-foreground transition-colors rounded-full" />
@@ -40,29 +40,41 @@ export function Topbar({ breadcrumbs, steps, actions, children }: TopbarProps) {
         <span className="w-3 h-0.5 bg-muted-foreground group-hover:bg-foreground transition-colors rounded-full" />
       </button>
 
-      <div className="w-px h-6 bg-border mx-1" />
+      <div className="w-px h-6 bg-border shrink-0" />
 
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground whitespace-nowrap overflow-hidden min-w-0 shrink">
+      {/* Breadcrumbs — clamps on small screens, last crumb (funnel name input) truncates first */}
+      <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground min-w-0 overflow-hidden shrink">
         {breadcrumbs.map((bc, i) => (
           <React.Fragment key={i}>
             {bc.href ? (
-              <Link href={bc.href} className="hover:text-foreground transition-colors shrink-0">
+              <Link
+                href={bc.href}
+                className={cn(
+                  'hover:text-foreground transition-colors shrink-0 whitespace-nowrap',
+                  // Hide non-last linked crumbs on very small screens
+                  i < breadcrumbs.length - 2 ? 'hidden sm:inline' : ''
+                )}
+              >
                 {bc.label}
               </Link>
             ) : (
-              <span className="text-foreground shrink-0">{bc.label}</span>
+              <span className="text-foreground min-w-0 overflow-hidden">{bc.label}</span>
             )}
-            {i < breadcrumbs.length - 1 && <span className="text-muted-foreground opacity-40 px-0.5 shrink-0">/</span>}
+            {i < breadcrumbs.length - 1 && (
+              <span className={cn(
+                'text-muted-foreground opacity-40 shrink-0',
+                i < breadcrumbs.length - 2 ? 'hidden sm:inline' : ''
+              )}>/</span>
+            )}
           </React.Fragment>
         ))}
       </div>
 
-      {/* Center Padding to keep right actions aligned */}
-      <div className="flex-grow shrink min-w-10" />
+      {/* Flexible spacer */}
+      <div className="flex-1 min-w-0" />
 
-      {/* Right Side Actions */}
-      <div className={cn('flex items-center justify-end gap-2 shrink-0 h-full', steps ? 'flex-1' : '')}>
+      {/* Right Side Actions — never shrinks, always fully visible */}
+      <div className={cn('flex items-center justify-end gap-1 shrink-0 h-full', steps ? '' : '')}>
         {actions}
         {children}
       </div>
