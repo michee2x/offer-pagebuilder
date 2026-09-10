@@ -16,7 +16,6 @@ import {
   Globe,
   BookOpen,
   Plug,
-  Package,
   ChevronDown,
   Webhook,
 } from "lucide-react";
@@ -76,11 +75,6 @@ export function FunnelSidebar({
       label: "Asset Bank",
       href: `/funnels/${funnelId}/blueprint`,
       icon: BookOpen,
-    },
-    {
-      label: "Products",
-      href: `/funnels/${funnelId}/products`,
-      icon: Package,
     },
     {
       label: "Integrations",
