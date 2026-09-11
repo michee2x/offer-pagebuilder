@@ -77,18 +77,19 @@ export async function POST(req: Request) {
           description: `Admin generated discount for ${email}`,
           type: "percentage",
           code: discountCode,
-          enabled: true,
+          enabled_for_checkout: true,
           restrict_to: [priceId]
         })
       });
 
       if (!paddleRes.ok) {
         const errorData = await paddleRes.json();
-        console.error("Paddle API Error:", errorData);
+        console.error("Paddle API Error:", JSON.stringify(errorData, null, 2));
         if (errorData.error?.code === "discount_code_already_exists") {
            return NextResponse.json({ error: "This discount code already exists in Paddle. Please use a unique code." }, { status: 400 });
         }
-        return NextResponse.json({ error: `Paddle Error: ${errorData.error?.detail || "Failed to create discount"}` }, { status: 400 });
+        const apiErrorDetails = errorData.error?.errors?.[0]?.message || errorData.error?.detail || "Failed to create discount";
+        return NextResponse.json({ error: `Paddle Error: ${apiErrorDetails}` }, { status: 400 });
       }
 
       const paddleData = await paddleRes.json();
