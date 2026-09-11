@@ -27,30 +27,48 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden: Admins only" }, { status: 403 });
     }
 
-    const { email, plan, discountCode, discountPercentage } = await req.json();
+    const { email, plan, paymentType, discountCode, discountPercentage } = await req.json();
 
     if (!email || !plan || !discountCode || !discountPercentage) {
       return NextResponse.json({ error: "Missing required fields (email, plan, discountCode, discountPercentage)" }, { status: 400 });
     }
 
-    // Resolve plan to priceId
+    const isOneTime = paymentType === "onetime";
+
+    // Resolve plan to priceId based on payment type
     let priceId = "";
-    switch (plan.toLowerCase()) {
-      case "starter":
-        priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER || "";
-        break;
-      case "growth":
-        priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH || "";
-        break;
-      case "agency":
-        priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY || "";
-        break;
-      default:
-        return NextResponse.json({ error: "Invalid plan type. Must be starter, growth, or agency." }, { status: 400 });
+    if (isOneTime) {
+      switch (plan.toLowerCase()) {
+        case "starter":
+          priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER_ONETIME || "";
+          break;
+        case "growth":
+          priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH_ONETIME || "";
+          break;
+        case "agency":
+          priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY_ONETIME || "";
+          break;
+        default:
+          return NextResponse.json({ error: "Invalid plan type. Must be starter, growth, or agency." }, { status: 400 });
+      }
+    } else {
+      switch (plan.toLowerCase()) {
+        case "starter":
+          priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER || "";
+          break;
+        case "growth":
+          priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH || "";
+          break;
+        case "agency":
+          priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY || "";
+          break;
+        default:
+          return NextResponse.json({ error: "Invalid plan type. Must be starter, growth, or agency." }, { status: 400 });
+      }
     }
 
     if (!priceId) {
-      return NextResponse.json({ error: "Price ID not configured for this plan in the environment." }, { status: 500 });
+      return NextResponse.json({ error: `Price ID not configured for ${plan} ${isOneTime ? "one-time" : "monthly"} plan in the environment.` }, { status: 500 });
     }
 
     // Call Paddle API to create the discount
@@ -104,7 +122,7 @@ export async function POST(req: Request) {
     // Construct the magic link
     const url = new URL(req.url);
     const siteUrl = url.origin;
-    const checkoutUrl = `${siteUrl}/checkout-now?plan=${priceId}&discount=${encodeURIComponent(discountCode)}&discountId=${encodeURIComponent(discountId)}`;
+    const checkoutUrl = `${siteUrl}/checkout-now?plan=${priceId}&discount=${encodeURIComponent(discountCode)}&discountId=${encodeURIComponent(discountId)}${isOneTime ? "&type=onetime" : ""}`;
 
     // Send the email via Resend
     const { error: resendError } = await resend.emails.send({

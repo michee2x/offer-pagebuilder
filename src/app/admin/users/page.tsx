@@ -88,7 +88,7 @@ export default function AdminUsersDashboard() {
   /* --- Discount ------------------------------------------------ */
   const [isDiscountOpen, setIsDiscountOpen] = useState(false);
   const [discountTarget, setDiscountTarget] = useState<UserRow | null>(null);
-  const [discountForm, setDiscountForm] = useState({ plan: "starter", discountCode: "", discountPercentage: "" });
+  const [discountForm, setDiscountForm] = useState({ plan: "starter", paymentType: "monthly", discountCode: "", discountPercentage: "" });
   const [sendingDiscount, setSendingDiscount] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
 
@@ -176,7 +176,7 @@ export default function AdminUsersDashboard() {
   /* ── Discount ────────────────────────────────────────────────── */
   const openDiscount = (user: UserRow) => {
     setDiscountTarget(user);
-    setDiscountForm({ plan: "starter", discountCode: "", discountPercentage: "15" });
+    setDiscountForm({ plan: "starter", paymentType: "monthly", discountCode: "", discountPercentage: "15" });
     setGeneratedLink("");
     setIsDiscountOpen(true);
   };
@@ -192,6 +192,7 @@ export default function AdminUsersDashboard() {
         body: JSON.stringify({
           email: discountTarget.email,
           plan: discountForm.plan,
+          paymentType: discountForm.paymentType,
           discountCode: discountForm.discountCode,
           discountPercentage: discountForm.discountPercentage,
         }),
@@ -775,6 +776,27 @@ export default function AdminUsersDashboard() {
             </div>
           ) : (
             <form onSubmit={handleSendDiscount} className="space-y-4 py-4">
+              {/* Payment Type */}
+              <div className="space-y-2">
+                <Label className="text-gray-700">Payment Type</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {["monthly", "onetime"].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setDiscountForm({ ...discountForm, paymentType: type, plan: "starter" })}
+                      className={`py-2 px-3 rounded-lg border text-sm font-medium transition-all ${
+                        discountForm.paymentType === type
+                          ? "border-blue-600 bg-blue-50 text-blue-700"
+                          : "border-gray-300 bg-white text-gray-600 hover:border-gray-400"
+                      }`}
+                    >
+                      {type === "monthly" ? "💳 Monthly ($1 Trial)" : "🔑 One-Time Payment"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Plan */}
               <div className="space-y-2">
                 <Label htmlFor="discount-plan" className="text-gray-700">Target Plan</Label>
                 <select
