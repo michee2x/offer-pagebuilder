@@ -64,6 +64,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Paddle API Key not configured." }, { status: 500 });
     }
 
+    let discountId = discountCode;
     try {
       const paddleRes = await fetch(paddleApiUrl, {
         method: "POST",
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
           description: `Admin generated discount for ${email}`,
           type: "percentage",
           code: discountCode,
-          enabled_for_checkout: true,
+          enabled: true,
           restrict_to: [priceId]
         })
       });
@@ -84,11 +85,15 @@ export async function POST(req: Request) {
       if (!paddleRes.ok) {
         const errorData = await paddleRes.json();
         console.error("Paddle API Error:", errorData);
-        // Handle common errors like code already exists
         if (errorData.error?.code === "discount_code_already_exists") {
            return NextResponse.json({ error: "This discount code already exists in Paddle. Please use a unique code." }, { status: 400 });
         }
         return NextResponse.json({ error: `Paddle Error: ${errorData.error?.detail || "Failed to create discount"}` }, { status: 400 });
+      }
+
+      const paddleData = await paddleRes.json();
+      if (paddleData?.data?.id) {
+        discountId = paddleData.data.id;
       }
     } catch (paddleErr) {
       console.error("Failed to reach Paddle API", paddleErr);
@@ -98,7 +103,7 @@ export async function POST(req: Request) {
     // Construct the magic link
     const url = new URL(req.url);
     const siteUrl = url.origin;
-    const checkoutUrl = `${siteUrl}/checkout-now?plan=${priceId}&discount=${encodeURIComponent(discountCode)}`;
+    const checkoutUrl = `${siteUrl}/checkout-now?plan=${priceId}&discount=${encodeURIComponent(discountCode)}&discountId=${encodeURIComponent(discountId)}`;
 
     // Send the email via Resend
     const { error: resendError } = await resend.emails.send({
@@ -129,7 +134,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to send email." }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: "Discount link sent successfully." });
+    return NextResponse.json({ success: true, message: "Discount link sent successfully.", link: checkoutUrl });
 
   } catch (error: any) {
     console.error("[send-discount] Error:", error);

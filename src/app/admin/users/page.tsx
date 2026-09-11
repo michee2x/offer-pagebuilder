@@ -90,6 +90,7 @@ export default function AdminUsersDashboard() {
   const [discountTarget, setDiscountTarget] = useState<UserRow | null>(null);
   const [discountForm, setDiscountForm] = useState({ plan: "starter", discountCode: "", discountPercentage: "" });
   const [sendingDiscount, setSendingDiscount] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState("");
 
   /* ── fetch list ─────────────────────────────────────────────── */
   useEffect(() => { fetchUsers(); }, []);
@@ -176,6 +177,7 @@ export default function AdminUsersDashboard() {
   const openDiscount = (user: UserRow) => {
     setDiscountTarget(user);
     setDiscountForm({ plan: "starter", discountCode: "", discountPercentage: "15" });
+    setGeneratedLink("");
     setIsDiscountOpen(true);
   };
 
@@ -196,8 +198,12 @@ export default function AdminUsersDashboard() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send discount");
-      toast.success("Discount link sent successfully");
-      setIsDiscountOpen(false);
+      toast.success("Discount link created and sent successfully");
+      if (data.link) {
+        setGeneratedLink(data.link);
+      } else {
+        setIsDiscountOpen(false);
+      }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Send failed");
     } finally {
@@ -740,70 +746,99 @@ export default function AdminUsersDashboard() {
               )}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSendDiscount} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="discount-plan" className="text-gray-700">Target Plan</Label>
-              <select
-                id="discount-plan"
-                value={discountForm.plan}
-                onChange={(e) => setDiscountForm({ ...discountForm, plan: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-              >
-                <option value="starter">Starter</option>
-                <option value="growth">Growth</option>
-                <option value="agency">Agency</option>
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="discount-code" className="text-gray-700">Discount Code <span className="text-red-500">*</span></Label>
-                <Input
-                  id="discount-code"
-                  required
-                  placeholder="e.g. LAUNCH15"
-                  value={discountForm.discountCode}
-                  onChange={(e) => setDiscountForm({ ...discountForm, discountCode: e.target.value })}
-                  className="border-gray-300 text-gray-900 bg-white"
-                />
+          {generatedLink ? (
+            <div className="space-y-4 py-4">
+              <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl">
+                <p className="font-semibold text-sm mb-3">Discount link generated successfully!</p>
+                <div className="flex gap-2">
+                  <Input readOnly value={generatedLink} className="bg-white border-green-300 focus-visible:ring-green-500" />
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedLink);
+                      toast.success("Link copied to clipboard");
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-xs text-green-700 mt-3">
+                  An email has also been sent to the user. You can share this link directly via DM.
+                </p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="discount-percentage" className="text-gray-700">Discount % <span className="text-red-500">*</span></Label>
-                <Input
-                  id="discount-percentage"
-                  type="number"
-                  min="1"
-                  max="100"
-                  required
-                  placeholder="15"
-                  value={discountForm.discountPercentage}
-                  onChange={(e) => setDiscountForm({ ...discountForm, discountPercentage: e.target.value })}
-                  className="border-gray-300 text-gray-900 bg-white"
-                />
-              </div>
+              <DialogFooter className="pt-4">
+                <Button type="button" onClick={() => setIsDiscountOpen(false)} className="bg-gray-100 text-gray-700 hover:bg-gray-200">
+                  Close
+                </Button>
+              </DialogFooter>
             </div>
-            <p className="text-[11px] text-gray-500">
-              We will automatically create this code in your Paddle Dashboard if it doesn't exist.
-            </p>
-            <DialogFooter className="pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDiscountOpen(false)}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={sendingDiscount}
-                className="bg-green-600 hover:bg-green-700 text-white min-w-[120px]"
-              >
-                {sendingDiscount ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending…</>
-                ) : "Send Link"}
-              </Button>
-            </DialogFooter>
-          </form>
+          ) : (
+            <form onSubmit={handleSendDiscount} className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="discount-plan" className="text-gray-700">Target Plan</Label>
+                <select
+                  id="discount-plan"
+                  value={discountForm.plan}
+                  onChange={(e) => setDiscountForm({ ...discountForm, plan: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                >
+                  <option value="starter">Starter</option>
+                  <option value="growth">Growth</option>
+                  <option value="agency">Agency</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="discount-code" className="text-gray-700">Discount Code <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="discount-code"
+                    required
+                    placeholder="e.g. LAUNCH15"
+                    value={discountForm.discountCode}
+                    onChange={(e) => setDiscountForm({ ...discountForm, discountCode: e.target.value })}
+                    className="border-gray-300 text-gray-900 bg-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="discount-percentage" className="text-gray-700">Discount % <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="discount-percentage"
+                    type="number"
+                    min="1"
+                    max="100"
+                    required
+                    placeholder="15"
+                    value={discountForm.discountPercentage}
+                    onChange={(e) => setDiscountForm({ ...discountForm, discountPercentage: e.target.value })}
+                    className="border-gray-300 text-gray-900 bg-white"
+                  />
+                </div>
+              </div>
+              <p className="text-[11px] text-gray-500">
+                We will automatically create this code in your Paddle Dashboard if it doesn't exist.
+              </p>
+              <DialogFooter className="pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDiscountOpen(false)}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={sendingDiscount}
+                  className="bg-green-600 hover:bg-green-700 text-white min-w-[120px]"
+                >
+                  {sendingDiscount ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending…</>
+                  ) : "Send Link"}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 

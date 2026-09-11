@@ -9,7 +9,8 @@ function CheckoutNowContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const plan = searchParams.get('plan') ?? '';
-  const discount = searchParams.get('discount') ?? '';
+  const discountCode = searchParams.get('discount') ?? '';
+  const discountId = searchParams.get('discountId') ?? '';
   const { paddle } = usePaddle();
 
   // 'checking' → verifying subscription status server-side
@@ -79,7 +80,7 @@ function CheckoutNowContent() {
           items: [{ priceId: plan, quantity: 1 }],
           customer: user?.email ? { email: user.email } : undefined,
           customData: user ? { user_id: user.id } : undefined,
-          discountCode: discount ? discount : undefined,
+          ...(discountId ? { discountId } : (discountCode ? { discountCode } : {})),
           settings: {
             successUrl: `${window.location.origin}/subscribed`,
             displayMode: 'overlay',
@@ -95,7 +96,7 @@ function CheckoutNowContent() {
     };
 
     openPaddle();
-  }, [status, paddle, plan]);
+  }, [status, paddle, plan, discountCode, discountId]);
 
   return (
     <div
