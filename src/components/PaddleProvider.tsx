@@ -1,7 +1,13 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import type { Paddle } from '@paddle/paddle-js';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import type { Paddle } from "@paddle/paddle-js";
 
 interface PaddleContextValue {
   paddle: Paddle | null;
@@ -23,17 +29,19 @@ export function PaddleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function initPaddle() {
       try {
-        const { initializePaddle } = await import('@paddle/paddle-js');
-        const env = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as 'sandbox' | 'production';
+        const { initializePaddle } = await import("@paddle/paddle-js");
+        const env = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT as
+          | "sandbox"
+          | "production";
         const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!;
 
         const paddleInstance = await initializePaddle({
-          environment: env ?? 'sandbox',
+          environment: env ?? "sandbox",
           token,
           eventCallback(event) {
-            if (event.name === 'checkout.completed') {
+            if (event.name === "checkout.completed") {
               // Redirect to success page after successful checkout
-              window.location.href = '/subscribed';
+              window.location.href = "/subscribed";
             }
           },
         });
@@ -42,7 +50,7 @@ export function PaddleProvider({ children }: { children: ReactNode }) {
           setPaddle(paddleInstance);
         }
       } catch (err) {
-        console.error('[paddle] Failed to initialize Paddle.js:', err);
+        console.error("[paddle] Failed to initialize Paddle.js:", err);
       }
     }
 
@@ -51,19 +59,32 @@ export function PaddleProvider({ children }: { children: ReactNode }) {
 
   function openCheckout(priceId: string, userEmail?: string, userId?: string) {
     if (!paddle) {
-      console.warn('[paddle] Paddle not initialized yet');
+      console.warn("[paddle] Paddle not initialized yet");
       return;
     }
+
+    // TrackRev user identification
+    if (userEmail && typeof window !== "undefined") {
+      (window as any).trk?.identify(userEmail);
+    }
+
+    // Extract TrackRev visitor ID (vid)
+    const trkVid =
+      typeof window !== "undefined" ? (window as any).trk?.vid : undefined;
+
+    const customData: Record<string, any> = {};
+    if (userId) customData.user_id = userId;
+    if (trkVid) customData.vid = trkVid;
 
     paddle.Checkout.open({
       items: [{ priceId, quantity: 1 }],
       customer: userEmail ? { email: userEmail } : undefined,
-      customData: userId ? { user_id: userId } : undefined,
+      customData: Object.keys(customData).length > 0 ? customData : undefined,
       settings: {
         successUrl: `${window.location.origin}/subscribed`,
-        displayMode: 'overlay',
-        theme: 'light',
-        locale: 'en',
+        displayMode: "overlay",
+        theme: "light",
+        locale: "en",
       },
     });
   }
