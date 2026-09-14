@@ -110,6 +110,13 @@ export default function RootLayout({
           strategy="afterInteractive"
           src="https://t.contentsquare.net/uxa/b4ffb6855c531.js"
         />
+        {/* TrackRev Affiliate Tracking */}
+        <Script
+          id="trackrev"
+          strategy="afterInteractive"
+          src="https://app.trackrev.io/p.js"
+          data-id="1f92fae3-f5b7-4631-baf6-6dc3543099da"
+        />
       </head>
       <body
         className={`min-h-screen bg-[#050505] text-foreground overflow-x-hidden text-sm relative ${dmSans.className}`}
