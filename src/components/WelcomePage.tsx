@@ -7,7 +7,7 @@ import {
   Link as LinkIcon, FileText, PenTool, Target, Users, DollarSign, Zap,
   Check, CreditCard, Megaphone, Music, ArrowRight, TrendingUp, Shield,
   Layers, Package, Palette, Rocket, GraduationCap, Mic, Building2, Sprout, Crown,
-  Compass
+  Compass, Menu, X
 } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
@@ -419,6 +419,7 @@ export function WelcomePage() {
   const [activeScenario, setActiveScenario] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [isOneTime, setIsOneTime] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -691,18 +692,21 @@ export function WelcomePage() {
       name: 'Starter', price: isOneTime ? '$69' : '$39', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $39/mo. Cancel anytime.]',
       features: [isOneTime ? '<b>5 offer credits</b>' : '<b>5 offer credits</b> — Refreshed Monthly', '1 Workspace', 'Full 4-Phase Engine: Strategy, Copy, Funnel (All 5 Funnel Pages), Traffic Plan', 'Asset Bank + Template Library access', 'Email Engagement Sequences', 'OfferIQ subdomain publishing', 'Payment & Autoresponder integration', 'Standard support'],
       best: 'Best for testing the platform and launching your first 1–3 offers.', popular: false, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
+      best: 'Best for testing the platform and launching your first 1–3 offers.', popular: false, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your Trial',
       priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER_ONETIME || 'pri_01_starter_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER!,
     },
     {
       name: 'Growth', price: isOneTime ? '$157' : '$69', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $69/mo. Cancel anytime.]',
       features: ['Everything in Starter, plus:', isOneTime ? '<b>10 offer credits</b>' : '<b>10 offer credits</b> — Refreshed monthly.', '3 Workspaces', 'Remove "Built with OfferIQ" branding', 'Advanced Analytics dashboard', 'Custom domain connection', 'Pixel tracking embed', 'Priority support'],
       best: 'Best for active creators running multiple offers or brands.', popular: true, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
+      best: 'Best for active creators running multiple offers or brands.', popular: true, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your Trial',
       priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH_ONETIME || 'pri_02_growth_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_GROWTH!,
     },
     {
       name: 'Agency', price: isOneTime ? '$397' : '$179', period: isOneTime ? ' one-time' : '/mo', sub: isOneTime ? '[One-time payment. Full lifetime access.]' : '[$1 for your first 7 days, then $179/mo. Cancel anytime.]',
       features: ['Everything in Growth, plus:', isOneTime ? '<b>30 offer credits</b>' : '<b>30 offer credits</b> — Refreshed monthly.', '30 Workspaces', 'Agency Dashboard to manage your users', '30 client sub-accounts for agency delivery', 'Agency Marketing Assets - Agency Website, proposal, Commercial/Ads Graphics, Legal Contract Agreement', 'Done-For-You onboarding session', 'Dedicated priority support channel'],
       best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your $1 Trial',
+      best: 'Best for agencies and consultants delivering offer strategy as a service.', popular: false, cta: isOneTime ? 'Get Lifetime Access' : 'Start Your Trial',
       priceId: isOneTime ? (process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY_ONETIME || 'pri_03_agency_onetime') : process.env.NEXT_PUBLIC_PADDLE_PRICE_AGENCY!,
     },
   ];
@@ -735,9 +739,34 @@ export function WelcomePage() {
               style={{ background: 'linear-gradient(135deg,#8B5CF6 0%,#3B82F6 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2),0 0 0 1px rgba(139,92,246,0.5),0 4px 20px -4px rgba(139,92,246,0.7)' }}>
               Log In
             </a>
+            <button
+              className="md:hidden flex items-center justify-center p-2 -mr-2 text-white/80 hover:text-white transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[90] bg-[#08080D]/95 backdrop-blur-md pt-[100px] md:hidden flex flex-col">
+          <div className="flex flex-col items-center gap-8 p-8">
+            {[['#showcase', 'Product'], ['#how-it-works', 'How It Works'], ['#pricing', 'Pricing'], ['#faq', 'FAQ']].map(([href, label]) => (
+              <a 
+                key={href} 
+                href={href} 
+                className="text-[18px] font-medium text-[#F5F5F7]"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── HERO ── */}
       <section className="hero-section relative overflow-hidden min-h-[160vh]" id="hero" ref={heroRef}
@@ -766,21 +795,22 @@ export function WelcomePage() {
               {/* Framer Main Headline */}
               <div className="framer-t2w3o5 mt-4">
                 <h1 className="hero-h1 text-[#F5F5F7]" style={{ fontFamily: "'FramerHeroAccent', 'Clash Display', 'General Sans', sans-serif", fontSize: 'clamp(32px, 4.5vw, 52px)', lineHeight: 1.15, fontWeight: 700, letterSpacing: '-0.02em', maxWidth: '800px', margin: '0 auto' }}>
-                  Turn Any Idea Into Something People{' '}
+                  Turn Any Idea Into{' '}
                   <span style={{
                     backgroundImage: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     filter: 'drop-shadow(0 8px 32px rgba(99,68,245,0.4))'
-                  }}>Actually Want to Buy</span>{' '}
-                  — Using OfferIQ.
+                  }}>A Complete, Sellable Offer:</span>{' '}
+                  Strategy, Copy &amp; Live Funnel, Lead Magnet and Traffic Plan - in one session.
                 </h1>
               </div>
 
               {/* Framer Subtext / Description */}
               <div className="framer-gdfpn4 mt-5">
                 <p style={{ fontFamily: "'Host Grotesk', 'General Sans', sans-serif", fontSize: 'clamp(14px, 1.5vw, 16px)', lineHeight: 1.55, color: '#A6A6B3', maxWidth: '640px', margin: '0 auto' }}>
-                  Upload a URL, a PDF, or a single idea. OfferIQ analyzes it against 35,000+ real converting offers and hands you the complete revenue system: strategy, copy, live funnel, and traffic plan — built in one session.
+                  Stop guessing what to sell, what to charge, and what to say.<br />
+                  Give OfferIQ an idea, a URL, or an existing offer, and get a Strategy Report, matched copy and a live, payment-ready funnel — before you close the tab.
                 </p>
               </div>
             </section>
@@ -793,6 +823,7 @@ export function WelcomePage() {
               <a href="/login" className="inline-flex items-center gap-2 px-[32px] py-[14px] rounded-full text-[14.5px] font-semibold text-[#F5F5F7] transition-all hover:bg-white/[0.08]"
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.14)', fontFamily: "'Host Grotesk', sans-serif" }}>
                 Start Your $1 Trial
+                Start Your Trial
               </a>
             </div>
 

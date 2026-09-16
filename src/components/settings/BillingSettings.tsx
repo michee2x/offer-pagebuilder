@@ -387,6 +387,7 @@ export function BillingSettings() {
                     }}
                   >
                     {isActive ? "Upgrade Plan" : "Start Your $1 Trial"}
+                    {isActive ? "Upgrade Plan" : "Start Your Trial"}
                     <ArrowUpRight className="w-4 h-4" />
                   </button>
                 </div>
