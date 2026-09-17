@@ -4,28 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { saveIntegrations, savePaymentIntegrations, saveCheckoutWebhookSecret } from "./actions";
-import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap, Eye, EyeOff, Shield, ShieldCheck, AlertTriangle, Key } from "lucide-react";
-import {
-  saveIntegrations,
-  savePaymentIntegrations,
-  saveCheckoutWebhookSecret,
-} from "./actions";
-import {
-  CreditCard,
-  Copy,
-  Check,
-  ExternalLink,
-  ArrowRight,
-  Webhook,
-  Zap,
-  Eye,
-  EyeOff,
-  Shield,
-  ShieldCheck,
-  AlertTriangle,
-  Key,
-  BookOpen,
-} from "lucide-react";
 import { CreditCard, Copy, Check, ExternalLink, ArrowRight, Webhook, Zap, Eye, EyeOff, Shield, ShieldCheck, AlertTriangle, Key, BookOpen } from "lucide-react";
 
 interface PaymentIntegration {
@@ -61,23 +39,6 @@ const GATEWAY_CONFIG: Record<string, {
   fields: { key: string; label: string; placeholder: string; required: boolean }[];
   description: string;
 }> = {
-const GATEWAY_CONFIG: Record<
-  string,
-  {
-    label: string;
-    color: string;
-    gradient: string;
-    borderColor: string;
-    icon: string;
-    fields: {
-      key: string;
-      label: string;
-      placeholder: string;
-      required: boolean;
-    }[];
-    description: string;
-  }
-> = {
   stripe: {
     label: "Stripe",
     color: "text-violet-400",
@@ -89,19 +50,6 @@ const GATEWAY_CONFIG: Record<
       { key: "secretKey", label: "Secret Key", placeholder: "sk_live_... or sk_test_...", required: true },
       { key: "publishableKey", label: "Publishable Key", placeholder: "pk_live_... or pk_test_...", required: true },
     ]
-      {
-        key: "secretKey",
-        label: "Secret Key",
-        placeholder: "sk_live_... or sk_test_...",
-        required: true,
-      },
-      {
-        key: "publishableKey",
-        label: "Publishable Key",
-        placeholder: "pk_live_... or pk_test_...",
-        required: true,
-      },
-    ],
   },
   paypal: {
     label: "PayPal",
@@ -115,25 +63,6 @@ const GATEWAY_CONFIG: Record<
       { key: "secretKey", label: "Secret Key", placeholder: "Your PayPal Secret Key", required: true },
       { key: "webhookId", label: "Webhook ID", placeholder: "Your PayPal Webhook ID", required: false },
     ]
-      {
-        key: "clientId",
-        label: "Client ID",
-        placeholder: "Your PayPal Client ID",
-        required: true,
-      },
-      {
-        key: "secretKey",
-        label: "Secret Key",
-        placeholder: "Your PayPal Secret Key",
-        required: true,
-      },
-      {
-        key: "webhookId",
-        label: "Webhook ID",
-        placeholder: "Your PayPal Webhook ID",
-        required: false,
-      },
-    ],
   },
   paystack: {
     label: "Paystack",
@@ -142,49 +71,20 @@ const GATEWAY_CONFIG: Record<
     borderColor: "border-teal-500/20",
     icon: "🏦",
     description: "Accept payments from African customers via cards, bank transfers, and mobile money.",
-    description:
-      "Accept payments from African customers via cards, bank transfers, and mobile money.",
     fields: [
       { key: "secretKey", label: "Secret Key", placeholder: "sk_live_... or sk_test_...", required: true },
       { key: "publicKey", label: "Public Key", placeholder: "pk_live_... or pk_test_...", required: false },
     ]
   }
-      {
-        key: "secretKey",
-        label: "Secret Key",
-        placeholder: "sk_live_... or sk_test_...",
-        required: true,
-      },
-      {
-        key: "publicKey",
-        label: "Public Key",
-        placeholder: "pk_live_... or pk_test_...",
-        required: false,
-      },
-    ],
-  },
 };
 
 type Tab = "connect" | "apikeys" | "checkouts";
 
 export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, initialZapierUrl, initialCheckoutUrls, initialPaymentIntegrations, subdomain, pagePaths }: Props) {
-export function IntegrationsClient({
-  funnelId,
-  workspaceId,
-  initialMakeUrl,
-  initialZapierUrl,
-  initialCheckoutUrls,
-  initialPaymentIntegrations,
-  subdomain,
-  pagePaths,
-}: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("connect");
   const [makeUrl, setMakeUrl] = useState(initialMakeUrl);
   const [zapierUrl, setZapierUrl] = useState(initialZapierUrl);
   const [checkoutUrls, setCheckoutUrls] = useState<Record<string, string>>(initialCheckoutUrls || {});
-  const [checkoutUrls, setCheckoutUrls] = useState<Record<string, string>>(
-    initialCheckoutUrls || {},
-  );
   const [loading, setLoading] = useState(false);
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
 
@@ -196,11 +96,6 @@ export function IntegrationsClient({
         toast.success("Successfully connected to Stripe!");
         // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname);
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname,
-        );
       }
     }
   }, []);
@@ -210,9 +105,6 @@ export function IntegrationsClient({
     const creds: Record<string, any> = {};
     for (const gateway of Object.keys(GATEWAY_CONFIG)) {
       const existing = initialPaymentIntegrations.find(i => i.gateway === gateway);
-      const existing = initialPaymentIntegrations.find(
-        (i) => i.gateway === gateway,
-      );
       creds[gateway] = existing?.credentials || {};
     }
     return creds;
@@ -221,9 +113,6 @@ export function IntegrationsClient({
     const statuses: Record<string, boolean> = {};
     for (const gateway of Object.keys(GATEWAY_CONFIG)) {
       const existing = initialPaymentIntegrations.find(i => i.gateway === gateway);
-      const existing = initialPaymentIntegrations.find(
-        (i) => i.gateway === gateway,
-      );
       statuses[gateway] = existing?.is_live || false;
     }
     return statuses;
@@ -232,20 +121,8 @@ export function IntegrationsClient({
   const [gatewayCredentials, setGatewayCredentials] = useState<Record<string, any>>(buildInitialCredentials);
   const [gatewayLive, setGatewayLive] = useState<Record<string, boolean>>(buildInitialLiveStatus);
   const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({});
-  const [gatewayCredentials, setGatewayCredentials] = useState<
-    Record<string, any>
-  >(buildInitialCredentials);
-  const [gatewayLive, setGatewayLive] = useState<Record<string, boolean>>(
-    buildInitialLiveStatus,
-  );
-  const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>(
-    {},
-  );
   const [expandedGateway, setExpandedGateway] = useState<string | null>(
     initialPaymentIntegrations.length > 0 ? initialPaymentIntegrations[0].gateway : "stripe"
-    initialPaymentIntegrations.length > 0
-      ? initialPaymentIntegrations[0].gateway
-      : "stripe",
   );
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [copiedWebhook, setCopiedWebhook] = useState<string | null>(null);
@@ -253,11 +130,6 @@ export function IntegrationsClient({
   // Checkout webhook secret — loaded from payment_integrations credentials
   const initialWebhookSecret = initialPaymentIntegrations.find(i => i.gateway === 'stripe')?.credentials?.webhookSecret || '';
   const [checkoutWebhookSecret, setCheckoutWebhookSecret] = useState(initialWebhookSecret);
-  const initialWebhookSecret =
-    initialPaymentIntegrations.find((i) => i.gateway === "stripe")?.credentials
-      ?.webhookSecret || "";
-  const [checkoutWebhookSecret, setCheckoutWebhookSecret] =
-    useState(initialWebhookSecret);
   const [webhookSecretVisible, setWebhookSecretVisible] = useState(false);
   const [webhookSaving, setWebhookSaving] = useState(false);
 
@@ -279,10 +151,6 @@ export function IntegrationsClient({
       const integrations = Object.entries(gatewayCredentials)
         .filter(([gateway, creds]) => {
           if (gateway === 'stripe') return !!creds.accountId || (!!creds.secretKey && !!creds.publishableKey);
-          if (gateway === "stripe")
-            return (
-              !!creds.accountId || (!!creds.secretKey && !!creds.publishableKey)
-            );
           return Object.values(creds).some((v: any) => v && v.length > 0);
         })
         .map(([gateway, credentials]) => ({
@@ -306,12 +174,10 @@ export function IntegrationsClient({
 
   const toggleFieldVisibility = (fieldKey: string) => {
     setVisibleFields(prev => ({ ...prev, [fieldKey]: !prev[fieldKey] }));
-    setVisibleFields((prev) => ({ ...prev, [fieldKey]: !prev[fieldKey] }));
   };
 
   const handleCopyWebhookUrl = (gateway: string) => {
     const webhookUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/webhooks/payments/${gateway}/${funnelId}`;
-    const webhookUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/api/webhooks/payments/${gateway}/${funnelId}`;
     navigator.clipboard.writeText(webhookUrl);
     setCopiedWebhook(gateway);
     toast.success("Webhook URL copied!");
@@ -368,8 +234,6 @@ export function IntegrationsClient({
     return config.fields
       .filter(f => f.required)
       .every(f => creds[f.key] && creds[f.key].length > 0);
-      .filter((f) => f.required)
-      .every((f) => creds[f.key] && creds[f.key].length > 0);
   };
 
   return (
@@ -389,8 +253,6 @@ export function IntegrationsClient({
               </span>
             </p>
             <p className="text-xs text-white/50 mt-0.5">
-              Learn how to link API keys, live webhooks, and accept payments
-              step-by-step.
               Learn how to link API keys, live webhooks, and accept payments step-by-step.
             </p>
           </div>
@@ -434,14 +296,9 @@ export function IntegrationsClient({
                   <Zap className="w-5 h-5 text-amber-400" />
                 </div>
                 <h2 className="text-2xl font-black text-white">Quick Connect</h2>
-                <h2 className="text-2xl font-black text-white">
-                  Quick Connect
-                </h2>
               </div>
               <p className="text-sm text-white/50 mt-2 leading-relaxed">
                 Connect your payment accounts instantly with one click. No API keys needed &mdash; we handle everything securely via OAuth.
-                Connect your payment accounts instantly with one click. No API
-                keys needed &mdash; we handle everything securely via OAuth.
               </p>
             </div>
           </div>
@@ -450,13 +307,6 @@ export function IntegrationsClient({
           <div className={`bg-[#131826] border rounded-2xl overflow-hidden shadow-xl transition-all duration-300 ${
             gatewayCredentials.stripe?.accountId ? "border-emerald-500/20" : "border-white/10 hover:border-white/15"
           }`}>
-          <div
-            className={`bg-[#131826] border rounded-2xl overflow-hidden shadow-xl transition-all duration-300 ${
-              gatewayCredentials.stripe?.accountId
-                ? "border-emerald-500/20"
-                : "border-white/10 hover:border-white/15"
-            }`}
-          >
             <div className="p-5 flex items-center justify-between">
               <div className="flex items-center gap-3.5">
                 <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/20 text-xl">
@@ -473,10 +323,6 @@ export function IntegrationsClient({
                     )}
                   </p>
                   <p className="text-xs text-white/40 mt-0.5">Connect via Stripe&apos;s secure OAuth flow. Recommended for most users.</p>
-                  <p className="text-xs text-white/40 mt-0.5">
-                    Connect via Stripe&apos;s secure OAuth flow. Recommended for
-                    most users.
-                  </p>
                 </div>
               </div>
             </div>
@@ -488,16 +334,8 @@ export function IntegrationsClient({
                       <ShieldCheck className="w-7 h-7 text-emerald-400" />
                     </div>
                     <h3 className="text-white font-bold text-lg">Stripe is Connected</h3>
-                    <h3 className="text-white font-bold text-lg">
-                      Stripe is Connected
-                    </h3>
                     <p className="text-white/40 text-sm text-center max-w-sm">
                       Your Stripe account is successfully linked via OAuth. Account ID: <span className="font-mono text-white/60 bg-white/10 px-1.5 py-0.5 rounded">{gatewayCredentials.stripe.accountId}</span>
-                      Your Stripe account is successfully linked via OAuth.
-                      Account ID:{" "}
-                      <span className="font-mono text-white/60 bg-white/10 px-1.5 py-0.5 rounded">
-                        {gatewayCredentials.stripe.accountId}
-                      </span>
                     </p>
                     <button
                       onClick={handleStripeConnect}
@@ -512,13 +350,8 @@ export function IntegrationsClient({
                       <CreditCard className="w-7 h-7 text-indigo-400" />
                     </div>
                     <h3 className="text-white font-bold text-lg">Connect your Stripe Account</h3>
-                    <h3 className="text-white font-bold text-lg">
-                      Connect your Stripe Account
-                    </h3>
                     <p className="text-white/40 text-sm text-center max-w-sm mb-2">
                       Securely link your Stripe account with one click to automatically process payments on your funnels.
-                      Securely link your Stripe account with one click to
-                      automatically process payments on your funnels.
                     </p>
                     <button
                       onClick={handleStripeConnect}
@@ -549,9 +382,6 @@ export function IntegrationsClient({
                     </span>
                   </p>
                   <p className="text-xs text-white/30 mt-0.5">One-click PayPal business account connection via OAuth.</p>
-                  <p className="text-xs text-white/30 mt-0.5">
-                    One-click PayPal business account connection via OAuth.
-                  </p>
                 </div>
               </div>
             </div>
@@ -574,9 +404,6 @@ export function IntegrationsClient({
               </div>
               <p className="text-sm text-white/50 mt-2 leading-relaxed">
                 Manually connect your payment processors by entering your API keys. Copy the webhook endpoint for each gateway and configure it in your provider&apos;s dashboard.
-                Manually connect your payment processors by entering your API
-                keys. Copy the webhook endpoint for each gateway and configure
-                it in your provider&apos;s dashboard.
               </p>
             </div>
           </div>
@@ -586,9 +413,6 @@ export function IntegrationsClient({
             const isExpanded = expandedGateway === gateway;
             const creds = gatewayCredentials[gateway] || {};
             const hasApiKeys = config.fields.filter(f => f.required).every(f => creds[f.key] && creds[f.key].length > 0);
-            const hasApiKeys = config.fields
-              .filter((f) => f.required)
-              .every((f) => creds[f.key] && creds[f.key].length > 0);
             const isLive = gatewayLive[gateway];
 
             return (
@@ -596,24 +420,15 @@ export function IntegrationsClient({
                 key={gateway}
                 className={`bg-[#131826] border rounded-2xl overflow-hidden shadow-xl transition-all duration-300 ${
                   isExpanded ? "border-white/20" : "border-white/10 hover:border-white/15"
-                  isExpanded
-                    ? "border-white/20"
-                    : "border-white/10 hover:border-white/15"
                 }`}
               >
                 {/* Gateway Header */}
                 <button
                   onClick={() => setExpandedGateway(isExpanded ? null : gateway)}
-                  onClick={() =>
-                    setExpandedGateway(isExpanded ? null : gateway)
-                  }
                   className="w-full p-5 flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-3.5">
                     <div className={`p-2.5 rounded-xl bg-gradient-to-br ${config.gradient} border ${config.borderColor} text-xl`}>
-                    <div
-                      className={`p-2.5 rounded-xl bg-gradient-to-br ${config.gradient} border ${config.borderColor} text-xl`}
-                    >
                       {config.icon}
                     </div>
                     <div className="text-left">
@@ -626,35 +441,16 @@ export function IntegrationsClient({
                               : "bg-amber-500/15 text-amber-400 border border-amber-500/20"
                           }`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-emerald-400" : "bg-amber-400"}`} />
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                              isLive
-                                ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-                                : "bg-amber-500/15 text-amber-400 border border-amber-500/20"
-                            }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${isLive ? "bg-emerald-400" : "bg-amber-400"}`}
-                            />
                             {isLive ? "Live" : "Test"}
                           </span>
                         )}
                       </p>
                       <p className="text-xs text-white/40 mt-0.5">{config.description}</p>
-                      <p className="text-xs text-white/40 mt-0.5">
-                        {config.description}
-                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {hasApiKeys && <ShieldCheck className="w-4 h-4 text-emerald-400" />}
                     <ArrowRight className={`w-4 h-4 text-white/30 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
-                    {hasApiKeys && (
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    )}
-                    <ArrowRight
-                      className={`w-4 h-4 text-white/30 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
-                    />
                   </div>
                 </button>
 
@@ -675,20 +471,11 @@ export function IntegrationsClient({
                           </p>
                           <p className="text-[10px] text-white/30">
                             {isLive ? "Real transactions will be processed." : "Only test transactions will be processed."}
-                            {isLive
-                              ? "Real transactions will be processed."
-                              : "Only test transactions will be processed."}
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={() => setGatewayLive(prev => ({ ...prev, [gateway]: !prev[gateway] }))}
-                        onClick={() =>
-                          setGatewayLive((prev) => ({
-                            ...prev,
-                            [gateway]: !prev[gateway],
-                          }))
-                        }
                         className={`relative w-11 h-6 rounded-full transition-all duration-200 ${
                           isLive
                             ? "bg-gradient-to-r from-emerald-600 to-emerald-500"
@@ -698,11 +485,6 @@ export function IntegrationsClient({
                         <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${
                           isLive ? "translate-x-5" : ""
                         }`} />
-                        <span
-                          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${
-                            isLive ? "translate-x-5" : ""
-                          }`}
-                        />
                       </button>
                     </div>
 
@@ -715,27 +497,16 @@ export function IntegrationsClient({
                           <label className="text-xs font-bold text-white/70 flex items-center gap-1.5">
                             {field.label}
                             {field.required && <span className="text-red-400">*</span>}
-                            {field.required && (
-                              <span className="text-red-400">*</span>
-                            )}
                           </label>
                           <div className="relative">
                             <input
                               type={isVisible ? "text" : "password"}
                               placeholder={field.placeholder}
                               value={gatewayCredentials[gateway]?.[field.key] || ""}
-                              value={
-                                gatewayCredentials[gateway]?.[field.key] || ""
-                              }
                               onChange={(e) =>
                                 setGatewayCredentials(prev => ({
-                                setGatewayCredentials((prev) => ({
                                   ...prev,
                                   [gateway]: { ...prev[gateway], [field.key]: e.target.value }
-                                  [gateway]: {
-                                    ...prev[gateway],
-                                    [field.key]: e.target.value,
-                                  },
                                 }))
                               }
                               className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all font-mono"
@@ -743,9 +514,6 @@ export function IntegrationsClient({
                             <button
                               type="button"
                               onClick={() => toggleFieldVisibility(fieldUniqueKey)}
-                              onClick={() =>
-                                toggleFieldVisibility(fieldUniqueKey)
-                              }
                               className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-white/10 transition-all"
                             >
                               {isVisible ? (
@@ -792,15 +560,9 @@ export function IntegrationsClient({
                 <CreditCard className="w-5 h-5 text-emerald-400" />
               </div>
               <h2 className="text-2xl font-black text-white">External Checkouts &amp; Redirects</h2>
-              <h2 className="text-2xl font-black text-white">
-                External Checkouts &amp; Redirects
-              </h2>
             </div>
             <p className="text-sm text-white/50 mt-2">
               Use Stripe Payment Links, Paystack, Lemon Squeezy, or any payment gateway. Copy the redirect URLs below and paste them as your &quot;Success URL&quot; to route buyers through your funnel.
-              Use Stripe Payment Links, Paystack, Lemon Squeezy, or any payment
-              gateway. Copy the redirect URLs below and paste them as your
-              &quot;Success URL&quot; to route buyers through your funnel.
             </p>
           </div>
 
@@ -808,43 +570,18 @@ export function IntegrationsClient({
             {/* How it works */}
             <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5">
               <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">How It Works</p>
-              <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">
-                How It Works
-              </p>
               <div className="flex flex-col gap-3">
                 {[
                   { step: "1", text: "Create a payment link in Stripe, Paystack, or Lemon Squeezy for your product." },
                   { step: "2", text: "Set your Buy Button on the Sales Page to link to that payment URL." },
                   { step: "3", text: "In your payment gateway, set the \"Success Redirect URL\" to the next funnel step URL below." },
                   { step: "4", text: "After payment, the buyer is automatically sent to your Upsell or Thank You page!" },
-                  {
-                    step: "1",
-                    text: "Create a payment link in Stripe, Paystack, or Lemon Squeezy for your product.",
-                  },
-                  {
-                    step: "2",
-                    text: "Set your Buy Button on the Sales Page to link to that payment URL.",
-                  },
-                  {
-                    step: "3",
-                    text: 'In your payment gateway, set the "Success Redirect URL" to the next funnel step URL below.',
-                  },
-                  {
-                    step: "4",
-                    text: "After payment, the buyer is automatically sent to your Upsell or Thank You page!",
-                  },
                 ].map((item) => (
                   <div key={item.step} className="flex items-start gap-3">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0 mt-0.5">
                       <span className="text-[10px] font-black text-white">{item.step}</span>
-                      <span className="text-[10px] font-black text-white">
-                        {item.step}
-                      </span>
                     </div>
                     <p className="text-sm text-white/70 leading-relaxed">{item.text}</p>
-                    <p className="text-sm text-white/70 leading-relaxed">
-                      {item.text}
-                    </p>
                   </div>
                 ))}
               </div>
@@ -854,9 +591,6 @@ export function IntegrationsClient({
             {baseDomain ? (
               <div className="space-y-6">
                 <p className="text-xs font-bold text-white/60 uppercase tracking-widest border-b border-white/10 pb-2">Your Funnel Flow &amp; Checkouts</p>
-                <p className="text-xs font-bold text-white/60 uppercase tracking-widest border-b border-white/10 pb-2">
-                  Your Funnel Flow &amp; Checkouts
-                </p>
                 {activePages.map((path, i) => {
                   const url = buildUrl(path)!;
                   const label = PAGE_LABELS[path] || path;
@@ -869,12 +603,6 @@ export function IntegrationsClient({
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-bold text-white/80 mb-1">{label}</p>
                           <p className="text-sm text-emerald-400/80 font-mono truncate">{url}</p>
-                          <p className="text-xs font-bold text-white/80 mb-1">
-                            {label}
-                          </p>
-                          <p className="text-sm text-emerald-400/80 font-mono truncate">
-                            {url}
-                          </p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <button
@@ -910,18 +638,10 @@ export function IntegrationsClient({
                           placeholder="e.g. https://buy.stripe.com/..."
                           value={checkoutUrls[path] || ""}
                           onChange={(e) => setCheckoutUrls({ ...checkoutUrls, [path]: e.target.value })}
-                          onChange={(e) =>
-                            setCheckoutUrls({
-                              ...checkoutUrls,
-                              [path]: e.target.value,
-                            })
-                          }
                           className="w-full bg-black/20 border border-white/5 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/50 transition-all"
                         />
                         <p className="text-[10px] text-white/30 mt-1">
                           If set, any &quot;Buy&quot; button on this {label} will redirect to this URL.
-                          If set, any &quot;Buy&quot; button on this {label}{" "}
-                          will redirect to this URL.
                         </p>
                       </div>
 
@@ -937,13 +657,8 @@ export function IntegrationsClient({
             ) : (
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5 text-center">
                 <p className="text-sm text-amber-300 font-semibold mb-1">No Subdomain Set</p>
-                <p className="text-sm text-amber-300 font-semibold mb-1">
-                  No Subdomain Set
-                </p>
                 <p className="text-xs text-white/50">
                   Publish your funnel first to generate a subdomain. Your redirect URLs will appear here automatically.
-                  Publish your funnel first to generate a subdomain. Your
-                  redirect URLs will appear here automatically.
                 </p>
               </div>
             )}
@@ -953,14 +668,8 @@ export function IntegrationsClient({
               <div className="space-y-4 pt-2 border-t border-white/10">
                 <div>
                   <p className="text-xs font-bold text-white/60 uppercase tracking-widest">Webhook Configuration</p>
-                  <p className="text-xs font-bold text-white/60 uppercase tracking-widest">
-                    Webhook Configuration
-                  </p>
                   <p className="text-[11px] text-white/40 leading-relaxed mt-1">
                     Set up a webhook so your system gets notified when a payment is completed. This enables automatic purchase logging and delivery emails.
-                    Set up a webhook so your system gets notified when a payment
-                    is completed. This enables automatic purchase logging and
-                    delivery emails.
                   </p>
                 </div>
 
@@ -969,40 +678,21 @@ export function IntegrationsClient({
                   <p className="text-xs font-bold text-white/60 flex items-center gap-2">
                     <span className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0">
                       <span className="text-[9px] font-black text-white">1</span>
-                      <span className="text-[9px] font-black text-white">
-                        1
-                      </span>
                     </span>
                     Copy this Webhook Endpoint URL
                   </p>
                   <p className="text-[11px] text-white/40 leading-relaxed">
                     Paste this URL into your Stripe Dashboard → Developers → Webhooks → Add endpoint. Select <span className="text-white/60 font-semibold">checkout.session.completed</span> and <span className="text-white/60 font-semibold">invoice.paid</span> events.
-                    Paste this URL into your Stripe Dashboard → Developers →
-                    Webhooks → Add endpoint. Select{" "}
-                    <span className="text-white/60 font-semibold">
-                      checkout.session.completed
-                    </span>{" "}
-                    and{" "}
-                    <span className="text-white/60 font-semibold">
-                      invoice.paid
-                    </span>{" "}
-                    events.
                   </p>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 font-mono text-xs text-emerald-400/80 truncate">
                       {typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com'}/api/webhooks/payments/stripe/{funnelId}
-                      {typeof window !== "undefined"
-                        ? window.location.origin
-                        : "https://yourdomain.com"}
-                      /api/webhooks/payments/stripe/{funnelId}
                     </div>
                     <button
                       onClick={() => handleCopyWebhookUrl('stripe')}
-                      onClick={() => handleCopyWebhookUrl("stripe")}
                       className="p-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all shrink-0"
                     >
                       {copiedWebhook === 'stripe' ? (
-                      {copiedWebhook === "stripe" ? (
                         <Check className="w-4 h-4 text-emerald-400" />
                       ) : (
                         <Copy className="w-4 h-4 text-white/40" />
@@ -1016,19 +706,11 @@ export function IntegrationsClient({
                   <p className="text-xs font-bold text-white/60 flex items-center gap-2">
                     <span className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0">
                       <span className="text-[9px] font-black text-white">2</span>
-                      <span className="text-[9px] font-black text-white">
-                        2
-                      </span>
                     </span>
                     Paste your Webhook Signing Secret
                   </p>
                   <p className="text-[11px] text-white/40 leading-relaxed">
                     After creating the endpoint in Stripe, they&apos;ll give you a signing secret (<span className="font-mono text-white/50">whsec_...</span>). Paste it here so we can verify that webhook events are genuinely from Stripe.
-                    After creating the endpoint in Stripe, they&apos;ll give you
-                    a signing secret (
-                    <span className="font-mono text-white/50">whsec_...</span>).
-                    Paste it here so we can verify that webhook events are
-                    genuinely from Stripe.
                   </p>
                   <div className="relative">
                     <input
@@ -1041,9 +723,6 @@ export function IntegrationsClient({
                     <button
                       type="button"
                       onClick={() => setWebhookSecretVisible(!webhookSecretVisible)}
-                      onClick={() =>
-                        setWebhookSecretVisible(!webhookSecretVisible)
-                      }
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-white/10 transition-all"
                     >
                       {webhookSecretVisible ? (
@@ -1057,9 +736,6 @@ export function IntegrationsClient({
                     <div className="flex items-center gap-1.5 mt-1">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                       <span className="text-[11px] text-emerald-400/80 font-semibold">Signing secret configured</span>
-                      <span className="text-[11px] text-emerald-400/80 font-semibold">
-                        Signing secret configured
-                      </span>
                     </div>
                   )}
                 </div>
@@ -1072,11 +748,6 @@ export function IntegrationsClient({
                 <span className="text-lg shrink-0">💡</span>
                 <p className="text-xs text-white/50 leading-relaxed">
                   <span className="font-bold text-white/70">Pro Tip:</span> In Stripe, go to your Payment Link → After Payment → select &quot;Don't show confirmation page&quot; → paste the Upsell URL. This creates a seamless flow where the buyer lands directly on your upsell page after purchase.
-                  <span className="font-bold text-white/70">Pro Tip:</span> In
-                  Stripe, go to your Payment Link → After Payment → select
-                  &quot;Don't show confirmation page&quot; → paste the Upsell
-                  URL. This creates a seamless flow where the buyer lands
-                  directly on your upsell page after purchase.
                 </p>
               </div>
             )}
@@ -1089,27 +760,13 @@ export function IntegrationsClient({
                     setLoading(true);
                     // Save checkout URLs
                     await saveIntegrations(funnelId, makeUrl, zapierUrl, checkoutUrls);
-                    await saveIntegrations(
-                      funnelId,
-                      makeUrl,
-                      zapierUrl,
-                      checkoutUrls,
-                    );
                     // Save webhook signing secret if provided
                     if (checkoutWebhookSecret.trim()) {
                       await saveCheckoutWebhookSecret(workspaceId, 'stripe', checkoutWebhookSecret.trim());
-                      await saveCheckoutWebhookSecret(
-                        workspaceId,
-                        "stripe",
-                        checkoutWebhookSecret.trim(),
-                      );
                     }
                     toast.success("Checkout settings saved successfully!");
                   } catch (e: any) {
                     toast.error(e.message || "Failed to save checkout settings");
-                    toast.error(
-                      e.message || "Failed to save checkout settings",
-                    );
                   } finally {
                     setLoading(false);
                   }
