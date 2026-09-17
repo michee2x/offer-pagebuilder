@@ -51,15 +51,6 @@ const PAGE_LABELS: Record<string, string> = {
   "/thankyou": "Thank You Page",
 };
 
-const GATEWAY_CONFIG: Record<string, {
-  label: string;
-  color: string;
-  gradient: string;
-  borderColor: string;
-  icon: string;
-  fields: { key: string; label: string; placeholder: string; required: boolean }[];
-  description: string;
-}> = {
 const GATEWAY_CONFIG: Record<
   string,
   {
