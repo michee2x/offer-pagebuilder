@@ -17,6 +17,8 @@ import { CardSpotlight } from "@/components/ui/card-spotlight";
 import { TracingBeam } from "@/components/ui/tracing-beam";
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { SupportChatbot } from '@/components/SupportChatbot';
+
 
 /* ─── Reveal wrapper ─────────────────────────────────────────────── */
 function Reveal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -1847,6 +1849,7 @@ export function WelcomePage() {
 
 
 
+      <SupportChatbot />
     </div>
   );
 }

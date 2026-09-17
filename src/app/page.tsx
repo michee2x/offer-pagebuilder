@@ -8,6 +8,7 @@ import { WorkspaceSwitcher } from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
 import { CampaignCard } from "@/components/CampaignCard";
 import { WelcomePage } from "@/components/WelcomePage";
+import { SupportChatbot } from "@/components/SupportChatbot";
 import { getSession } from "@/auth";
 import { getUserWorkspaces } from "@/lib/workspaces";
 import { createClient } from "@/utils/supabase/server";
@@ -18,19 +19,19 @@ export default async function DashboardPage(props: {
   const { workspace } = await props.searchParams;
 
   const session = await getSession();
-  
+
   if (!session || !session.user) {
     return <WelcomePage />;
   }
 
   const supabase = await createClient();
   const { data: dbUser } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', session.user.id)
+    .from("users")
+    .select("role")
+    .eq("id", session.user.id)
     .single();
 
-  const isSubaccount = dbUser?.role === 'subaccount';
+  const isSubaccount = dbUser?.role === "subaccount";
 
   let allWorkspaces: any[] = [];
   let error: any = null;
@@ -38,9 +39,9 @@ export default async function DashboardPage(props: {
   try {
     allWorkspaces = await getUserWorkspaces(
       session.user.id,
-      session.user.email || '',
-      session.user.user_metadata?.name || '',
-      false
+      session.user.email || "",
+      session.user.user_metadata?.name || "",
+      false,
     );
   } catch (err: any) {
     console.error("Dashboard workspace query error:", err);
@@ -52,7 +53,8 @@ export default async function DashboardPage(props: {
 
   const activeWorkspaceId =
     workspace ||
-    (activeWorkspaceCookie && allWorkspaces?.some((w: any) => w.id === activeWorkspaceCookie)
+    (activeWorkspaceCookie &&
+    allWorkspaces?.some((w: any) => w.id === activeWorkspaceCookie)
       ? activeWorkspaceCookie
       : null) ||
     (allWorkspaces && allWorkspaces.length > 0 ? allWorkspaces[0].id : null);
@@ -140,7 +142,8 @@ export default async function DashboardPage(props: {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               {activeWorkspace ? (
                 // If userPermissions exists, check 'create'. If it doesn't exist, assume owner (has permission)
-                (!activeWorkspace.userPermissions || activeWorkspace.userPermissions.create !== false) ? (
+                !activeWorkspace.userPermissions ||
+                activeWorkspace.userPermissions.create !== false ? (
                   <a
                     href={"/analyze?workspace=" + activeWorkspace.id}
                     className="h-14 px-8 rounded-full bg-white text-black font-bold flex items-center justify-center gap-2 transition-all hover:bg-white/90 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)]"
@@ -182,7 +185,7 @@ export default async function DashboardPage(props: {
                   No workspaces yet
                 </h3>
                 <p className="text-white/50 mt-1 mb-8">
-                  {isSubaccount 
+                  {isSubaccount
                     ? "You haven't been invited to any workspaces yet."
                     : "Create your first workspace to start managing campaigns."}
                 </p>
@@ -207,7 +210,11 @@ export default async function DashboardPage(props: {
                 activeWorkspace.builder_pages.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
                     {activeWorkspace.builder_pages.map((funnel: any) => (
-                      <CampaignCard key={funnel.id} funnel={funnel} userPermissions={activeWorkspace.userPermissions} />
+                      <CampaignCard
+                        key={funnel.id}
+                        funnel={funnel}
+                        userPermissions={activeWorkspace.userPermissions}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -222,7 +229,8 @@ export default async function DashboardPage(props: {
                     <p className="text-white/40 text-[15px]">
                       No campaigns in this workspace yet.
                     </p>
-                    {(!activeWorkspace.userPermissions || activeWorkspace.userPermissions.create !== false) && (
+                    {(!activeWorkspace.userPermissions ||
+                      activeWorkspace.userPermissions.create !== false) && (
                       <a
                         href={"/analyze?workspace=" + activeWorkspace.id}
                         className="text-white font-semibold mt-4 hover:underline transition-all"
@@ -237,6 +245,7 @@ export default async function DashboardPage(props: {
           </div>
         </main>
       </div>
+      <SupportChatbot />
     </div>
   );
 }
