@@ -18,6 +18,7 @@ import {
   Plug,
   ChevronDown,
   Webhook,
+  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +66,7 @@ export function FunnelSidebar({
     },
     { label: "Copy Engine", href: `/funnels/${funnelId}/copy`, icon: FileText },
     { label: "Email Sequence", href: `/funnels/${funnelId}/email`, icon: Mail },
+    { label: "Products", href: `/funnels/${funnelId}/products`, icon: Package },
     { label: "Leads", href: `/funnels/${funnelId}/leads`, icon: Users },
     {
       label: "Traffic Intelligence",

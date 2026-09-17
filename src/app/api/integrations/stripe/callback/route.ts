@@ -96,10 +96,12 @@ export async function GET(req: Request) {
     // let's query the first funnel ID for this workspace.
     const { data: firstFunnel } = await supabase
       .from('funnels')
+      .from('builder_pages')
       .select('id')
       .eq('workspace_id', workspaceId)
       .limit(1)
       .single();
+      .maybeSingle();
 
     if (firstFunnel) {
       return NextResponse.redirect(new URL(`/funnels/${firstFunnel.id}/integrations?stripe_connected=true`, req.url));
