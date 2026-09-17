@@ -22,7 +22,6 @@ export async function POST(req: Request) {
 
     // Fetch the funnel to get the workspace_id
     const { data: funnel, error: funnelError } = await supabase
-      .from('funnels')
       .from('builder_pages')
       .select('workspace_id, name')
       .eq('id', funnelId)
