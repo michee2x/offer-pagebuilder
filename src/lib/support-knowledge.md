@@ -25,6 +25,7 @@ The core idea: you describe your offer, and OfferIQ's AI analyzes it deeply and 
 ### Phase 1: Offer Analysis
 
 - Go to `/analyze` and fill in your offer details: product/service name, price, target audience, key benefits, and unique selling proposition.
+- **PRO TIP:** You can also simply paste a website URL, domain, or landing page link into the analyzer! The AI will automatically crawl the page and extract all the offer details for you.
 - Click "Analyze My Offer" — the AI runs a deep analysis through two phases:
   - **Structural Analysis**: Offer scoring (0–100), funnel blueprint, pricing strategy, platform priority matrix
   - **Strategic Analysis**: Persona psychology, positioning, conversion hooks, messaging angles, monetization narrative
