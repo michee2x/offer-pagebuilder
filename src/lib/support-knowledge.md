@@ -111,12 +111,14 @@ For the exact current pricing, visit the pricing section on our homepage.
 ### 💳 How to Connect Payment Gateways
 
 #### Option 1: Stripe 1-Click Quick Connect (Recommended)
+
 1. Go to your Funnel dashboard ➔ click **Integrations** in the left sidebar.
 2. Under the **Quick Connect** tab, click **Connect with Stripe**.
 3. Sign in to your Stripe account when prompted and click **Connect**.
 4. That's it! OfferIQ connects automatically via OAuth — no API keys required.
 
 #### Option 2: Paystack (African Cards, Bank Transfer, USSD)
+
 1. Log in to your [Paystack Dashboard](https://dashboard.paystack.com).
 2. Go to **Settings** (gear icon) ➔ **API Keys & Webhooks** tab (make sure top-right toggle is set to **Live**).
 3. Copy your **Live Secret Key** (`sk_live_...`) and **Live Public Key** (`pk_live_...`).
@@ -125,6 +127,7 @@ For the exact current pricing, visit the pricing section on our homepage.
 6. **Webhook Setup**: Copy the OfferIQ Webhook URL shown on the screen ➔ paste it into the **Live Webhook URL** field in Paystack Settings ➔ click **Save changes** on Paystack.
 
 #### Option 3: PayPal
+
 1. Log in to [PayPal Developer Portal](https://developer.paypal.com) ➔ **Apps & Credentials** ➔ switch to **Live** mode.
 2. Copy your **Client ID** and **Secret Key**.
 3. In OfferIQ ➔ **Integrations** ➔ **API Keys** tab, expand **PayPal**, paste your keys, and click **Save API Keys**.
