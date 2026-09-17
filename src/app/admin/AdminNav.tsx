@@ -10,6 +10,7 @@ export function AdminNav() {
   const isOverview = pathname === "/admin";
   const isTemplates = pathname === "/admin/templates";
   const isUsers = pathname === "/admin/users";
+  const isSupportChats = pathname === "/admin/support-chats";
 
   return (
     <div className="flex items-center justify-between px-6 h-16 border-b border-white/10 bg-[#030712]/50 backdrop-blur-xl relative z-10">
@@ -52,6 +53,16 @@ export function AdminNav() {
             }`}
           >
             Users
+          </Link>
+          <Link
+            href="/admin/support-chats"
+            className={`text-sm font-medium py-5 border-b-2 ${
+              isSupportChats
+                ? "text-white border-brand-blue"
+                : "text-white/50 border-transparent hover:text-white"
+            }`}
+          >
+            Support Chats
           </Link>
         </div>
       </div>
