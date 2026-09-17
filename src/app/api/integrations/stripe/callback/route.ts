@@ -95,10 +95,12 @@ export async function GET(req: Request) {
     // or to a generic success page. Since we don't know the exact funnel ID here easily without querying,
     // let's query the first funnel ID for this workspace.
     const { data: firstFunnel } = await supabase
+      .from('funnels')
       .from('builder_pages')
       .select('id')
       .eq('workspace_id', workspaceId)
       .limit(1)
+      .single();
       .maybeSingle();
 
     if (firstFunnel) {

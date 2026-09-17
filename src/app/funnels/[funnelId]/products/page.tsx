@@ -20,7 +20,6 @@ export default async function ProductsPage({
   const supabase = await createClient();
 
   const { data: funnel, error: funnelError } = await supabase
-    .from("funnels")
     .from("builder_pages")
     .select("workspace_id, name")
     .eq("id", funnelId)
@@ -40,7 +39,6 @@ export default async function ProductsPage({
     console.error("Error fetching products:", productsError);
   }
 
-  return <ProductsClient funnelId={funnelId} initialProducts={products || []} />;
   return (
     <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
       {/* Background Elements */}
