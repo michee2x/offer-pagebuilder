@@ -819,7 +819,6 @@ export function WelcomePage() {
               </a>
               <a href="/login" className="inline-flex items-center gap-2 px-[32px] py-[14px] rounded-full text-[14.5px] font-semibold text-[#F5F5F7] transition-all hover:bg-white/[0.08]"
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.14)', fontFamily: "'Host Grotesk', sans-serif" }}>
-                Start Your $1 Trial
                 Start Your Trial
               </a>
             </div>
