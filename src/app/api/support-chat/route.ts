@@ -1,23 +1,9 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { createAdminClient } from '@/utils/supabase/admin';
 import { getUser } from '@/auth';
 
 export const maxDuration = 30;
-
-function loadKnowledgeBase(): string {
-  try {
-    const knowledgePath = join(process.cwd(), 'src', 'lib', 'support-knowledge.md');
-    return readFileSync(knowledgePath, 'utf-8');
-  } catch {
-    console.warn('[support-chat] Could not load support-knowledge.md, using default knowledge base');
-    return 'You are an OfferIQ support assistant. Be helpful and friendly.';
-  }
-}
-
-const knowledgeBase = loadKnowledgeBase();
 
 // In-memory rate limiter for unauthenticated requests
 const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
@@ -100,7 +86,49 @@ export async function POST(req: Request) {
     // optional / unauthenticated
   }
 
-  const systemPrompt = `${knowledgeBase}
+  // --- RAG LOGIC START ---
+  let relevantKnowledge = 'You are an OfferIQ support assistant. Be helpful and friendly.';
+  
+  if (lastUserMessage && process.env.OPENAI_API_KEY) {
+    try {
+      // 1. Convert the user's latest question into an embedding
+      const aiRes = await fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          input: lastUserMessage,
+          model: 'text-embedding-3-small'
+        })
+      });
+
+      if (aiRes.ok) {
+        const aiData = await aiRes.json();
+        const queryEmbedding = aiData.data[0].embedding;
+
+        // 2. Search Supabase for the top 4 most relevant documentation chunks
+        const supabase = createAdminClient();
+        const { data: documents, error } = await supabase.rpc('match_documents', {
+          query_embedding: queryEmbedding,
+          match_threshold: 0.25, // Similarity threshold (25% match or higher)
+          match_count: 4 // Fetch only the 4 most relevant paragraphs
+        });
+
+        if (!error && documents && documents.length > 0) {
+          // 3. Inject only the relevant chunks into the prompt!
+          relevantKnowledge = "Here is the relevant documentation to help you answer the user's query:\n\n" + 
+            documents.map((doc: any) => doc.content).join('\n\n---\n\n');
+        }
+      }
+    } catch (err) {
+      console.error('[support-chat] RAG Error:', err);
+    }
+  }
+  // --- RAG LOGIC END ---
+
+  const systemPrompt = `${relevantKnowledge}
 
 ---
 
