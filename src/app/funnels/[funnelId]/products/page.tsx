@@ -39,7 +39,6 @@ export default async function ProductsPage({
     console.error("Error fetching products:", productsError);
   }
 
-  return <ProductsClient funnelId={funnelId} initialProducts={products || []} />;
   return (
     <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
       {/* Background Elements */}
@@ -97,7 +96,7 @@ export default async function ProductsPage({
         <div className="flex flex-1 overflow-hidden">
           <FunnelSidebar
             funnelId={funnelId}
-            funnelName={funnel.name}
+            funnelName={funnel?.name || "Funnel"}
             collapsible
           />
           <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-transparent relative z-10">
