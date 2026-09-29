@@ -90,7 +90,7 @@ export default async function ProductsPage({
         <Topbar
           breadcrumbs={[
             { label: "Workspaces", href: "/" },
-            { label: funnel.name, href: `/funnels/${funnelId}` },
+            { label: funnel?.name || "Funnel", href: `/funnels/${funnelId}` },
             { label: "Products" },
           ]}
         />
