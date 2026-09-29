@@ -21,7 +21,6 @@ export default async function ProductsPage({
 
   const { data: funnel, error: funnelError } = await supabase
     .from("funnels")
-    .from("builder_pages")
     .select("workspace_id, name")
     .eq("id", funnelId)
     .single();
