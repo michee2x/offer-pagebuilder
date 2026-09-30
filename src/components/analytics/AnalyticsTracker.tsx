@@ -17,7 +17,9 @@ export function AnalyticsTracker({ pageId, pagePath }: Props) {
   // Read from builder store to support client-side routing in preview mode.
   // Fall back to prop if store is uninitialized.
   const storePath = useBuilderStore((s) => s.activePagePath);
-  const currentPath = storePath || pagePath || "/";
+  // Only use storePath if it's a non-empty string (i.e. builder preview is active).
+  // Otherwise fall back to the prop passed in from the server component.
+  const currentPath = (storePath && storePath.length > 0) ? storePath : (pagePath ?? "/");
 
   useEffect(() => {
     if (!ph || trackedPath.current === currentPath) return;

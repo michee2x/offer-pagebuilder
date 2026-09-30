@@ -313,12 +313,12 @@ export default async function FunnelDashboardPage({ params }: Props) {
 
   if (!funnel) redirect("/");
 
-  const { data: leadsTotal } = await supabase
+  const { count: exactLeadsCount } = await supabase
     .from("leads")
     .select("id", { count: "exact", head: true })
     .eq("funnel_id", funnelId);
 
-  const leadsCount = (leadsTotal as any)?.count ?? leads?.length ?? 0;
+  const leadsCount = exactLeadsCount ?? leads?.length ?? 0;
 
   const { data: purchases } = await supabase
     .from("purchases")

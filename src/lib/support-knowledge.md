@@ -153,11 +153,18 @@ For the exact current pricing, visit the pricing section on our homepage.
 ### 🔗 How to Connect Buy Buttons
 
 - **Using Native OfferIQ Checkout**: Once you configure your Products, any Buy button on your sales or upsell page automatically triggers the OfferIQ Checkout popup with that page's product price!
-- **Using External Payment Links (Stripe Payment Links, Lemon Squeezy, etc.)**:
-  1. Go to your Funnel ➔ **Integrations** ➔ **External Checkouts** tab.
-  2. Paste your payment link (e.g. `https://buy.stripe.com/...`) into the input box next to the relevant page path (`/`, `/upsell`, `/downsell`).
-  3. Click **Save Checkout Settings**. Now clicking Buy on that page redirects to your payment link!
-  4. In your payment gateway dashboard (e.g. Stripe), set the **Success Redirect URL** to your next funnel step (e.g. `https://your-domain.ofiq.app/upsell` or `/thankyou`).
+- **Using External Payment Links (Stripe Payment Links, Lemon Squeezy, etc.):**
+  **CRITICAL: Always test your funnel in Sandbox mode first.**
+  1. In your Stripe Dashboard, switch to **Test Mode**.
+  2. Create your products in Test Mode (e.g., $27 Sales, $47 Upsell, $17 Downsell).
+  3. Create **Test Payment Links** for each product. (A test link URL will always contain `/test_`, e.g., `https://buy.stripe.com/test_...`).
+  4. Set the **Success Redirect URL** on each Stripe Payment Link to your next funnel step (e.g., `https://your-domain.ofiq.app/upsell` or `/downsell` or `/thankyou`).
+  5. Go to your Funnel in OfferIQ ➔ **Integrations** ➔ **External Checkouts** tab.
+  6. Paste your **test payment links** into the input box next to the relevant page path (Sales Page, Upsell Page, Downsell Page).
+  7. **Handling the "No Thanks" button:** Make sure your Upsell "No Thanks" button links to your Downsell page.
+  8. **Handling the Thank You page:** The Thank You page button does NOT need a Stripe link. Add a destination link (like your community or social profile) where you want customers to go.
+  9. **Run a full test purchase** using the Stripe test card: `4242 4242 4242 4242` with any future expiry and CVC. Verify the flow: `Sales ➔ Upsell ➔ Downsell ➔ Thank You`.
+  10. **Go Live:** Once the complete test works, switch your Stripe Dashboard to Live Mode, create Live Payment Links (without `/test_`), and replace the links in OfferIQ. **Do NOT test with $1 live payments.**
 
 ---
 

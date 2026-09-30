@@ -122,6 +122,22 @@ export default function PaymentIntegrationGuidePage() {
                   <li>After saving, copy the <strong>Signing Secret</strong> (<code className="bg-white/10 px-1 py-0.5 rounded">whsec_...</code>) and paste it into OfferIQ to verify events.</li>
                 </ol>
               </div>
+
+              <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 space-y-3">
+                <h3 className="font-bold text-white text-base flex items-center gap-2">
+                  <ExternalLink className="w-4 h-4 text-pink-400" /> Option C: Stripe Payment Links (External Checkouts)
+                </h3>
+                <ol className="list-decimal pl-5 space-y-2 text-white/70">
+                  <li><strong>CRITICAL: Test in Sandbox Mode first!</strong> Switch your Stripe Dashboard to <strong>Test Mode</strong>.</li>
+                  <li>Create your products and <strong>Test Payment Links</strong>. A test link URL will always contain <code className="bg-white/10 px-1 py-0.5 rounded">/test_</code> (e.g., <code className="bg-white/10 px-1 py-0.5 rounded">https://buy.stripe.com/test_...</code>).</li>
+                  <li>Set the <strong>Success Redirect URL</strong> on each Stripe link to point to your next funnel step (Upsell, Downsell, or Thank You).</li>
+                  <li>In OfferIQ, go to <strong>Integrations ➔ External Checkouts</strong> and paste your Test Payment Links for the Sales, Upsell, and Downsell pages.</li>
+                  <li><strong>Handling the &quot;No Thanks&quot; button:</strong> Make sure your Upsell &quot;No Thanks&quot; button links to your Downsell page.</li>
+                  <li><strong>Handling the Thank You page:</strong> The Thank You page button does NOT need a Stripe link. Add a destination link (like your community or social profile) where you want customers to go.</li>
+                  <li>Run a test purchase using the Stripe test card (<code className="bg-white/10 px-1 py-0.5 rounded">4242 4242 4242 4242</code> with any future expiry and CVC). Verify the flow: Sales ➔ Upsell ➔ Downsell ➔ Thank You.</li>
+                  <li><strong>Go Live:</strong> Once the complete test works, switch Stripe to Live Mode, generate Live Payment Links, and replace the test links in OfferIQ. <strong>Do NOT test with $1 live payments.</strong></li>
+                </ol>
+              </div>
             </div>
           </section>
 
