@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Key, HelpCircle } from "lucide-react";
+import { Loader2, Key, HelpCircle, BookOpen, ExternalLink } from "lucide-react";
 
 export function AISettings() {
   const [anthropicKey, setAnthropicKey] = useState("");
@@ -93,13 +93,29 @@ export function AISettings() {
           </div>
         )}
 
+        {isUnlimited && (
+          <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-200 text-sm flex items-start gap-3">
+            <BookOpen className="w-4 h-4 shrink-0 mt-0.5 text-blue-400" />
+            <span>
+              Need help? Read our{" "}
+              <a href="/docs" className="underline text-blue-300 hover:text-blue-200" target="_blank" rel="noreferrer">BYOK integration guide</a>{" "}
+              for step-by-step instructions on getting your API keys from each platform.
+            </span>
+          </div>
+        )}
+
         <div className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-white">Anthropic API Key</label>
-              <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer" className="text-xs text-brand-blue hover:underline flex items-center gap-1">
-                Get API Key <HelpCircle className="w-3 h-3" />
-              </a>
+              <div className="flex items-center gap-3">
+                <a href="https://docs.anthropic.com/en/api/getting-started" target="_blank" rel="noreferrer" className="text-xs text-white/40 hover:text-white/70 flex items-center gap-1 transition-colors">
+                  Docs <ExternalLink className="w-3 h-3" />
+                </a>
+                <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer" className="text-xs text-brand-blue hover:underline flex items-center gap-1">
+                  Get API Key <HelpCircle className="w-3 h-3" />
+                </a>
+              </div>
             </div>
             <Input 
               type="password" 
@@ -114,9 +130,14 @@ export function AISettings() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-white">OpenAI API Key</label>
-              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" className="text-xs text-brand-blue hover:underline flex items-center gap-1">
-                Get API Key <HelpCircle className="w-3 h-3" />
-              </a>
+              <div className="flex items-center gap-3">
+                <a href="https://platform.openai.com/docs/api-reference/authentication" target="_blank" rel="noreferrer" className="text-xs text-white/40 hover:text-white/70 flex items-center gap-1 transition-colors">
+                  Docs <ExternalLink className="w-3 h-3" />
+                </a>
+                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" className="text-xs text-brand-blue hover:underline flex items-center gap-1">
+                  Get API Key <HelpCircle className="w-3 h-3" />
+                </a>
+              </div>
             </div>
             <Input 
               type="password" 

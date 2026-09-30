@@ -27,9 +27,21 @@ export default async function DashboardPage(props: {
   const supabase = await createClient();
   const { data: dbUser } = await supabase
     .from("users")
-    .select("role")
+    .select("role, plan")
     .eq("id", session.user.id)
     .single();
+
+  // Check if BYOK user has API keys set
+  const isByok = dbUser?.plan === "unlimited";
+  let byokHasKeys = false;
+  if (isByok) {
+    const { data: apiKeys } = await supabase
+      .from("user_api_keys")
+      .select("anthropic_key, openai_key")
+      .eq("user_id", session.user.id)
+      .single();
+    byokHasKeys = !!(apiKeys?.anthropic_key || apiKeys?.openai_key);
+  }
 
   const isSubaccount = dbUser?.role === "subaccount";
 
@@ -122,6 +134,36 @@ export default async function DashboardPage(props: {
         </Topbar>
 
         <main className="flex-1 overflow-y-auto pt-24 pb-12 px-6 md:px-12">
+
+          {/* BYOK — no API key warning */}
+          {isByok && !byokHasKeys && (
+            <div className="max-w-[1200px] mx-auto mb-8">
+              <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                {/* glow */}
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 20% 50%, rgba(245,158,11,0.12) 0%, transparent 70%)" }} />
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="mt-0.5 w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
+                    <span className="text-lg">⚠️</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-amber-300 font-semibold text-sm leading-snug">
+                      You&apos;re on the Unlimited (BYOK) plan — API key required
+                    </p>
+                    <p className="text-amber-200/70 text-xs mt-1 leading-relaxed">
+                      You cannot generate any content until you connect your own Anthropic or OpenAI API key.
+                      Your key is stored securely and never shared.
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href="/settings?tab=ai"
+                  className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-all active:scale-95 shadow-lg shadow-amber-500/25"
+                >
+                  <span>🔑</span> Integrate API Key
+                </a>
+              </div>
+            </div>
+          )}
           {/* Gallereee Hero Section */}
           <div className="max-w-[1200px] mx-auto text-center mb-24">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/10 mb-8">

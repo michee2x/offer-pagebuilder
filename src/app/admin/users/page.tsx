@@ -609,18 +609,26 @@ export default function AdminUsersDashboard() {
                 <option value="unlimited">Unlimited (BYOK)</option>
               </select>
             </div>
+              {editForm.plan === "unlimited" && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  <strong>BYOK plan selected.</strong> Credits are not used on the Unlimited (BYOK) plan — the user brings their own API key.
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-2">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-credits-limit" className="text-gray-700">Monthly Credits</Label>
+                  <Label htmlFor="edit-credits-limit" className={`${editForm.plan === "unlimited" ? "text-gray-400" : "text-gray-700"}`}>Monthly Credits</Label>
                   <Input
                     id="edit-credits-limit"
                     type="number"
                     min="0"
                     value={editForm.credits_limit}
                     onChange={(e) => setEditForm({ ...editForm, credits_limit: parseInt(e.target.value) || 0 })}
-                    className="border-gray-300 text-gray-900 bg-white"
+                    className="border-gray-300 text-gray-900 bg-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    disabled={editForm.plan === "unlimited"}
                   />
-                  <p className="text-[11px] text-gray-400">Admin override for user</p>
+                  <p className="text-[11px] text-gray-400">
+                    {editForm.plan === "unlimited" ? "Not applicable for BYOK plan" : "Admin override for user"}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="edit-workspace-limit" className="text-gray-700">Workspace Limit</Label>
