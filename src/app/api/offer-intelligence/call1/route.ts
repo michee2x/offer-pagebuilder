@@ -1,4 +1,4 @@
-import { anthropic } from '@ai-sdk/anthropic';
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import { CALL1_SYSTEM, buildCall1UserPrompt } from '@/lib/offer-prompts';
@@ -6,6 +6,7 @@ import { parseCall1Output } from '@/lib/offer-parser';
 import type { OfferFormData } from '@/lib/offer-types';
 import { getUser } from '@/auth';
 import { getCreativityParams } from '@/lib/creativity';
+import { resolveApiKeys } from '@/lib/api-keys';
 
 export const maxDuration = 120;
 
@@ -17,10 +18,21 @@ const supabaseAdmin = createClient(
 export async function POST(req: Request) {
   console.log('[call1] Starting request processing...');
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const user = await getUser();
+  if (!user || !user.id) {
+    console.error('[call1] Unauthorized - no user found');
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  const apiKeys = await resolveApiKeys(user.id);
+  if (!apiKeys.anthropicKey) {
     console.error('[call1] Missing ANTHROPIC_API_KEY');
     return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
   }
+  
+  const customAnthropic = createAnthropic({ apiKey: apiKeys.anthropicKey });
+
+  console.log('[call1] User authenticated:', user.id);
 
   let formData: OfferFormData;
   let existingFunnelId: string | undefined;
@@ -29,14 +41,6 @@ export async function POST(req: Request) {
   let templateCategory: string | null = null;
   let templateTags: string[] = [];
   let creativityLevel: string | undefined;
-
-  const user = await getUser();
-  if (!user || !user.id) {
-    console.error('[call1] Unauthorized - no user found');
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  console.log('[call1] User authenticated:', user.id);
 
   try {
     const body = await req.json();
@@ -96,7 +100,7 @@ export async function POST(req: Request) {
 
     const { data: dbUser, error: userErr } = await supabaseAdmin
       .from('users')
-      .select('credits_remaining, is_admin')
+      .select('credits_remaining, is_admin, plan')
       .eq('id', creditTargetUserId)
       .single();
 
@@ -105,13 +109,15 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Failed to verify credits' }, { status: 500 });
     }
 
-    if (!dbUser.is_admin && dbUser.credits_remaining <= 0) {
+    const isUnlimited = dbUser.plan === 'unlimited';
+
+    if (!dbUser.is_admin && !isUnlimited && dbUser.credits_remaining <= 0) {
       console.error('[call1] User out of credits');
       return Response.json({ error: 'Out of credits' }, { status: 403 });
     }
 
     // Deduct credit
-    if (!dbUser.is_admin) {
+    if (!dbUser.is_admin && !isUnlimited) {
       const { error: deductErr } = await supabaseAdmin
         .from('users')
         .update({ credits_remaining: dbUser.credits_remaining - 1 })
@@ -174,7 +180,7 @@ export async function POST(req: Request) {
 
   console.log('[call1] Starting AI stream with Claude');
   const result = streamText({
-    model: anthropic('claude-sonnet-4-6'),
+    model: customAnthropic('claude-sonnet-4-6'),
     system: CALL1_SYSTEM,
     prompt: userPrompt,
     temperature: 0.5, // Force low temperature for strict JSON generation

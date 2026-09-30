@@ -8,6 +8,7 @@ import { ProfileSettings } from "@/components/settings/ProfileSettings";
 import { WorkspaceSettings } from "@/components/settings/WorkspaceSettings";
 import { TeamSettings } from "@/components/settings/TeamSettings";
 import { BillingSettings } from "@/components/settings/BillingSettings";
+import { AISettings } from "@/components/settings/AISettings";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
@@ -113,7 +114,8 @@ function SettingsContent() {
               )}
               {activeTab === "team" && <TeamSettings workspace={activeWorkspace} />}
               {activeTab === "billing" && <BillingSettings />}
-              {["integrations", "notifications", "security"].includes(activeTab) && (
+              {activeTab === "ai" && <AISettings />}
+              {["integrations", "notifications", "security", "email"].includes(activeTab) && (
                 <div className="flex flex-col items-center justify-center h-[60vh] text-center">
                   <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">
                     <span className="text-2xl">✨</span>

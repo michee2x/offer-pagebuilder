@@ -1,15 +1,23 @@
-import { anthropic } from '@ai-sdk/anthropic';
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
 import { streamText, jsonSchema } from 'ai';
+import { resolveApiKeys } from '@/lib/api-keys';
+import { getSession } from '@/auth';
 
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const session = await getSession();
+  const userId = session?.user?.id;
+  
+  const apiKeys = await resolveApiKeys(userId);
+  if (!apiKeys.anthropicKey) {
     return new Response(
-      JSON.stringify({ error: 'Missing ANTHROPIC_API_KEY in .env.local' }),
+      JSON.stringify({ error: 'Missing ANTHROPIC_API_KEY' }),
       { status: 500 }
     );
   }
+
+  const customAnthropic = createAnthropic({ apiKey: apiKeys.anthropicKey });
 
   const body = await req.json();
   const { messages, componentContext } = body;
@@ -92,7 +100,7 @@ Instructions:
 
   try {
     const result = streamText({
-      model: anthropic(model),
+      model: customAnthropic(model),
       system: systemPrompt,
       messages: modelMessages,
       onFinish: ({ text, toolCalls, toolResults, finishReason }) => {

@@ -1,10 +1,12 @@
-import { anthropic } from '@ai-sdk/anthropic';
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import { CALL2_SYSTEM, buildCall2UserPrompt } from '@/lib/offer-prompts';
 import { parseCall2Output } from '@/lib/offer-parser';
 import type { OfferFormData, Call1Parsed } from '@/lib/offer-types';
 import { getCreativityParams } from '@/lib/creativity';
+import { getUser } from '@/auth';
+import { resolveApiKeys } from '@/lib/api-keys';
 
 export const maxDuration = 180;
 
@@ -14,9 +16,17 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const user = await getUser();
+  if (!user || !user.id) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const apiKeys = await resolveApiKeys(user.id);
+  if (!apiKeys.anthropicKey) {
     return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
   }
+
+  const customAnthropic = createAnthropic({ apiKey: apiKeys.anthropicKey });
 
   let funnelId: string;
   let formData: OfferFormData;
@@ -80,7 +90,7 @@ export async function POST(req: Request) {
   const { maxOutputTokens } = getCreativityParams(creativityLevel, 8000);
 
   const result = streamText({
-    model: anthropic('claude-sonnet-4-6'),
+    model: customAnthropic('claude-sonnet-4-6'),
     system: CALL2_SYSTEM,
     prompt: userPrompt,
     temperature: 0.5, // Force low temperature for strict JSON generation

@@ -606,6 +606,7 @@ export default function AdminUsersDashboard() {
                 <option value="starter">Starter</option>
                 <option value="growth">Growth</option>
                 <option value="agency">Agency</option>
+                <option value="unlimited">Unlimited (BYOK)</option>
               </select>
             </div>
               <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4 mt-2">

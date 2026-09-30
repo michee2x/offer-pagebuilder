@@ -117,6 +117,7 @@ export async function PATCH(req: Request) {
       if (plan === 'starter') credits = 5;
       else if (plan === 'growth') credits = 10;
       else if (plan === 'agency') credits = 30;
+      else if (plan === 'unlimited') credits = 99999;
       
       updatePayload.credits_remaining = credits;
       updatePayload.credits_total = credits;

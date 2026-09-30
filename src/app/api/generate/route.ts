@@ -1,8 +1,9 @@
-import { anthropic } from '@ai-sdk/anthropic';
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
 import { streamText } from 'ai';
 import { LUCIDE_ICON_NAMES } from '@/config/components';
 import { createAdminClient } from '@/utils/supabase/admin';
 import { getSession } from '@/auth';
+import { resolveApiKeys } from '@/lib/api-keys';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
@@ -535,16 +536,19 @@ async function resizeImageIfNeeded(data: Buffer): Promise<Buffer> {
 // Route handler
 // ─────────────────────────────────────────────────────────────────────────────
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
-  }
-
   // 1. Session Authentication
   const session = await getSession();
   if (!session || !session.user?.id) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const userId = session.user.id;
+
+  const apiKeys = await resolveApiKeys(userId);
+  if (!apiKeys.anthropicKey) {
+    return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
+  }
+  
+  const customAnthropic = createAnthropic({ apiKey: apiKeys.anthropicKey });
 
   let offerContext: any = {};
   let funnelId: string | undefined;
@@ -681,7 +685,7 @@ export async function POST(req: Request) {
     const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, MAX_OUTPUT_TOKENS);
 
     const result = streamText({
-      model: anthropic(MODEL),
+      model: customAnthropic(MODEL),
       system: systemPrompt,
       prompt: promptString,
       temperature,
