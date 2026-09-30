@@ -78,27 +78,17 @@ const GATEWAY_CONFIG: Record<string, {
   }
 };
 
-type Tab = "connect" | "apikeys" | "checkouts";
+type Tab = "apikeys" | "checkouts";
 
 export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, initialZapierUrl, initialCheckoutUrls, initialPaymentIntegrations, subdomain, pagePaths }: Props) {
-  const [activeTab, setActiveTab] = useState<Tab>("connect");
+  const [activeTab, setActiveTab] = useState<Tab>("apikeys");
   const [makeUrl, setMakeUrl] = useState(initialMakeUrl);
   const [zapierUrl, setZapierUrl] = useState(initialZapierUrl);
   const [checkoutUrls, setCheckoutUrls] = useState<Record<string, string>>(initialCheckoutUrls || {});
   const [loading, setLoading] = useState(false);
   const [copiedPath, setCopiedPath] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Check if we just returned from Stripe Connect
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get("stripe_connected") === "true") {
-        toast.success("Successfully connected to Stripe!");
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    }
-  }, []);
+
 
   // Payment gateway state
   const buildInitialCredentials = () => {
@@ -184,9 +174,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
     setTimeout(() => setCopiedWebhook(null), 2000);
   };
 
-  const handleStripeConnect = () => {
-    window.location.href = `/api/integrations/stripe/connect?workspaceId=${workspaceId}`;
-  };
+
 
   const baseDomain = subdomain ? `${subdomain}.ofiq.app` : null;
 
@@ -210,16 +198,10 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     {
-      id: "connect",
-      label: "Quick Connect",
-      icon: <Zap className="w-4 h-4" />,
-    },
-    {
       id: "apikeys",
       label: "API Keys",
       icon: <Key className="w-4 h-4" />,
     },
-
     {
       id: "checkouts",
       label: "External Checkouts",
@@ -284,110 +266,7 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
         ))}
       </div>
 
-      {/* ── Quick Connect Tab ──────────────────────────────────────────────── */}
-      {activeTab === "connect" && (
-        <div className="space-y-4">
-          {/* Header Card */}
-          <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-violet-500/5 opacity-50" />
-            <div className="p-8 relative z-10">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20">
-                  <Zap className="w-5 h-5 text-amber-400" />
-                </div>
-                <h2 className="text-2xl font-black text-white">Quick Connect</h2>
-              </div>
-              <p className="text-sm text-white/50 mt-2 leading-relaxed">
-                Connect your payment accounts instantly with one click. No API keys needed &mdash; we handle everything securely via OAuth.
-              </p>
-            </div>
-          </div>
 
-          {/* Stripe Connect Card */}
-          <div className={`bg-[#131826] border rounded-2xl overflow-hidden shadow-xl transition-all duration-300 ${
-            gatewayCredentials.stripe?.accountId ? "border-emerald-500/20" : "border-white/10 hover:border-white/15"
-          }`}>
-            <div className="p-5 flex items-center justify-between">
-              <div className="flex items-center gap-3.5">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/20 text-xl">
-                  💳
-                </div>
-                <div>
-                  <p className="text-base font-bold text-white flex items-center gap-2">
-                    Stripe
-                    {gatewayCredentials.stripe?.accountId && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                        Connected
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-white/40 mt-0.5">Connect via Stripe&apos;s secure OAuth flow. Recommended for most users.</p>
-                </div>
-              </div>
-            </div>
-            <div className="px-5 pb-5 border-t border-white/10 pt-5">
-              <div className="py-6 flex flex-col items-center justify-center space-y-3 bg-black/20 rounded-xl border border-white/5">
-                {gatewayCredentials.stripe?.accountId ? (
-                  <>
-                    <div className="w-14 h-14 rounded-full bg-emerald-500/20 flex items-center justify-center mb-2">
-                      <ShieldCheck className="w-7 h-7 text-emerald-400" />
-                    </div>
-                    <h3 className="text-white font-bold text-lg">Stripe is Connected</h3>
-                    <p className="text-white/40 text-sm text-center max-w-sm">
-                      Your Stripe account is successfully linked via OAuth. Account ID: <span className="font-mono text-white/60 bg-white/10 px-1.5 py-0.5 rounded">{gatewayCredentials.stripe.accountId}</span>
-                    </p>
-                    <button
-                      onClick={handleStripeConnect}
-                      className="mt-2 px-5 py-2 bg-white/5 hover:bg-white/10 text-white/70 text-sm rounded-xl transition-colors border border-white/10"
-                    >
-                      Reconnect Stripe
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-14 h-14 rounded-full bg-indigo-500/20 flex items-center justify-center mb-2">
-                      <CreditCard className="w-7 h-7 text-indigo-400" />
-                    </div>
-                    <h3 className="text-white font-bold text-lg">Connect your Stripe Account</h3>
-                    <p className="text-white/40 text-sm text-center max-w-sm mb-2">
-                      Securely link your Stripe account with one click to automatically process payments on your funnels.
-                    </p>
-                    <button
-                      onClick={handleStripeConnect}
-                      className="px-6 py-2.5 bg-[#635BFF] hover:bg-[#524BDE] text-white font-bold text-sm rounded-xl transition-colors shadow-lg shadow-indigo-500/25 flex items-center gap-2"
-                    >
-                      Connect with Stripe
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* PayPal Connect Card – Coming Soon */}
-          <div className="bg-[#131826] border border-white/10 rounded-2xl overflow-hidden shadow-xl relative">
-            <div className="absolute inset-0 bg-white/[0.01]" />
-            <div className="p-5 flex items-center justify-between relative z-10">
-              <div className="flex items-center gap-3.5">
-                <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/20 to-sky-500/20 border border-blue-500/20 text-xl opacity-50">
-                  🅿️
-                </div>
-                <div>
-                  <p className="text-base font-bold text-white/50 flex items-center gap-2">
-                    PayPal
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/5 text-white/30 border border-white/10">
-                      Coming Soon
-                    </span>
-                  </p>
-                  <p className="text-xs text-white/30 mt-0.5">One-click PayPal business account connection via OAuth.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── API Keys Tab ───────────────────────────────────────────────────── */}
       {activeTab === "apikeys" && (

@@ -5,7 +5,6 @@ import {
   CreditCard,
   Key,
   Webhook,
-  Zap,
   ExternalLink,
   ShieldCheck,
   AlertTriangle,
@@ -88,19 +87,7 @@ export default function PaymentIntegrationGuidePage() {
             <div className="space-y-6 text-sm leading-relaxed">
               <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 space-y-3">
                 <h3 className="font-bold text-white text-base flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-400" /> Option A: One-Click Quick Connect (Recommended)
-                </h3>
-                <ol className="list-decimal pl-5 space-y-2 text-white/70">
-                  <li>In your funnel dashboard, go to <strong>Integrations</strong> ➔ <strong>Quick Connect</strong> tab.</li>
-                  <li>Click <strong>Connect with Stripe</strong>.</li>
-                  <li>Sign in to your Stripe account when redirected and click <strong>Connect</strong>.</li>
-                  <li>You will automatically be redirected back to OfferIQ with your Stripe account connected!</li>
-                </ol>
-              </div>
-
-              <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 space-y-3">
-                <h3 className="font-bold text-white text-base flex items-center gap-2">
-                  <Key className="w-4 h-4 text-violet-400" /> Option B: Manual API Keys
+                  <Key className="w-4 h-4 text-violet-400" /> Option A: Manual API Keys
                 </h3>
                 <ol className="list-decimal pl-5 space-y-2 text-white/70">
                   <li>Log in to your <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Stripe Dashboard ➔ Developers ➔ API Keys</a>.</li>

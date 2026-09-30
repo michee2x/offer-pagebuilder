@@ -110,27 +110,27 @@ For the exact current pricing, visit the pricing section on our homepage.
 
 ### 💳 How to Connect Payment Gateways
 
-#### Option 1: Stripe 1-Click Quick Connect (Recommended)
+#### Option 1: Stripe — Manual API Keys
 
-1. Go to your Funnel dashboard ➔ click **Integrations** in the left sidebar.
-2. Under the **Quick Connect** tab, click **Connect with Stripe**.
-3. Sign in to your Stripe account when prompted and click **Connect**.
-4. That's it! OfferIQ connects automatically via OAuth — no API keys required.
+1. Log in to your [Stripe Dashboard → Developers → API Keys](https://dashboard.stripe.com/apikeys).
+2. Copy your **Secret Key** (`sk_live_...` or `sk_test_...`) and **Publishable Key** (`pk_live_...` or `pk_test_...`).
+3. In OfferIQ, go to your Funnel → **Integrations** → **API Keys** tab.
+4. Expand **Stripe**, paste both keys, toggle **Live Mode** ON (or leave OFF for testing), and click **Save API Keys**.
 
 #### Option 2: Paystack (African Cards, Bank Transfer, USSD)
 
 1. Log in to your [Paystack Dashboard](https://dashboard.paystack.com).
-2. Go to **Settings** (gear icon) ➔ **API Keys & Webhooks** tab (make sure top-right toggle is set to **Live**).
+2. Go to **Settings** (gear icon) → **API Keys & Webhooks** tab (make sure top-right toggle is set to **Live**).
 3. Copy your **Live Secret Key** (`sk_live_...`) and **Live Public Key** (`pk_live_...`).
-4. In OfferIQ, go to your Funnel ➔ **Integrations** ➔ **API Keys** tab.
+4. In OfferIQ, go to your Funnel → **Integrations** → **API Keys** tab.
 5. Expand **Paystack**, paste both keys, toggle **Live Mode** ON (green), and click **Save API Keys**.
-6. **Webhook Setup**: Copy the OfferIQ Webhook URL shown on the screen ➔ paste it into the **Live Webhook URL** field in Paystack Settings ➔ click **Save changes** on Paystack.
+6. **Webhook Setup**: Copy the OfferIQ Webhook URL shown on the screen → paste it into the **Live Webhook URL** field in Paystack Settings → click **Save changes** on Paystack.
 
 #### Option 3: PayPal
 
-1. Log in to [PayPal Developer Portal](https://developer.paypal.com) ➔ **Apps & Credentials** ➔ switch to **Live** mode.
+1. Log in to [PayPal Developer Portal](https://developer.paypal.com) → **Apps & Credentials** → switch to **Live** mode.
 2. Copy your **Client ID** and **Secret Key**.
-3. In OfferIQ ➔ **Integrations** ➔ **API Keys** tab, expand **PayPal**, paste your keys, and click **Save API Keys**.
+3. In OfferIQ → **Integrations** → **API Keys** tab, expand **PayPal**, paste your keys, and click **Save API Keys**.
 
 ---
 
