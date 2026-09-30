@@ -12,6 +12,15 @@ import { SupportChatbot } from "@/components/SupportChatbot";
 import { getSession } from "@/auth";
 import { getUserWorkspaces } from "@/lib/workspaces";
 import { createClient } from "@/utils/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+
+// Always render fresh — plan/key status must never be stale
+export const dynamic = "force-dynamic";
+
+const supabaseAdmin = createAdminClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export default async function DashboardPage(props: {
   searchParams: Promise<{ workspace?: string }>;
@@ -25,7 +34,9 @@ export default async function DashboardPage(props: {
   }
 
   const supabase = await createClient();
-  const { data: dbUser } = await supabase
+
+  // Use admin client to bypass RLS and always get fresh plan/key data
+  const { data: dbUser } = await supabaseAdmin
     .from("users")
     .select("role, plan")
     .eq("id", session.user.id)
@@ -35,7 +46,7 @@ export default async function DashboardPage(props: {
   const isByok = dbUser?.plan === "unlimited";
   let byokHasKeys = false;
   if (isByok) {
-    const { data: apiKeys } = await supabase
+    const { data: apiKeys } = await supabaseAdmin
       .from("user_api_keys")
       .select("anthropic_key, openai_key")
       .eq("user_id", session.user.id)
