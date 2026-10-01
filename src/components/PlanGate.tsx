@@ -5,20 +5,22 @@ import { Lock, ArrowRight } from 'lucide-react';
 import { usePlan, PlanName } from '@/hooks/usePlan';
 import { useRouter } from 'next/navigation';
 
-const PLAN_ORDER: PlanName[] = ['free', 'starter', 'growth', 'agency'];
+const PLAN_ORDER: PlanName[] = ['free', 'starter', 'growth', 'agency', 'unlimited'];
 
 const PLAN_LABELS: Record<PlanName, string> = {
-  free:    'Free',
-  starter: 'Starter',
-  growth:  'Growth',
-  agency:  'Agency',
+  free:     'Free',
+  starter:  'Starter',
+  growth:   'Growth',
+  agency:   'Agency',
+  unlimited: 'Unlimited',
 };
 
 const PLAN_PRICES: Record<PlanName, string> = {
-  free:    '',
-  starter: '$39/mo',
-  growth:  '$69/mo',
-  agency:  '$179/mo',
+  free:      '',
+  starter:   '$39/mo',
+  growth:    '$69/mo',
+  agency:    '$179/mo',
+  unlimited: '',
 };
 
 interface PlanGateProps {
@@ -46,8 +48,8 @@ export function PlanGate({ requiredPlan, feature, children }: PlanGateProps) {
     );
   }
 
-  // Admins bypass all gates
-  if (isAdmin) return <>{children}</>;
+  // Admins and unlimited plan users bypass all gates
+  if (isAdmin || plan === 'unlimited') return <>{children}</>;
 
   const currentIdx  = PLAN_ORDER.indexOf(plan);
   const requiredIdx = PLAN_ORDER.indexOf(requiredPlan);

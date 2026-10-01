@@ -85,7 +85,12 @@ async function handleSubscriptionCreated(data: any) {
   const userId        = data.custom_data?.user_id;
 
   const plan = PRICE_TO_PLAN[priceId] ?? 'starter';
-  const credits = PLAN_CREDITS[plan] ?? 0;
+  let credits = PLAN_CREDITS[plan] ?? 0;
+
+  // Trial users only get 1 credit to test the platform
+  if (status === 'trialing') {
+    credits = 1;
+  }
 
   // Find user — prefer custom_data.user_id, fall back to customer email
   let userQuery = supabaseAdmin.from('users').select('id, email');
@@ -166,10 +171,14 @@ async function handleSubscriptionUpdated(data: any) {
     scheduled_change_at:    scheduledChangeAt,
   };
 
-  // If plan changed (upgrade/downgrade), update it
-  if (plan && plan !== user.plan) {
-    updatePayload.plan = plan;
-    const newCredits = PLAN_CREDITS[plan] ?? 0;
+  // If plan changed (upgrade/downgrade), OR if user converted from trialing to active
+  const previousStatus = user.subscription_status;
+  const justActivated = status === 'active' && previousStatus === 'trialing';
+
+  if ((plan && plan !== user.plan) || justActivated) {
+    const finalPlan = plan ?? user.plan;
+    updatePayload.plan = finalPlan;
+    const newCredits = PLAN_CREDITS[finalPlan] ?? 0;
     updatePayload.credits_remaining = newCredits;
     updatePayload.credits_total     = newCredits;
     updatePayload.credits_reset_at  = new Date().toISOString();
@@ -179,12 +188,14 @@ async function handleSubscriptionUpdated(data: any) {
       type:          'monthly_reset',
       amount:        newCredits,
       balance_after: newCredits,
-      note:          `Plan changed to ${plan}`,
+      note:          justActivated ? `Trial converted to ${finalPlan} plan` : `Plan changed to ${finalPlan}`,
     });
   }
 
   // If canceled or past_due (failed to collect payment), downgrade to free
-  if (status === 'canceled' || status === 'past_due') {
+  // EXCEPTION: If they are currently on the 'unlimited' plan, they own a lifetime BYOK license,
+  // so do not downgrade them even if an old Paddle subscription cancels.
+  if ((status === 'canceled' || status === 'past_due') && user.plan !== 'unlimited') {
     updatePayload.plan              = 'free';
     updatePayload.credits_remaining = 0;
     updatePayload.credits_total     = 0;
@@ -199,8 +210,10 @@ async function handleSubscriptionUpdated(data: any) {
 }
 
 async function handleTransactionCompleted(data: any) {
-  // Only handle subscription renewals (recurring billing)
-  if (!data.subscription_id) return;
+  // Only handle subscription renewals (recurring billing).
+  // Initial checkouts (origin: 'web' or 'api') are handled by subscription.created.
+  // This prevents the $1 trial transaction from overriding the 1-credit limit.
+  if (!data.subscription_id || data.origin !== 'subscription_recurring') return;
 
   const customerId = data.customer_id;
 

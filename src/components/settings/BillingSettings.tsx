@@ -183,11 +183,13 @@ export function BillingSettings() {
   }
 
   const currentPlan = (userData?.plan || "free").toLowerCase();
+  const isUnlimited = currentPlan === 'unlimited';
   const creditsRemaining = userData?.credits_remaining ?? 0;
   const creditsTotal = userData?.credits_total ?? 0;
   const creditsUsed = creditsTotal - creditsRemaining;
   const status = userData?.subscription_status || "none";
-  const isActive = status === "active" || status === "trialing";
+  // Unlimited users are always active — they're not on Paddle billing
+  const isActive = isUnlimited || status === "active" || status === "trialing";
   const resetDate = userData?.credits_reset_at
     ? new Date(new Date(userData.credits_reset_at).setMonth(new Date(userData.credits_reset_at).getMonth() + 1)).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : null;
@@ -197,8 +199,8 @@ export function BillingSettings() {
   const planOrder: Record<string, number> = { free: 0, starter: 1, growth: 2, agency: 3 };
   const currentPlanRank = planOrder[currentPlan] ?? 0;
   
-  // Filter for plans strictly higher than the current plan
-  const upgradePlans = PLANS.filter(plan => (planOrder[plan.key] ?? 0) > currentPlanRank);
+  // Unlimited users are already at the top — no upgrade section
+  const upgradePlans = isUnlimited ? [] : PLANS.filter(plan => (planOrder[plan.key] ?? 0) > currentPlanRank);
 
   return (
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-6 duration-700 relative w-full pb-20">
@@ -248,12 +250,17 @@ export function BillingSettings() {
                 <div>
                   <div className="flex items-center gap-3 mb-1 justify-center sm:justify-start">
                     <h2 className={`text-2xl font-bold tracking-tight capitalize text-white`}>
-                      {currentPlan}
+                      {isUnlimited ? 'Unlimited' : currentPlan}
                     </h2>
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                      isActive ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-white/5 text-[#A6A6B3] border border-white/10"
+                      // Unlimited is always active; others check subscription status
+                      isUnlimited
+                        ? "bg-violet-500/10 text-violet-400 border border-violet-500/20"
+                        : isActive
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          : "bg-white/5 text-[#A6A6B3] border border-white/10"
                     }`}>
-                      {isActive ? (status === "trialing" ? "Trial" : "Active") : "Inactive"}
+                      {isUnlimited ? 'BYOK · Active' : isActive ? (status === "trialing" ? "Trial" : "Active") : "Inactive"}
                     </span>
                   </div>
                   {activePlan && (
@@ -275,10 +282,11 @@ export function BillingSettings() {
 
               {/* Credits and Action Row */}
               <div className="flex flex-col sm:flex-row items-center gap-6 w-full md:w-auto">
-                {creditsTotal > 0 && (
+                {/* Never show credit bar for unlimited users — they have no credit concept */}
+                {!isUnlimited && creditsTotal > 0 && (
                   <CreditBar used={creditsUsed} total={creditsTotal} />
                 )}
-                {isActive && upgradePlans.length > 0 && (
+                {!isUnlimited && isActive && upgradePlans.length > 0 && (
                   <button
                     className="flex items-center justify-center gap-2 py-2.5 px-6 rounded-xl text-[13.5px] font-bold text-white transition-all duration-300 hover:scale-[1.05] shadow-[0_0_16px_rgba(139,92,246,0.4)] hover:shadow-[0_0_24px_rgba(139,92,246,0.6)] shrink-0"
                     style={{ background: 'linear-gradient(135deg, #18CCFC, #6344F5 32.5%, #AE48FF)' }}
@@ -293,8 +301,26 @@ export function BillingSettings() {
               </div>
             </div>
 
-            {/* Features you have access to */}
-            {activePlan && activePlan.features.length > 0 && (
+            {/* Features you have access to — for unlimited, show all-inclusive summary */}
+            {isUnlimited ? (
+              <div className="relative z-10 mt-8 pt-8 border-t border-white/[0.06] w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3">
+                  {[
+                    'Unlimited AI generations (billed to your key)',
+                    'Full 4-Phase Engine (Strategy, Copy, Funnel, Traffic)',
+                    'Custom domain connection',
+                    'Remove OfferIQ branding',
+                    'Advanced Analytics dashboard',
+                    'Pixel tracking embed',
+                  ].map((label) => (
+                    <div key={label} className="flex items-start gap-2.5 text-[13px] text-[#A6A6B3]">
+                      <Check className="w-3.5 h-3.5 mt-0.5 text-violet-400 shrink-0" />
+                      <span className="leading-snug">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : activePlan && activePlan.features.length > 0 && (
               <div className="relative z-10 mt-8 pt-8 border-t border-white/[0.06] w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3">
                   {activePlan.features.map(({ label }) => (
@@ -316,8 +342,34 @@ export function BillingSettings() {
         </div>
       </section>
 
-      {/* ── Upgrade options ── */}
-      {upgradePlans.length > 0 && (
+      {/* ── BYOK info card for unlimited users ── */}
+      {isUnlimited && (
+        <section className="relative z-10 w-full">
+          <div className="w-full rounded-[20px] relative p-[1px]" style={{
+            background: 'linear-gradient(180deg, rgba(139,92,246,0.3) 0%, rgba(255,255,255,0.02) 100%)',
+          }}>
+            <div className="relative bg-[#0d0d12] rounded-[19px] p-7 md:p-9 overflow-hidden border border-white/[0.04]">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Zap className="w-5 h-5 text-violet-400" />
+                </div>
+                <div>
+                  <h3 className="text-[16px] font-semibold text-white mb-1">Bring Your Own Key — How Billing Works</h3>
+                  <p className="text-[#A6A6B3] text-sm leading-relaxed max-w-2xl">
+                    You pay <strong className="text-white">Anthropic or OpenAI directly</strong> for any AI you consume.
+                    OfferIQ passes your API key straight through — we never see or track your token usage.
+                    There are no credits, no monthly caps, and no AI spend on our end for your account.
+                    Go to <strong className="text-white">Settings → AI &amp; Intelligence</strong> to manage your connected keys.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Upgrade options — hidden for unlimited users ── */}
+      {!isUnlimited && upgradePlans.length > 0 && (
         <section id="upgrade-section" className="relative z-10 w-full mt-24">
           <div className="flex flex-col items-center text-center gap-2 w-full max-w-2xl mx-auto mb-10">
             <div className="flex items-center gap-2 font-mono text-[11.5px] tracking-[0.14em] uppercase text-[#A78BFA] mb-1">
@@ -401,8 +453,8 @@ export function BillingSettings() {
         </section>
       )}
 
-      {/* ── Cancel subscription ── */}
-      {isActive && cancelState !== 'done' && (
+      {/* ── Cancel subscription — hidden for unlimited (not on Paddle) ── */}
+      {!isUnlimited && isActive && cancelState !== 'done' && (
         <section className="relative z-10 w-full">
           <div className="w-full rounded-[20px] relative p-[1px]" style={{
             background: 'linear-gradient(180deg, rgba(239,68,68,0.15) 0%, rgba(255,255,255,0.02) 100%)',

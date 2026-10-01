@@ -121,7 +121,8 @@ export async function POST(req: Request) {
           limit = existingUser.workspace_limit;
         } else {
           const plan = existingUser.plan || 'free';
-          if (plan === 'agency') limit = 30;
+          // unlimited plan users get agency-level workspace access
+          if (plan === 'unlimited' || plan === 'agency') limit = 30;
           else if (plan === 'growth') limit = 3;
           else limit = 1;
         }

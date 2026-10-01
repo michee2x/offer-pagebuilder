@@ -100,7 +100,7 @@ function AnalyzeContent() {
   const [pickedIdea, setPickedIdea] = useState(-1);
   const [isGenerating, setIsGenerating] = useState(false);
   
-  const { hasCredits, loading: creditsLoading } = useCredits();
+  const { hasCredits, isUnlimited, loading: creditsLoading } = useCredits();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
@@ -232,6 +232,7 @@ function AnalyzeContent() {
 
     if (!workspaceId) return;
 
+    // Unlimited (BYOK) users are never credit-gated — hasCredits is always true for them
     if (!creditsLoading && !hasCredits) {
       setShowUpgradeModal(true);
       return;
