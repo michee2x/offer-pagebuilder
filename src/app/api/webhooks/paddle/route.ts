@@ -155,7 +155,7 @@ async function handleSubscriptionUpdated(data: any) {
   // Find user by paddle_customer_id
   const { data: user, error } = await supabaseAdmin
     .from('users')
-    .select('id, plan, credits_remaining')
+    .select('id, plan, credits_remaining, subscription_status')
     .eq('paddle_customer_id', customerId)
     .single();
 
@@ -178,18 +178,26 @@ async function handleSubscriptionUpdated(data: any) {
   if ((plan && plan !== user.plan) || justActivated) {
     const finalPlan = plan ?? user.plan;
     updatePayload.plan = finalPlan;
-    const newCredits = PLAN_CREDITS[finalPlan] ?? 0;
-    updatePayload.credits_remaining = newCredits;
-    updatePayload.credits_total     = newCredits;
-    updatePayload.credits_reset_at  = new Date().toISOString();
+    
+    // If they are just switching plans while STILL in trial, DO NOT reset their credits.
+    // They must wait until the trial converts to active to get their full credits.
+    if (status === 'trialing' && !justActivated) {
+      console.log(`[paddle] User ${user.id} changed plan to ${finalPlan} while trialing. Credits remain unchanged.`);
+    } else {
+      const newCredits = PLAN_CREDITS[finalPlan] ?? 0;
+      
+      updatePayload.credits_remaining = newCredits;
+      updatePayload.credits_total     = newCredits;
+      updatePayload.credits_reset_at  = new Date().toISOString();
 
-    await supabaseAdmin.from('credit_transactions').insert({
-      user_id:       user.id,
-      type:          'monthly_reset',
-      amount:        newCredits,
-      balance_after: newCredits,
-      note:          justActivated ? `Trial converted to ${finalPlan} plan` : `Plan changed to ${finalPlan}`,
-    });
+      await supabaseAdmin.from('credit_transactions').insert({
+        user_id:       user.id,
+        type:          'monthly_reset',
+        amount:        newCredits,
+        balance_after: newCredits,
+        note:          justActivated ? `Trial converted to ${finalPlan} plan` : `Plan changed to ${finalPlan} (${status})`,
+      });
+    }
   }
 
   // If canceled or past_due (failed to collect payment), downgrade to free
@@ -219,11 +227,17 @@ async function handleTransactionCompleted(data: any) {
 
   const { data: user, error } = await supabaseAdmin
     .from('users')
-    .select('id, plan')
+    .select('id, plan, subscription_status')
     .eq('paddle_customer_id', customerId)
     .single();
 
   if (error || !user) return;
+  
+  // Extra safety: do not grant full monthly credits if they are still somehow marked as trialing
+  if (user.subscription_status === 'trialing') {
+    console.warn('[paddle] transaction.completed: ignored because user is still trialing');
+    return;
+  }
 
   const plan    = user.plan as string;
   const credits = PLAN_CREDITS[plan] ?? 0;

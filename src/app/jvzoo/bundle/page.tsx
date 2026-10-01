@@ -187,7 +187,7 @@ const FAQ_ITEMS = [
   { q: "Does Bundle include lifetime access to future features?", a: "Yes — because Bundle includes full Unlimited, and Unlimited itself grants automatic access to every future OfferIQ feature for life. That's part of the stack, not a separate bundle-only bonus." },
   { q: "Why pay $497 upfront instead of spreading these out?", a: "Because spreading it out costs more, not less — a minimum of $143 more, before counting that the two bundle-exclusive bonuses only exist when bought together." },
   { q: "What if I never end up using the Agency features?", a: "Bundle's price is fixed regardless of which tiers you actually use — and even conservatively, it's still less than buying Pro, Unlimited, and Agency alone would cost." },
-  { q: "Is this really less risky than buying separately?", a: "If anything, less: one 30-day guarantee window covers the whole stack, instead of tracking four separate refund windows across four separate purchases." },
+  { q: "Is this really less risky than buying separately?", a: "If anything, less: one 14-day guarantee window covers the whole stack, instead of tracking four separate refund windows across four separate purchases." },
   { q: "Can I still buy tiers separately instead?", a: "Yes, from the funnel or your dashboard — at each tier's individual price, without Bundle's two exclusive bonuses." },
 ];
 
@@ -334,7 +334,7 @@ export default function BundlePage() {
                 <a href="#pricing" className="btn btn-primary btn-lg">
                   Yes — Give Me Everything, $497 One-Time <ChevronRight size={17} />
                 </a>
-                <p className="microcopy">30-day money-back guarantee · One-time, never recurring</p>
+                <p className="microcopy">14-day money-back guarantee · One-time, never recurring</p>
               </div>
             </Rev>
           </div>
@@ -494,7 +494,7 @@ export default function BundlePage() {
                   Yes — Give Me Everything, $497 One-Time <ChevronRight size={17} />
                 </a>
                 <p className="microcopy" style={{ marginTop: 14 }}>
-                  30-day guarantee · No monthly fee · Founder&apos;s pricing ends soon
+                  14-day guarantee · No monthly fee · Founder&apos;s pricing ends soon
                 </p>
               </Rev>
             </div>
@@ -509,7 +509,7 @@ export default function BundlePage() {
                 <div className="guarantee-seal"><Ico icon={Shield} size={36} color="#A78BFA" /></div>
                 <div>
                   <h3>One Guarantee Covers Everything</h3>
-                  <p>Same 30-day money-back guarantee as every tier in OfferIQ — except here, it&apos;s <strong>one guarantee for the entire stack</strong>, not four separate 30-day clocks tied to four separate purchases. If Bundle doesn&apos;t earn its place, email support within 30 days for a full refund on everything, at once. No interrogation.</p>
+                  <p>Same 14-day money-back guarantee as every tier in OfferIQ — except here, it&apos;s <strong>one guarantee for the entire stack</strong>, not four separate 14-day clocks tied to four separate purchases. If Bundle doesn&apos;t earn its place, email support within 14 days for a full refund on everything, at once. No interrogation.</p>
                 </div>
               </div>
             </Rev>
@@ -545,7 +545,7 @@ export default function BundlePage() {
                 <a href="#pricing" className="btn btn-primary btn-lg">
                   Yes — Give Me Everything, $497 One-Time <ChevronRight size={17} />
                 </a>
-                <p className="microcopy">30-day guarantee, covering all of it. This page, this price, once.</p>
+                <p className="microcopy">14-day guarantee, covering all of it. This page, this price, once.</p>
                 <a href="#" className="no-thanks">
                   No thanks, I&apos;ll make this decision three more times, at full price, later.
                 </a>

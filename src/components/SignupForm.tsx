@@ -105,7 +105,7 @@ function SignupFormInner() {
           </div>
 
           <div className="oiq-trust-row">
-            <span className="oiq-trust-pill">✓ 30-day guarantee</span>
+            <span className="oiq-trust-pill">✓ 14-day guarantee</span>
           </div>
         </div>
       </div>

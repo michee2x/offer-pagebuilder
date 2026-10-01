@@ -479,7 +479,7 @@ export default function FEPage() {
                   Build My First Offer — $49 One-Time <ChevronRight size={18} />
                 </a>
               </div>
-              <p className="microcopy">No marketing experience required &nbsp;·&nbsp; 30-day money-back guarantee</p>
+              <p className="microcopy">No marketing experience required &nbsp;·&nbsp; 14-day money-back guarantee</p>
             </Rev>
 
             <div className="path-cards">
@@ -767,7 +767,7 @@ export default function FEPage() {
               ))}
             </div>
             <p style={{ textAlign: "center", color: "var(--text3)", marginTop: 28, fontSize: 14 }}>
-              30-Day Money-Back Guarantee — no interrogation, no hoops.
+              14-Day Money-Back Guarantee — no interrogation, no hoops.
             </p>
           </div>
         </section>
@@ -899,7 +899,7 @@ export default function FEPage() {
                   Build My First Offer — Save $6,175 <ChevronRight size={18} />
                 </a>
                 <p className="microcopy" style={{ marginTop: 16 }}>
-                  30-day guarantee &nbsp;·&nbsp; No monthly fee &nbsp;·&nbsp; {"Founder's"} pricing ends soon
+                  14-day guarantee &nbsp;·&nbsp; No monthly fee &nbsp;·&nbsp; {"Founder's"} pricing ends soon
                 </p>
               </Rev>
             </div>
@@ -953,7 +953,7 @@ export default function FEPage() {
             <Rev cls="sect-head"><h2>Why You Will Want This</h2></Rev>
             <Rev d={80}>
               <ul className="checklist">
-                {["Live Sellable Offer","16-section Intelligence Report","Benchmarked against 35,000+ offers","Full 5-page copy set","Automatic page assembly","Inline + AI-agent editing","Lead magnet + bonus generation","Platform priority matrix","Ready-to-deploy ad copy","VSL + UGC scripts","5-sequence email suite","One-click publish","Stripe + PayPal built in","Built-in CRM","Per-funnel analytics","Template Club access","30-day guarantee"].map(c => <li key={c}>{c}</li>)}
+                {["Live Sellable Offer","16-section Intelligence Report","Benchmarked against 35,000+ offers","Full 5-page copy set","Automatic page assembly","Inline + AI-agent editing","Lead magnet + bonus generation","Platform priority matrix","Ready-to-deploy ad copy","VSL + UGC scripts","5-sequence email suite","One-click publish","Stripe + PayPal built in","Built-in CRM","Per-funnel analytics","Template Club access","14-day guarantee"].map(c => <li key={c}>{c}</li>)}
               </ul>
             </Rev>
           </div>
@@ -966,8 +966,8 @@ export default function FEPage() {
               <div className="guarantee">
                 <div className="guarantee-seal"><Ico icon={Shield} size={32} color="#8B7CFF" /></div>
                 <div>
-                  <h3>30-Day Money-Back Guarantee</h3>
-                  <p>No interrogation, no hoops. If you go through the process and decide it is not for you, we will refund every cent within 30 days. No questions asked.</p>
+                  <h3>14-Day Money-Back Guarantee</h3>
+                  <p>No interrogation, no hoops. If you go through the process and decide it is not for you, we will refund every cent within 14 days. No questions asked.</p>
                 </div>
               </div>
             </Rev>
@@ -1040,7 +1040,7 @@ export default function FEPage() {
                   Build My First Offer — $49 One-Time <ChevronRight size={18} />
                 </a>
               </div>
-              <p className="microcopy">30-day guarantee &nbsp;·&nbsp; No monthly fee &nbsp;·&nbsp; {"Founder's"} pricing ends soon</p>
+              <p className="microcopy">14-day guarantee &nbsp;·&nbsp; No monthly fee &nbsp;·&nbsp; {"Founder's"} pricing ends soon</p>
             </Rev>
           </div>
         </section>

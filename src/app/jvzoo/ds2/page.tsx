@@ -310,7 +310,7 @@ export default function DS2Page() {
                 <a href="#pricing" className="btn btn-primary btn-lg">
                   Yes — Give Me Real Room, $169 One-Time <ChevronRight size={17} />
                 </a>
-                <p className="microcopy">30-day money-back guarantee · One-time, never recurring</p>
+                <p className="microcopy">14-day money-back guarantee · One-time, never recurring</p>
               </div>
             </Rev>
           </div>
@@ -398,7 +398,7 @@ export default function DS2Page() {
                   Yes — Give Me Real Room, $169 One-Time <ChevronRight size={17} />
                 </a>
                 <p className="microcopy" style={{ marginTop: 14 }}>
-                  30-day guarantee · No monthly fee · Founder&apos;s pricing ends soon
+                  14-day guarantee · No monthly fee · Founder&apos;s pricing ends soon
                 </p>
               </Rev>
             </div>
@@ -441,8 +441,8 @@ export default function DS2Page() {
               <div className="guarantee" style={{ background: "#fff", borderColor: "#E6E5F2" }}>
                 <div className="guarantee-seal"><Ico icon={Shield} size={30} color="#A78BFA" /></div>
                 <div>
-                  <h3 style={{ color: "#14141F" }}>30-Day Money-Back Guarantee</h3>
-                  <p>Same guarantee as everything else in OfferIQ. If Scale doesn&apos;t earn its place, email support within 30 days for a full refund — no interrogation.</p>
+                  <h3 style={{ color: "#14141F" }}>14-Day Money-Back Guarantee</h3>
+                  <p>Same guarantee as everything else in OfferIQ. If Scale doesn&apos;t earn its place, email support within 14 days for a full refund — no interrogation.</p>
                 </div>
               </div>
             </Rev>
@@ -474,7 +474,7 @@ export default function DS2Page() {
                 <a href="#pricing" className="btn btn-primary btn-lg">
                   Yes — Give Me Real Room, $169 One-Time <ChevronRight size={17} />
                 </a>
-                <p className="microcopy">30-day guarantee · This page, this price, once.</p>
+                <p className="microcopy">14-day guarantee · This page, this price, once.</p>
                 <a href="#" className="no-thanks">
                   No thanks, I&apos;ll stay at Pro&apos;s numbers.
                 </a>

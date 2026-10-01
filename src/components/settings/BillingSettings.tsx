@@ -448,7 +448,7 @@ export function BillingSettings() {
           </div>
 
           <p className="text-center text-[13px] text-[#6B6B7B] mt-8 font-mono tracking-wide">
-            $1 for your first 7 days, then billed monthly. Cancel anytime. 30-day money-back guarantee.
+            $1 for your first 7 days, then billed monthly. Cancel anytime. 14-day money-back guarantee.
           </p>
         </section>
       )}

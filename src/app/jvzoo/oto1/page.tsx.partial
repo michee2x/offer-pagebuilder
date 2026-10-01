@@ -105,7 +105,7 @@ export default function OTO1Page() {
               <p className="sub">A deeper Strategy Report, real analytics on where people actually drop off, a domain and branding that read as a real business, both major payment processors, and enough lead capacity to let a list actually compound — the difference between an offer that's live and one you can actually read.</p>
               <div className="ctas" style={{ marginTop: "36px" }}>
                 <a href="#pricing" className="btn btn-primary btn-lg">Yes — Show Me What's Actually Happening, $97 One-Time <ChevronRight size={17} /></a>
-                <p className="microcopy">30-day money-back guarantee · One-time, never recurring</p>
+                <p className="microcopy">14-day money-back guarantee · One-time, never recurring</p>
               </div>
             </Rev>
           </div>
@@ -206,7 +206,7 @@ export default function OTO1Page() {
             <div style={{ textAlign: "center", marginTop: "36px" }}>
               <Rev d={100}>
                 <a href="#" className="btn btn-primary btn-lg">Yes — Show Me What's Actually Happening, $97 One-Time <ChevronRight size={17} /></a>
-                <p className="microcopy" style={{ marginTop: "14px" }}>30-day guarantee · No monthly fee · Founder's pricing ends soon</p>
+                <p className="microcopy" style={{ marginTop: "14px" }}>14-day guarantee · No monthly fee · Founder's pricing ends soon</p>
               </Rev>
             </div>
           </div>
@@ -232,8 +232,8 @@ export default function OTO1Page() {
               <div className="guarantee">
                 <div className="guarantee-seal"><Ico icon={Shield} size={30} color="#A78BFA" /></div>
                 <div>
-                  <h3>30-Day Money-Back Guarantee</h3>
-                  <p>Same guarantee as everything else in OfferIQ. If Pro doesn't earn its place, email support within 30 days for a full refund — no interrogation, no hoops.</p>
+                  <h3>14-Day Money-Back Guarantee</h3>
+                  <p>Same guarantee as everything else in OfferIQ. If Pro doesn't earn its place, email support within 14 days for a full refund — no interrogation, no hoops.</p>
                 </div>
               </div>
             </Rev>
@@ -255,7 +255,7 @@ export default function OTO1Page() {
               <p className="lead">Before the data you needed is already gone.</p>
               <div style={{ marginTop: "36px" }}>
                 <a href="#pricing" className="btn btn-primary btn-lg">Yes — Show Me What's Actually Happening, $97 One-Time <ChevronRight size={17} /></a>
-                <p className="microcopy">30-day guarantee · This page, this price, once.</p>
+                <p className="microcopy">14-day guarantee · This page, this price, once.</p>
                 <a href="#" className="no-thanks">No thanks, I'll keep guessing at why it's converting the way it is.</a>
               </div>
             </Rev>

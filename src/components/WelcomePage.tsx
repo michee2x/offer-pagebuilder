@@ -682,7 +682,7 @@ export function WelcomePage() {
     { q: 'Why is OfferIQ different from a funnel builder?', a: 'Most funnel builders help you build pages. OfferIQ helps you decide what to sell, who to sell it to, how to position it, what to charge, how to explain it, and then builds the pages around that strategy. In other words: funnel builders start with pages - OfferIQ starts with the offer.' },
     { q: 'Can I use my own domain?', a: 'Yes. You can publish using an OfferIQ subdomain or connect your own custom domain, depending on your plan. That means your business always looks professional and stays on-brand.' },
     { q: 'Do I get future updates?', a: 'Yes. All new features released for your tier are included automatically for as long as your subscription is active.' },
-    { q: 'Is there a refund policy?', a: "Yes - a 30-day money-back guarantee applies. If OfferIQ isn't right for you, request a full refund within 30 days of purchase." },
+    { q: 'Is there a refund policy?', a: "Yes - a 14-day money-back guarantee applies. If OfferIQ isn't right for you, request a full refund within 14 days of purchase." },
     { q: 'Can I upgrade my tier later?', a: 'Yes. You can upgrade to a higher tier at any time by paying the price difference.' },
     { q: 'Is this a subscription?', a: "Yes. OfferIQ runs on a monthly plan. You're billed monthly for the tier you choose, and you can cancel anytime from your account in one click." },
     { q: 'Can agencies use OfferIQ for client work?', a: "Absolutely. OfferIQ was designed to help agencies create a repeatable delivery process. Instead of rebuilding every project from scratch, your team can follow the same guided workflow for every client, improving speed, consistency, and quality. Agency plans include dedicated workspaces and client-focused features to support this workflow." },
@@ -826,7 +826,7 @@ export function WelcomePage() {
             </div>
 
             <p className="text-[12px] text-[#6B6B7B] leading-[1.7] font-mono tracking-wide" style={{ fontFamily: "'Host Grotesk', monospace" }}>
-              7-day $1 trial &middot; No marketing experience required &middot; 30-day money-back guarantee
+              7-day $1 trial &middot; No marketing experience required &middot; 14-day money-back guarantee
             </p>
           </motion.div>
 
@@ -1740,7 +1740,7 @@ export function WelcomePage() {
                 <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
                   <Shield className="w-5 h-5 text-emerald-400" />
                 </div>
-                <span className="font-medium">Backed by a 30-day money-back guarantee. If OfferIQ isn't right for you, get a full refund — no conditions.</span>
+                <span className="font-medium">Backed by a 14-day money-back guarantee. If OfferIQ isn't right for you, get a full refund — no conditions.</span>
               </div>
               <p className="text-center text-[15px] text-[#A6A6B3] leading-relaxed">
                 OfferIQ isn't just another software - OfferIQ is helping you move from an idea to a launched business - to a growing business.

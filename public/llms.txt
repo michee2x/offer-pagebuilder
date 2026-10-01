@@ -19,7 +19,7 @@ OfferIQ runs a 4-phase AI engine on every offer:
 - **Growth** — $69/month (7-day $1 trial): 10 offer credits/month, 3 workspaces, custom domain, pixel tracking, remove branding, advanced analytics.
 - **Agency** — $179/month (7-day $1 trial): 30 offer credits/month, 30 workspaces, 30 client sub-accounts, agency dashboard, done-for-you onboarding, dedicated priority support.
 
-All plans include a 30-day money-back guarantee.
+All plans include a 14-day money-back guarantee.
 
 ## Key Links
 

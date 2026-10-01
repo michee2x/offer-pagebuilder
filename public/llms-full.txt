@@ -122,7 +122,7 @@ OfferIQ generates a complete pre-spend acquisition strategy:
 - Done-For-You onboarding session
 - Dedicated priority support channel
 
-**All plans**: 30-day money-back guarantee. Monthly subscription, cancel anytime from account settings.
+**All plans**: 14-day money-back guarantee. Monthly subscription, cancel anytime from account settings.
 
 Extra credits available: $10 per credit (1 credit = 1 complete offer build).
 
@@ -146,7 +146,7 @@ Yes. You can publish using an OfferIQ subdomain or connect your own custom domai
 Yes. All new features released for your tier are included automatically for as long as your subscription is active.
 
 **Is there a refund policy?**
-Yes — a 30-day money-back guarantee applies. Request a full refund within 30 days of purchase.
+Yes — a 14-day money-back guarantee applies. Request a full refund within 14 days of purchase.
 
 **Can I upgrade my tier later?**
 Yes. You can upgrade at any time by paying the price difference.

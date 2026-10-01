@@ -27,12 +27,12 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-[#F5F5F7] mb-4">1. 30-Day Money-Back Guarantee</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F5F7] mb-4">1. 14-Day Money-Back Guarantee</h2>
             <p className="mb-4">
-              We offer a 30-day money-back guarantee on all plans — subscription and one-time — including our Agency tier.
+              We offer a 14-day money-back guarantee on all plans — subscription and one-time — including our Agency tier.
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>If you're not satisfied with OfferIQ, you can request a full refund within 30 days of your original purchase date.</li>
+              <li>If you're not satisfied with OfferIQ, you can request a full refund within 14 days of your original purchase date.</li>
               <li>This applies to your first purchase of a given plan. It does not reset with each monthly renewal charge — see Section 3 for ongoing subscription billing.</li>
               <li>No detailed justification is required, though we appreciate feedback that helps us improve.</li>
             </ul>
@@ -54,16 +54,16 @@ export default function RefundPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold text-[#F5F5F7] mb-4">3. Subscription Plans (Monthly Billing)</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li>The 30-day guarantee covers your first payment after signup (including the end of any discounted trial period, if the trial converts to a paid charge).</li>
-              <li>Subsequent monthly renewal charges are not eligible for the 30-day guarantee once that renewal has processed, since you're able to cancel before each renewal to avoid being charged again.</li>
-              <li>To avoid a renewal charge, cancel from your account settings before your next billing date. Cancellation stops future billing; it does not retroactively refund the current billing period, except where the 30-day guarantee in Section 1 still applies to that specific charge.</li>
+              <li>The 14-day guarantee covers your first payment after signup (including the end of any discounted trial period, if the trial converts to a paid charge).</li>
+              <li>Subsequent monthly renewal charges are not eligible for the 14-day guarantee once that renewal has processed, since you're able to cancel before each renewal to avoid being charged again.</li>
+              <li>To avoid a renewal charge, cancel from your account settings before your next billing date. Cancellation stops future billing; it does not retroactively refund the current billing period, except where the 14-day guarantee in Section 1 still applies to that specific charge.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-[#F5F5F7] mb-4">4. One-Time / Lifetime Plans</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Covered by the same 30-day guarantee from the date of purchase.</li>
+              <li>Covered by the same 14-day guarantee from the date of purchase.</li>
               <li>If refunded, your account's associated offer credits, workspaces, and any published funnels tied to that purchase will be deactivated.</li>
             </ul>
           </section>
