@@ -89,7 +89,7 @@ export async function PUT(
 
     try {
     const body = await req.json();
-    const { name, email, role, plan, credits_limit, workspace_limit } = body;
+    const { name, email, role, plan, credits_limit, workspace_limit, newPassword } = body;
 
     // Build the public users-table update payload
     const tableUpdates: Record<string, unknown> = {};
@@ -137,6 +137,19 @@ export async function PUT(
       });
       if (authError) {
         return Response.json({ error: authError.message }, { status: 500 });
+      }
+    }
+
+    // Update password in Supabase Auth if provided
+    if (newPassword && newPassword.trim().length > 0) {
+      if (newPassword.length < 8) {
+        return Response.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
+      }
+      const { error: pwError } = await supabaseAdmin.auth.admin.updateUserById(id, {
+        password: newPassword,
+      });
+      if (pwError) {
+        return Response.json({ error: pwError.message }, { status: 500 });
       }
     }
 

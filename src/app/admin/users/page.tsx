@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {
   User, MoreVertical, Eye, Edit2, Trash2, LogIn,
   Activity, LayoutTemplate, Settings, Flag, Gift,
-  Loader2, Plus, X,
+  Loader2, Plus, X, KeyRound, ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
@@ -84,6 +84,9 @@ export default function AdminUsersDashboard() {
   const [editTarget, setEditTarget] = useState<UserRow | null>(null);
   const [editForm, setEditForm] = useState({ name: "", email: "", role: "user", plan: "free", credits_limit: 0, workspace_limit: 1 });
   const [editing, setEditing] = useState(false);
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   /* --- Discount ------------------------------------------------ */
   const [isDiscountOpen, setIsDiscountOpen] = useState(false);
@@ -148,22 +151,40 @@ export default function AdminUsersDashboard() {
       credits_limit: user.credits_total ?? 0,
       workspace_limit: user.workspace_limit ?? 1,
     });
+    setShowPasswordSection(false);
+    setNewPassword("");
+    setConfirmPassword("");
     setIsEditOpen(true);
   };
 
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editTarget) return;
+    // Validate password fields if the admin filled them in
+    if (newPassword) {
+      if (newPassword.length < 8) {
+        toast.error("Password must be at least 8 characters");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+    }
     setEditing(true);
     try {
+      const payload = {
+        ...editForm,
+        ...(newPassword ? { newPassword } : {}),
+      };
       const res = await fetch(`/api/admin/users/${editTarget.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update user");
-      toast.success("User updated");
+      toast.success(newPassword ? "User updated & password changed" : "User updated");
       setIsEditOpen(false);
       fetchUsers();
     } catch (err: unknown) {
@@ -643,6 +664,73 @@ export default function AdminUsersDashboard() {
                   <p className="text-[11px] text-gray-400">Default is 1</p>
                 </div>
               </div>
+
+            {/* Change Password section */}
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPasswordSection((v) => !v);
+                  if (showPasswordSection) {
+                    setNewPassword("");
+                    setConfirmPassword("");
+                  }
+                }}
+                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"
+              >
+                <span className="flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-gray-500" />
+                  Change Password
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                    showPasswordSection ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {showPasswordSection && (
+                <div className="px-4 pb-4 pt-3 space-y-3 bg-white">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-new-password" className="text-gray-700 text-sm">
+                      New Password
+                    </Label>
+                    <Input
+                      id="edit-new-password"
+                      type="password"
+                      placeholder="Min. 8 characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="border-gray-300 text-gray-900 bg-white"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-confirm-password" className="text-gray-700 text-sm">
+                      Confirm Password
+                    </Label>
+                    <Input
+                      id="edit-confirm-password"
+                      type="password"
+                      placeholder="Re-enter new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={`border-gray-300 text-gray-900 bg-white ${
+                        confirmPassword && confirmPassword !== newPassword
+                          ? "border-red-400 focus-visible:ring-red-400"
+                          : ""
+                      }`}
+                      autoComplete="new-password"
+                    />
+                    {confirmPassword && confirmPassword !== newPassword && (
+                      <p className="text-xs text-red-500">Passwords do not match</p>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-gray-400">
+                    Leave collapsed to keep the current password unchanged.
+                  </p>
+                </div>
+              )}
+            </div>
             <DialogFooter className="pt-4">
               <Button
                 type="button"
