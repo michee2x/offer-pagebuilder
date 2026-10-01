@@ -731,6 +731,7 @@ export default function AdminUsersDashboard() {
                   </p>
                 </div>
               )}
+            </div>{/* end Change Password section */}
             </div>{/* end scrollable fields */}
             <DialogFooter className="pt-4 border-t border-gray-100">
               <Button
