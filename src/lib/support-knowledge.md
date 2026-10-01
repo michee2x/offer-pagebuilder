@@ -134,7 +134,82 @@ For the exact current pricing, visit the pricing section on our homepage.
 
 ---
 
-### 📦 How to Set Up Products & Pricing (Main Offer, Upsell & Downsell)
+### 📦 How to Set Up Products & Checkout (Two Modes)
+
+OfferIQ supports **two distinct checkout modes**. You choose based on how your payment is set up.
+
+---
+
+#### Mode 1 — API-Powered Checkout (Stripe, PayPal, Paystack connected via API Keys)
+
+This mode lets OfferIQ create checkout sessions automatically using your connected payment gateway. No external checkout tool needed.
+
+**Step 1 — Connect your payment gateway**
+1. Go to **Settings → Payments** in your OfferIQ account.
+2. Connect Stripe, PayPal, or Paystack by pasting your API keys. Toggle Live Mode ON when ready.
+
+**Step 2 — Add your products**
+1. Go to your Funnel dashboard → click **Products** in the left sidebar (`/funnels/[id]/products`).
+2. Click **+ Add Product** and fill in:
+   - **Product Name** (e.g., "Core Masterclass", "VIP Upgrade - Upsell", "Starter Kit - Downsell")
+   - **Price & Currency** (e.g., `$497 USD` or `₦25,000 NGN`)
+   - **Payment Type**: One-Time or Recurring Subscription
+3. Click **Save Product**.
+4. Each saved product gets a unique **checkout link** (shown below the product name). This link looks like: `/api/checkout?funnelId=xxx&productId=yyy&gateway=auto`
+
+**Step 3 — Assign products to funnel pages**
+1. Scroll to the **Checkout Assignments** section on the Products page.
+2. For each funnel page (Sales, Upsell, Downsell), select the product from the dropdown.
+3. The system automatically generates the correct checkout link and assigns it to that page.
+4. Click **Save Assignments**.
+
+**How it works behind the scenes**: When a visitor clicks a CTA/Buy button on a funnel page, they are redirected to the assigned checkout URL. OfferIQ calls your payment gateway (e.g., Stripe) to create a real checkout session and redirects the visitor there to complete payment. After payment, the visitor is sent to your Thank You page automatically.
+
+---
+
+#### Mode 2 — External Checkout URL (ThriveCart, SamCart, Stripe Payment Links, etc.)
+
+Use this mode if you already have a checkout page hosted elsewhere (e.g., on Stripe's hosted checkout, ThriveCart, SamCart, Gumroad, Lemon Squeezy, etc.).
+
+**Step 1 — Get your checkout URLs**
+
+In your external tool (e.g., Stripe Dashboard → Payment Links), create a payment link for each product. Set the success redirect URL to your next funnel step:
+- Sales page success → your Upsell page URL
+- Upsell success → your Thank You page URL
+- Downsell success → your Thank You page URL
+
+**Step 2 — Paste URLs in OfferIQ**
+
+**Option A — via the Products page:**
+1. Go to Funnel → **Products** (`/funnels/[id]/products`).
+2. Scroll to **Checkout Assignments**.
+3. In the "Or paste an external checkout URL" field next to each page, paste your checkout link.
+4. Click **Save Assignments**.
+
+**Option B — via the Integrations page:**
+1. Go to Funnel → **Integrations** → **External Checkouts** tab.
+2. Paste your external checkout URL next to the relevant page path.
+3. Click **Save**.
+
+**How it works**: When a visitor clicks a CTA button on that funnel page, the system redirects them directly to the external checkout URL you pasted. Nothing happens inside OfferIQ — the external tool handles payment.
+
+---
+
+#### Both modes use the same "Checkout Assignments" system
+
+Whether you use API-powered checkout or an external URL, OfferIQ stores the checkout link in the same place (`blocks.integrations.checkoutUrls`). The Funnel Builder reads this and automatically wires CTA buttons to the correct checkout for that page — you don't need to manually link buttons in the builder.
+
+---
+
+### 🔗 How CTA Buttons Are Linked to Checkout
+
+- **Automatic**: Once you set up Checkout Assignments (on the Products page or Integrations page), CTA buttons in your funnel builder automatically redirect to the correct checkout when clicked. No manual wiring needed.
+- **Manual**: If you need a specific button to go to a different URL, you can edit that button in the Funnel Builder and set a custom link.
+- **Testing**: Always test your funnel in Sandbox/Test mode before going live. For Stripe, use test card `4242 4242 4242 4242` with any future expiry.
+
+---
+
+### 📦 How to Set Up Products & Pricing (Quick Reference — Old Flow)
 
 1. Go to your Funnel dashboard ➔ click **Products** in the left sidebar (`/funnels/[id]/products`).
 2. Click **+ Add Product**.
@@ -143,28 +218,8 @@ For the exact current pricing, visit the pricing section on our homepage.
    - **Price & Currency**: (e.g. `$497 USD` or `₦25,000 NGN`)
    - **Payment Type**: Select **One-Time** or **Recurring Subscription**.
 4. Click **Save Product**.
-5. **How Product Order Works in Your Funnel**:
-   - Product 1 (First product) automatically attaches to your **Sales Page** (`/`).
-   - Product 2 (Second product) attaches to your **Upsell Page** (`/upsell`).
-   - Product 3 (Third product) attaches to your **Downsell Page** (`/downsell`).
-
----
-
-### 🔗 How to Connect Buy Buttons
-
-- **Using Native OfferIQ Checkout**: Once you configure your Products, any Buy button on your sales or upsell page automatically triggers the OfferIQ Checkout popup with that page's product price!
-- **Using External Payment Links (Stripe Payment Links, Lemon Squeezy, etc.):**
-  **CRITICAL: Always test your funnel in Sandbox mode first.**
-  1. In your Stripe Dashboard, switch to **Test Mode**.
-  2. Create your products in Test Mode (e.g., $27 Sales, $47 Upsell, $17 Downsell).
-  3. Create **Test Payment Links** for each product. (A test link URL will always contain `/test_`, e.g., `https://buy.stripe.com/test_...`).
-  4. Set the **Success Redirect URL** on each Stripe Payment Link to your next funnel step (e.g., `https://your-domain.ofiq.app/upsell` or `/downsell` or `/thankyou`).
-  5. Go to your Funnel in OfferIQ ➔ **Integrations** ➔ **External Checkouts** tab.
-  6. Paste your **test payment links** into the input box next to the relevant page path (Sales Page, Upsell Page, Downsell Page).
-  7. **Handling the "No Thanks" button:** Make sure your Upsell "No Thanks" button links to your Downsell page.
-  8. **Handling the Thank You page:** The Thank You page button does NOT need a Stripe link. Add a destination link (like your community or social profile) where you want customers to go.
-  9. **Run a full test purchase** using the Stripe test card: `4242 4242 4242 4242` with any future expiry and CVC. Verify the flow: `Sales ➔ Upsell ➔ Downsell ➔ Thank You`.
-  10. **Go Live:** Once the complete test works, switch your Stripe Dashboard to Live Mode, create Live Payment Links (without `/test_`), and replace the links in OfferIQ. **Do NOT test with $1 live payments.**
+5. Scroll down to **Checkout Assignments** and assign the product to the correct funnel page.
+6. Click **Save Assignments**.
 
 ---
 
@@ -201,7 +256,7 @@ A: The Intelligence Report is the analysis phase — it diagnoses your offer and
 A: Yes, everything is editable. You can chat with the AI to make changes, or directly edit text in the builder. You're always in control.
 
 **Q: Does OfferIQ handle payments?**
-A: OfferIQ doesn't process payments directly. It integrates with Stripe, Paddle, or JVZoo — you connect your account and they handle all transactions.
+A: OfferIQ supports two checkout modes. **Mode 1 (API Checkout)**: Connect your Stripe, PayPal, or Paystack via API keys in Settings → Payments. Then add your products on the Products page and assign them to funnel pages — OfferIQ will create checkout sessions automatically when visitors click CTA buttons. **Mode 2 (External URL)**: If you already use ThriveCart, SamCart, Stripe Payment Links, or any other tool, simply paste your checkout URL on the Products page or Integrations page. CTA buttons will redirect visitors to your external checkout. Both modes are configured from the Products page (`/funnels/[id]/products`).
 
 **Q: Can I have multiple offers/funnels?**
 A: Yes. Each Workspace can contain multiple campaigns. You can also create multiple Workspaces. The number of workspaces depends on your plan.
