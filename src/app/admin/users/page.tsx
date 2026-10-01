@@ -571,7 +571,7 @@ export default function AdminUsersDashboard() {
 
       {/* ══ EDIT MODAL ══════════════════════════════════════════ */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-md bg-white border border-gray-200">
+        <DialogContent className="sm:max-w-md bg-white border border-gray-200 max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-900">
               Edit User
@@ -580,7 +580,8 @@ export default function AdminUsersDashboard() {
               )}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSaveEdit} className="space-y-4 py-4">
+          <form onSubmit={handleSaveEdit} className="flex flex-col flex-1 min-h-0">
+            <div className="space-y-4 py-4 overflow-y-auto flex-1 pr-1">
             <div className="space-y-2">
               <Label htmlFor="edit-name" className="text-gray-700">Full Name</Label>
               <Input
@@ -730,8 +731,8 @@ export default function AdminUsersDashboard() {
                   </p>
                 </div>
               )}
-            </div>
-            <DialogFooter className="pt-4">
+            </div>{/* end scrollable fields */}
+            <DialogFooter className="pt-4 border-t border-gray-100">
               <Button
                 type="button"
                 variant="outline"
