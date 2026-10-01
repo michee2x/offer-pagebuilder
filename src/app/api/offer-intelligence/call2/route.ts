@@ -77,15 +77,13 @@ export async function POST(req: Request) {
 
   const userPrompt = buildCall2UserPrompt(formData, call1);
 
-  // Fetch current blocks to get creativity level
   const { data: current } = await supabaseAdmin
     .from('builder_pages')
     .select('blocks')
     .eq('id', funnelId)
     .single();
 
-  const currentBlocks = current?.blocks || {};
-  const creativityLevel = currentBlocks.campaign_settings?.creativity_level || 'Standard';
+  const creativityLevel = current?.blocks?.campaign_settings?.creativity_level || 'Standard';
   // call2 must generate 7 full sections of rich HTML — needs adequate token budget
   const { maxOutputTokens } = getCreativityParams(creativityLevel, 8000);
 
@@ -99,13 +97,22 @@ export async function POST(req: Request) {
       try {
         const parsed = parseCall2Output(text);
         
+        // Fetch current blocks inside onFinish to prevent stale overwrites
+        const { data: latest } = await supabaseAdmin
+          .from('builder_pages')
+          .select('blocks')
+          .eq('id', funnelId)
+          .single();
+          
+        const latestBlocks = latest?.blocks || {};
+
         await supabaseAdmin
           .from('builder_pages')
           .update({
             blocks: {
-              ...currentBlocks,
+              ...latestBlocks,
               intelligence: {
-                ...currentBlocks.intelligence,
+                ...latestBlocks.intelligence,
                 call2: parsed,
                 call2_raw: text,
                 call2_complete: true,
