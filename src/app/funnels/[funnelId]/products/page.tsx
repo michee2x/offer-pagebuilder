@@ -1,7 +1,7 @@
-import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { notFound, redirect } from "next/navigation";
 import { ProductsClient } from "./ProductsClient";
-import { getUser } from "@/auth";
+import { getSession } from "@/auth";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { FunnelSidebar } from "@/components/layout/FunnelSidebar";
@@ -12,32 +12,44 @@ export default async function ProductsPage({
   params: Promise<{ funnelId: string }>;
 }) {
   const { funnelId } = await params;
-  const user = await getUser();
-  if (!user) {
+  const session = await getSession();
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: funnel, error: funnelError } = await supabase
-    .from("funnels")
-    .select("workspace_id, name")
+    .from("builder_pages")
+    .select("id, name, workspace_id, subdomain, custom_domain, blocks")
     .eq("id", funnelId)
+    .eq("user_id", session.user.id)
     .single();
 
   if (funnelError || !funnel) {
     notFound();
   }
 
-  const { data: products, error: productsError } = await supabase
+  const { data: products } = await supabase
     .from("products")
     .select("*")
     .eq("funnel_id", funnelId)
     .order("created_at", { ascending: true });
 
-  if (productsError) {
-    console.error("Error fetching products:", productsError);
-  }
+  // Fetch connected payment gateways for this workspace
+  const { data: paymentIntegrations } = await supabase
+    .from("payment_integrations")
+    .select("gateway, is_live")
+    .eq("workspace_id", funnel.workspace_id);
+
+  // Existing checkout URL assignments (page path → URL)
+  const checkoutUrls: Record<string, string> =
+    funnel.blocks?.integrations?.checkoutUrls || {};
+
+  // Page paths available in this funnel
+  const pagePaths: string[] = funnel.blocks?.pages
+    ? Object.keys(funnel.blocks.pages)
+    : ["/", "/sales", "/upsell", "/downsell", "/thankyou"];
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#030712] relative z-0">
@@ -100,7 +112,15 @@ export default async function ProductsPage({
             collapsible
           />
           <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-transparent relative z-10">
-            <ProductsClient funnelId={funnelId} initialProducts={products || []} />
+            <ProductsClient
+              funnelId={funnelId}
+              initialProducts={products || []}
+              checkoutUrls={checkoutUrls}
+              pagePaths={pagePaths}
+              connectedGateways={(paymentIntegrations || []).map((p) => p.gateway)}
+              subdomain={funnel.subdomain || ""}
+              customDomain={funnel.custom_domain || ""}
+            />
           </main>
         </div>
       </div>
