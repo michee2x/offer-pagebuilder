@@ -277,7 +277,7 @@ export function OfferIQAgent({
             } else if (action === "add_email" && onAddEmail) {
               const newEmail: EmailCopy = {
                 ...data,
-                page: activePage!,
+                page: "custom_emails",
               };
               onAddEmail(newEmail);
             } else if (action === "delete_email" && onDeleteActiveEmail) {

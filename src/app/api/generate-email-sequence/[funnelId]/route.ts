@@ -77,8 +77,8 @@ export async function POST(
     );
   }
 
-  // Fixed 5-page funnel structure (always in this order)
-  const declaredPages: FunnelPageKey[] = ['lead_capture', 'sales_page', 'upsell', 'downsell', 'thankyou'];
+  // Fixed 3-page funnel structure (always in this order)
+  const declaredPages: FunnelPageKey[] = ['sales_page', 'upsell', 'downsell'];
 
   // Case-insensitive property getter
   const getVal = (obj: any, key: string): string => {

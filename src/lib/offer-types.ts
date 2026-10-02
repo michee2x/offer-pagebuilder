@@ -150,7 +150,8 @@ export type FunnelPageKey =
   | 'sales_page'
   | 'upsell'
   | 'downsell'
-  | 'thankyou';
+  | 'thankyou'
+  | 'custom_emails';
 
 export const FUNNEL_PAGE_LABELS: Record<FunnelPageKey, string> = {
   lead_capture: 'Lead Capture',
@@ -158,6 +159,7 @@ export const FUNNEL_PAGE_LABELS: Record<FunnelPageKey, string> = {
   upsell: 'Upsell',
   downsell: 'Downsell',
   thankyou: 'Thank You',
+  custom_emails: 'Custom Emails',
 };
 
 /**

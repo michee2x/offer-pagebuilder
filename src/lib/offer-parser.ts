@@ -24,6 +24,7 @@ const VALID_PAGE_KEYS = new Set<FunnelPageKey>([
   'upsell',
   'downsell',
   'thankyou',
+  'custom_emails',
 ]);
 
 // ─── Count words in an HTML string ───────────────────────────────────────────
@@ -681,7 +682,10 @@ function parseEmailBlocksFromContent(content: string, pageKey: FunnelPageKey): E
 
     // Try HTML: format first
     const htmlMatch = block.match(/HTML:\s*([\s\S]*?<html[\s\S]*?<\/html>)/i);
-    const html = htmlMatch?.[1]?.trim() ?? '';
+    let html = htmlMatch?.[1]?.trim() ?? '';
+    if (html) {
+      html = html.replace(/^```html\n?/i, '').trim();
+    }
     let body = '';
     let cta = '';
 

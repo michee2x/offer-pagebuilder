@@ -61,6 +61,7 @@ const PAGE_ICONS: Record<FunnelPageKey, LucideIcon> = {
   upsell: ArrowUpRight,
   downsell: ArrowDownRight,
   thankyou: Heart,
+  custom_emails: Sparkles,
 };
 
 const PAGE_ORDER: FunnelPageKey[] = [
@@ -69,6 +70,7 @@ const PAGE_ORDER: FunnelPageKey[] = [
   "upsell",
   "downsell",
   "thankyou",
+  "custom_emails",
 ];
 
 type CenterMode = "preview" | "copy";
@@ -98,7 +100,10 @@ function parseEmailFromResponse(
   const preview = raw.match(/PREVIEW:\s*(.+)/i)?.[1]?.trim() ?? "";
 
   const htmlMatch = raw.match(/HTML:\s*([\s\S]*?<html[\s\S]*?<\/html>)/i);
-  const html = htmlMatch?.[1]?.trim() ?? "";
+  let html = htmlMatch?.[1]?.trim() ?? "";
+  if (html) {
+    html = html.replace(/^```html\n?/i, '').trim();
+  }
   let body = "";
   let cta = "";
 
