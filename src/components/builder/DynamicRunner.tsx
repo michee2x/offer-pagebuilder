@@ -837,6 +837,13 @@ export function DynamicRunner({
     const button = target.closest('[data-product-id]') as HTMLElement;
     
     if (!button) return;
+
+    // If a checkout URL is already assigned for this page (via Products/Integrations),
+    // do NOT intercept — let the go() navigation handler deal with it.
+    if (checkoutUrls && activePagePath) {
+      const lookupPath = normalizeCheckoutPath(activePagePath);
+      if (checkoutUrls[lookupPath]) return;
+    }
     
     e.preventDefault();
     e.stopPropagation();
@@ -873,7 +880,7 @@ export function DynamicRunner({
         body: JSON.stringify({
           funnelId,
           productId,
-          gateway: 'stripe', // Default to Stripe for now
+          gateway: 'auto', // auto-detect from workspace payment integrations
           successUrl: currentUrl.includes('?') ? `${currentUrl}&success=true` : `${currentUrl}?success=true`,
           cancelUrl: currentUrl
         })
@@ -892,7 +899,7 @@ export function DynamicRunner({
       button.style.opacity = '1';
       button.style.pointerEvents = 'auto';
     }
-  }, [editMode, isBuilderMode]);
+  }, [editMode, isBuilderMode, checkoutUrls, activePagePath]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (err) {
