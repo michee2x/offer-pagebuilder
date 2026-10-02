@@ -144,32 +144,42 @@ export function ProductsClient({
     setLoading(true);
     try {
       if (id === "new") {
-        const { data, error } = await supabase
-          .from("products")
-          .insert({
-            funnel_id: funnelId,
-            name: editForm.name || "New Product",
-            price: editForm.price || 0,
-            currency: editForm.currency || "USD",
-            payment_type: editForm.payment_type || "one_time",
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'insert',
+            product: {
+              funnel_id: funnelId,
+              name: editForm.name || "New Product",
+              price: editForm.price || 0,
+              currency: editForm.currency || "USD",
+              payment_type: editForm.payment_type || "one_time",
+            }
           })
-          .select()
-          .single();
-
-        if (error) throw error;
-        setProducts([...products.filter((p) => p.id !== "new"), data]);
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Failed to create product");
+        
+        setProducts([...products.filter((p) => p.id !== "new"), result.data]);
       } else {
-        const { error } = await supabase
-          .from("products")
-          .update({
-            name: editForm.name,
-            price: editForm.price,
-            currency: editForm.currency,
-            payment_type: editForm.payment_type,
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'update',
+            id,
+            product: {
+              name: editForm.name,
+              price: editForm.price,
+              currency: editForm.currency,
+              payment_type: editForm.payment_type,
+            }
           })
-          .eq("id", id);
-
-        if (error) throw error;
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Failed to update product");
+        
         setProducts(
           products.map((p) => (p.id === id ? { ...p, ...editForm } : p))
         );
@@ -190,12 +200,18 @@ export function ProductsClient({
     }
     if (!confirm("Delete this product?")) return;
     try {
-      const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', id })
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to delete product");
+      
       setProducts(products.filter((p) => p.id !== id));
       toast.success("Product deleted.");
     } catch (err: any) {
-      toast.error("Failed to delete product.");
+      toast.error(err.message || "Failed to delete product.");
     }
   };
 
