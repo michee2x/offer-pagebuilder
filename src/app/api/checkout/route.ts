@@ -89,7 +89,7 @@ export async function POST(req: Request) {
       }
     }
 
-    if (!amount || !currency || !productName) {
+    if (amount === undefined || amount === null || !currency || !productName) {
       return NextResponse.json({ error: 'Missing product pricing details or no products found for this funnel.' }, { status: 400 });
     }
 
@@ -235,7 +235,7 @@ export async function GET(req: Request) {
       }
     }
 
-    if (!amount || !currency || !productName) {
+    if (amount === undefined || amount === null || !currency || !productName) {
       return NextResponse.json({ error: 'Missing product pricing details or no products found for this funnel.' }, { status: 400 });
     }
 
