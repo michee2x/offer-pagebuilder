@@ -10,9 +10,10 @@ const providers: Record<string, any> = {
 };
 
 
-export async function POST(req: Request, { params }: { params: Promise<{ gateway: string; funnelId: string }> }) {
+export async function POST(req: Request, { params }: { params: Promise<{ gateway: string; funnelId?: string[] }> }) {
   try {
-    const { gateway, funnelId } = await params;
+    const { gateway, funnelId: funnelIdParts } = await params;
+    const funnelId = Array.isArray(funnelIdParts) ? funnelIdParts[0] : funnelIdParts;
     const provider = providers[gateway];
 
     if (!provider) {
