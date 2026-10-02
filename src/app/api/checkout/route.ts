@@ -11,7 +11,7 @@ const providers: Record<string, any> = {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { funnelId, gateway, productId, pagePath, successUrl, cancelUrl, metadata } = body;
+    const { funnelId, gateway, productId, pagePath, successUrl, cancelUrl, metadata, payerEmail } = body;
     let { amount, currency, paymentType, productName } = body;
 
     if (!funnelId || !gateway) {
@@ -126,6 +126,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `Payment gateway ${selectedGateway} is not configured for this workspace.` }, { status: 400 });
     }
 
+    // Paystack strictly requires an email. If we don't have one, abort and tell the frontend to prompt for it.
+    if (selectedGateway === 'paystack' && !payerEmail) {
+      return NextResponse.json({ error: 'paystack_email_required' }, { status: 400 });
+    }
+
     // Call the respective provider to create the checkout
     const result = await provider.createCheckout({
       funnelId,
@@ -138,8 +143,9 @@ export async function POST(req: Request) {
       metadata: {
         ...metadata,
         funnelId,
-        productId,
+        productId: resolvedProductId,
         paymentType: paymentType || 'one_time',
+        payerEmail: payerEmail || undefined,
       }
     }, integration.credentials);
 
@@ -161,6 +167,7 @@ export async function GET(req: Request) {
     const gateway = searchParams.get('gateway') || 'auto';
     const productId = searchParams.get('productId');
     const pagePath = searchParams.get('pagePath');
+    const payerEmail = searchParams.get('payerEmail');
 
     if (!funnelId || !gateway) {
       return NextResponse.json({ error: 'Missing required checkout parameters' }, { status: 400 });
@@ -270,6 +277,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: `Payment gateway ${selectedGateway} is not configured for this workspace.` }, { status: 400 });
     }
 
+    if (selectedGateway === 'paystack' && !payerEmail) {
+      return NextResponse.json({ 
+        error: 'Paystack requires an email address. Please ensure you have an email capture step before this checkout link.' 
+      }, { status: 400 });
+    }
+
     const result = await provider.createCheckout({
       funnelId,
       amount,
@@ -282,6 +295,7 @@ export async function GET(req: Request) {
         funnelId,
         productId: resolvedProductId,
         paymentType: paymentType || 'one_time',
+        payerEmail: payerEmail || undefined,
       }
     }, integration.credentials);
 

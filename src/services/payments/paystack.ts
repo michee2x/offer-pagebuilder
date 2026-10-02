@@ -17,7 +17,7 @@ export const PaystackProvider: PaymentProvider = {
 
       const payload: any = {
         amount,
-        email: 'customer@example.com', // Paystack requires email to init transaction. We might need it in options, or pass a dummy
+        email: options.metadata?.payerEmail, // Provided dynamically from the prompt or lead capture
         currency: options.currency,
         callback_url: options.successUrl, // Note: Paystack redirects here on success
         metadata: {

@@ -874,6 +874,11 @@ export function DynamicRunner({
       button.style.opacity = '0.7';
       button.style.pointerEvents = 'none';
 
+      let buyerEmail = '';
+      if (typeof window !== 'undefined') {
+        buyerEmail = localStorage.getItem('ofiq_buyer_email') || '';
+      }
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -881,12 +886,50 @@ export function DynamicRunner({
           funnelId,
           productId,
           gateway: 'auto', // auto-detect from workspace payment integrations
+          payerEmail: buyerEmail || undefined,
           successUrl: currentUrl.includes('?') ? `${currentUrl}&success=true` : `${currentUrl}?success=true`,
           cancelUrl: currentUrl
         })
       });
 
       const data = await res.json();
+
+      if (data.error === 'paystack_email_required') {
+        // Paystack specifically requires an email address BEFORE checkout.
+        const email = window.prompt("Please enter your email address to proceed to checkout:");
+        if (email && email.includes('@')) {
+          localStorage.setItem('ofiq_buyer_email', email.trim());
+          
+          // Retry the checkout request with the new email
+          const retryRes = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              funnelId,
+              productId,
+              gateway: 'auto',
+              payerEmail: email.trim(),
+              successUrl: currentUrl.includes('?') ? `${currentUrl}&success=true` : `${currentUrl}?success=true`,
+              cancelUrl: currentUrl
+            })
+          });
+          
+          const retryData = await retryRes.json();
+          if (retryData.url) {
+            window.location.href = retryData.url;
+            return;
+          } else {
+            throw new Error(retryData.error || 'Failed to create checkout session');
+          }
+        } else {
+          // User cancelled the prompt or entered invalid email
+          button.innerText = btnText;
+          button.style.opacity = '1';
+          button.style.pointerEvents = 'auto';
+          return;
+        }
+      }
+
       if (data.url) {
         window.location.href = data.url;
       } else {
