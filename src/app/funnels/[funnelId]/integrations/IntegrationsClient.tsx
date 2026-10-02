@@ -406,6 +406,37 @@ export function IntegrationsClient({ funnelId, workspaceId, initialMakeUrl, init
                       );
                     })}
 
+                    {/* Webhook Endpoint */}
+                    <div className="mt-2 space-y-1.5">
+                      <label className="text-xs font-bold text-white/70 flex items-center gap-1.5">
+                        <Webhook className="w-3.5 h-3.5" />
+                        Webhook Endpoint URL
+                      </label>
+                      <p className="text-[11px] text-white/30">
+                        Copy this URL and paste it into your {config.label} dashboard under <strong className="text-white/50">Webhooks</strong>. This lets OfferIQ receive payment events and deliver your product automatically.
+                      </p>
+                      <div className="flex items-center gap-2 bg-black/50 border border-white/10 rounded-xl px-3 py-2.5">
+                        <code className="flex-1 text-[11px] text-teal-300 font-mono truncate select-all">
+                          {`https://www.ofiq.app/api/webhooks/payments/${gateway}/${funnelId}`}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(`https://www.ofiq.app/api/webhooks/payments/${gateway}/${funnelId}`);
+                            setCopiedPath(`webhook-${gateway}`);
+                            setTimeout(() => setCopiedPath(null), 2000);
+                            toast.success("Webhook URL copied!");
+                          }}
+                          className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 transition-all"
+                        >
+                          {copiedPath === `webhook-${gateway}` ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5 text-white/40" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
 
                   </div>
                 )}

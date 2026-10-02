@@ -210,7 +210,91 @@ export default function PaymentIntegrationGuidePage() {
           </section>
         </div>
 
+        {/* Webhook & Product Delivery Section */}
+        <div className="bg-gradient-to-br from-[#131826] to-[#0e1118] border border-teal-500/20 rounded-3xl p-8 shadow-2xl space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-teal-500/20 border border-teal-500/30">
+              <Webhook className="w-5 h-5 text-teal-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Webhook Setup & Product Delivery</h2>
+              <p className="text-xs text-white/50">Required for automatic product delivery after payment.</p>
+            </div>
+          </div>
+
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4 flex gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-white/70">
+              <strong className="text-white">Webhooks are required</strong> for product delivery to work. Without configuring a webhook in your payment provider&apos;s dashboard, OfferIQ will not be notified when a payment succeeds and your buyer will never receive the product email.
+            </p>
+          </div>
+
+          <div className="space-y-4 text-sm leading-relaxed">
+            {/* Step 1 */}
+            <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 space-y-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-500/20 text-teal-400 text-xs font-black">1</span>
+                Find Your Webhook URL in OfferIQ
+              </h3>
+              <ol className="list-decimal pl-5 space-y-2 text-white/70">
+                <li>Open your funnel and go to <strong className="text-white">Integrations</strong> → <strong className="text-white">API Keys</strong>.</li>
+                <li>Expand the payment gateway you are using (e.g. Paystack).</li>
+                <li>At the bottom of that panel, you will see a <strong className="text-white">Webhook Endpoint URL</strong> with a copy button.</li>
+                <li>Click the copy button — it will look like this:</li>
+              </ol>
+              <div className="bg-black/50 border border-white/10 rounded-xl px-4 py-3 font-mono text-xs text-teal-300 mt-2">
+                https://www.ofiq.app/api/webhooks/payments/paystack/YOUR-FUNNEL-ID
+              </div>
+            </div>
+
+            {/* Step 2 - Paystack */}
+            <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 space-y-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-500/20 text-teal-400 text-xs font-black">2</span>
+                Configure Webhook in Paystack
+              </h3>
+              <ol className="list-decimal pl-5 space-y-2 text-white/70">
+                <li>Go to <a href="https://dashboard.paystack.com" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline">dashboard.paystack.com</a>.</li>
+                <li>Navigate to <strong className="text-white">Settings</strong> → <strong className="text-white">API Keys &amp; Webhooks</strong>.</li>
+                <li>Under <strong className="text-white">Webhook URL</strong>, paste the URL you copied from OfferIQ.</li>
+                <li>Click <strong className="text-white">Update</strong> to save.</li>
+                <li>That&apos;s it! Every successful payment will now trigger OfferIQ to send a product delivery email to your buyer automatically.</li>
+              </ol>
+            </div>
+
+            {/* Step 2 - Stripe */}
+            <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 space-y-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 text-xs font-black">2</span>
+                Configure Webhook in Stripe
+              </h3>
+              <ol className="list-decimal pl-5 space-y-2 text-white/70">
+                <li>Go to <a href="https://dashboard.stripe.com/webhooks" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:underline">Stripe Dashboard → Webhooks</a>.</li>
+                <li>Click <strong className="text-white">Add endpoint</strong>.</li>
+                <li>Paste your OfferIQ Webhook URL in the <strong className="text-white">Endpoint URL</strong> field.</li>
+                <li>Under <strong className="text-white">Events to send</strong>, select <code className="bg-black/40 px-1.5 py-0.5 rounded text-xs">checkout.session.completed</code>.</li>
+                <li>Click <strong className="text-white">Add endpoint</strong> to save.</li>
+              </ol>
+            </div>
+
+            {/* What happens */}
+            <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-5 space-y-3">
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                What happens after a successful payment?
+              </h3>
+              <ol className="list-decimal pl-5 space-y-2 text-white/70">
+                <li>Your buyer completes checkout on Paystack/Stripe.</li>
+                <li>The payment provider instantly sends a webhook notification to OfferIQ.</li>
+                <li>OfferIQ verifies the payment, logs the purchase in your dashboard, and sends a <strong className="text-white">product delivery email</strong> to the buyer&apos;s email address.</li>
+                <li>The email contains a link to the <strong className="text-white">Delivery Page</strong> where they can download your blueprints, PDFs, or access your content.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Help Banner */}
+
         <div className="bg-gradient-to-r from-brand-blue/20 via-brand-indigo/20 to-purple-500/20 border border-indigo-500/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <HelpCircle className="w-8 h-8 text-indigo-400 shrink-0" />
