@@ -278,9 +278,40 @@ export async function GET(req: Request) {
     }
 
     if (selectedGateway === 'paystack' && !payerEmail) {
-      return NextResponse.json({ 
-        error: 'Paystack requires an email address. Please ensure you have an email capture step before this checkout link.' 
-      }, { status: 400 });
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Checkout Details</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            body { font-family: system-ui, -apple-system, sans-serif; background: #09090b; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+            .card { background: #18181b; padding: 2rem; border-radius: 1rem; border: 1px solid #27272a; max-width: 400px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+            h2 { margin-top: 0; font-size: 1.25rem; }
+            p { color: #a1a1aa; font-size: 0.875rem; margin-bottom: 1.5rem; }
+            input { width: 100%; box-sizing: border-box; background: #09090b; border: 1px solid #27272a; color: white; padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 1rem; }
+            input:focus { outline: none; border-color: #6366f1; }
+            button { width: 100%; background: #6366f1; color: white; border: none; padding: 0.75rem; border-radius: 0.5rem; font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 1rem; }
+            button:hover { background: #4f46e5; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h2>Enter your email</h2>
+            <p>We need your email address to send your receipt and deliver your purchase.</p>
+            <form method="GET" action="/api/checkout">
+              <input type="hidden" name="funnelId" value="${funnelId}" />
+              <input type="hidden" name="gateway" value="${gateway}" />
+              <input type="hidden" name="productId" value="${resolvedProductId || ''}" />
+              <input type="hidden" name="pagePath" value="${pagePath || ''}" />
+              <input type="email" name="payerEmail" placeholder="your@email.com" required autofocus />
+              <button type="submit">Continue to Checkout</button>
+            </form>
+          </div>
+        </body>
+        </html>
+      `;
+      return new NextResponse(html, { headers: { 'Content-Type': 'text/html' } });
     }
 
     const result = await provider.createCheckout({
