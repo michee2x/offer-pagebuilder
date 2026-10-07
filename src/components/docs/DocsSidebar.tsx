@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, MessageCircle, ArrowLeft } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -13,7 +13,7 @@ interface NavItem {
 
 interface NavSection {
   title: string;
-  icon: string;
+  icon?: string; // only used for Getting Started (rocket)
   items: NavItem[];
 }
 
@@ -29,7 +29,6 @@ const NAV: NavSection[] = [
   },
   {
     title: "Intelligence & Analysis",
-    icon: "🧠",
     items: [
       { label: "Offer Analysis", href: "/docs/offer-analysis" },
       { label: "Intelligence Report", href: "/docs/intelligence" },
@@ -37,7 +36,6 @@ const NAV: NavSection[] = [
   },
   {
     title: "Copy & Content",
-    icon: "✍️",
     items: [
       { label: "Copy Engine", href: "/docs/copy-engine" },
       { label: "Email Sequences", href: "/docs/email-sequences" },
@@ -45,7 +43,6 @@ const NAV: NavSection[] = [
   },
   {
     title: "Build",
-    icon: "🏗️",
     items: [
       { label: "Page Builder", href: "/docs/page-builder" },
       { label: "Funnel Management", href: "/docs/funnels" },
@@ -54,7 +51,6 @@ const NAV: NavSection[] = [
   },
   {
     title: "Traffic & Growth",
-    icon: "📈",
     items: [
       { label: "Traffic Intelligence", href: "/docs/traffic-intelligence" },
       { label: "Analytics & Tracking", href: "/docs/analytics" },
@@ -62,7 +58,6 @@ const NAV: NavSection[] = [
   },
   {
     title: "Workspace & Settings",
-    icon: "⚙️",
     items: [
       { label: "Workspaces", href: "/docs/workspaces" },
       { label: "API Keys (BYOK)", href: "/docs/byok" },
@@ -71,7 +66,6 @@ const NAV: NavSection[] = [
   },
   {
     title: "Billing",
-    icon: "💳",
     items: [
       { label: "Plans & Pricing", href: "/docs/billing" },
       { label: "Payments FAQ", href: "/docs/payments" },
@@ -96,7 +90,7 @@ function SectionGroup({
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/30 hover:text-white/50 transition-colors"
       >
-        <span className="text-base">{section.icon}</span>
+        {section.icon && <span className="text-base leading-none">{section.icon}</span>}
         <span className="flex-1 text-left">{section.title}</span>
         {open ? (
           <ChevronDown className="w-3 h-3 shrink-0" />
@@ -118,16 +112,16 @@ function SectionGroup({
                 href={item.href}
                 className={`relative flex items-center gap-2 mx-2 px-3 py-2 rounded-lg text-sm transition-all ${
                   isActive
-                    ? "bg-amber-500/10 text-amber-400 font-medium"
+                    ? "bg-[#ff6b35]/10 text-[#ff6b35] font-medium"
                     : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
                 }`}
               >
                 {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-amber-400 rounded-r-full" />
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[#ff6b35] rounded-r-full" />
                 )}
                 <span className="flex-1 pl-1">{item.label}</span>
                 {item.badge && (
-                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-[#ff6b35]/15 text-[#ff6b35] border border-[#ff6b35]/25">
                     {item.badge}
                   </span>
                 )}
@@ -156,7 +150,7 @@ export function DocsSidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/[0.06]">
         <Link href="/docs" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#f5a623] to-[#ff6b35] flex items-center justify-center shadow-lg shadow-[#ff6b35]/20">
             <span className="text-xs font-black text-black">IQ</span>
           </div>
           <div className="leading-none">
@@ -184,14 +178,14 @@ export function DocsSidebar() {
           href="mailto:support@ofiq.app"
           className="flex items-center gap-2 text-xs text-white/30 hover:text-white/60 transition-colors"
         >
-          <span>💬</span>
+          <MessageCircle className="w-3.5 h-3.5 shrink-0" />
           <span>Contact support</span>
         </a>
         <Link
           href="/"
           className="flex items-center gap-2 text-xs text-white/30 hover:text-white/60 transition-colors"
         >
-          <span>↩</span>
+          <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
           <span>Back to app</span>
         </Link>
       </div>

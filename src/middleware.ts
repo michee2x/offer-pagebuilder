@@ -70,7 +70,12 @@ export default async function middleware(req: NextRequest) {
   // No auth required — docs are fully public.
   if (hostnameWithoutPort === 'docs.ofiq.app') {
     const pathname = url.pathname
-    // Root of docs.ofiq.app → /docs
+    // If the path already starts with /docs (e.g. sidebar links like /docs/quickstart),
+    // pass it through directly to avoid double-prefixing (/docs/docs/…).
+    if (pathname.startsWith('/docs')) {
+      return NextResponse.rewrite(new URL(pathname, req.url))
+    }
+    // Root → /docs, everything else → /docs/{path}
     const destination = pathname === '/' ? '/docs' : `/docs${pathname}`
     return NextResponse.rewrite(new URL(destination, req.url))
   }
