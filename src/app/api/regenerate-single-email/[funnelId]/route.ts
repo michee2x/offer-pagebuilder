@@ -24,6 +24,8 @@ const PAGE_SEQUENCE_GUIDANCE: Record<FunnelPageKey, string> = {
     'Emails for those who didn\'t take the upsell. Acknowledge their decision, then introduce a lighter/more affordable alternative. Position it as an easy win that complements their main purchase.',
   thankyou:
     'Post-purchase onboarding emails. Welcome them as a customer, set expectations for what happens next, deliver access instructions, and encourage early engagement with the product. Make them feel confident about their purchase.',
+  custom_emails:
+    'Custom follow-up emails tailored to this specific funnel stage. Write engaging, value-driven emails that naturally guide the reader toward the next intended action.',
 };
 
 export async function POST(
