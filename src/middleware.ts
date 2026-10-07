@@ -65,6 +65,16 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
+  // ── Docs subdomain (docs.ofiq.app) ──
+  // Rewrites all traffic from docs.ofiq.app → /docs/* internally.
+  // No auth required — docs are fully public.
+  if (hostnameWithoutPort === 'docs.ofiq.app') {
+    const pathname = url.pathname
+    // Root of docs.ofiq.app → /docs
+    const destination = pathname === '/' ? '/docs' : `/docs${pathname}`
+    return NextResponse.rewrite(new URL(destination, req.url))
+  }
+
   // Define allowed domain base
   const allowedBaseDomains = [
     'localhost',
@@ -76,6 +86,7 @@ export default async function middleware(req: NextRequest) {
     'offeriq.com',
     'ofiq.app',
     'www.ofiq.app',
+    'docs.ofiq.app',
     'vercel.pub'
   ];
 

@@ -1,221 +1,203 @@
 import Link from "next/link";
-import { ExternalLink, Key, BookOpen, Zap, Shield, ChevronRight } from "lucide-react";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
-import { getSession } from "@/auth";
+import { ArrowRight, Zap, Brain, FileText, Mail, BarChart2, Globe } from "lucide-react";
 
 export const metadata = {
-  title: "Documentation | OfferIQ",
+  title: "Introduction | OfferIQ Docs",
   description:
-    "Learn how to use OfferIQ, integrate your own API keys (BYOK), and get the most out of your plan.",
+    "Learn how OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan built in one session.",
 };
 
-const PLATFORMS = [
+const FEATURES = [
   {
-    name: "Anthropic (Claude)",
-    logo: "🤖",
-    steps: [
-      "Go to console.anthropic.com and sign in or create a free account.",
-      'Navigate to Settings → API Keys and click "Create Key".',
-      "Copy your key — it starts with sk-ant-…",
-      'In OfferIQ, open Settings → AI & Intelligence, paste it in the Anthropic API Key field, then click "Save Keys".',
-    ],
-    links: [
-      { label: "Anthropic Console", url: "https://console.anthropic.com/settings/keys" },
-      { label: "Official API Docs", url: "https://docs.anthropic.com/en/api/getting-started" },
-      { label: "Claude Pricing", url: "https://www.anthropic.com/pricing" },
-    ],
+    icon: Brain,
+    color: "amber",
+    title: "Offer Analysis & Intelligence",
+    desc: "Input your offer details and receive a deep AI-generated intelligence report covering market positioning, persona psychology, offer scoring, and conversion hooks.",
+    href: "/docs/offer-analysis",
   },
   {
-    name: "OpenAI (ChatGPT / GPT-4)",
-    logo: "🧠",
-    steps: [
-      "Go to platform.openai.com and sign in or create an account.",
-      'Navigate to API Keys in the left sidebar and click "Create new secret key".',
-      "Give it a name (e.g., OfferIQ) and copy the key — it starts with sk-…",
-      'In OfferIQ, open Settings → AI & Intelligence, paste it in the OpenAI API Key field, then click "Save Keys".',
-    ],
-    links: [
-      { label: "OpenAI Platform", url: "https://platform.openai.com/api-keys" },
-      { label: "Official API Docs", url: "https://platform.openai.com/docs/api-reference/authentication" },
-      { label: "OpenAI Pricing", url: "https://openai.com/pricing" },
-    ],
+    icon: FileText,
+    color: "blue",
+    title: "Copy Engine",
+    desc: "Generate conversion-focused sales copy driven by your intelligence report. Every word is rooted in the pain points and messaging angles the AI discovered.",
+    href: "/docs/copy-engine",
   },
-];
-
-const QUICK_LINKS = [
   {
-    icon: Key,
-    label: "Integrate API Key",
-    href: "/settings?tab=ai",
-    desc: "Connect your Anthropic or OpenAI key",
+    icon: Globe,
+    color: "purple",
+    title: "Page Builder",
+    desc: "Build high-converting landing pages and sales pages visually. No code needed — publish directly to your custom domain.",
+    href: "/docs/page-builder",
+  },
+  {
+    icon: Mail,
+    color: "green",
+    title: "Email Sequences",
+    desc: "AI-written email sequences tuned to your audience's psychology. Welcome flows, nurture sequences, and sales campaigns all in one place.",
+    href: "/docs/email-sequences",
   },
   {
     icon: Zap,
-    label: "Create an Offer",
-    href: "/analyze",
-    desc: "Start generating with AI",
+    color: "orange",
+    title: "Traffic Intelligence",
+    desc: "Get an AI-generated traffic strategy with platform priorities, budget allocation, and campaign recommendations tailored to your offer.",
+    href: "/docs/traffic-intelligence",
   },
   {
-    icon: Shield,
-    label: "Billing & Plan",
-    href: "/settings?tab=billing",
-    desc: "Manage your subscription",
-  },
-  {
-    icon: BookOpen,
-    label: "Payments FAQ",
-    href: "/docs/payments",
-    desc: "Questions about billing & refunds",
+    icon: BarChart2,
+    color: "cyan",
+    title: "Analytics & Tracking",
+    desc: "Monitor funnel performance, email open rates, lead capture, and campaign ROI from a single live dashboard.",
+    href: "/docs/analytics",
   },
 ];
 
-export default async function DocsPage() {
-  const session = await getSession();
+const colorMap: Record<string, string> = {
+  amber: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+  blue: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+  purple: "bg-purple-500/10 border-purple-500/20 text-purple-400",
+  green: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+  orange: "bg-orange-500/10 border-orange-500/20 text-orange-400",
+  cyan: "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
+};
 
-  const pageContent = (
-    <div className="min-h-screen bg-[#030712]">
-      {/* Hero */}
-      <div className="border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
-        <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 mb-6 text-xs text-white/50 font-medium uppercase tracking-wider">
-            <BookOpen className="w-3 h-3" /> Documentation
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
-            OfferIQ Help Center
-          </h1>
-          <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
-            Guides, integration instructions, and everything you need to get the most out of OfferIQ.
-          </p>
+const STEPS = [
+  {
+    n: "1",
+    title: "Analyze your offer",
+    desc: "Enter your product name, price, audience, and key benefits. OfferIQ's AI runs a deep structural and strategic analysis.",
+    href: "/docs/offer-analysis",
+  },
+  {
+    n: "2",
+    title: "Review the Intelligence Report",
+    desc: "Read your offer score, funnel blueprint, persona psychology, and messaging angle matrix. Everything downstream is powered by this.",
+    href: "/docs/intelligence",
+  },
+  {
+    n: "3",
+    title: "Generate your system",
+    desc: "With one click, AI creates your sales copy, landing pages, email sequence, and traffic strategy — simultaneously.",
+    href: "/docs/copy-engine",
+  },
+  {
+    n: "4",
+    title: "Customize & publish",
+    desc: "Make quick edits in the Page Builder and Copy Engine. Connect your domain and email service, then go live.",
+    href: "/docs/page-builder",
+  },
+];
+
+export default function DocsIndexPage() {
+  return (
+    <article className="max-w-4xl mx-auto px-6 py-12 md:py-16">
+
+      {/* Page header */}
+      <div className="mb-12">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-5">
+          Getting Started
+        </div>
+        <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight mb-4">
+          Welcome to OfferIQ
+        </h1>
+        <p className="text-white/60 text-lg leading-relaxed max-w-2xl">
+          OfferIQ turns any idea into a complete, revenue-ready offer — strategy, copy, funnel, and traffic plan built in one session. This guide will show you exactly how everything works.
+        </p>
+
+        <div className="flex flex-wrap gap-3 mt-6">
+          <Link
+            href="/docs/quickstart"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold text-sm hover:opacity-90 transition-opacity"
+          >
+            Quick Start (5 min) <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/docs/offer-analysis"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 text-white/70 font-medium text-sm hover:border-white/20 hover:text-white transition-all"
+          >
+            Start with Offer Analysis
+          </Link>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-12 space-y-16">
-
-        {/* Quick Links */}
-        <section>
-          <h2 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4">
-            Quick Links
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {QUICK_LINKS.map(({ icon: Icon, label, href, desc }) => (
-              <Link
-                key={href}
-                href={href}
-                className="group flex items-center gap-4 p-4 rounded-xl border border-white/8 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all"
-              >
-                <div className="w-10 h-10 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white transition-colors shrink-0">
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium text-sm">{label}</p>
-                  <p className="text-white/40 text-xs mt-0.5">{desc}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/50 transition-colors shrink-0" />
-              </Link>
-            ))}
+      {/* What is OfferIQ */}
+      <section className="mb-14">
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-7">
+          <h2 className="text-xl font-bold text-white mb-3">What is OfferIQ?</h2>
+          <p className="text-white/60 leading-relaxed mb-4">
+            OfferIQ is an AI-first marketing platform that does the heavy lifting of offer creation for you. Instead of starting with a blank canvas, you start with a deep <strong className="text-white/80">Intelligence Report</strong> — a comprehensive AI analysis of your offer, your audience, and your market.
+          </p>
+          <p className="text-white/60 leading-relaxed mb-4">
+            That intelligence report then drives everything else: the sales copy it writes, the funnel structure it recommends, the email sequences it builds, and the traffic strategy it generates. Everything is connected and purposeful.
+          </p>
+          <div className="mt-5 p-4 rounded-xl bg-amber-500/[0.07] border border-amber-500/20">
+            <p className="text-amber-300 text-sm font-medium">
+              💡 The core idea: AI handles 80% of the work. You control the key decisions.
+            </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* BYOK Guide */}
-        <section id="byok">
-          <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-6 mb-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-2xl shrink-0">
-                🔑
+      {/* The 4-step flow */}
+      <section className="mb-14">
+        <h2 className="text-2xl font-bold text-white mb-2">How it works</h2>
+        <p className="text-white/50 mb-7">Four phases take you from offer idea to live marketing system.</p>
+        <div className="space-y-4">
+          {STEPS.map((step) => (
+            <Link
+              key={step.n}
+              href={step.href}
+              className="group flex items-start gap-5 p-5 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all"
+            >
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center font-black text-black text-sm shadow-lg shadow-amber-500/20">
+                {step.n}
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Bring Your Own Key (BYOK)</h2>
-                <p className="text-white/60 text-sm mt-1 leading-relaxed">
-                  You&apos;re on the Unlimited plan, which means you use your own AI provider API keys
-                  instead of monthly credits. Follow the steps below for your preferred platform.
-                </p>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-semibold text-base mb-1">{step.title}</p>
+                <p className="text-white/50 text-sm leading-relaxed">{step.desc}</p>
               </div>
-            </div>
-          </div>
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-amber-400 shrink-0 mt-1 transition-colors" />
+            </Link>
+          ))}
+        </div>
+      </section>
 
-          <div className="space-y-6">
-            {PLATFORMS.map((platform) => (
-              <div
-                key={platform.name}
-                className="rounded-xl border border-white/8 bg-white/[0.02] overflow-hidden"
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{platform.logo}</span>
-                    <h3 className="text-white font-semibold">{platform.name}</h3>
-                  </div>
-                  <Link
-                    href="/settings?tab=ai"
-                    className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
-                  >
-                    Add key in Settings <ChevronRight className="w-3 h-3" />
-                  </Link>
-                </div>
-
-                {/* Steps */}
-                <div className="px-6 py-5">
-                  <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4">
-                    Setup Steps
-                  </p>
-                  <ol className="space-y-3">
-                    {platform.steps.map((step, i) => (
-                      <li key={i} className="flex gap-3 text-sm text-white/70">
-                        <span className="shrink-0 w-6 h-6 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-xs font-bold text-white/40">
-                          {i + 1}
-                        </span>
-                        <span className="pt-0.5 leading-relaxed">{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-
-                {/* External links */}
-                <div className="px-6 py-4 border-t border-white/5 flex flex-wrap gap-2">
-                  {platform.links.map((link) => (
-                    <a
-                      key={link.url}
-                      href={link.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 border border-white/10 hover:border-white/20 px-3 py-1.5 rounded-lg transition-all"
-                    >
-                      {link.label} <ExternalLink className="w-3 h-3" />
-                    </a>
-                  ))}
-                </div>
+      {/* Feature grid */}
+      <section className="mb-14">
+        <h2 className="text-2xl font-bold text-white mb-2">Explore all features</h2>
+        <p className="text-white/50 mb-7">Everything OfferIQ can do, documented in detail.</p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {FEATURES.map(({ icon: Icon, color, title, desc, href }) => (
+            <Link
+              key={href}
+              href={href}
+              className="group p-5 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all"
+            >
+              <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 ${colorMap[color]}`}>
+                <Icon className="w-5 h-5" />
               </div>
-            ))}
-          </div>
-        </section>
+              <p className="text-white font-semibold mb-2">{title}</p>
+              <p className="text-white/50 text-sm leading-relaxed">{desc}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-        {/* Footer note */}
-        <div className="border-t border-white/5 pt-8 text-center">
-          <p className="text-white/30 text-sm">
-            Can&apos;t find what you&apos;re looking for?{" "}
-            <a href="mailto:support@ofiq.app" className="text-blue-400 hover:underline">
-              Contact support
-            </a>
+      {/* Help */}
+      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="flex-1">
+          <p className="text-white font-semibold mb-1">Need help?</p>
+          <p className="text-white/50 text-sm">
+            Can&apos;t find what you&apos;re looking for? Our team responds within a few hours.
           </p>
         </div>
+        <a
+          href="mailto:support@ofiq.app"
+          className="shrink-0 px-4 py-2 rounded-xl border border-white/10 text-white/70 text-sm font-medium hover:border-white/20 hover:text-white transition-all"
+        >
+          support@ofiq.app
+        </a>
       </div>
-    </div>
+    </article>
   );
-
-  // Authenticated users get the full Sidebar + Topbar layout
-  if (session?.user) {
-    return (
-      <div className="flex h-screen overflow-hidden bg-[#030712]">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <Topbar breadcrumbs={[{ label: "Docs", href: "/docs" }]} />
-          <main className="flex-1 overflow-y-auto pt-16">{pageContent}</main>
-        </div>
-      </div>
-    );
-  }
-
-  // Public / unauthenticated visitors
-  return pageContent;
 }
