@@ -25,11 +25,11 @@ export default function FunnelsPage() {
         </p>
         <div className="grid sm:grid-cols-2 gap-3">
           {[
-            { icon: "🧠", label: "Intelligence Report", desc: "The AI analysis that drives everything" },
-            { icon: "📄", label: "Landing Pages", desc: "All pages in the funnel sequence" },
-            { icon: "✍️", label: "Sales Copy", desc: "Your complete copy document" },
-            { icon: "📧", label: "Email Sequences", desc: "Welcome, nurture, and sales emails" },
-            { icon: "📈", label: "Traffic Strategy", desc: "Platform recommendations & campaigns" },
+            { icon: "", label: "Intelligence Report", desc: "The AI analysis that drives everything" },
+            { icon: "", label: "Landing Pages", desc: "All pages in the funnel sequence" },
+            { icon: "", label: "Sales Copy", desc: "Your complete copy document" },
+            { icon: "", label: "Email Sequences", desc: "Welcome, nurture, and sales emails" },
+            { icon: "", label: "Traffic Strategy", desc: "Platform recommendations & campaigns" },
             { icon: "📊", label: "Analytics", desc: "Lead data, conversions, and performance" },
           ].map((item) => (
             <div key={item.label} className="flex items-start gap-3 p-4 rounded-xl border border-white/[0.07] bg-white/[0.02]">
@@ -106,7 +106,7 @@ export default function FunnelsPage() {
 
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/page-builder" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Page Builder</Link>
-        <Link href="/docs/traffic-intelligence" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Traffic Intelligence →</Link>
+        <Link href="/docs/traffic-intelligence" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Traffic Intelligence →</Link>
       </div>
     </article>
   );

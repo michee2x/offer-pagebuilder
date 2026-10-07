@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, ChevronRight, MessageCircle, ArrowLeft } from "lucide-react";
+import { ChevronDown, ChevronRight, MessageCircle, ArrowLeft, Zap } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -112,16 +112,16 @@ function SectionGroup({
                 href={item.href}
                 className={`relative flex items-center gap-2 mx-2 px-3 py-2 rounded-lg text-sm transition-all ${
                   isActive
-                    ? "bg-[#ff6b35]/10 text-[#ff6b35] font-medium"
-                    : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
+                    ? "bg-brand-blue/10 text-brand-blue font-medium"
+                    : "text-white/70 hover:text-white hover:bg-white/[0.04]"
                 }`}
               >
                 {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[#ff6b35] rounded-r-full" />
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-brand-blue rounded-r-full" />
                 )}
                 <span className="flex-1 pl-1">{item.label}</span>
                 {item.badge && (
-                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-[#ff6b35]/15 text-[#ff6b35] border border-[#ff6b35]/25">
+                  <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-brand-blue/15 text-brand-blue border border-brand-blue/25">
                     {item.badge}
                   </span>
                 )}
@@ -150,11 +150,11 @@ export function DocsSidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/[0.06]">
         <Link href="/docs" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#f5a623] to-[#ff6b35] flex items-center justify-center shadow-lg shadow-[#ff6b35]/20">
-            <span className="text-xs font-black text-black">IQ</span>
+          <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white shadow-[0_0_12px_rgba(59,130,246,0.4)]">
+            <Zap className="w-5 h-5" />
           </div>
           <div className="leading-none">
-            <span className="text-white font-bold text-sm block">OfferIQ</span>
+            <span className="text-white font-bold text-sm block">Offer<span className="text-brand-blue">IQ</span></span>
             <span className="text-white/30 text-[11px]">Documentation</span>
           </div>
         </Link>

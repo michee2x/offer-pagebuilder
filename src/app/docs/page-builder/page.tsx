@@ -110,7 +110,7 @@ export default function PageBuilderPage() {
       {/* Nav */}
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/email-sequences" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Email Sequences</Link>
-        <Link href="/docs/funnels" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Funnel Management →</Link>
+        <Link href="/docs/funnels" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Funnel Management →</Link>
       </div>
     </article>
   );

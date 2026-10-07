@@ -43,7 +43,7 @@ export default function BillingPage() {
             {
               name: "Pro",
               price: "$79/mo",
-              color: "amber",
+              color: "blue",
               highlight: true,
               desc: "For serious creators and small businesses ready to build and launch complete funnel systems.",
               features: [
@@ -85,7 +85,7 @@ export default function BillingPage() {
               key={name}
               className={`rounded-2xl border p-6 ${
                 highlight
-                  ? "border-amber-500/40 bg-amber-500/[0.06]"
+                  ? "border-brand-blue/40 bg-brand-blue/[0.06]"
                   : "border-white/[0.08] bg-white/[0.02]"
               }`}
             >
@@ -94,7 +94,7 @@ export default function BillingPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <p className="text-white font-bold text-lg">{name}</p>
                     {highlight && (
-                      <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                      <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-brand-blue/20 text-brand-blue border border-brand-blue/30">
                         Most Popular
                       </span>
                     )}
@@ -104,8 +104,8 @@ export default function BillingPage() {
                 <div className="text-right shrink-0 ml-4">
                   <p
                     className={`text-2xl font-bold ${
-                      color === "amber"
-                        ? "text-amber-400"
+                      color === "blue"
+                        ? "text-brand-blue"
                         : color === "purple"
                         ? "text-purple-400"
                         : "text-white"
@@ -120,8 +120,8 @@ export default function BillingPage() {
                   <div key={f} className="flex items-center gap-2 text-sm text-white/55">
                     <span
                       className={
-                        color === "amber"
-                          ? "text-amber-400"
+                        color === "blue"
+                          ? "text-brand-blue"
                           : color === "purple"
                           ? "text-purple-400"
                           : "text-emerald-400"
@@ -137,7 +137,7 @@ export default function BillingPage() {
                 href={href}
                 className={`inline-flex items-center px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
                   highlight
-                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-black hover:opacity-90"
+                    ? "bg-gradient-to-r from-brand-blue to-brand-purple text-black hover:opacity-90"
                     : "border border-white/10 text-white/70 hover:border-white/20 hover:text-white"
                 }`}
               >
@@ -188,7 +188,7 @@ export default function BillingPage() {
 
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/agency" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Agency Features</Link>
-        <Link href="/docs/payments" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Payments FAQ →</Link>
+        <Link href="/docs/payments" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Payments FAQ →</Link>
       </div>
     </article>
   );

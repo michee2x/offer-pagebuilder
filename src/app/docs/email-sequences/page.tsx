@@ -29,7 +29,7 @@ export default function EmailSequencesPage() {
             {
               type: "Welcome Sequence",
               emails: "3–5 emails",
-              color: "amber",
+              color: "blue",
               desc: "Sent immediately after a subscriber opts in. Sets expectations, builds trust, tells your origin story, and transitions into your first soft pitch. Typically sent over days 1–5.",
             },
             {
@@ -54,18 +54,18 @@ export default function EmailSequencesPage() {
             <div
               key={type}
               className={`p-5 rounded-xl border ${
-                color === "amber" ? "border-amber-500/20 bg-amber-500/[0.04]" :
+                color === "blue" ? "border-brand-blue/20 bg-brand-blue/10" :
                 color === "blue" ? "border-blue-500/20 bg-blue-500/[0.04]" :
-                color === "orange" ? "border-orange-500/20 bg-orange-500/[0.04]" :
+                color === "orange" ? "border-brand-purple/20 bg-brand-purple/[0.04]" :
                 "border-purple-500/20 bg-purple-500/[0.04]"
               }`}
             >
               <div className="flex items-center gap-3 mb-2.5">
                 <p className="text-white font-semibold">{type}</p>
                 <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${
-                  color === "amber" ? "bg-amber-500/15 text-amber-400 border-amber-500/25" :
+                  color === "blue" ? "bg-brand-blue/15 text-brand-blue border-brand-blue/25" :
                   color === "blue" ? "bg-blue-500/15 text-blue-400 border-blue-500/25" :
-                  color === "orange" ? "bg-orange-500/15 text-orange-400 border-orange-500/25" :
+                  color === "orange" ? "bg-brand-purple/15 text-orange-400 border-brand-purple/25" :
                   "bg-purple-500/15 text-purple-400 border-purple-500/25"
                 }`}>{emails}</span>
               </div>
@@ -126,16 +126,16 @@ export default function EmailSequencesPage() {
         <p className="text-white/60 leading-relaxed mb-5">
           OfferIQ generates and manages your email copy. To actually send emails to your list, connect your email service provider via <strong className="text-white/80">Settings → Integrations</strong>.
         </p>
-        <div className="p-4 rounded-xl bg-amber-500/[0.07] border border-amber-500/20">
-          <p className="text-amber-300 text-sm font-medium mb-1">Supported email providers</p>
-          <p className="text-amber-200/60 text-sm">Mailchimp, ActiveCampaign, ConvertKit, and more via Zapier integration. Direct API integrations are being added regularly — check Settings → Integrations for the current list.</p>
+        <div className="p-4 rounded-xl bg-brand-blue/10 border border-brand-blue/20">
+          <p className="text-brand-blue text-sm font-medium mb-1">Supported email providers</p>
+          <p className="text-brand-blue/60 text-sm">Mailchimp, ActiveCampaign, ConvertKit, and more via Zapier integration. Direct API integrations are being added regularly — check Settings → Integrations for the current list.</p>
         </div>
       </section>
 
       {/* Nav */}
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/copy-engine" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Copy Engine</Link>
-        <Link href="/docs/page-builder" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Page Builder →</Link>
+        <Link href="/docs/page-builder" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Page Builder →</Link>
       </div>
     </article>
   );

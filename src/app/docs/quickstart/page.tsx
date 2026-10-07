@@ -10,7 +10,7 @@ export default function QuickStartPage() {
   return (
     <article className="max-w-3xl mx-auto px-6 py-12 md:py-16">
       <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-xs font-semibold uppercase tracking-wider mb-5">
           Getting Started
         </div>
         <h1 className="text-4xl font-bold text-white tracking-tight mb-4">Quick Start</h1>
@@ -26,7 +26,7 @@ export default function QuickStartPage() {
           {[
             { check: "✅", text: "An active OfferIQ account (free or paid)" },
             { check: "✅", text: "Your offer details ready: product name, price, audience, and key benefits" },
-            { check: "⚡", text: "Optional: An Anthropic or OpenAI API key if you're on the Unlimited (BYOK) plan" },
+            { check: "", text: "Optional: An Anthropic or OpenAI API key if you're on the Unlimited (BYOK) plan" },
           ].map((item, i) => (
             <div key={i} className="flex items-start gap-3 px-5 py-3.5 text-sm text-white/60">
               <span className="text-base shrink-0 mt-0.5">{item.check}</span>
@@ -36,7 +36,7 @@ export default function QuickStartPage() {
         </div>
         <p className="text-white/40 text-sm mt-3">
           On the Unlimited plan and no API key yet?{" "}
-          <Link href="/docs/byok" className="text-amber-400 hover:underline">
+          <Link href="/docs/byok" className="text-brand-blue hover:underline">
             Set up your API key first →
           </Link>
         </p>
@@ -76,7 +76,7 @@ export default function QuickStartPage() {
                     "Your unique selling proposition (what makes this different)",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className="text-amber-400 mt-0.5">→</span>
+                      <span className="text-brand-blue mt-0.5">→</span>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -98,7 +98,7 @@ export default function QuickStartPage() {
                     { tab: "Monetization Strategy", desc: "Product value perception, use case scenarios, master narrative" },
                   ].map((t) => (
                     <div key={t.tab} className="flex items-start gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                      <span className="text-amber-400 font-mono text-xs mt-0.5 shrink-0">[tab]</span>
+                      <span className="text-brand-blue font-mono text-xs mt-0.5 shrink-0">[tab]</span>
                       <div>
                         <p className="text-white/80 font-medium text-xs">{t.tab}</p>
                         <p className="text-white/50 text-xs mt-0.5">{t.desc}</p>
@@ -154,7 +154,7 @@ export default function QuickStartPage() {
         ].map((step) => (
           <div key={step.n} className="flex gap-5">
             <div className="flex flex-col items-center gap-1">
-              <div className="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center font-black text-black text-sm shadow-lg shadow-amber-500/20">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center font-black text-black text-sm shadow-lg shadow-brand-blue/20">
                 {step.n}
               </div>
               <div className="flex-1 w-px bg-white/[0.06]" />
@@ -186,7 +186,7 @@ export default function QuickStartPage() {
                 <p className="text-white font-medium text-sm">{item.label}</p>
                 <p className="text-white/40 text-xs mt-0.5">{item.desc}</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-amber-400 transition-colors shrink-0" />
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-brand-blue transition-colors shrink-0" />
             </Link>
           ))}
         </div>

@@ -9,7 +9,7 @@ export default function ConceptsPage() {
   return (
     <article className="max-w-3xl mx-auto px-6 py-12 md:py-16">
       <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-xs font-semibold uppercase tracking-wider mb-5">
           Getting Started
         </div>
         <h1 className="text-4xl font-bold text-white tracking-tight mb-4">Core Concepts</h1>
@@ -78,7 +78,7 @@ BYOK — Bring Your Own Key (Unlimited): You connect your own Anthropic or OpenA
 
       <div className="mt-10 pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/quickstart" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Quick Start</Link>
-        <Link href="/docs/offer-analysis" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Offer Analysis →</Link>
+        <Link href="/docs/offer-analysis" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Offer Analysis →</Link>
       </div>
     </article>
   );

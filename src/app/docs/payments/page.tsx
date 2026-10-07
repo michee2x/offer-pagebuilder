@@ -54,7 +54,7 @@ export default function PaymentIntegrationGuidePage() {
         {/* Table of Contents */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { title: "Stripe Setup", href: "#stripe", icon: "💳", color: "from-violet-500/20 to-indigo-500/20", border: "border-violet-500/20" },
+            { title: "Stripe Setup", href: "#stripe", icon: "", color: "from-violet-500/20 to-indigo-500/20", border: "border-violet-500/20" },
             { title: "Paystack Setup", href: "#paystack", icon: "🏦", color: "from-teal-500/20 to-cyan-500/20", border: "border-teal-500/20" },
             { title: "PayPal Setup", href: "#paypal", icon: "🅿️", color: "from-blue-500/20 to-sky-500/20", border: "border-blue-500/20" },
           ].map((item) => (
@@ -77,7 +77,7 @@ export default function PaymentIntegrationGuidePage() {
           {/* Section 1: Stripe */}
           <section id="stripe" className="bg-[#131826] border border-white/10 rounded-2xl p-8 space-y-6 shadow-xl">
             <div className="flex items-center gap-3 border-b border-white/10 pb-6">
-              <span className="text-3xl">💳</span>
+              <span className="text-3xl"></span>
               <div>
                 <h2 className="text-2xl font-bold text-white">Stripe Setup Guide</h2>
                 <p className="text-xs text-white/50">Accept credit cards, Apple Pay, Google Pay worldwide.</p>
@@ -222,8 +222,8 @@ export default function PaymentIntegrationGuidePage() {
             </div>
           </div>
 
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4 flex gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="bg-brand-blue/10 border border-brand-blue/20 rounded-xl px-5 py-4 flex gap-3">
+            <AlertTriangle className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
             <p className="text-sm text-white/70">
               <strong className="text-white">Webhooks are required</strong> for product delivery to work. Without configuring a webhook in your payment provider&apos;s dashboard, OfferIQ will not be notified when a payment succeeds and your buyer will never receive the product email.
             </p>

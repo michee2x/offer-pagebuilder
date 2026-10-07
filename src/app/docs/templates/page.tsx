@@ -48,9 +48,9 @@ export default function TemplatesPage() {
         <p className="text-white/60 leading-relaxed mb-5">
           Inside the Page Builder, you can choose from a library of pre-designed page layouts. Each template is conversion-optimized and fully customizable. Your AI-generated copy is automatically inserted when you apply a template.
         </p>
-        <div className="p-4 rounded-xl bg-amber-500/[0.07] border border-amber-500/20">
-          <p className="text-amber-300 text-sm font-medium mb-1">Pro tip</p>
-          <p className="text-amber-200/60 text-sm">
+        <div className="p-4 rounded-xl bg-brand-blue/10 border border-brand-blue/20">
+          <p className="text-brand-blue text-sm font-medium mb-1">Pro tip</p>
+          <p className="text-brand-blue/60 text-sm">
             The best template is whichever one your AI-generated Intelligence Report recommends in the Funnel Blueprint section. The blueprint already accounts for your audience&apos;s preferred consumption style.
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function TemplatesPage() {
 
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/funnels" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Funnel Management</Link>
-        <Link href="/docs/traffic-intelligence" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Traffic Intelligence →</Link>
+        <Link href="/docs/traffic-intelligence" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Traffic Intelligence →</Link>
       </div>
     </article>
   );

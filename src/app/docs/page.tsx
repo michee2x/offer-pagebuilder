@@ -10,7 +10,7 @@ export const metadata = {
 const FEATURES = [
   {
     icon: Brain,
-    color: "amber",
+    color: "blue",
     title: "Offer Analysis & Intelligence",
     desc: "Input your offer details and receive a deep AI-generated intelligence report covering market positioning, persona psychology, offer scoring, and conversion hooks.",
     href: "/docs/offer-analysis",
@@ -53,11 +53,11 @@ const FEATURES = [
 ];
 
 const colorMap: Record<string, string> = {
-  amber: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+  amber: "bg-brand-blue/10 border-brand-blue/20 text-brand-blue",
   blue: "bg-blue-500/10 border-blue-500/20 text-blue-400",
   purple: "bg-purple-500/10 border-purple-500/20 text-purple-400",
   green: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
-  orange: "bg-orange-500/10 border-orange-500/20 text-orange-400",
+  orange: "bg-brand-purple/10 border-brand-purple/20 text-orange-400",
   cyan: "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
 };
 
@@ -94,7 +94,7 @@ export default function DocsIndexPage() {
 
       {/* Page header */}
       <div className="mb-12">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-xs font-semibold uppercase tracking-wider mb-5">
           Getting Started
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight mb-4">
@@ -107,7 +107,7 @@ export default function DocsIndexPage() {
         <div className="flex flex-wrap gap-3 mt-6">
           <Link
             href="/docs/quickstart"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold text-sm hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-blue to-brand-purple text-black font-semibold text-sm hover:opacity-90 transition-opacity"
           >
             Quick Start (5 min) <ArrowRight className="w-4 h-4" />
           </Link>
@@ -130,8 +130,8 @@ export default function DocsIndexPage() {
           <p className="text-white/60 leading-relaxed mb-4">
             That intelligence report then drives everything else: the sales copy it writes, the funnel structure it recommends, the email sequences it builds, and the traffic strategy it generates. Everything is connected and purposeful.
           </p>
-          <div className="mt-5 p-4 rounded-xl bg-amber-500/[0.07] border border-amber-500/20">
-            <p className="text-amber-300 text-sm font-medium">
+          <div className="mt-5 p-4 rounded-xl bg-brand-blue/10 border border-brand-blue/20">
+            <p className="text-brand-blue text-sm font-medium">
               💡 The core idea: AI handles 80% of the work. You control the key decisions.
             </p>
           </div>
@@ -149,14 +149,14 @@ export default function DocsIndexPage() {
               href={step.href}
               className="group flex items-start gap-5 p-5 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all"
             >
-              <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center font-black text-black text-sm shadow-lg shadow-amber-500/20">
+              <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center font-black text-black text-sm shadow-lg shadow-brand-blue/20">
                 {step.n}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-white font-semibold text-base mb-1">{step.title}</p>
                 <p className="text-white/50 text-sm leading-relaxed">{step.desc}</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-amber-400 shrink-0 mt-1 transition-colors" />
+              <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-brand-blue shrink-0 mt-1 transition-colors" />
             </Link>
           ))}
         </div>

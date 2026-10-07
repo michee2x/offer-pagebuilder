@@ -9,7 +9,7 @@ export default function IntelligencePage() {
   return (
     <article className="max-w-3xl mx-auto px-6 py-12 md:py-16">
       <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-xs font-semibold uppercase tracking-wider mb-5">
           Intelligence & Analysis
         </div>
         <h1 className="text-4xl font-bold text-white tracking-tight mb-4">Intelligence Report</h1>
@@ -28,8 +28,8 @@ export default function IntelligencePage() {
           {[
             {
               tab: "Structural Intelligence",
-              color: "amber",
-              icon: "🏗️",
+              color: "blue",
+              icon: "",
               sections: [
                 { name: "Offer Score", desc: "A 0–100 score across 6 dimensions (market viability, pricing fit, USP strength, etc.). Each dimension is individually scored with commentary." },
                 { name: "Funnel Blueprint", desc: "The AI-recommended funnel structure for your offer type — number of steps, page types (opt-in, VSL, sales page, upsell), and sequencing logic." },
@@ -40,7 +40,7 @@ export default function IntelligencePage() {
             {
               tab: "Strategic Intelligence",
               color: "purple",
-              icon: "🧠",
+              icon: "",
               sections: [
                 { name: "Persona Psychological Profile", desc: "A deep behavioral model of your ideal buyer: core fears, aspirations, objections, language patterns, and decision-making triggers." },
                 { name: "Positioning Analysis", desc: "Where your offer sits in the competitive landscape and a repositioning strategy to maximize differentiation and perceived value." },
@@ -62,8 +62,8 @@ export default function IntelligencePage() {
             <div
               key={tab}
               className={`rounded-xl border overflow-hidden ${
-                color === "amber"
-                  ? "border-amber-500/20 bg-amber-500/[0.04]"
+                color === "blue"
+                  ? "border-brand-blue/20 bg-brand-blue/10"
                   : color === "purple"
                   ? "border-purple-500/20 bg-purple-500/[0.04]"
                   : "border-emerald-500/20 bg-emerald-500/[0.04]"
@@ -73,8 +73,8 @@ export default function IntelligencePage() {
                 <span className="text-xl">{icon}</span>
                 <h3
                   className={`font-bold text-base ${
-                    color === "amber"
-                      ? "text-amber-300"
+                    color === "blue"
+                      ? "text-brand-blue"
                       : color === "purple"
                       ? "text-purple-300"
                       : "text-emerald-300"
@@ -172,7 +172,7 @@ export default function IntelligencePage() {
       {/* Nav */}
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/offer-analysis" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Offer Analysis</Link>
-        <Link href="/docs/copy-engine" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Copy Engine →</Link>
+        <Link href="/docs/copy-engine" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Copy Engine →</Link>
       </div>
     </article>
   );

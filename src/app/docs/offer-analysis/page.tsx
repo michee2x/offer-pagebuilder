@@ -9,7 +9,7 @@ export default function OfferAnalysisPage() {
   return (
     <article className="max-w-3xl mx-auto px-6 py-12 md:py-16">
       <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-xs font-semibold uppercase tracking-wider mb-5">
           Intelligence & Analysis
         </div>
         <h1 className="text-4xl font-bold text-white tracking-tight mb-4">Offer Analysis</h1>
@@ -60,7 +60,7 @@ export default function OfferAnalysisPage() {
         <div className="space-y-4">
           <div className="p-5 rounded-xl border border-white/[0.08] bg-white/[0.02]">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-xs font-bold text-amber-400">1</div>
+              <div className="w-7 h-7 rounded-lg bg-brand-blue/15 border border-brand-blue/25 flex items-center justify-center text-xs font-bold text-brand-blue">1</div>
               <p className="text-white font-semibold">Phase 1 — Structural Intelligence</p>
               <span className="ml-auto text-[10px] text-white/30 font-mono">Claude Sonnet</span>
             </div>
@@ -72,7 +72,7 @@ export default function OfferAnalysisPage() {
                 "Platform priority matrix — which channels to focus on first",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="text-amber-400 shrink-0 mt-0.5">·</span>
+                  <span className="text-brand-blue shrink-0 mt-0.5">·</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -127,8 +127,8 @@ export default function OfferAnalysisPage() {
             ))}
           </div>
         </div>
-        <div className="mt-4 p-4 rounded-xl bg-amber-500/[0.07] border border-amber-500/20">
-          <p className="text-amber-300 text-sm">
+        <div className="mt-4 p-4 rounded-xl bg-brand-blue/10 border border-brand-blue/20">
+          <p className="text-brand-blue text-sm">
             <strong>Score 70+:</strong> Strong offer, ready to generate and launch. &nbsp;
             <strong>Score 50–69:</strong> Viable but review the weak dimensions first. &nbsp;
             <strong>Below 50:</strong> Revisit your offer fundamentals before spending on traffic.
@@ -139,7 +139,7 @@ export default function OfferAnalysisPage() {
       {/* Next */}
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/quickstart" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Quick Start</Link>
-        <Link href="/docs/intelligence" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Intelligence Report →</Link>
+        <Link href="/docs/intelligence" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Intelligence Report →</Link>
       </div>
     </article>
   );

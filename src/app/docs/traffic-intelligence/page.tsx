@@ -9,7 +9,7 @@ export default function TrafficIntelligencePage() {
   return (
     <article className="max-w-3xl mx-auto px-6 py-12 md:py-16">
       <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold uppercase tracking-wider mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-orange-400 text-xs font-semibold uppercase tracking-wider mb-5">
           Traffic & Growth
         </div>
         <h1 className="text-4xl font-bold text-white tracking-tight mb-4">Traffic Intelligence</h1>
@@ -80,7 +80,7 @@ export default function TrafficIntelligencePage() {
 
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/funnels" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Funnel Management</Link>
-        <Link href="/docs/analytics" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Analytics →</Link>
+        <Link href="/docs/analytics" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Analytics →</Link>
       </div>
     </article>
   );

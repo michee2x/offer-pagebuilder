@@ -9,7 +9,7 @@ export default function AgencyPage() {
   return (
     <article className="max-w-3xl mx-auto px-6 py-12 md:py-16">
       <div className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-xs font-semibold uppercase tracking-wider mb-5">
           Workspace & Settings · Pro Feature
         </div>
         <h1 className="text-4xl font-bold text-white tracking-tight mb-4">Agency Features</h1>
@@ -20,9 +20,9 @@ export default function AgencyPage() {
 
       {/* What is agency mode */}
       <section className="mb-12">
-        <div className="p-5 rounded-2xl border border-amber-500/25 bg-amber-500/[0.07] mb-8">
-          <p className="text-amber-300 font-semibold mb-2">Who this is for</p>
-          <p className="text-amber-200/70 text-sm leading-relaxed">
+        <div className="p-5 rounded-2xl border border-brand-blue/25 bg-brand-blue/10 mb-8">
+          <p className="text-brand-blue font-semibold mb-2">Who this is for</p>
+          <p className="text-brand-blue/70 text-sm leading-relaxed">
             Agency Mode is designed for freelancers, marketing agencies, and consultants who build and manage offer systems for multiple clients. Each client gets their own isolated account — they can log in, see their data, and collaborate, without ever seeing your other clients&apos; work.
           </p>
         </div>
@@ -92,7 +92,7 @@ export default function AgencyPage() {
           <p className="text-white/60 text-sm leading-relaxed">
             You pay a single subscription that covers all your sub-accounts. The <strong className="text-white/80">Unlimited (BYOK)</strong> plan is strongly recommended for agencies — unlimited workspaces, unlimited generations, and your AI API costs are separate from your OfferIQ subscription. Most agencies bill AI API usage through to clients or absorb it as part of their retainer.
           </p>
-          <Link href="/docs/billing" className="inline-block mt-3 text-amber-400 hover:text-amber-300 text-sm transition-colors">
+          <Link href="/docs/billing" className="inline-block mt-3 text-brand-blue hover:text-brand-blue text-sm transition-colors">
             See plan comparison →
           </Link>
         </div>
@@ -100,7 +100,7 @@ export default function AgencyPage() {
 
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/byok" className="text-white/40 hover:text-white/70 text-sm transition-colors">← API Keys (BYOK)</Link>
-        <Link href="/docs/billing" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Billing & Plans →</Link>
+        <Link href="/docs/billing" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Billing & Plans →</Link>
       </div>
     </article>
   );

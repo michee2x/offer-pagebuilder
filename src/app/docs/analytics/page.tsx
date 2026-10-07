@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
 
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/traffic-intelligence" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Traffic Intelligence</Link>
-        <Link href="/docs/workspaces" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Workspaces →</Link>
+        <Link href="/docs/workspaces" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Workspaces →</Link>
       </div>
     </article>
   );

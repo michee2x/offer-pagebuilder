@@ -33,7 +33,7 @@ export default function WorkspacesPage() {
             "Campaign tracking",
           ].map((item) => (
             <div key={item} className="flex items-center gap-3 px-4 py-3 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-              <span className="text-amber-400 text-sm">✓</span>
+              <span className="text-brand-blue text-sm">✓</span>
               <p className="text-white/60 text-sm">{item}</p>
             </div>
           ))}
@@ -83,7 +83,7 @@ export default function WorkspacesPage() {
         </div>
         <p className="text-white/35 text-xs mt-3">
           Need more?{" "}
-          <Link href="/docs/billing" className="text-amber-400 hover:underline">
+          <Link href="/docs/billing" className="text-brand-blue hover:underline">
             See all plan details →
           </Link>
         </p>
@@ -98,7 +98,7 @@ export default function WorkspacesPage() {
 
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/analytics" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Analytics</Link>
-        <Link href="/docs/byok" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">API Keys (BYOK) →</Link>
+        <Link href="/docs/byok" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">API Keys (BYOK) →</Link>
       </div>
     </article>
   );

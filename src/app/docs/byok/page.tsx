@@ -9,8 +9,8 @@ export const metadata = {
 const PLATFORMS = [
   {
     name: "Anthropic (Claude)",
-    emoji: "🤖",
-    color: "amber",
+    emoji: "",
+    color: "blue",
     prefix: "sk-ant-…",
     steps: [
       "Go to console.anthropic.com and sign in or create a free account.",
@@ -28,7 +28,7 @@ const PLATFORMS = [
   },
   {
     name: "OpenAI (GPT-4)",
-    emoji: "🧠",
+    emoji: "",
     color: "blue",
     prefix: "sk-…",
     steps: [
@@ -62,13 +62,13 @@ export default function ByokPage() {
 
       {/* What is BYOK */}
       <section className="mb-10">
-        <div className="p-5 rounded-2xl border border-amber-500/25 bg-amber-500/[0.07]">
+        <div className="p-5 rounded-2xl border border-brand-blue/25 bg-brand-blue/10">
           <div className="flex items-start gap-4">
             <span className="text-2xl shrink-0">🔑</span>
             <div>
-              <p className="text-amber-300 font-semibold mb-2">Bring Your Own Key (BYOK)</p>
-              <p className="text-amber-200/70 text-sm leading-relaxed">
-                BYOK is exclusive to the <strong className="text-amber-300">Unlimited plan</strong>. Instead of OfferIQ charging per AI generation, you pay your AI provider directly — you only pay for what you use. Most users spend $5–$40/month on AI API costs even with heavy usage.
+              <p className="text-brand-blue font-semibold mb-2">Bring Your Own Key (BYOK)</p>
+              <p className="text-brand-blue/70 text-sm leading-relaxed">
+                BYOK is exclusive to the <strong className="text-brand-blue">Unlimited plan</strong>. Instead of OfferIQ charging per AI generation, you pay your AI provider directly — you only pay for what you use. Most users spend $5–$40/month on AI API costs even with heavy usage.
               </p>
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function ByokPage() {
                 </div>
                 <Link
                   href="/settings?tab=ai"
-                  className="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+                  className="text-xs text-brand-blue hover:text-brand-blue transition-colors"
                 >
                   Add in Settings →
                 </Link>
@@ -180,7 +180,7 @@ export default function ByokPage() {
 
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <Link href="/docs/workspaces" className="text-white/40 hover:text-white/70 text-sm transition-colors">← Workspaces</Link>
-        <Link href="/docs/agency" className="text-amber-400 hover:text-amber-300 text-sm font-medium transition-colors">Agency Features →</Link>
+        <Link href="/docs/agency" className="text-brand-blue hover:text-brand-blue text-sm font-medium transition-colors">Agency Features →</Link>
       </div>
     </article>
   );
