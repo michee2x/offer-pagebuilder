@@ -84,6 +84,7 @@ const PAGE_ICONS: Record<FunnelPageKey, React.ReactNode> = {
   upsell: <Zap className="w-3.5 h-3.5" />,
   downsell: <TrendDown className="w-3.5 h-3.5" />,
   thankyou: <Heart className="w-3.5 h-3.5" />,
+  custom_emails: <FileText className="w-3.5 h-3.5" />,
 };
 
 // ─── Generation overlay ───────────────────────────────────────────────────────
