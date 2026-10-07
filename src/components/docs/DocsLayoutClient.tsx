@@ -27,10 +27,10 @@ export function DocsLayoutClient({ children }: { children: React.ReactNode }) {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <button
-                className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] transition-all"
+                className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-white/60 hover:text-white hover:bg-white/[0.08] transition-all"
                 aria-label="Open navigation"
               >
-                <Menu className="w-4 h-4" />
+                <Menu className="w-5 h-5" />
               </button>
             </SheetTrigger>
             <SheetContent
@@ -38,8 +38,15 @@ export function DocsLayoutClient({ children }: { children: React.ReactNode }) {
               showCloseButton={false}
               className="p-0 w-[272px] border-r border-white/[0.06] bg-[#07080f]"
             >
-              {/* Wrap sidebar — clicking a nav item closes the sheet */}
-              <div onClick={() => setOpen(false)} className="h-full">
+              {/* Only close when an actual nav link (<a>) is clicked,
+                  NOT when a section toggle <button> is clicked */}
+              <div
+                className="h-full"
+                onClick={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (target.closest('a')) setOpen(false);
+                }}
+              >
                 <DocsSidebar />
               </div>
             </SheetContent>
