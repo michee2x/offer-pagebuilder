@@ -57,7 +57,7 @@ export interface BuilderState {
   setSelected: (id: string | null, fieldKey?: string | null) => void;
   removeComponent: (id: string) => void;
   duplicateComponent: (id: string) => void;
-  setFullState: (components: Record<string, ComponentInstance>, rootList: string[], pages?: Record<string, PageData>, activePagePath?: string) => void;
+  setFullState: (components: Record<string, ComponentInstance>, rootList: string[], pages?: Record<string, PageData>, activePagePath?: string, recordHistory?: boolean) => void;
   switchPage: (path: string) => void;
   setDeviceMode: (mode: DeviceMode) => void;
   setIsPreviewMode: (isPreview: boolean) => void;
@@ -278,7 +278,7 @@ export const useBuilderStore = create<BuilderState>((set) => ({
     };
   }),
 
-  setFullState: (components, rootList, pages, activePagePath) => set((state) => {
+  setFullState: (components, rootList, pages, activePagePath, recordHistory = false) => set((state) => {
     const updatedPages = pages || state.pages;
     const paths = Object.keys(updatedPages);
     const resolvedPath = activePagePath || (paths.length > 0 ? paths[0] : '/');
@@ -290,16 +290,17 @@ export const useBuilderStore = create<BuilderState>((set) => ({
        updatedPages[resolvedPath] = { ...updatedPages[resolvedPath], components, rootList };
     }
 
+    const historyState = recordHistory ? captureHistory(state) : { past: [], future: [] };
+
     return { 
+      ...historyState,
       components, 
       rootList, 
       pages: updatedPages,
       activePagePath: resolvedPath,
       selectedId: null, 
-      hasUnsavedChanges: false,
-      past: [],
-      future: []
-    }
+      hasUnsavedChanges: recordHistory ? true : false
+    };
   }),
 
   switchPage: (path) => set((state) => {

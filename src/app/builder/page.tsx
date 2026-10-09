@@ -1054,7 +1054,7 @@ export default function BuilderPage() {
           builderPages={pages}
           activeBuilderPagePath={activePagePath}
           onUpdateBuilderCode={(code) => updateCode(code)}
-          onApplyBuilderState={(components, rootList) => setFullState(components, rootList, pages, activePagePath)}
+          onApplyBuilderState={(components, rootList) => setFullState(components, rootList, pages, activePagePath, true)}
         />
         <AiStreamBoard isOpen={isGenerating} thinkingText={streamText} />
       </div>
