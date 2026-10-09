@@ -10,10 +10,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { anthropic_key } = await req.json();
+    const { anthropic_key: rawKey } = await req.json();
+    const anthropic_key = rawKey?.trim();
 
     if (!anthropic_key) {
-      return Response.json({ error: "Please provide an API key to test." }, { status: 400 });
+      return Response.json({ error: "Key looks empty after trimming — check for hidden whitespace." }, { status: 400 });
     }
 
     const customAnthropic = createAnthropic({ apiKey: anthropic_key });

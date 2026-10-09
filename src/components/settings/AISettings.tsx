@@ -63,7 +63,7 @@ export function AISettings() {
       const res = await fetch("/api/user/api-keys/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ anthropic_key: anthropicKey }),
+        body: JSON.stringify({ anthropic_key: anthropicKey.trim() }),
       });
       
       const data = await res.json();
