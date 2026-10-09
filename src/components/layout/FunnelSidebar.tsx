@@ -79,7 +79,7 @@ export function FunnelSidebar({
       icon: BookOpen,
     },
     {
-      label: "Integrations",
+      label: "Payments",
       href: `/funnels/${funnelId}/integrations`,
       icon: Plug,
     },

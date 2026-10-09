@@ -94,7 +94,7 @@ export default async function IntegrationsPage({ params }: Props) {
           breadcrumbs={[
             { label: "Workspaces", href: "/" },
             { label: funnel.name, href: `/funnels/${funnelId}` },
-            { label: "Integrations" },
+            { label: "Payments" },
           ]}
         />
         <div className="flex flex-1 overflow-hidden">

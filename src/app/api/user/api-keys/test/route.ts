@@ -21,7 +21,6 @@ export async function POST(req: Request) {
     // Try a very simple, fast generation to test the key
     const { text } = await generateText({
       model: customAnthropic('claude-3-haiku-20240307'),
-      maxTokens: 5,
       prompt: "Say the word 'success'.",
     });
 
