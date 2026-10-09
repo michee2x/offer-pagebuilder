@@ -377,15 +377,15 @@ export function OfferIQAgent({
 
   return (
     <>
-      {/* Floating interactive ball widget with radiating sparkle aura */}
+      {/* Floating trigger button widget */}
       <motion.div
         drag
         dragMomentum={false}
         dragConstraints={{
           left: 20,
-          right: typeof window !== "undefined" ? window.innerWidth - 96 : 800,
+          right: typeof window !== "undefined" ? window.innerWidth - 72 : 800,
           top: 20,
-          bottom: typeof window !== "undefined" ? window.innerHeight - 96 : 800,
+          bottom: typeof window !== "undefined" ? window.innerHeight - 72 : 800,
         }}
         onDragStart={() => {
           isDraggingRef.current = true;
@@ -397,59 +397,32 @@ export function OfferIQAgent({
         }}
         onClick={handleBallTap}
         style={{ touchAction: "none" }}
-        className="fixed bottom-6 right-6 z-50 w-24 h-24 flex items-center justify-center cursor-grab active:cursor-grabbing"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-grab active:cursor-grabbing group bg-gradient-to-br from-cyan-600 to-blue-700"
       >
-        {/* Radiating sparkle aura – extends well beyond the ball so particles emanate outward */}
-        <div
-          className="absolute flex items-center justify-center pointer-events-none"
-          style={{
-            width: "280px",
-            height: "280px",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            maskImage: "radial-gradient(circle, white 35%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(circle, white 35%, transparent 80%)",
-          }}
-        >
-          <SparkleAura
-            particleColor="#67e8f9"
-            particleDensity={150}
-            minSize={0.6}
-            maxSize={2.0}
-            speed={3}
-            className="w-full h-full"
-          />
-        </div>
-
-        {/* Rotating orbital ring */}
-        <motion.div
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 flex items-center justify-center pointer-events-none"
-        >
-          <div className="w-[88px] h-[88px] rounded-full border border-cyan-500/20 shadow-[0_0_20px_rgba(56,189,248,0.12)]" />
-        </motion.div>
-
-        {/* Pulsing glow ring */}
-        <motion.div
-          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.12, 0.3] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute inset-[-4px] rounded-full bg-cyan-400/10 blur-md pointer-events-none"
+        {/* Pulse rings */}
+        <span
+          className="absolute inset-0 rounded-full animate-ping bg-cyan-400"
+          style={{ opacity: 0.25, animationDuration: '2s' }}
+        />
+        <span
+          className="absolute inset-[-6px] rounded-full animate-ping bg-cyan-400"
+          style={{ opacity: 0.12, animationDuration: '2s', animationDelay: '0.4s' }}
         />
 
-        {/* Core ball */}
-        <div className="relative w-16 h-16 rounded-full bg-[#0a0d18] border border-white/10 flex items-center justify-center shadow-[0_4px_24px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.15)] overflow-hidden z-10">
-          <div className="absolute inset-0 rounded-full border border-cyan-500/25" />
-          <Image
-            src="/bot-floating-ball-image.webp"
-            alt="OfferIQ Bot"
-            width={56}
-            height={56}
-            className="w-14 h-14 rounded-full object-cover"
-            priority
-          />
-      </div>
+        {/* Inner glow ring */}
+        <span
+          className="absolute inset-0 rounded-full border-2 border-cyan-300 group-hover:scale-110 transition-transform duration-300"
+          style={{ opacity: 0.6 }}
+        />
+
+        {/* Icon — toggles between Bot and X */}
+        <span className="relative z-10 transition-transform duration-300 group-hover:scale-110">
+          {isPanelOpen ? (
+            <X className="w-6 h-6 text-white" />
+          ) : (
+            <Bot className="w-6 h-6 text-white" />
+          )}
+        </span>
       </motion.div>
 
       {/* Slide-out Panel Drawer (No dark background backdrop overlay) */}

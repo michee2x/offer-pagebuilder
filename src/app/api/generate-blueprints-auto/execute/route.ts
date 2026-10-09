@@ -226,45 +226,74 @@ export async function POST(req: Request) {
     const fileUrl = publicUrlData.publicUrl;
 
     // 5. Update the generating placeholder to completed
-    // We MUST fetch fresh blocks to prevent overwriting parallel changes from the other asset generating simultaneously
-    const { data: freshFunnel } = await supabase
-      .from("builder_pages")
-      .select("blocks")
-      .eq("id", funnelId)
-      .single();
+    // We MUST fetch fresh blocks and use retry logic to prevent overwriting parallel changes from the other asset generating simultaneously
+    const blueprintTypeSafe = type === "product" ? "product" : type === "bonus" ? "bonus" : "lead";
+    
+    let maxRetries = 10;
+    let success = false;
 
-    const currentFiles = Array.isArray(freshFunnel?.blocks?.blueprintFiles) ? freshFunnel.blocks.blueprintFiles : [];
+    while (maxRetries > 0 && !success) {
+      const { data: freshFunnel } = await supabase
+        .from("builder_pages")
+        .select("blocks, updated_at")
+        .eq("id", funnelId)
+        .single();
 
-    const updatedFiles = currentFiles.map((file: any) => {
-      if (file.id === fileId) {
-        return {
-          ...file,
-          status: "completed",
-          url: fileUrl,
-          fileName: generatedFileName,
-        };
+      const currentFiles = Array.isArray(freshFunnel?.blocks?.blueprintFiles) ? freshFunnel.blocks.blueprintFiles : [];
+
+      const updatedFiles = currentFiles.map((file: any) => {
+        if (file.id === fileId) {
+          return {
+            ...file,
+            status: "completed",
+            url: fileUrl,
+            fileName: generatedFileName,
+          };
+        }
+        return file;
+      });
+
+      // Auto-activate the lead magnet or product the moment it finishes generating.
+      const updatedBlocks: any = { ...freshFunnel?.blocks, blueprintFiles: updatedFiles };
+      if (blueprintTypeSafe === "lead" && !freshFunnel?.blocks?.activeLeadMagnetFileId) {
+        updatedBlocks.activeLeadMagnetFileId = fileId;
+        console.log(`[generate-blueprints-auto/execute] Auto-activating lead magnet: ${fileId}`);
+      } else if (blueprintTypeSafe === "product" && page) {
+        // Auto-activate product per page slot if none active yet
+        const activeKey = `activeProductFileId_${page}`;
+        if (!freshFunnel?.blocks?.[activeKey]) {
+          updatedBlocks[activeKey] = fileId;
+          console.log(`[generate-blueprints-auto/execute] Auto-activating ${page} product: ${fileId}`);
+        }
       }
-      return file;
-    });
 
-    // Auto-activate the lead magnet or product the moment it finishes generating.
-    const updatedBlocks: any = { ...freshFunnel?.blocks, blueprintFiles: updatedFiles };
-    if (blueprintTypeSafe === "lead" && !freshFunnel?.blocks?.activeLeadMagnetFileId) {
-      updatedBlocks.activeLeadMagnetFileId = fileId;
-      console.log(`[generate-blueprints-auto/execute] Auto-activating lead magnet: ${fileId}`);
-    } else if (blueprintTypeSafe === "product" && page) {
-      // Auto-activate product per page slot if none active yet
-      const activeKey = `activeProductFileId_${page}`;
-      if (!freshFunnel?.blocks?.[activeKey]) {
-        updatedBlocks[activeKey] = fileId;
-        console.log(`[generate-blueprints-auto/execute] Auto-activating ${page} product: ${fileId}`);
+      const newUpdatedAt = new Date().toISOString();
+      let query = supabase
+        .from("builder_pages")
+        .update({ blocks: updatedBlocks, updated_at: newUpdatedAt })
+        .eq("id", funnelId);
+        
+      if (freshFunnel?.updated_at) {
+        query = query.eq("updated_at", freshFunnel.updated_at);
+      } else {
+        query = query.is("updated_at", null);
+      }
+      
+      const { data: result, error } = await query.select("id");
+      
+      if (!error && result && result.length > 0) {
+        success = true;
+      } else {
+        // Collision or failure, retry after a random delay
+        maxRetries--;
+        const delay = 500 + Math.random() * 1500;
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
 
-    await supabase
-      .from("builder_pages")
-      .update({ blocks: updatedBlocks })
-      .eq("id", funnelId);
+    if (!success) {
+      throw new Error("Failed to update blocks after maximum retries due to concurrent modifications.");
+    }
 
     console.log(`[generate-blueprints-auto/execute] Successfully completed ${fileId}`);
     return NextResponse.json({ success: true, fileUrl });
@@ -275,13 +304,31 @@ export async function POST(req: Request) {
     try {
       if (funnelIdToUpdate && fileIdToUpdate) {
         const supabase = createAdminClient();
-        const { data: freshFunnel } = await supabase.from("builder_pages").select("blocks").eq("id", funnelIdToUpdate).single();
-        const currentFiles = Array.isArray(freshFunnel?.blocks?.blueprintFiles) ? freshFunnel.blocks.blueprintFiles : [];
-        const updatedFiles = currentFiles.map((file: any) => {
-          if (file.id === fileIdToUpdate) return { ...file, status: "failed" };
-          return file;
-        });
-        await supabase.from("builder_pages").update({ blocks: { ...freshFunnel?.blocks, blueprintFiles: updatedFiles } }).eq("id", funnelIdToUpdate);
+        let maxRetries = 10;
+        let success = false;
+        while (maxRetries > 0 && !success) {
+          const { data: freshFunnel } = await supabase.from("builder_pages").select("blocks, updated_at").eq("id", funnelIdToUpdate).single();
+          const currentFiles = Array.isArray(freshFunnel?.blocks?.blueprintFiles) ? freshFunnel.blocks.blueprintFiles : [];
+          const updatedFiles = currentFiles.map((file: any) => {
+            if (file.id === fileIdToUpdate) return { ...file, status: "failed" };
+            return file;
+          });
+          const newUpdatedAt = new Date().toISOString();
+          let query = supabase.from("builder_pages").update({ blocks: { ...freshFunnel?.blocks, blueprintFiles: updatedFiles }, updated_at: newUpdatedAt }).eq("id", funnelIdToUpdate);
+          if (freshFunnel?.updated_at) {
+            query = query.eq("updated_at", freshFunnel.updated_at);
+          } else {
+            query = query.is("updated_at", null);
+          }
+          const { data: result, error } = await query.select("id");
+          if (!error && result && result.length > 0) {
+            success = true;
+          } else {
+            maxRetries--;
+            const delay = 500 + Math.random() * 1500;
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
+        }
       }
     } catch (e) {
       // Ignore
