@@ -526,54 +526,67 @@ export function SupportChatbot() {
       </AnimatePresence>
 
       {/* ── Floating Trigger Button ───────────────────────────────────────── */}
-      <motion.button
+      <button
         onClick={isOpen ? () => setIsOpen(false) : handleOpen}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full flex items-center justify-center shadow-2xl"
-        style={{
-          background: isOpen
-            ? "rgba(20, 20, 35, 0.95)"
-            : "linear-gradient(135deg, #8B5CF6 0%, #6366F1 60%, #3B82F6 100%)",
-          border: "1px solid rgba(255,255,255,0.15)",
+        className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full flex items-center justify-center shadow-2xl focus:outline-none group"
+        style={{ 
+          background: "linear-gradient(135deg, #8B5CF6 0%, #6366F1 60%, #3B82F6 100%)",
           boxShadow: isOpen
             ? "0 8px 32px rgba(0,0,0,0.5)"
             : "0 8px 32px rgba(139,92,246,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset",
         }}
         aria-label={isOpen ? "Close support chat" : "Open support chat"}
       >
-        <AnimatePresence mode="wait">
-          {isOpen ? (
-            <motion.div
-              key="close"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <X className="w-5 h-5 text-white/70" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="open"
-              initial={{ rotate: 90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: -90, opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <MessageCircle className="w-5 h-5 text-white" />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Pulse rings */}
+        <span
+          className="absolute inset-0 rounded-full animate-ping"
+          style={{ background: '#8B5CF6', opacity: 0.25, animationDuration: '2s' }}
+        />
+        <span
+          className="absolute inset-[-6px] rounded-full animate-ping"
+          style={{ background: '#6366F1', opacity: 0.12, animationDuration: '2s', animationDelay: '0.4s' }}
+        />
+
+        {/* Inner glow ring */}
+        <span
+          className="absolute inset-0 rounded-full border-2 group-hover:scale-110 transition-transform duration-300"
+          style={{ borderColor: 'rgba(255,255,255,0.4)', opacity: 0.6 }}
+        />
+
+        <span className="relative z-10 transition-transform duration-300 group-hover:scale-110">
+          <AnimatePresence mode="wait">
+            {isOpen ? (
+              <motion.div
+                key="close"
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <X className="w-5 h-5 text-white/90" />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="open"
+                initial={{ rotate: 90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: -90, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <Bot className="w-5 h-5 text-white" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </span>
 
         {!hasOpened && (
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#030712]"
+            className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#030712] z-20"
           />
         )}
-      </motion.button>
+      </button>
     </>
   );
 }
