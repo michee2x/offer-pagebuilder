@@ -24,11 +24,11 @@ export async function resolveApiKeys(userId: string | null | undefined): Promise
     // 1. Check if user is on unlimited plan
     const { data: user } = await supabaseAdmin
       .from('users')
-      .select('plan')
+      .select('plan, role, is_admin')
       .eq('id', userId)
       .single();
 
-    if (user?.plan === 'unlimited') {
+    if (user?.plan === 'unlimited' || user?.role === 'admin' || user?.is_admin === true) {
       // 2. Fetch their custom keys
       const { data: customKeys } = await supabaseAdmin
         .from('user_api_keys')

@@ -15,11 +15,11 @@ export async function GET(req: Request) {
   try {
     const { data: user } = await supabaseAdmin
       .from('users')
-      .select('plan')
+      .select('plan, role, is_admin')
       .eq('id', session.user.id)
       .single();
 
-    const isUnlimited = user?.plan === 'unlimited';
+    const isUnlimited = user?.plan === 'unlimited' || user?.role === 'admin' || user?.is_admin === true;
 
     const { data: keys } = await supabaseAdmin
       .from('user_api_keys')
@@ -50,11 +50,12 @@ export async function POST(req: Request) {
     // Check plan first
     const { data: user } = await supabaseAdmin
       .from('users')
-      .select('plan')
+      .select('plan, role, is_admin')
       .eq('id', session.user.id)
       .single();
 
-    if (user?.plan !== 'unlimited') {
+    const isUnlimited = user?.plan === 'unlimited' || user?.role === 'admin' || user?.is_admin === true;
+    if (!isUnlimited) {
       return Response.json({ error: "You must be on the Unlimited plan to save custom API keys" }, { status: 403 });
     }
 

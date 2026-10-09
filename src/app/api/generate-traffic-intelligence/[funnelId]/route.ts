@@ -1,4 +1,5 @@
-import { anthropic } from '@ai-sdk/anthropic';
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
+import { resolveApiKeys } from '@/lib/api-keys';
 import { generateText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import type { OfferFormData } from '@/lib/offer-types';
@@ -27,10 +28,6 @@ export async function POST(
 ) {
     const { funnelId } = await params;
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-        return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
-    }
-
     // Parse optional body for single-section regeneration
     let sectionId: string | undefined;
     try {
@@ -42,7 +39,7 @@ export async function POST(
 
     const { data: funnel, error: funnelErr } = await supabaseAdmin
         .from('builder_pages')
-        .select('blocks, name')
+        .select('blocks, name, user_id')
         .eq('id', funnelId)
         .single();
 
@@ -59,6 +56,12 @@ export async function POST(
     if (!formData) {
         return Response.json({ error: 'No offer data found for this funnel. Please complete structural intelligence first.' }, { status: 400 });
     }
+
+    const apiKeys = await resolveApiKeys(funnel.user_id);
+    if (!apiKeys.anthropicKey) {
+        return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
+    }
+    const customAnthropic = createAnthropic({ apiKey: apiKeys.anthropicKey });
 
     // Safe JSON parser helper
     const parseJsonSafe = (val: any, fallback: any) => {
@@ -245,7 +248,7 @@ Output ONLY the section separator line and content for "${sectionKey}". No other
             const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 8000);
 
             const { text } = await generateText({
-                model: anthropic('claude-sonnet-4-6'),
+                model: customAnthropic('claude-sonnet-4-6'),
                 system: systemPrompt,
                 prompt: singleSectionPrompt,
                 temperature,
@@ -297,7 +300,7 @@ Output ONLY the section separator line and content for "${sectionKey}". No other
         const { temperature, maxOutputTokens } = getCreativityParams(creativityLevel, 16000);
 
         const { text } = await generateText({
-            model: anthropic('claude-sonnet-4-6'),
+            model: customAnthropic('claude-sonnet-4-6'),
             system: systemPrompt,
             prompt: fullUserPrompt,
             temperature,

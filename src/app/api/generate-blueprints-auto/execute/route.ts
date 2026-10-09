@@ -227,8 +227,7 @@ export async function POST(req: Request) {
 
     // 5. Update the generating placeholder to completed
     // We MUST fetch fresh blocks and use retry logic to prevent overwriting parallel changes from the other asset generating simultaneously
-    const blueprintTypeSafe = type === "product" ? "product" : type === "bonus" ? "bonus" : "lead";
-    
+
     let maxRetries = 10;
     let success = false;
 

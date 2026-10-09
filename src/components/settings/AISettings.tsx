@@ -11,6 +11,7 @@ export function AISettings() {
   const [openaiKey, setOpenaiKey] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTestingAnthropic, setIsTestingAnthropic] = useState(false);
   const [isUnlimited, setIsUnlimited] = useState(false);
 
   useEffect(() => {
@@ -51,7 +52,30 @@ export function AISettings() {
       setIsSaving(false);
     }
   };
-
+  const handleTestAnthropic = async () => {
+    if (!anthropicKey) {
+      toast.error("Please enter an Anthropic API key first.");
+      return;
+    }
+    
+    setIsTestingAnthropic(true);
+    try {
+      const res = await fetch("/api/user/api-keys/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ anthropic_key: anthropicKey }),
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to test API key");
+      
+      toast.success(data.message || "API key is valid!");
+    } catch (err: any) {
+      toast.error(`Test Failed: ${err.message}`);
+    } finally {
+      setIsTestingAnthropic(false);
+    }
+  };
   if (isLoading) {
     return (
       <div className="flex justify-center p-12">
@@ -117,14 +141,25 @@ export function AISettings() {
                 </a>
               </div>
             </div>
-            <Input 
-              type="password" 
-              placeholder="sk-ant-..." 
-              value={anthropicKey} 
-              onChange={(e) => setAnthropicKey(e.target.value)}
-              className="bg-black/50 border-white/10 text-white"
-              disabled={!isUnlimited}
-            />
+            <div className="flex items-center gap-3">
+              <Input 
+                type="password" 
+                placeholder="sk-ant-..." 
+                value={anthropicKey} 
+                onChange={(e) => setAnthropicKey(e.target.value)}
+                className="bg-black/50 border-white/10 text-white flex-1"
+                disabled={!isUnlimited}
+              />
+              <Button 
+                onClick={handleTestAnthropic} 
+                disabled={isTestingAnthropic || !isUnlimited || !anthropicKey}
+                variant="outline"
+                className="border-white/10 hover:bg-white/5"
+              >
+                {isTestingAnthropic ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Test Key
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-2">

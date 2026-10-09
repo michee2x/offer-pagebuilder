@@ -3,7 +3,8 @@
 // Streams the AI page spec JSON and saves parsed CopyOutput to DB.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { anthropic } from '@ai-sdk/anthropic';
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
+import { resolveApiKeys } from '@/lib/api-keys';
 import { streamText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 import { COPY_SYSTEM, buildCopyUserPrompt } from '@/lib/offer-prompts';
@@ -18,9 +19,7 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
-  }
+
 
   let funnelId: string;
 
@@ -38,7 +37,7 @@ export async function POST(req: Request) {
   // Load the full intelligence from DB
   const { data, error } = await supabaseAdmin
     .from('builder_pages')
-    .select('blocks')
+    .select('blocks, user_id')
     .eq('id', funnelId)
     .single();
 
@@ -50,6 +49,11 @@ export async function POST(req: Request) {
   }
 
   const formData = data.blocks.intelligence.raw_input || {};
+  const apiKeys = await resolveApiKeys(data.user_id);
+  if (!apiKeys.anthropicKey) {
+      return Response.json({ error: 'Missing ANTHROPIC_API_KEY' }, { status: 500 });
+  }
+  const customAnthropic = createAnthropic({ apiKey: apiKeys.anthropicKey });
   const call1Raw = data.blocks.intelligence.call1 || {};
   const call2 = data.blocks.intelligence.call2 || {};
 
@@ -90,7 +94,7 @@ export async function POST(req: Request) {
   const temperature = 0.5;
 
   const result = streamText({
-    model: anthropic('claude-sonnet-4-6'),
+    model: customAnthropic('claude-sonnet-4-6'),
     system: COPY_SYSTEM,
     prompt: userPrompt,
     temperature,
